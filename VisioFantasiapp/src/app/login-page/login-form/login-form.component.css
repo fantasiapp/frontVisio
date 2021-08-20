@@ -1,0 +1,108 @@
+
+.leftImage{
+    display: flex;
+    width: 35%;
+    max-height: 950px;
+    overflow-x: hidden;
+}
+.leftImage > img {
+    max-height: 100%;
+    transform: translateX(-10px); 
+}
+
+.rightBlock{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+.connection{
+    width: 70%;
+    display: flex;
+    justify-content: center;
+}
+.logo{
+    position: absolute;
+    left: 3%;
+    top: 3%;
+    max-width: 15%;
+    height: auto;
+}
+.connection {
+    padding-top: 25%;
+    position:relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 60%;
+    height: 90%;    
+}
+
+.title {
+    box-sizing: border-box;
+    width: 243px;
+    height: 90px;
+    color: #d66f0e;
+    font: normal normal bold 36px/69px Noto Nastaliq Urdu;
+    letter-spacing: 1.35px;  
+}
+
+.input-field {
+    box-sizing: border-box;
+    width: 800px;
+    height: 80px;
+    border: 0;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding: 20px 10px;
+    /* height: %; */
+
+    background-color: white;
+    border: 1px solid #D5DAE2;
+    border-radius: 4px;
+}
+
+#continueButton {
+    /* height */
+    box-sizing: border-box;
+    width: 100%;
+    height: 80px;
+    margin: 0;
+    margin-top: 80px; 
+    color: white;
+    background-color: #d66f0e;
+    font-size: 25px;
+    letter-spacing: 0.94px;
+    border: none;
+    border-radius: 4px;
+}
+.label-line{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    text-align: left;
+    font: normal normal bold 18px Noto Nastaliq Urdu;
+    letter-spacing: 0.64px;
+    color: #1E2022;
+    text-transform: uppercase;
+    opacity: 1;
+}
+.stay-connected{
+    align-self:flex-end;
+    display: flex;
+}
+
+#lost-password{
+    text-align: right;
+    text-decoration: underline;
+    font: normal normal normal 19px/35px Noto Nastaliq Urdu;
+    letter-spacing: 0.67px;
+    color: #0F70EB;
+    opacity: 1;
+    text-transform:none;
+}
+.text{
+    margin-left: 2px;
+}
