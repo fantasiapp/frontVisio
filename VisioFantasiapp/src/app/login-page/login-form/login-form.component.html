@@ -1,4 +1,4 @@
-<form (ngSubmit)="handleLogin()">
+<form [formGroup]="loginForm" (ngSubmit)="handleLogin()">
     <div>
       <h1 class="title">Se connecter</h1>
       <div class="label-line">
@@ -25,6 +25,6 @@
         <app-checkbox [(value)]="isStayConnected"> </app-checkbox
         ><span class="text">Rester connecte</span>
       </div>
-      <button id="continueButton" type="submit" (click)="handleLogin()">CONTINUE</button>
+      <button id="continueButton" type="submit">CONTINUE</button>
     </div>
   </form>

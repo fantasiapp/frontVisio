@@ -38,7 +38,6 @@ export class LoginFormComponent implements OnInit {
   }
 
   handleLogin() {
-    console.debug('bonjour')
     this.onLogin.emit({
       username: this.loginForm.value. username,
       password: this.loginForm.value.password,

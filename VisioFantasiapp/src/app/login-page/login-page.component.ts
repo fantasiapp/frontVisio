@@ -20,16 +20,7 @@ export class LoginPageComponent implements OnInit {
 
   constructor(cdr: ChangeDetectorRef, private authService: AuthService) {}
 
-  ngOnInit(): void {
-    // this.authService
-    //   .loginToServer(
-    //     'vivian',
-    //    'pwd'
-    //   )
-    //   .subscribe((success) => {
-    //       console.debug('la requete na pas aboutit pour :', 'wilfried')
-    //     })
-  }
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.destroy$.next();

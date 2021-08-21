@@ -1,13 +1,15 @@
-<div id="all">
-  <div class="leftImage">
+<div class="container">
+  <div class="image-container">
     <img
       src="../assets/engineer-meeting-for-architectural-project-working-with-partner.jpg"
     />
   </div>
-  <div class="rightBlock">
+  <div class="form-container">
     <img class="logo" src="../assets/ETEX_CMYK_baseline_below.jpg" />
-    <app-login-form
+    <div class="connection-container">
+    <app-login-form class="form"
         (onLogin)="onLoading($event.username, $event.password)"
       ></app-login-form>
+    </div>
   </div>
 </div>

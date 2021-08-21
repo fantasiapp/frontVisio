@@ -1,35 +1,7 @@
-
-.leftImage{
-    display: flex;
-    width: 35%;
-    max-height: 950px;
-    overflow-x: hidden;
-}
-.leftImage > img {
-    max-height: 100%;
-    transform: translateX(-10px); 
-}
-
-.rightBlock{
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-}
 .connection{
     width: 70%;
     display: flex;
     justify-content: center;
-}
-.logo{
-    position: absolute;
-    left: 3%;
-    top: 3%;
-    max-width: 15%;
-    height: auto;
-}
-.connection {
     padding-top: 25%;
     position:relative;
     display: flex;
@@ -50,7 +22,7 @@
 
 .input-field {
     box-sizing: border-box;
-    width: 800px;
+    width: 100%;
     height: 80px;
     border: 0;
     margin-top: 10px;
