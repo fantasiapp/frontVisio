@@ -1,0 +1,14 @@
+<div class='container-filters'>
+    <div class= 'container-Name'>
+        <p>{{levelName}}</p>
+    </div>
+  <ul class="list">
+    <li *ngFor="let opts of blockList" >
+      <button class='list-elmt'>{{ opts }}</button>
+    </li>
+  </ul>
+  <div class="navigate">
+    <button class="navigate-button" *ngIf="superLevel"(click)="updateBlock(this.superLevel)">&#060;</button>
+    <button class="navigate-button" *ngIf="subLevel" (click)="updateBlock(this.subLevel)">&#062;</button>
+</div>
+</div>
