@@ -1,79 +1,64 @@
-.connection{
-    width: 70%;
-    display: flex;
-    justify-content: center;
-    padding-top: 25%;
-    position:relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 60%;
-    height: 90%;    
-}
-
 .title {
     box-sizing: border-box;
-    width: 243px;
-    height: 90px;
-    color: #d66f0e;
-    font: normal normal bold 36px/69px Noto Nastaliq Urdu;
-    letter-spacing: 1.35px;  
+    width: 185px;
+    text-align: left;
+    height: 33px;
+    color: #151D21;
+    font: normal normal bold 28px/46px Roboto;
+    letter-spacing: 1.05px;;  
 }
-
 .input-field {
     box-sizing: border-box;
     width: 100%;
-    height: 80px;
+    height: 50px;
     border: 0;
     margin-top: 10px;
     margin-bottom: 20px;
     padding: 20px 10px;
-    /* height: %; */
-
-    background-color: white;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
     border: 1px solid #D5DAE2;
     border-radius: 4px;
 }
-
 #continueButton {
     /* height */
     box-sizing: border-box;
     width: 100%;
-    height: 80px;
+    height: 63px;
     margin: 0;
     margin-top: 80px; 
     color: white;
-    background-color: #d66f0e;
+    background: #F06D0C 0% 0% no-repeat padding-box;;
     font-size: 25px;
     letter-spacing: 0.94px;
     border: none;
     border-radius: 4px;
 }
+#continueButton:hover{
+    background-color: #E35F00;
+}
 .label-line{
     width: 100%;
-    display: flex;
+    height: 90px;
+    display: inline-block;
+    direction: vertical;
     justify-content: space-between;
-    margin-bottom: 5px;
+    margin-top: 40px;
+    margin-bottom: 10px;
     text-align: left;
-    font: normal normal bold 18px Noto Nastaliq Urdu;
+    font:normal normal bold 16px/24px Noto Nastaliq Urdu;
+    font-family: 'Roboto';
     letter-spacing: 0.64px;
     color: #1E2022;
     text-transform: uppercase;
     opacity: 1;
 }
 .stay-connected{
-    align-self:flex-end;
     display: flex;
-}
-
-#lost-password{
-    text-align: right;
-    text-decoration: underline;
-    font: normal normal normal 19px/35px Noto Nastaliq Urdu;
-    letter-spacing: 0.67px;
-    color: #0F70EB;
-    opacity: 1;
-    text-transform:none;
+    padding-top: 30Px;
+    position:absolute;
+    right: 0%;
+    justify-content: right;
+    width: max-content;
 }
 .text{
     margin-left: 2px;
