@@ -26,13 +26,11 @@ export class AuthService {
       password,
     };
     return this.http
-      .post(environment.backUrl + 'visioServer/login/', data)
+      .post(environment.backUrl + 'visioServer/api-token-auth/', data)
       .pipe(
-        map((response) => {
-          // save token and user
-          // this.token = response['token'];
+        map((response : any) => {
+          this.token = response['token'];
           this.username = username;
-          // set token to sessionStorage
           sessionStorage.setItem('token', this.token);
           return true;
         })
