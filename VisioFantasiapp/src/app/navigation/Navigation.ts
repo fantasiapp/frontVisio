@@ -6,30 +6,42 @@ import { Pipes } from './pipes';
 import { throwError } from 'rxjs';
 
 export class Navigation {
-  static currenLevel: Level = new Level(data['tree']);
+  static currentLevel: Level = new Level(data['tree']);
   static currentDashboard: Dashboard =
-    Navigation.currenLevel.getDashboardList()[0];
+    Navigation.currentLevel.getDashboardList()[0];
 
   static getArray(dataType: string) {
     if (dataType == 'level')
       return {
-        name: this.currenLevel
-          .getSublevels()
-          .map((sublevel) => sublevel.getLevelName()),
-        id: this.currenLevel
-          .getSublevels()
-          .map((sublevel) => sublevel.getLevelId()),
+        currentLevel: {
+          name: this.currentLevel
+            .getSuperLevel()
+            ?.getSublevels()
+            .map((sublevel) => sublevel.getLevelName()),
+          id: this.currentLevel
+            .getSuperLevel()
+            ?.getSublevels()
+            .map((sublevel) => sublevel.getLevelId()),
+        },
+        subLevel: {
+          name: this.currentLevel
+            .getSublevels()
+            .map((sublevel) => sublevel.getLevelName()),
+          id: this.currentLevel
+            .getSublevels()
+            .map((sublevel) => sublevel.getLevelId()),
+        },
         superLevel: {
-          name: this.currenLevel.getSuperLevel()?.getLevelName(),
-          id: this.currenLevel.getSuperLevel()?.getLevelId(),
+          name: this.currentLevel.getSuperLevel()?.getLevelName(),
+          id: this.currentLevel.getSuperLevel()?.getLevelId(),
         },
       };
     else if (dataType == 'dashboard')
       return {
-        id: this.currenLevel
+        id: this.currentLevel
           .getDashboardList()
           .map((dashboard) => dashboard.getDashboardId()),
-        name: this.currenLevel
+        name: this.currentLevel
           .getDashboardList()
           .map((dashboard) => dashboard.getDashboardName()),
       };
@@ -42,9 +54,9 @@ export class Navigation {
   static getCurrent() {
     return {
       level: {
-        id: this.currenLevel.getLevelId(),
-        label: this.currenLevel.getLevelLabel(),
-        name: this.currenLevel.getLevelName(),
+        id: this.currentLevel.getLevelId(),
+        label: this.currentLevel.getLevelLabel(),
+        name: this.currentLevel.getLevelName(),
       },
       dashboard: {
         id: this.currentDashboard.getDashboardId(),
@@ -59,17 +71,30 @@ export class Navigation {
     superlevel?: boolean
   ) {
     if (superlevel) {
-      this.currenLevel = this.currenLevel.setToParent();
-      this.currentDashboard = this.currenLevel.getDashboardList()[0];
-    } else if (levelId) {
-      this.currenLevel = this.currenLevel.setToChildren(levelId);
-      this.currentDashboard = this.currenLevel.getDashboardList()[0];
-    } else if (dashboardId) {
-      let nextDashboard = this.currenLevel
+      let dashboardId = this.currentDashboard.getDashboardId();
+      this.currentLevel = this.currentLevel.setToParent();
+      let nextDashboard = this.currentLevel
         .getDashboardList()
-        .find((dashboard) => {
-          return dashboard.getDashboardId() == dashboardId;
-        });
+        .find((dashboard) => dashboard.getDashboardId() == dashboardId);
+      this.currentDashboard = nextDashboard
+        ? nextDashboard
+        : (this.currentDashboard = this.currentLevel.getDashboardList()[0]);
+    } else if (levelId) {
+      this.currentLevel = this.currentLevel.setToChildren(levelId);
+      let dashboardId = this.currentDashboard.getDashboardId();
+
+      let nextDashboard = this.currentLevel
+        .getDashboardList()
+        .find((dashboard) => dashboard.getDashboardId() == dashboardId);
+
+      console.debug('haha', nextDashboard);
+      this.currentDashboard = nextDashboard
+        ? nextDashboard
+        : (this.currentDashboard = this.currentLevel.getDashboardList()[0]);
+    } else if (dashboardId) {
+      let nextDashboard = this.currentLevel
+        .getDashboardList()
+        .find((dashboard) => dashboard.getDashboardId() == dashboardId);
       if (nextDashboard) this.currentDashboard = nextDashboard;
     } else return;
   }
