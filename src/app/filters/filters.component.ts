@@ -34,13 +34,26 @@ export class FiltersComponent implements OnInit {
   value: number = 0;
   subLevels!: listLev;
   sort: number = 0;
-  
   ngOnInit(): void {
     this.blockToShow();
   }
-  
   private blockToShow() {
-   
+    combineLatest([
+      this.filtersState.arraySubject,
+      this.filtersState.stateSubject,
+    ]).subscribe(([currentsArrays, currentStates]) => {
+      this.listLevel = currentsArrays.levelArray.currentLevel;
+      this.subLevels = currentsArrays.levelArray.subLevel;
+      this.listDashboard = currentsArrays.dashboardArray;
+      this.superLevel = currentsArrays.levelArray.superLevel;
+      this.currentLev = currentStates.States.Level;
+      this.levelName =
+        currentStates.States.level.label == ''
+          ? 'National'
+          : currentStates.States.level.label;
+
+      this.viewList = this.subLevels;
+    });
   }
 
   private destroy$: Subject<void> = new Subject<void>();
@@ -50,9 +63,11 @@ export class FiltersComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  updateBlock(level: lev) {
-    console.debug(this.subLevels);
-    this.updateState(level.id)
+  updateBlock(level?: lev, levels?: listLev) {
+    if (level) {
+      this.filtersState.updateState(undefined, undefined, true);
+      console.debug('le super level', level);
+      }
   }
 
   updateState(indexLev?: number, indexDash?: number) {

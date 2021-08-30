@@ -19,8 +19,12 @@ export class FiltersStatesService {
   });
 
   constructor() {}
-  public updateState(levelId: number) {
-    Navigation.setCurrent(levelId);
+  public updateState(
+    levelId?: number,
+    dashboardId?: number,
+    superlevel?: boolean
+  ) {
+    Navigation.setCurrent(levelId , dashboardId, superlevel);
     const currentArrays = {
       levelArray: Navigation.getArray('level'),
       dashboardArray: Navigation.getArray('dashboard'),
