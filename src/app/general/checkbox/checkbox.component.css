@@ -1,9 +1,9 @@
 .checkbox {
     box-sizing: border-box;
-    width: 15px;
-    height: 15px;
+    width: 20px;
+    height: 20px;
     background-color: white;
-    border: 1px solid #A61F7D;
+    border: 1px solid #F06D0C;
 }
 .active {
     background-color: black;
