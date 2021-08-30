@@ -20,15 +20,15 @@
   <div class="navigate">
     <button
       class="navigate-button"
-      *ngIf="listLevel"
-      (click)="updateBlock(this.listLevel)"
+      *ngIf="superLevel"
+      (click)="updateBlock(this.superLevel)"
     >
       &#060;
     </button>
     <button
       class="navigate-button"
       *ngIf="subLevels"
-      (click)="updateBlock(this.subLevels)"
+      (click)="updateBlock(this.superLevel)"
     >
       &#062;
     </button>

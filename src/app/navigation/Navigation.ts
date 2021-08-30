@@ -10,7 +10,7 @@ export class Navigation {
   static currentDashboard: Dashboard =
     Navigation.currentLevel.getDashboardList()[0];
 
-  static getArray(dataType: string): object {
+  static getArray(dataType: string): any {
     if (dataType == 'level')
       return {
         currentLevel:{
@@ -46,7 +46,7 @@ export class Navigation {
     }
   }
 
-  static getCurrent() :object{
+  static getCurrent() :any{
     return {
       level: {
         id: this.currentLevel.getLevelId(),

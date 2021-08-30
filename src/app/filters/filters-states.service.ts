@@ -28,7 +28,7 @@ export class FiltersStatesService {
     const currentState = {
       States: Navigation.getCurrent(),
     };
-    this.stateSubject.next(currentState)
-    this.arraySubject.next(currentArrays)
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
   }
 }
