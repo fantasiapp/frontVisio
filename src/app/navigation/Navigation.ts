@@ -10,26 +10,21 @@ export class Navigation {
   static currentDashboard: Dashboard =
     Navigation.currentLevel.getDashboardList()[0];
 
-  static getArray(dataType: string) :any{
+  static getArray(dataType: string): object {
     if (dataType == 'level')
       return {
-        currentLevel: {
-          name: this.currentLevel
-            .getSuperLevel()
-            ?.getSublevels()
-            .map((sublevel) => sublevel.getLevelName()),
-          id: this.currentLevel
-            .getSuperLevel()
-            ?.getSublevels()
-            .map((sublevel) => sublevel.getLevelId()),
+        currentLevel:{
+          name: this.currentLevel.getSuperLevel()?.getSublevels().map((sublevel) => sublevel.getLevelName()),
+          id: this.currentLevel.getSuperLevel()?.getSublevels().map((sublevel) => sublevel.getLevelId())
         },
-        subLevel: {
+        subLevel:{
           name: this.currentLevel
-            .getSublevels()
-            .map((sublevel) => sublevel.getLevelName()),
+          .getSublevels()
+          .map((sublevel) => sublevel.getLevelName()),
           id: this.currentLevel
-            .getSublevels()
-            .map((sublevel) => sublevel.getLevelId()),
+          .getSublevels()
+          .map((sublevel) => sublevel.getLevelId()),
+
         },
         superLevel: {
           name: this.currentLevel.getSuperLevel()?.getLevelName(),
@@ -47,11 +42,11 @@ export class Navigation {
       };
     else {
       throwError('unknown datatype');
-      return;
+      return {};
     }
   }
 
-  static getCurrent() :any{
+  static getCurrent() :object{
     return {
       level: {
         id: this.currentLevel.getLevelId(),
@@ -62,14 +57,21 @@ export class Navigation {
         id: this.currentDashboard.getDashboardId(),
         name: this.currentDashboard.getDashboardName(),
       },
+      path: this.currentLevel.getLabelPath().map((array) => Pipes.getLevelLabel(array[0]) + ' ' + Pipes.getLevelName(array[0], array[1]) )
     };
   }
+
+  static setToLevelByHeight(dashboard: number): void{
+
+
+  }
+
 
   static setCurrent(
     levelId?: number,
     dashboardId?: number,
     superlevel?: boolean
-  ) : void  {
+  ): void {
     if (superlevel) {
       let dashboardId = this.currentDashboard.getDashboardId();
       this.currentLevel = this.currentLevel.setToParent();
@@ -86,8 +88,6 @@ export class Navigation {
       let nextDashboard = this.currentLevel
         .getDashboardList()
         .find((dashboard) => dashboard.getDashboardId() == dashboardId);
-
-      console.debug('haha', nextDashboard);
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : (this.currentDashboard = this.currentLevel.getDashboardList()[0]);
@@ -98,4 +98,5 @@ export class Navigation {
       if (nextDashboard) this.currentDashboard = nextDashboard;
     } else return;
   }
+
 }
