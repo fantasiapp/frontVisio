@@ -14,6 +14,14 @@
     overflow: hidden;
     justify-content: center;
 }
+#image-login{
+    height: "100%";
+}
+#image-login.scale{
+    transform: scale(1.6 , 1.6);
+    transition : transform ease-out 1s
+}
+
 #image-container.fadeOut{
     transition: width 2s ease-in-out;
     width:100%
@@ -72,8 +80,8 @@
     display: flex;
     position: absolute;
     right: 0px;
-    height: 100%;
-    mix-blend-mode: exclusion;  
+    opacity: 0.6;
+    height: 110%;
 }
 #pentagon-image.fadeOut{
     transform: translateX(-155%);

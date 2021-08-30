@@ -69,11 +69,13 @@ export class LoginPageComponent implements OnInit {
           const elmt2 = document.getElementById('pentagon-image');
           const elmt3 = document.getElementById('logo-container');
           const elmt4 = document.getElementById('logo');
+          const elmt5 = document.getElementById('image-login')
           elmt.classList.add('fadeOut');
           elmt3?.classList.add('translated');
           setTimeout(() => elmt2?.classList.add('fadeOut'), 2000);
           setTimeout(() => {elmt3?.classList.add('rotated')
           setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
+          setTimeout(() => elmt5?.classList.add('scale'), 900)
           setTimeout(() => {
             this.router.navigate([
               sessionStorage.getItem('originalPath') || 'logged',

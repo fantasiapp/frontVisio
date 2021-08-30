@@ -5,13 +5,13 @@ import { Subject } from 'rxjs/internal/Subject';
 import { combineLatest } from 'rxjs';
 import { Level } from '../navigation/Level';
 
-interface listDash  {
-  name : string [],
-  id : number []
+interface listDash {
+  name: string[];
+  id: number[];
 }
 interface listLev {
-  name : string []
-  id : number []
+  name: string[];
+  id: number[];
 }
 @Component({
   selector: 'app-filters',
@@ -21,29 +21,32 @@ interface listLev {
 export class FiltersComponent implements OnInit {
   constructor(private filtersState: FiltersStatesService) {}
   listDashboard!: listDash;
-  listLevel! : listLev;
+  listLevel!: listLev;
   viewList!: listLev | listDash;
   selectList!: listDash;
-  currentLev : any ; 
+  currentLev: any;
   levelName: string = '';
   superLevel!: {
-    name : string,
-    id : string,
-  }
-  value: number = 0
-  subLevels!: listLev
-  sort: number = 0
+    name: string;
+    id: string;
+  };
+  value: number = 0;
+  subLevels!: listLev;
+  sort: number = 0;
   ngOnInit(): void {
     this.blockToShow();
+  }
+
+  private blockToShow() {
     combineLatest([
       this.filtersState.arraySubject,
       this.filtersState.stateSubject,
     ]).subscribe(([currentsArrays, currentStates]) => {
-      this.listLevel = currentsArrays.levelArray.currentLevel; 
+      this.listLevel = currentsArrays.levelArray.currentLevel;
       this.subLevels = currentsArrays.levelArray.subLevel;
       this.listDashboard = currentsArrays.dashboardArray;
       this.superLevel = currentsArrays.levelArray.superLevel.name;
-      this.currentLev = currentStates.States.Level
+      this.currentLev = currentStates.States.Level;
       // console.debug('la liste des dashBoard', this.listDashboard)
       this.levelName =
         currentStates.States.level.label == ''
@@ -54,9 +57,6 @@ export class FiltersComponent implements OnInit {
     });
   }
 
-  private blockToShow() {
-  }
-
   private destroy$: Subject<void> = new Subject<void>();
 
   ngOnDestroy(): void {
@@ -64,17 +64,17 @@ export class FiltersComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  updateBlock(
-    level: listLev
-  ) {
-    console.debug(this.subLevels)
+  updateBlock(level: listLev) {
+    console.debug(this.subLevels);
     this.viewList = level;
   }
 
-  updateState(indexLev?: number, indexDash?: number ){  
-    if(indexLev) {this.filtersState.updateState(this.subLevels.id[indexLev-1])
-       console.debug('index list', this.subLevels.id[indexLev])}
-    else if (indexDash) this.filtersState.updateState(this.listDashboard.id[indexDash])
-    this.blockToShow()
+  updateState(indexLev?: number, indexDash?: number) {
+    if (indexLev) {
+      this.filtersState.updateState(this.subLevels.id[indexLev - 1]);
+      this.blockToShow();
+      console.debug('index list', this.subLevels.id[indexLev]);
+    } else if (indexDash)
+      this.filtersState.updateState(this.listDashboard.id[indexDash]);
   }
 }
