@@ -33,6 +33,55 @@ export class Level {
     return this.levelId;
   }
 
+  // private findUpLevel(dashboardId:number):(number|undefined){
+
+  //   if(this.sublevels.length() == 0){
+  //     return undefined
+  //   }
+  //   else if(this.sublevels[0].isDashboardExist(dashboardId)){
+  //     return  this.getHeight()
+  //   }
+
+  // }
+
+  // private findDownLevel(DashboardId:number):(number|undefined){
+  //   return 0
+
+  // }
+
+  // public findLevelLabel(DashboardId: number):(number|undefined)[]{
+  //   let upIndex:number|undefined, downIndex:number|undefined
+
+  //   if(this.sublevels.length == 0){
+  //     downIndex = undefined
+  //   }
+
+  //   if(!this.superlevel){
+  //     upIndex = undefined
+  //   }
+
+  //   else{
+
+  //   }
+
+  // }
+
+  public getLabelPath(): any[] {
+    if (!this.superlevel) {
+      return [[0, 0]];
+    } else {
+      let newLabelPath = this.superlevel.getLabelPath();
+      newLabelPath.push([this.getHeight(), this.getLevelId()]);
+      return newLabelPath;
+    }
+  }
+
+  public isDashboardExist(dashboardId: number): boolean {
+    return this.dashboardList
+      .map((dashboard) => dashboard.getDashboardId())
+      .includes(dashboardId);
+  }
+
   public getDashboardList(): Dashboard[] {
     if (this.dashboardList.length == 0) {
       Pipes.getDashboardIdList(this.getHeight()).map((id) => {
@@ -64,18 +113,43 @@ export class Level {
     return this.superlevel;
   }
 
+  public setToHeight(height: number): Level {
+    let currentHeight = this.getHeight();
+
+    if (height > currentHeight) {
+      let level = this.sublevels[0];
+      for (let i = 0; i < height - currentHeight - 1; i++) {
+        level = level.setToChildren();
+      }
+      return level;
+    } else if (height < currentHeight) {
+      let level = this.setToParent();
+      for (let i = 0; i < currentHeight - height - 1; i++) {
+        level = level.setToParent();
+      }
+      return level;
+    } else return this;
+  }
+
   public setToParent(): Level {
     //if parent exist, return parent, else return itself
     if (this.superlevel) return this.superlevel;
     else return this;
   }
 
-  public setToChildren(id: number): Level {
+  public setToChildren(id?: number): Level {
     //if children exist, return parent, else return itself
+    if (!id) {
+      return this.sublevels[0];
+    }
     let children = this.sublevels.find((sublevel) => {
       return sublevel.getLevelId() == id;
     });
     if (children) return children;
-    else return this;
+    // else return this;
+    else {
+      throwError('unknown level');
+      return this;
+    }
   }
 }
