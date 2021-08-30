@@ -1,0 +1,38 @@
+.container {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .container.lightMode .searching-customer::placeholder {
+    color: var(--dark-text);
+    opacity: .5;
+  }
+  
+  .searching-customer {
+    flex-grow: 1;
+    background-color: transparent;
+    border: none;
+    color: var(--text);
+    font:inherit;
+  }
+  
+  .loop-icon {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+  .loop-icon:hover {
+    opacity: .5;
+  }
+  .loop-icon:active {
+    opacity: .2;
+  }
+  
+  .remove-icon {
+    height: 1em;
+    cursor: pointer;
+  }
+  .container.lightMode .remove-icon {
+    filter: invert(1);
+  }

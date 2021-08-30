@@ -1,0 +1,24 @@
+<div class="container input">
+    <input
+      matInput
+      class="searching-customer"
+      type="text"
+      placeholder="Rechercher"
+      [ngModel]="searchModel"
+      [disabled]="disabled"
+      [class.inset]="!disabled"
+      autocomplete="off"
+    />
+    <!-- <img
+      class="loop-icon"
+      [src]="../../../assets/Rechercher.svg"
+      (click)="handleLoopClick()"
+      *ngIf="!noLense && (!searchModel || searchModel.length == 0)"
+    />
+    <img
+      src="assets/icons/cross.png"
+      class="remove-icon"
+      (click)="updateSearchModel(''); handleCrossClick()"
+      *ngIf="searchModel?.length > 0 || noLense"
+    /> -->
+  </div>

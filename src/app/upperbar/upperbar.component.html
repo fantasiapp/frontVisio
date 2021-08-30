@@ -1,0 +1,23 @@
+<div class="container-bar">
+  <div>
+    <button (click)="showFilters()" class="open-filters">filtrer par</button>
+  </div>
+
+  <div>
+    <label>Enseigne</label
+    ><input type="range" min="0" max="1" step="1" class="input-range" />
+    <label>Org. commercial</label>
+  </div>
+
+  <div class="right-block">
+    <app-search-field
+        class="search-bar"
+        [noLense]="true"
+        [searchModel]="searchModel"
+        (searchModelChange)="updateSearchData($event)"
+      ></app-search-field>
+  </div>
+</div>
+<div *ngIf="isFilterVisible">
+  <app-filters></app-filters>
+</div>

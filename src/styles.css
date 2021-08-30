@@ -1,0 +1,5 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'font-roboto.css';
+.main-container{
+    background: #F7F7F7 0% 0% no-repeat padding-box;
+}

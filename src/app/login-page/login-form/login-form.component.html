@@ -1,0 +1,30 @@
+<form [formGroup]="loginForm" (ngSubmit)="handleLogin()">
+  <div>
+    <h1 class="title">Se connecter</h1>
+    <div class="label-line">
+      <label class="label" for="login">PSEUDO</label>
+
+      <input
+        class="input-field"
+        type="text"
+        placeholder="Saisir votre identifiant"
+        formControlName="username"
+      />
+    </div>
+    <div class="label-line">
+      <label class="label" for="password">MOT DE PASSE</label>
+
+      <input
+        class="input-field"
+        type="password"
+        placeholder="********"
+        formControlName="password"
+      />
+    </div>
+    <div class="stay-connected">
+      <app-checkbox [(value)]="isStayConnected"> </app-checkbox
+      ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
+    </div>
+    <button id="continueButton" type="submit">Continuer</button>
+  </div>
+</form>
