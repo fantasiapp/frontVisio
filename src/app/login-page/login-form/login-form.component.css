@@ -7,7 +7,20 @@
     font: normal normal bold 28px/46px Roboto;
     letter-spacing: 1.05px;;  
 }
-.input-field {
+#input-field1 {
+    box-sizing: border-box;
+    width: 100%;
+    height: 50px;
+    border: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 20px 10px;
+    font: italic normal 100 16px/24px Roboto;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 1px solid #D5DAE2;
+    border-radius: 4px;
+}
+#input-field2 {
     box-sizing: border-box;
     width: 100%;
     height: 50px;
@@ -65,6 +78,31 @@
     margin-left: 2px;
     font-family: 'Roboto'
 }
-#input-field.red-border{
+#input-field1.red-border{
+    box-sizing: border-box;
+    width: 100%;
+    height: 50px;
+    border: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 20px 10px;
+    font: italic normal 100 16px/24px Roboto;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 1px solid #D5DAE2;
+    border-radius: 4px;
+    border-color: red;
+}
+#input-field2.red-border{
+    box-sizing: border-box;
+    width: 100%;
+    height: 50px;
+    border: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 20px 10px;
+    font: italic normal 100 16px/24px Roboto;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 1px solid #D5DAE2;
+    border-radius: 4px;
     border-color: red;
 }

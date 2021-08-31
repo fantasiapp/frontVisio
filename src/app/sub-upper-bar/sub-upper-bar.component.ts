@@ -1,7 +1,6 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
-import { Level } from '../navigation/Level';
 
 @Component({
   selector: 'app-sub-upper-bar',
