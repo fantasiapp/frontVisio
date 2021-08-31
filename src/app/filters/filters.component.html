@@ -1,36 +1,65 @@
 <div class="container-filters">
   <div class="container-Name">
-    <p>{{ levelName }}</p> 
-    <span>
-    <form>
-    <label>Tableau de Bord</label>
-    <select
-    (change)="updateState(undefined, value)"
-    >
-      <option selected disabled> select dashboard </option>
-      <option *ngFor="let dashName of listDashboard.name, let id = index" [value]='id'>{{ dashName }}</option>
-    </select>
-  </form> </span>
+    <p>
+      {{ levelName }}
+      <span>
+        <select
+          (change)="updateState(undefined, value)"
+          class="dashSelection"
+          *ngIf="showselect"
+        >
+          <option selected disabled>select dashboard</option>
+          <option
+            *ngFor="let dashName of listDashboard.name; let id = index"
+            [value]="id"
+          >
+            {{ dashName }}
+          </option>
+        </select>
+      </span>
+    </p>
   </div>
   <ul class="list">
-    <li *ngFor="let opts of viewList.name, let id = index">
-      <button class="list-elmt" (click)='updateState(id+1)'>{{ opts }} {{id}}</button>
+    <li *ngFor="let opts of viewList.name; let id = index">
+      <button class="list-elmt" (click)="updateState(id + 1)">
+        {{ opts }}
+      </button>
     </li>
+    <ng-container *ngIf="!showselect">
+      <ul class="list">
+        <button
+          class="list-elmt"
+          *ngFor="let dash of listDashboard.name; let id = index"
+          (click)="updateState(undefined, id)"
+        >
+          {{ dash }}
+        </button>
+      </ul>
+    </ng-container>
   </ul>
   <div class="navigate">
-    <button
-      class="navigate-button"
-      *ngIf="superLevel.id"
-      (click)="updateBlock(this.superLevel)"
-    >
-      &#060;
-    </button>
-    <button
-      class="navigate-button"
-      *ngIf="subLevels"
-      (click)="updateBlock(this.superLevel)"
-    >
-      &#062;
-    </button>
+    <div>
+      <button
+        class="navigate-button"
+        *ngIf="superLevel.id"
+        (click)="updateBlock(this.superLevel)"
+      >
+        &#060;
+      </button>
+      <br />
+      {{ superLevel.name }}
+    </div>
+    <span
+      ><div>
+        <button
+          class="navigate-button"
+          *ngIf="subLevels.id.length"
+          [disabled]=""
+          (click)="showBrothers(subLevels)"
+        >
+          &#062;
+        </button>
+        <br /></div
+    ></span>
   </div>
 </div>

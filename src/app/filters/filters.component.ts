@@ -30,10 +30,11 @@ export class FiltersComponent implements OnInit {
   selectList!: listDash;
   currentLev: any;
   levelName: string = '';
-  superLevel!: lev
+  superLevel!: lev;
   value: number = 0;
   subLevels!: listLev;
   sort: number = 0;
+  showselect : boolean = false 
   ngOnInit(): void {
     this.blockToShow();
   }
@@ -45,14 +46,11 @@ export class FiltersComponent implements OnInit {
       this.listLevel = currentsArrays.levelArray.currentLevel;
       this.subLevels = currentsArrays.levelArray.subLevel;
       this.listDashboard = currentsArrays.dashboardArray;
-      this.superLevel = currentsArrays.levelArray.superLevel;
       this.currentLev = currentStates.States.Level;
-      this.levelName =
-        currentStates.States.level.label == ''
-          ? 'National'
-          : currentStates.States.level.label;
-
-      this.viewList = this.subLevels;
+      this.levelName = currentStates.States.level.label;
+      this.superLevel = currentsArrays.levelArray.superLevel;
+      this.showselect = this.levelName !== 'National' ;
+      this.viewList = this.listLevel;
     });
   }
 
@@ -66,8 +64,7 @@ export class FiltersComponent implements OnInit {
   updateBlock(level?: lev, levels?: listLev) {
     if (level) {
       this.filtersState.updateState(undefined, undefined, true);
-      console.debug('le super level', level);
-      }
+    }
   }
 
   updateState(indexLev?: number, indexDash?: number) {
@@ -75,6 +72,9 @@ export class FiltersComponent implements OnInit {
       this.filtersState.updateState(this.subLevels.id[indexLev - 1]);
       console.debug('index list', this.subLevels.id[indexLev]);
     } else if (indexDash)
-      this.filtersState.updateState(this.listDashboard.id[indexDash]);
+      this.filtersState.updateState(undefined, this.listDashboard.id[indexDash]);
+  }
+  showBrothers(listLev : listLev){
+      this.filtersState.updateState(this.subLevels.id[1])
   }
 }

@@ -6,5 +6,11 @@
     border: 1px solid #F06D0C;
 }
 .active {
-    background-color: black;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    background-image: url("../../../assets/Check mark.svg");
+    background-color: #F06D0C;
+    background-size: contain;
+    border: 1px solid #F06D0C;
 }

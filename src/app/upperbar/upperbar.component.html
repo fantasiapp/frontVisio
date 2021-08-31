@@ -1,6 +1,6 @@
 <div class="container-bar">
   <div>
-    <button (click)="showFilters()" class="open-filters">filtrer par</button>
+    <button (click)="showFilters()" class="open-filters">Options</button>
   </div>
 
   <div>
@@ -10,12 +10,28 @@
   </div>
 
   <div class="right-block">
-    <app-search-field
+    <div
+      class="search-div"
+      *ngIf="shouldShowButtons === true"
+    >
+      <button
+        class="button search"
+        (click)="toggleSearch()"
+      >
+        <img
+          class="button-img"
+          src="../../assets/Rechercher.svg"
+          alt="open search button"
+        />
+      </button>
+      <app-search-field
         class="search-bar"
         [noLense]="true"
         [searchModel]="searchModel"
         (searchModelChange)="updateSearchData($event)"
+        (onCrossClick)="!$event.length && toggleSearch()"
       ></app-search-field>
+    </div>
   </div>
 </div>
 <div *ngIf="isFilterVisible">
