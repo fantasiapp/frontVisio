@@ -4,18 +4,18 @@
 //If the server can send it this way all the time, then this field is useless
 
 namespace Pipes {  
-  export let data ;
-  export let ID_INDEX;
-  export let LABEL_INDEX;
-  export let PRETTY_INDEX;
-  export let DASHBOARD_INDEX;
-  export let SUBLEVEL_INDEX;
+  export let data: any;
+  export let ID_INDEX: number;
+  export let LABEL_INDEX: number;
+  export let PRETTY_INDEX: number;
+  export let DASHBOARD_INDEX: number;
+  export let SUBLEVEL_INDEX: number;
   
   //Represent levels as a vertical array rather than a recursive structure -- report to JLW
-  let levels = [];
+  let levels: any[] = [];
 
   //Used for adding `Département` before departement number
-  let departementIdx;
+  let departementIdx: number;
   
   //Sets the data that will be transformed to Level & Dashboard
   export function setData(d: any) {

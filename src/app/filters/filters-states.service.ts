@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import { MOCK_NAVIGATION } from '../structure/mock-structure';
-import { Navigation } from '../navigation/Navigation';
+import Navigation from '../navigation/Navigation';
 import { state } from '@angular/animations';
 
 @Injectable({

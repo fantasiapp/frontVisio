@@ -3,7 +3,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ThrowStmt } from '@angular/compiler';
 import { Subject } from 'rxjs/internal/Subject';
 import { combineLatest } from 'rxjs';
-import { Level } from '../navigation/Level';
+import Level from '../navigation/Level';
 
 interface listDash {
   name: string[];
