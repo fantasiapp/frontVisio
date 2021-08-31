@@ -1,40 +1,91 @@
-import { Dashboard } from './Dashboard';
-import { data } from './data';
+//GENERAL NOTES
+//`geoTreeStructure` is expected to match the recursive level structure
+//if it isn't, I'll have a harder time generating the Level object
+//If the server can send it this way all the time, then this field is useless
 
-export class Pipes {
-  // height to name
-  static getLevelLabel(height: number): string {
+namespace Pipes {  
+  export let data ;
+  export let ID_INDEX;
+  export let LABEL_INDEX;
+  export let PRETTY_INDEX;
+  export let DASHBOARD_INDEX;
+  export let SUBLEVEL_INDEX;
+  
+  //Represent levels as a vertical array rather than a recursive structure -- report to JLW
+  let levels = [];
 
-    if(height == 0) return 'National'
-    return data['levels'][height]['label'];
+  //Used for adding `Département` before departement number
+  let departementIdx;
+  
+  //Sets the data that will be transformed to Level & Dashboard
+  export function setData(d: any) {
+    let structure = d['structure'];
+    data = d;
+    ID_INDEX = structure.indexOf('id');
+    LABEL_INDEX = structure.indexOf('levelName');
+    PRETTY_INDEX = structure.indexOf('prettyPrint');
+    DASHBOARD_INDEX = structure.indexOf('listDashBoards');
+    SUBLEVEL_INDEX = structure.indexOf('subLevel');
+    
+    let level = data['levels'];
+    while ( true ) {
+      levels.push(level.slice(0, 4));
+      if ( !(level = nextLevel(level)) ) break;
+    }
+
+    departementIdx = levels.findIndex(x => x[LABEL_INDEX] == 'dep');
   }
-  // height + id to name
-  static getLevelName(height: number, levelId: number): string {
 
-    if(height == 0 ) return 'France'
-    let label = Pipes.getLevelLabel(height)
-
-    return data[label][levelId.toString()];
-  }
-  // height to size of Dashboard
-  static getDashboardIdList(height: number): number[] {
-    return data['levels'][height]['dashboards'];
-  }
-  // id of dashboard + level = name of the dashboard
-  static getDashboard(dashboardId: number): Dashboard {
-    let id = dashboardId;
-    let name = data['dashBoard'][dashboardId.toString()]['name'];
-    return new Dashboard(id, name);
-  }
-  // find the next level with a given dashboard and the current dashboard
-
-  static getNextHeight(dashBoardId: number,currentHeight: number ): (number|undefined){
-    return data['levels'].findIndex((level:any, index:number) => (currentHeight<index)&&(level['dashboards']).include(dashBoardId))
+  function nextLevel(level: any) {
+    if ( level.length > SUBLEVEL_INDEX )
+      return level[SUBLEVEL_INDEX];
+    
+    return null;
   }
 
-  static getPreviousLevel(dashBoardId: number, currentHeight: Number): (number|undefined){
-    return data['levels'].findIndex((level:any, index:number) => (currentHeight>index)&&(level['dashboards']).include(dashBoardId))
+  export function height() {
+    return levels.length;
+  };
 
+  export function getLevel(height: number) {
+    if ( height >= levels.length || height < 0 )
+      throw `Incorrect height=${height}. Constraint: 0 <= height <= ${levels.length}`;
+    return levels[height];
+  }
 
+  export function getLevelTree(): {} {
+    return data['geoTree'];
+  }
+
+  //for label on the json
+  function $getLevelLabel(height: number): string {
+    return getLevel(height)[LABEL_INDEX];
+  }
+
+  //for prettified label, which is actually used
+  export function getLevelLabel(height: number): string {
+    return getLevel(height)[PRETTY_INDEX];
+  }
+  
+  export function getLevelName(height: number, id: number): string {
+    if ( height == 0 ) return "National";
+    let name = data[$getLevelLabel(height)][id];
+    if ( !name ) throw `No level with id=${id}`;
+    
+    if ( height == departementIdx )
+      name = 'Département ' + name;
+    return name;
+  }
+
+  export function getDashboards(): {[key:string]: {'name': string}} {
+    return data['dashboards'];
+  }
+  
+  export function getDashboardsAt(height: number): number[] {
+    if ( height >= levels.length || height < 0 )
+      throw `Incorrect height=${height}. Constraint: 0 <= height <= ${levels.length}`;
+    return getLevel(height)[DASHBOARD_INDEX];
   }
 }
+
+export default Pipes;

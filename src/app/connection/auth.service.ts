@@ -34,7 +34,7 @@ export class AuthService {
           sessionStorage.setItem('token', this.token);
           return true;
         })
-      );
+      ) || of(false);
   }
 
   getUser() {
@@ -45,7 +45,6 @@ export class AuthService {
     setTimeout(() => {
       console.log('entered logout');
       sessionStorage.removeItem('token');
-      // this.token = null;
       this.router.navigate(['login']);
     }, 1000);
   }

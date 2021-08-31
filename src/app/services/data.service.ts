@@ -14,11 +14,12 @@ export class DataService {
 
   public requestData(): Observable<Object[]> {
     const token = sessionStorage.getItem('token');
-    const headers = new HttpHeaders({ Authorization: `Token ${token}` , action: 'navigation'});
+    const headers = new HttpHeaders({ Authorization: `Token ${token}`});
     const response = new BehaviorSubject<Object[]>([]);
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         headers,
+        params : {"action" : "navigation"},
       }) as Observable<Object[]>
     )
       .pipe(

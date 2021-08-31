@@ -2,7 +2,6 @@
     width: 90%;
     position: absolute;
     display: flex;
-    justify-content: space-between;
     top : 70px;
     left: 5%;
     right: 5%;
@@ -10,7 +9,9 @@
 }
 select{
     font: normal normal 200 14px/19px Nunito Sans;
+    position: absolute;
     width: 234px;
     height: 28px;
     top: 10px;
+    right: 40px; 
 }

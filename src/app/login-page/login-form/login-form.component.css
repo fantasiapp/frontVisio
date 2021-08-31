@@ -65,3 +65,6 @@
     margin-left: 2px;
     font-family: 'Roboto'
 }
+#input-field.red-border{
+    border-color: red;
+}

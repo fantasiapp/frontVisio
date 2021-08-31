@@ -1,155 +1,73 @@
-import { throwError } from 'rxjs';
-import { Dashboard } from './Dashboard';
-import { Pipes } from './pipes';
+import Dashboard from './Dashboard';
+import Pipes from './pipes';
 
-export class Level {
-  private sublevels: Level[] = [];
-  private superlevel?: Level;
-  private levelId: number = 0;
-  private dashboardList: Dashboard[] = [];
+//only ever used in generating the tree
+type LevelTree = [number, [LevelTree]] | number;
 
-  constructor(tree: any) {
-    // cas d'arrêt
-    if (typeof tree === 'number') {
-      this.levelId = tree;
-    }
-    // construction récursive
-    else {
-      this.levelId = tree[0];
-      tree[1].map((subtree: any) => {
-        let sublevel = new Level(subtree);
-        this.sublevels.push(sublevel);
-      });
-    }
-    this.sublevels.map((sublevel) => {
-      sublevel.setSuperlevel(this);
-    });
-  }
-  private setSuperlevel(superlevel: Level) {
-    this.superlevel = superlevel;
-  }
+//class that reflects the data in Pipes.data
+export default class Level {
+  static dashboards: Dashboard[][] = []; //height -> dashboard
+  static labels: string[] = [];          //height -> label
 
-  public getLevelId(): number {
-    return this.levelId;
-  }
+  //load level tree from Pipes.data
+  static loadLevelTree(tree?: LevelTree, parent?: Level, recursive=0): Level {
+    if ( !tree ) tree = <LevelTree>Pipes.getLevelTree();
 
-  // private findUpLevel(dashboardId:number):(number|undefined){
+    let level: Level;
+    let id: number;
 
-  //   if(this.sublevels.length() == 0){
-  //     return undefined
-  //   }
-  //   else if(this.sublevels[0].isDashboardExist(dashboardId)){
-  //     return  this.getHeight()
-  //   }
-
-  // }
-
-  // private findDownLevel(DashboardId:number):(number|undefined){
-  //   return 0
-
-  // }
-
-  // public findLevelLabel(DashboardId: number):(number|undefined)[]{
-  //   let upIndex:number|undefined, downIndex:number|undefined
-
-  //   if(this.sublevels.length == 0){
-  //     downIndex = undefined
-  //   }
-
-  //   if(!this.superlevel){
-  //     upIndex = undefined
-  //   }
-
-  //   else{
-
-  //   }
-
-  // }
-
-  public getLabelPath(): any[] {
-    if (!this.superlevel) {
-      return [[0, 0]];
+    //create hierarchy
+    if ( typeof tree == "number" ) {
+      //base case
+      id = tree;
+      level = new Level(id, Pipes.getLevelName(recursive, id), [], parent);
     } else {
-      let newLabelPath = this.superlevel.getLabelPath();
-      newLabelPath.push([this.getHeight(), this.getLevelId()]);
-      return newLabelPath;
-    }
-  }
-
-  public isDashboardExist(dashboardId: number): boolean {
-    return this.dashboardList
-      .map((dashboard) => dashboard.getDashboardId())
-      .includes(dashboardId);
-  }
-
-  public getDashboardList(): Dashboard[] {
-    if (this.dashboardList.length == 0) {
-      Pipes.getDashboardIdList(this.getHeight()).map((id) => {
-        this.dashboardList.push(Pipes.getDashboard(id));
-        return;
-      });
-      return this.dashboardList;
-    } else return this.dashboardList;
-  }
-  public getSublevels(): Level[] {
-    return this.sublevels;
-  }
-
-  public getLevelLabel(): string {
-    return Pipes.getLevelLabel(this.getHeight());
-  }
-
-  public getLevelName(): string {
-    if (!this.superlevel) return '';
-    return Pipes.getLevelName(this.getHeight(), this.levelId);
-  }
-
-  public getHeight(): number {
-    if (!this.superlevel) return 0;
-    else return this.superlevel.getHeight() + 1;
-  }
-
-  public getSuperLevel(): Level | undefined {
-    return this.superlevel;
-  }
-
-  public setToHeight(height: number): Level {
-    let currentHeight = this.getHeight();
-
-    if (height > currentHeight) {
-      let level = this.sublevels[0];
-      for (let i = 0; i < height - currentHeight - 1; i++) {
-        level = level.setToChildren();
+      //recursion
+      id = tree[0];
+      level = new Level(id, Pipes.getLevelName(recursive, id), [], parent);
+      //add children through recursion -- stop before adding les points de vente (should this be added ?)
+      if ( recursive+1 < Pipes.height() ) {
+        Array.prototype.push.apply(level.children, tree[1].map((subtree: LevelTree): Level => this.loadLevelTree(subtree, level, recursive+1)));
       }
-      return level;
-    } else if (height < currentHeight) {
-      let level = this.setToParent();
-      for (let i = 0; i < currentHeight - height - 1; i++) {
-        level = level.setToParent();
-      }
-      return level;
-    } else return this;
+    }
+
+    //Done, tree created
+    //Now represent the labels and dashboards for each height
+    if ( recursive == 0 ) {
+      //load all labels
+      this.labels = [];
+      for ( let height = 0; height < Pipes.height(); height++ )
+        this.labels.push(Pipes.getLevelLabel(height));
+      
+      //load all dashboards
+      Dashboard.fromData();
+      this.dashboards = [];
+      for ( let height = 0; height < Pipes.height(); height++ )
+        this.dashboards.push(Pipes.getDashboardsAt(height).map((key: number) => Dashboard.byId(key)!));
+    }
+
+    //no longer depend on data after this call
+    return level;
   }
 
-  public setToParent(): Level {
-    //if parent exist, return parent, else return itself
-    if (this.superlevel) return this.superlevel;
-    else return this;
+  //No instances can be made from the outside, this is to ensure that this class reflects Pipes.data
+  private constructor(readonly id: number, readonly name: string, readonly children: Level[], readonly parent?: Level) { }
+  
+  get dashboards(): Dashboard[] { return Level.dashboards[this.height]; }
+  get label(): string { return Level.labels[this.height]; }
+  get height(): number { return this.parent ? this.parent.height + 1 : 0; }
+  get siblings(): Level[] { return this.parent ? this.parent.children : [this]; }
+
+  //is this level a leaf ?
+  isLeaf() { return this.children.length == 0; }
+
+  //if child with `id` is found return it, otherwise return self.
+  navigateChild(id: number) {
+    return this.children.find(child => child.id == id) || this;
   }
 
-  public setToChildren(id?: number): Level {
-    //if children exist, return parent, else return itself
-    if (!id) {
-      return this.sublevels[0];
-    }
-    let children = this.sublevels.find((sublevel) => {
-      return sublevel.getLevelId() == id;
-    });
-    if (children) return children;
-    // else return this;
-    else {
-      throwError('unknown level');
-      return this;
-    }
+  //if parent exists return it, otherwise return self
+  navigateBack() {
+    return this.parent || this;
   }
-}
+};

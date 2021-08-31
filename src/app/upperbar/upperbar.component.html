@@ -3,7 +3,7 @@
     <button (click)="showFilters()" class="open-filters">Options</button>
   </div>
 
-  <div>
+  <div >
     <label>Enseigne</label
     ><input type="range" min="0" max="1" step="1" class="input-range" />
     <label>Org. commercial</label>
@@ -62,5 +62,7 @@
   <app-filters class="overAll"></app-filters>
 </div>
 <div>
-  <app-sub-upper-bar></app-sub-upper-bar>
+  <app-sub-upper-bar
+    [filtersVisibles]="isFilterVisible"   
+  ></app-sub-upper-bar>
 </div>

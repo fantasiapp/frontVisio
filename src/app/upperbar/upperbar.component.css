@@ -35,8 +35,9 @@ label{
     top: 16px;
     left: 110px;
     width: 108px;
-    height: 21px;
+    height: 50px;
     border-color: azure;
+    border-width: 0px;
     opacity: 1;
     text-align: left;
     font: normal normal normal 18px/21px Roboto;

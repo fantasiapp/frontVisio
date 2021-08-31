@@ -10,7 +10,7 @@ import { AuthService } from 'src/app/connection/auth.service';
 })
 export class LoginFormComponent implements OnInit {
   isStayConnected: boolean = false;
-
+  @Input() errorConnection = true;
   @Output() onLogin = new EventEmitter<{
     username: string;
     password: string;
@@ -42,5 +42,10 @@ export class LoginFormComponent implements OnInit {
       username: this.loginForm.value. username,
       password: this.loginForm.value.password,
     });
-  }
+    setTimeout(() => {if (this.errorConnection){
+      const elmt = document.getElementsByClassName('input-field');
+      // elmt?.classList.add('red-border') 
+    }
+  }, 1000)
+}
 }

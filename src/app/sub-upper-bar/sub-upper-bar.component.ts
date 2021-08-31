@@ -1,5 +1,5 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { Level } from '../navigation/Level';
 
@@ -10,6 +10,7 @@ import { Level } from '../navigation/Level';
 })
 export class SubUpperBarComponent implements OnInit {
   constructor(private filtersStates: FiltersStatesService) {}
+  @Input() filtersVisibles : boolean = false
   currentDashboard: string = '';
   currentLevel: string =''
   path:  string = ''

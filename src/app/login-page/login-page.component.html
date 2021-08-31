@@ -13,6 +13,7 @@
         *ngIf="!userValid"
         @fadeOut
         (onLogin)="onLoading($event.username, $event.password)"
+        [errorConnection]="!userValid"
       ></app-login-form>
     </div>
   </div>

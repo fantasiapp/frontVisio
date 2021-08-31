@@ -1,14 +1,13 @@
 <div class="container">
-  <div>
-    
-      <h2>{{ currentDashboard }}</h2>
+  <div [hidden]="filtersVisibles">
+    <h2>{{ currentDashboard }}</h2>
     <h3>Résultast {{ path }}</h3>
   </div>
 
   <div>
-      <select>
-        <option>année 2021</option>
-        <option>année 2020</option>
-      </select>
+    <select>
+      <option>année 2021</option>
+      <option>année 2020</option>
+    </select>
   </div>
 </div>

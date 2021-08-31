@@ -36,8 +36,8 @@
 #logo-container{
     position: absolute;
     left: 41%;
-    height: 8%;
-    width: 10%;
+    height: 6%;
+    width: fit-content;
     justify-content: center;
     Z-index: 2; 
 }

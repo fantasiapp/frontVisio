@@ -51,6 +51,7 @@ export class LoginPageComponent implements OnInit {
     private router: Router
   ) {}
   userValid = false;
+  retry = true;
   ngOnInit(): void {}
 
   ngOnDestroy(): void {
