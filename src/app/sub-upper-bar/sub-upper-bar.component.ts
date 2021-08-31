@@ -18,7 +18,7 @@ export class SubUpperBarComponent implements OnInit {
       (currentState) => {
         this.currentDashboard = currentState.States.dashboard.name;
         this.currentLevel = currentState.States.level.name
-        this.path = currentState.States.path
+        // this.path = currentState.States.path
       }
     );
   }

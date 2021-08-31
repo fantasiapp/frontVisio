@@ -13,7 +13,7 @@ namespace Navigation {
   export let currentLevel: Level = root;
   export let currentDashboard = currentLevel.dashboards[0];
 
-  export function getArray(dataType: string) {
+  export function getArray(dataType: string) :any {
     if ( dataType == 'level' ) {
       return {
         currentLevel: {
@@ -39,7 +39,7 @@ namespace Navigation {
     }
   };
 
-  export function getCurrent() {
+  export function getCurrent() : any{
     return {
       level: {
         id: currentLevel.id,

@@ -12,6 +12,8 @@
 p{
     font-size: 30px;
     font-family: Roboto;
+    margin-top: 20px;
+    margin-left: 20px;
     z-index: 2;
 }
 .list{
@@ -24,12 +26,12 @@ p{
     margin-right: 20px;
     z-index: 2;
 }
-ul {
-    columns: 1;
-    -webkit-columns: 1;
-    -moz-columns: 1;
+/* ul {
+    columns: 2;
+    -webkit-columns:2;
+    -moz-columns: 2;
     z-index: 2;
-  }
+  } */
 .list-elmt{
     display: flex;
     background-color: #FFFFFF;
