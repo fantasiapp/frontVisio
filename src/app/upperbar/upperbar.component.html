@@ -10,30 +10,57 @@
   </div>
 
   <div class="right-block">
-    <div
-      class="search-div"
-      *ngIf="shouldShowButtons === true"
-    >
-      <button
-        class="button search"
-        (click)="toggleSearch()"
-      >
+    <div class="search-div">
+      <span
+        ><app-search-field
+          *ngIf="shouldShowButtons === true"
+          class="search-bar"
+          [noLense]="true"
+          [searchModel]="searchModel"
+          (searchModelChange)="updateSearchData($event)"
+          (onCrossClick)="!$event.length && toggleSearch()"
+        ></app-search-field
+      ></span>
+      <button class="button search" (click)="toggleSearch()">
         <img
           class="button-img"
           src="../../assets/Rechercher.svg"
           alt="open search button"
         />
       </button>
-      <app-search-field
-        class="search-bar"
-        [noLense]="true"
-        [searchModel]="searchModel"
-        (searchModelChange)="updateSearchData($event)"
-        (onCrossClick)="!$event.length && toggleSearch()"
-      ></app-search-field>
+    </div>
+    <div class="search-div">
+      <button class="button">
+        <img
+          class="button-img"
+          src="../../assets/Mise a jour.svg"
+          alt="actualiser"
+        />
+      </button>
+    </div>
+    <div class="search-div">
+      <button class="button">
+        <img
+          class="button-img"
+          src="../../assets/map.svg"
+          alt="actualiser"
+        />
+      </button>
+    </div>
+    <div class="search-div">
+      <button class="button" (click)="logOut()">
+        <img
+          class="button-img"
+          src="../../assets/Log out.svg"
+          alt="actualiser"
+        />
+      </button>
     </div>
   </div>
 </div>
 <div *ngIf="isFilterVisible">
-  <app-filters></app-filters>
+  <app-filters class="overAll"></app-filters>
+</div>
+<div>
+  <app-sub-upper-bar></app-sub-upper-bar>
 </div>

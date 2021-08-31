@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 
 
@@ -14,7 +15,7 @@ export class UpperbarComponent implements OnInit {
   searchModel: string = '';
   searchDebounceId!: number; 
   isSearchOpen = new BehaviorSubject(false)
-  constructor() { }
+  constructor(private router: Router) { }
   shouldShowButtons = false
   ngOnInit(): void {
   }
@@ -27,5 +28,10 @@ export class UpperbarComponent implements OnInit {
   toggleSearch() {
     this.isSearchOpen.next(!this.isSearchOpen.getValue());
     this.isSearchOpen.subscribe((val) => this.shouldShowButtons = val)
+  }
+  logOut(){
+    this.router.navigate([
+      sessionStorage.getItem('originalPath') || 'login',
+    ]);
   }
 }

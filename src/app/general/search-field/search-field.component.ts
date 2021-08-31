@@ -34,10 +34,10 @@ export class SearchFieldComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {}
 
-  // updateSearchModel(value) {
-  //   this.searchModel = value;
-  //   this.searchModelChange.emit(this.searchModel);
-  // }
+  updateSearchModel(value: string) {
+    this.searchModel = value;
+    this.searchModelChange.emit(this.searchModel);
+  }
 
   handleLoopClick() {
     this.onLoopClick.emit();

@@ -9,9 +9,9 @@
       [class.inset]="!disabled"
       autocomplete="off"
     />
-    <!-- <img
+    <img
       class="loop-icon"
-      [src]="../../../assets/Rechercher.svg"
+      src="assets/loop.svg"
       (click)="handleLoopClick()"
       *ngIf="!noLense && (!searchModel || searchModel.length == 0)"
     />
@@ -19,6 +19,6 @@
       src="assets/icons/cross.png"
       class="remove-icon"
       (click)="updateSearchModel(''); handleCrossClick()"
-      *ngIf="searchModel?.length > 0 || noLense"
-    /> -->
+      *ngIf="noLense"
+    />
   </div>

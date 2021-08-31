@@ -44,6 +44,9 @@ label{
     color: #151D21;
     opacity: 1;
 }
+.right-block{
+    display: flex;
+}
 .input[type ="range"]::-webkit-slider-runnable-track{
     -moz-appearance: none;
     -ms-appearance: none;
@@ -61,4 +64,40 @@ label{
     border-radius: 11px;
     opacity: 1;
 }
-
+.button-img {
+    height: 100%;
+    width: auto;
+}
+.search-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 5px;
+    padding: 5px;
+}
+.button {
+    height: 30px;
+    margin: 0 15px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    position: relative;
+    color: inherit;
+    display: flex;
+    justify-content: center;
+}
+.button:hover {
+    opacity: 0.5;
+}
+.search-bar {
+    width: 0;
+    transition: width 1s;
+    overflow: hidden;
+}
+.search-div.open .search-bar {
+    width: 600px;
+}
+.overAll{
+    z-index: 2;
+}
