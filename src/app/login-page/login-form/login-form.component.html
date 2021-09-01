@@ -21,10 +21,11 @@
         formControlName="password"
       />
     </div>
-    <div class="stay-connected">
+    <div class="stay-connected" *ngIf="!showErrorMessage">
       <app-checkbox [(value)]="isStayConnected"> </app-checkbox
       ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
     </div>
+    <div class="error-massage" *ngIf="showErrorMessage"></div>
     <button id="continueButton" type="submit">Se connecter</button>
   </div>
 </form>

@@ -6,6 +6,8 @@
     opacity: 1;
     display: flex;
     justify-content: space-between;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    opacity: 1;
 }
 .input-range{
     -moz-appearance: none;
@@ -34,12 +36,12 @@ label{
 .open-filters{
     top: 16px;
     left: 110px;
-    width: 108px;
+    width: 280px;
     height: 50px;
     border-color: azure;
     border-width: 0px;
     opacity: 1;
-    text-align: left;
+    text-align: center;
     font: normal normal normal 18px/21px Roboto;
     letter-spacing: 0px;
     color: #151D21;
