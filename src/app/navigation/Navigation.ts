@@ -1,26 +1,31 @@
 import { data as MOCK_DATA } from './data';
 import DataExtractionHelper from './DataExtractionHelper';
-import Level from './Level';
+import Node from './Node';
 import Dashboard from './Dashboard';
 
-DataExtractionHelper.setData(MOCK_DATA); //<-- put data from request here
-
 class Navigation {
-  static root: Level = Level.loadLevelTree();
-  static currentLevel: Level = Navigation.root;
-  static currentDashboard: Dashboard = Navigation.currentLevel.dashboards[0];
+  static root: Node;
+  static currentLevel: Node;
+  static currentDashboard: Dashboard;
+
+  static setData(data: any) {
+    DataExtractionHelper.setData(data);
+    this.root = Node.loadLevelTree();
+    this.currentLevel = this.root;
+    this.currentDashboard = this.currentLevel.dashboards[0];
+  }
 
   static getArray(dataType: 'level' | 'dashboard') : any{
 
     if ( dataType == 'level' ) {
       return {
         currentLevel: {
-          name: this.currentLevel.siblings.map((sibling: Level) => sibling.name),
-          id: this.currentLevel.siblings.map((sibling: Level) => sibling.id)
+          name: this.currentLevel.siblings.map((sibling: Node) => sibling.name),
+          id: this.currentLevel.siblings.map((sibling: Node) => sibling.id)
         },
         subLevel: {
-          name: this.currentLevel.children.map((child: Level) => child.name),
-          id: this.currentLevel.children.map((child: Level) => child.id)
+          name: this.currentLevel.children.map((child: Node) => child.name),
+          id: this.currentLevel.children.map((child: Node) => child.id)
         },
         superLevel: {
           name: this.currentLevel.parent?.name,
@@ -53,7 +58,7 @@ class Navigation {
   static setCurrent(levelId?: number, dashboardId?: number, superLevel?: boolean) {
     if ( superLevel ) {
       let dashboardId = this.currentDashboard.id, nextDashboard;
-      this.currentLevel = this.currentLevel.navigateBack();
+      this.currentLevel = this.currentLevel.goBack();
       if ( dashboardId ) {
         this.currentLevel.dashboards.find(dashboard => dashboard.id == dashboardId)
       }
@@ -62,7 +67,7 @@ class Navigation {
     }
 
     else if ( levelId ) {
-      this.currentLevel = this.currentLevel.navigateChild(levelId);
+      this.currentLevel = this.currentLevel.goChild(levelId);
       dashboardId = this.currentDashboard.id;
 
       let nextDashboard = this.currentLevel.dashboards.find(dashboard => dashboard.id == dashboardId);
@@ -80,4 +85,5 @@ class Navigation {
   }
 };
 
+Navigation.setData(MOCK_DATA);
 export default Navigation;
