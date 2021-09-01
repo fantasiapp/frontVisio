@@ -18,6 +18,7 @@ import { SubUpperBarComponent } from './sub-upper-bar/sub-upper-bar.component';
 import { FiltersStatesService } from './filters/filters-states.service';
 import { MapComponent } from './map/map.component';
 import { ViewComponent } from './view/view.component';
+// import { AgmCoreModule } from '@agm/core';
 @NgModule({
   declarations: [
     AppComponent,
@@ -41,6 +42,9 @@ import { ViewComponent } from './view/view.component';
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
+    // AgmCoreModule.forRoot({
+    //   apiKey:''
+    // })
   ],
   providers: [],
   bootstrap: [AppComponent],

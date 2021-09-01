@@ -15,7 +15,7 @@ class Navigation {
     this.currentDashboard = this.currentLevel.dashboards[0];
   }
 
-  static getArray(dataType: 'level' | 'dashboard') {
+  static getArray(dataType: 'level' | 'dashboard') : any{
 
     if ( dataType == 'level' ) {
       return {
@@ -40,7 +40,7 @@ class Navigation {
     }
   };
 
-  static getCurrent() {
+  static getCurrent() :any {
     return {
       level: {
         id: this.currentLevel.id,
