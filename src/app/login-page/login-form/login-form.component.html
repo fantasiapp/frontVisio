@@ -5,7 +5,7 @@
       <label class="label" for="login">PSEUDO</label>
       <br>
       <input
-        class="input-field"
+        id="input-field1"
         type="text"
         placeholder="Saisir votre identifiant"
         formControlName="username"
@@ -15,16 +15,17 @@
       <label class="label" for="password">MOT DE PASSE</label>
       <br>
       <input
-        class="input-field"
+        id="input-field2"
         type="password"
         placeholder="Saisir votre mot de passe"
         formControlName="password"
       />
     </div>
-    <div class="stay-connected">
+    <div class="stay-connected" *ngIf="!showErrorMessage">
       <app-checkbox [(value)]="isStayConnected"> </app-checkbox
       ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
     </div>
+    <div class="error-massage" *ngIf="showErrorMessage">Le mot de passe ou Pseudo entré est incorrect</div>
     <button id="continueButton" type="submit">Se connecter</button>
   </div>
 </form>

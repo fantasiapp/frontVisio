@@ -15,6 +15,7 @@ export class LoginFormComponent implements OnInit {
     username: string;
     password: string;
   }>();
+  showErrorMessage : boolean = false
   // @Input() badCredentials: boolean;
   // @Input() ready: boolean;
 
@@ -43,8 +44,14 @@ export class LoginFormComponent implements OnInit {
       password: this.loginForm.value.password,
     });
     setTimeout(() => {if (this.errorConnection){
-      const elmt = document.getElementsByClassName('input-field');
-      // elmt?.classList.add('red-border') 
+      this.showErrorMessage = true
+      const input1 = document.getElementById('input-field1');
+      const input2 = document.getElementById('input-field2');
+      setTimeout(() => {
+        input1?.classList.add('red-border')
+        input2?.classList.add('red-border2')
+      })
+      
     }
   }, 1000)
 }

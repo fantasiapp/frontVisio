@@ -1,7 +1,6 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
-import Level from '../navigation/Level';
 
 @Component({
   selector: 'app-sub-upper-bar',
@@ -19,7 +18,7 @@ export class SubUpperBarComponent implements OnInit {
       (currentState) => {
         this.currentDashboard = currentState.States.dashboard.name;
         this.currentLevel = currentState.States.level.name
-        this.path = currentState.States.path
+        // this.path = currentState.States.path
       }
     );
   }

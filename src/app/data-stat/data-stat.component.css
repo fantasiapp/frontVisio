@@ -1,0 +1,9 @@
+.stat-container{
+    position: absolute;
+    width: 90%;
+    height: 80%;
+    left: 5%;
+    right: 5%;
+    top: 20%;
+    background-color: #FFFFFF;
+}

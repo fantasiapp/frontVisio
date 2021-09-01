@@ -1,3 +1,4 @@
+import { ViewComponent } from './view/view.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FiltersComponent } from './filters/filters.component';
@@ -15,7 +16,7 @@ const routes: Routes = [
   },
   {
         path: 'logged',
-        component: LoggedPageComponent,
+        component: ViewComponent,
   },
   {
         path: 'filters',

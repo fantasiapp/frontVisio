@@ -11,6 +11,7 @@ class Navigation {
   static currentDashboard: Dashboard = Navigation.currentLevel.dashboards[0];
 
   static getArray(dataType: 'level' | 'dashboard') {
+
     if ( dataType == 'level' ) {
       return {
         currentLevel: {
