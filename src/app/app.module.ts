@@ -16,6 +16,7 @@ import { FiltersComponent } from './filters/filters.component';
 import { SearchFieldComponent } from './general/search-field/search-field.component';
 import { SubUpperBarComponent } from './sub-upper-bar/sub-upper-bar.component';
 import { FiltersStatesService } from './filters/filters-states.service';
+import { MapComponent } from './map/map.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -29,6 +30,7 @@ import { FiltersStatesService } from './filters/filters-states.service';
     FiltersComponent,
     SearchFieldComponent,
     SubUpperBarComponent,
+    MapComponent,
   ],
   imports: [
     BrowserModule,
