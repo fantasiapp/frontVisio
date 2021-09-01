@@ -11,6 +11,7 @@
         formControlName="username"
       />
     </div>
+    <div class="empty-error" *ngIf='showEmptyPseudo'>Le Pseudo est vide, veuillez entrer votre identifiant.</div>
     <div class="label-line">
       <label class="label" for="password">MOT DE PASSE</label>
       <br>
@@ -25,7 +26,7 @@
       <app-checkbox [(value)]="isStayConnected"> </app-checkbox
       ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
     </div>
-    <div class="error-massage" *ngIf="showErrorMessage">Le mot de passe ou Pseudo entré est incorrect</div>
+    <div class="error-message" *ngIf="showErrorMessage">Le mot de passe ou Pseudo entré est incorrect</div>
     <button id="continueButton" type="submit">Se connecter</button>
   </div>
 </form>

@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs/internal/Subject';
 import { AuthService } from 'src/app/connection/auth.service';
@@ -15,7 +22,8 @@ export class LoginFormComponent implements OnInit {
     username: string;
     password: string;
   }>();
-  showErrorMessage : boolean = false
+  showEmptyPseudo: boolean = false;
+  showErrorMessage: boolean = false;
   // @Input() badCredentials: boolean;
   // @Input() ready: boolean;
 
@@ -31,28 +39,32 @@ export class LoginFormComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  constructor(
-    cdr: ChangeDetectorRef, private authService: AuthService
-  ) { }
+  constructor(cdr: ChangeDetectorRef, private authService: AuthService) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   handleLogin() {
     this.onLogin.emit({
-      username: this.loginForm.value. username,
+      username: this.loginForm.value.username,
       password: this.loginForm.value.password,
     });
-    setTimeout(() => {if (this.errorConnection){
-      this.showErrorMessage = true
-      const input1 = document.getElementById('input-field1');
-      const input2 = document.getElementById('input-field2');
-      setTimeout(() => {
-        input1?.classList.add('red-border')
-        input2?.classList.add('red-border2')
-      })
-      
-    }
-  }, 1000)
-}
+    setTimeout(() => {
+      if (this.errorConnection) {
+        if (this.loginForm.value.username == '') {
+          this.showEmptyPseudo = true
+          const input1 = document.getElementById('input-field1');
+          input1?.classList.add('red-border');
+        } else {
+          this.showEmptyPseudo = false;
+          this.showErrorMessage = true;
+          const input1 = document.getElementById('input-field1');
+          const input2 = document.getElementById('input-field2');
+          setTimeout(() => {
+            input1?.classList.add('red-border');
+            input2?.classList.add('red-border2');
+          });
+        }
+      }
+    }, 1000);
+  }
 }

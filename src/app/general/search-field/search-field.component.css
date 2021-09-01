@@ -36,3 +36,6 @@
   .container.lightMode .remove-icon {
     filter: invert(1);
   }
+  input::placeholder{
+    
+  }
