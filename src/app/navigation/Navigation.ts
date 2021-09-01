@@ -1,80 +1,76 @@
-//GENERAL NOTES
-//I think the interface given by Level & Dashboard are enough to navigate
-//Though maybe this file can satisfy the needs of the front, maybe we can come up with a compromise
-
 import { data as MOCK_DATA } from './data';
-import Pipes from './pipes';
+import DataExtractionHelper from './DataExtractionHelper';
 import Level from './Level';
+import Dashboard from './Dashboard';
 
-Pipes.setData(MOCK_DATA); //<-- put data from request here
+DataExtractionHelper.setData(MOCK_DATA); //<-- put data from request here
 
-namespace Navigation {
-  export let root: Level = Level.loadLevelTree();
-  export let currentLevel: Level = root;
-  export let currentDashboard = currentLevel.dashboards[0];
+class Navigation {
+  static root: Level = Level.loadLevelTree();
+  static currentLevel: Level = Navigation.root;
+  static currentDashboard: Dashboard = Navigation.currentLevel.dashboards[0];
 
-  export function getArray(dataType: string) {
+  static getArray(dataType: 'level' | 'dashboard') {
     if ( dataType == 'level' ) {
       return {
         currentLevel: {
-          name: currentLevel.siblings.map((sibling: Level) => sibling.name),
-          id: currentLevel.siblings.map((sibling: Level) => sibling.id)
+          name: this.currentLevel.siblings.map((sibling: Level) => sibling.name),
+          id: this.currentLevel.siblings.map((sibling: Level) => sibling.id)
         },
         subLevel: {
-          name: currentLevel.children.map((child: Level) => child.name),
-          id: currentLevel.children.map((child: Level) => child.id)
+          name: this.currentLevel.children.map((child: Level) => child.name),
+          id: this.currentLevel.children.map((child: Level) => child.id)
         },
         superLevel: {
-          name: currentLevel.parent?.name,
-          id: currentLevel.parent?.id
+          name: this.currentLevel.parent?.name,
+          id: this.currentLevel.parent?.id
         }
       }
-    } else if ( dataType == 'dashboard' ) {
+    } else {
       return {
-        id: currentLevel.dashboards.map(dashboard => dashboard.id),
-        name: currentLevel.dashboards.map(dashboard => dashboard.name)
+        id: this.currentLevel.dashboards.map(dashboard => dashboard.id),
+        name: this.currentLevel.dashboards.map(dashboard => dashboard.name)
       }
-    }  else {
-      throw 'unknown datatype';
     }
   };
 
-  export function getCurrent() {
+  static getCurrent() {
     return {
       level: {
-        id: currentLevel.id,
-        name: currentLevel.name,
-        label: currentLevel.label
+        id: this.currentLevel.id,
+        name: this.currentLevel.name,
+        label: this.currentLevel.label
       },
       dashboard: {
-        id: currentDashboard.id,
-        name: currentDashboard.name
-      }
+        id: this.currentDashboard.id,
+        name: this.currentDashboard.name
+      },
+      path: this.currentLevel.path.map((level) => level.label + ' ' + level.name)
     }
   };
 
-  export function setCurrent(levelId?: number, dashboardId?: number, superLevel?: boolean) {
+  static setCurrent(levelId?: number, dashboardId?: number, superLevel?: boolean) {
     if ( superLevel ) {
-      let dashboardId = currentDashboard.id, nextDashboard;
-      currentLevel = currentLevel.navigateBack();
+      let dashboardId = this.currentDashboard.id, nextDashboard;
+      this.currentLevel = this.currentLevel.navigateBack();
       if ( dashboardId ) {
-        currentLevel.dashboards.find(dashboard => dashboard.id == dashboardId)
+        this.currentLevel.dashboards.find(dashboard => dashboard.id == dashboardId)
       }
       
-      currentDashboard = nextDashboard ? nextDashboard : (currentLevel.dashboards[0]);
+      this.currentDashboard = nextDashboard ? nextDashboard : (this.currentLevel.dashboards[0]);
     }
 
     else if ( levelId ) {
-      currentLevel = currentLevel.navigateChild(levelId);
-      dashboardId = currentDashboard.id;
+      this.currentLevel = this.currentLevel.navigateChild(levelId);
+      dashboardId = this.currentDashboard.id;
 
-      let nextDashboard = currentLevel.dashboards.find(dashboard => dashboard.id == dashboardId);
-      currentDashboard = nextDashboard ? nextDashboard : currentLevel.dashboards[0];
+      let nextDashboard = this.currentLevel.dashboards.find(dashboard => dashboard.id == dashboardId);
+      this.currentDashboard = nextDashboard ? nextDashboard : this.currentLevel.dashboards[0];
     }
 
     else if ( dashboardId ) {
-      let nextDashboard = currentLevel.dashboards.find((dashboard) => dashboard.id == dashboardId);
-      currentDashboard = nextDashboard ? nextDashboard : currentDashboard; 
+      let nextDashboard = this.currentLevel.dashboards.find((dashboard) => dashboard.id == dashboardId);
+      this.currentDashboard = nextDashboard ? nextDashboard : this.currentDashboard; 
     }
 
     else {
