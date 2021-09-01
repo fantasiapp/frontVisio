@@ -106,3 +106,6 @@
     border-radius: 4px;
     border-color: red;
 }
+.error-massage{
+    font: red;
+}

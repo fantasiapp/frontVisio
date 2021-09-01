@@ -25,7 +25,7 @@
       <app-checkbox [(value)]="isStayConnected"> </app-checkbox
       ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
     </div>
-    <div class="error-massage" *ngIf="showErrorMessage"></div>
+    <div class="error-massage" *ngIf="showErrorMessage">Le mot de passe ou Pseudo entré est incorrect</div>
     <button id="continueButton" type="submit">Se connecter</button>
   </div>
 </form>

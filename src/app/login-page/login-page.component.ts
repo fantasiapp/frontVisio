@@ -37,7 +37,7 @@ import { Router } from '@angular/router';
           opacity: 1,
         })
       ),
-      transition('* => void', [animate(2000)]),
+      transition('* => void', [animate(0)]),
     ]),
   ],
 })
