@@ -41,8 +41,8 @@
     margin: 0;
     margin-top: 110px; 
     color: white;
-    background: #F06D0C 0% 0% no-repeat padding-box;;
-    font-size: 25px;
+    background: #F06D0C 0% 0% no-repeat padding-box;
+    font : normal normal bold 20px/46px Roboto;
     letter-spacing: 0.94px;
     border: none;
     border-radius: 4px;
