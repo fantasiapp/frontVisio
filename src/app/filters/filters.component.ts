@@ -24,6 +24,8 @@ interface lev {
 })
 export class FiltersComponent implements OnInit {
   constructor(private filtersState: FiltersStatesService) {}
+  @Output() closeFilters: boolean = false 
+
   listDashboard!: listDash;
   listLevel!: listLev;
   viewList!: listLev | listDash;
@@ -76,5 +78,8 @@ export class FiltersComponent implements OnInit {
   }
   showBrothers(listLev : listLev){
       this.filtersState.updateState(this.subLevels.id[1])
+  }
+  close(){
+    this.closeFilters = true;
   }
 }
