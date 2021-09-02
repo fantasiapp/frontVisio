@@ -1,20 +1,24 @@
 <div class="container-filters">
     <div class="title">
-      {{ this.levelName == "National" ? "Tableau de Bord" : levelName }}
+      {{ this.levelName }}
+    </div>
+    <div class="path">
+      {{ path }}
     </div>
       <select
         (change)="updateState(undefined, value)"
         class="dashSelection"
-        *ngIf="showselect"
+        *ngIf="showselect" 
       >
         <option
           *ngFor="let dashName of listDashboard.name; let id = index"
           [value]="id"
+          (click)="updateState(undefined, id)"
         >
           {{ dashName }}
         </option>
       </select>
-      <!-- <button (click)='close()' class='close-button'></button> -->
+      <img (click)='close()' src='../../assets/x icon.svg' class="close">
   <div *ngIf="showselect">
     <ul class="list-button">
         <button
@@ -46,8 +50,8 @@
       >
         &#060;
       </button>
-      <br>
-      {{ superLevel.name | lowercase }}
+      <br><br>
+      {{ superLevel.label | lowercase }}
     </div>
     <div class="box-nav2">
       <button
@@ -57,7 +61,8 @@
         (click)="showBrothers(subLevels)"
       >
         &#062;</button
-      ><br />
+      ><br /><br/>
+      {{subLevels.label[0]}}
     </div>
   </div>
 </div>

@@ -5,7 +5,6 @@
   }
   
   .container.lightMode .searching-customer::placeholder {
-    color: var(--dark-text);
     opacity: .5;
   }
   
@@ -13,7 +12,7 @@
     flex-grow: 1;
     background-color: transparent;
     border: none;
-    color: var(--text);
+    height: 0px;
     font:inherit;
   }
   

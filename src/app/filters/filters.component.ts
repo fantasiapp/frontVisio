@@ -11,10 +11,12 @@ interface listDash {
 interface listLev {
   name: string[];
   id: number[];
+  label: string[];
 }
 interface lev {
   name: string;
   id: number;
+  label:string;
 }
 @Component({
   selector: 'app-filters',
@@ -23,7 +25,7 @@ interface lev {
 })
 export class FiltersComponent implements OnInit {
   constructor(private filtersState: FiltersStatesService) {}
-  @Output() closeFilters: boolean = false 
+  @Output() closeFilters: boolean = true 
 
   listDashboard!: listDash;
   listLevel!: listLev;
@@ -35,7 +37,8 @@ export class FiltersComponent implements OnInit {
   value: number = 0;
   subLevels!: listLev;
   sort: number = 0;
-  showselect : boolean = false 
+  showselect : boolean = false;
+  path : string =''
   ngOnInit(): void {
     this.blockToShow();
   }
@@ -50,6 +53,7 @@ export class FiltersComponent implements OnInit {
       this.currentLev = currentStates.States.Level;
       this.levelName = currentStates.States.level.label;
       this.superLevel = currentsArrays.levelArray.superLevel;
+      this.path = currentStates.States.path
       this.showselect = this.levelName !== 'National' ;
       this.viewList = this.listLevel;
     });
@@ -79,6 +83,6 @@ export class FiltersComponent implements OnInit {
       this.filtersState.updateState(this.subLevels.id[1])
   }
   close(){
-    this.closeFilters = true;
+    this.closeFilters = false;
   }
 }

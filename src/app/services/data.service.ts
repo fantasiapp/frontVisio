@@ -30,6 +30,7 @@ export class DataService {
       )
       .subscribe((data) => {
         response.next(data);
+        sessionStorage.setItem('data', JSON.stringify(data))
       });
     return response;
   }

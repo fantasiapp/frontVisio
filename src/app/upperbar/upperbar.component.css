@@ -1,8 +1,9 @@
 .container-bar{
+    position: absolute;
     top: 0px;
     left: 0px;
     width: 100%;
-    height: 48px;
+    height: 7vh;
     opacity: 1;
     display: flex;
     justify-content: space-between;
@@ -47,8 +48,16 @@ label{
     color: #151D21;
     opacity: 1;
 }
+.ens-org{
+    position: absolute;
+    left: 42vw;
+    height: 100%;
+}
 .right-block{
+    position: absolute;
     display: flex;
+    height: 100%;
+    right: 6vw;
 }
 .input[type ="range"]::-webkit-slider-runnable-track{
     -moz-appearance: none;
@@ -68,8 +77,8 @@ label{
     opacity: 1;
 }
 .button-img {
-    height: 100%;
-    width: auto;
+    width: 100%;
+    height: auto;
 }
 .search-div {
     display: flex;

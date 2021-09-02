@@ -1,4 +1,5 @@
 import { data as MOCK_DATA } from './data';
+import { DataService } from '../services/data.service';
 import DataExtractionHelper from './DataExtractionHelper';
 import Node from './Node';
 import Dashboard from './Dashboard';
@@ -7,7 +8,7 @@ class Navigation {
   static root: Node;
   static currentLevel: Node;
   static currentDashboard: Dashboard;
-
+  
   static setData(data: any) {
     DataExtractionHelper.setData(data);
     this.root = Node.loadLevelTree();
@@ -21,15 +22,19 @@ class Navigation {
       return {
         currentLevel: {
           name: this.currentLevel.siblings.map((sibling: Node) => sibling.name),
-          id: this.currentLevel.siblings.map((sibling: Node) => sibling.id)
+          id: this.currentLevel.siblings.map((sibling: Node) => sibling.id),
+          label: this.currentLevel.children.map((child: Node) => child.label),
         },
         subLevel: {
           name: this.currentLevel.children.map((child: Node) => child.name),
-          id: this.currentLevel.children.map((child: Node) => child.id)
+          id: this.currentLevel.children.map((child: Node) => child.id),
+          label: this.currentLevel.children.map((child: Node) => child.label),
+
         },
         superLevel: {
           name: this.currentLevel.parent?.name,
-          id: this.currentLevel.parent?.id
+          id: this.currentLevel.parent?.id,
+          label: this.currentLevel.parent?.label
         }
       }
     } else {
@@ -84,6 +89,5 @@ class Navigation {
     }
   }
 };
-
-Navigation.setData(MOCK_DATA);
+Navigation.setData(JSON.parse(sessionStorage.getItem('data')!));
 export default Navigation;

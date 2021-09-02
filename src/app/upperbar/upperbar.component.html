@@ -3,10 +3,10 @@
     <button (click)="showFilters()" class="open-filters">Options</button>
   </div>
 
-  <div >
-    <label>Enseigne</label
-    ><input type="range" min="0" max="1" step="1" class="input-range" />
-    <label>Org. commercial</label>
+  <div class="ens-org">
+    <span>Enseigne</span>
+    <input type="range" min="0" max="1" step="1" class="input-range" />
+    <span>Org. commercial</span>
   </div>
 
   <div class="right-block">
@@ -59,7 +59,7 @@
   </div>
 </div>
 <div *ngIf="isFilterVisible">
-  <app-filters closeFilters></app-filters>
+  <app-filters></app-filters>
 </div>
 <div>
   <app-sub-upper-bar
