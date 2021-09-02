@@ -9,6 +9,7 @@ import { PublicPageComponent } from './public-page/public-page.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {path: 'login', redirectTo: 'login', pathMatch: 'full'},
 
   {
         path: 'login',

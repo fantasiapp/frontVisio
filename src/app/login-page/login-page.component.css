@@ -50,11 +50,11 @@
     Z-index: 2.5; 
 }
 #logo-container.translated{
-    transform: translate(-380px, 380px) scale(2.1 , 2.1);
+    transform: translate(-25vw, 50vh) scale(2.1 , 2.1);
     transition: transform ease-out 2s;
 }
 #logo-container.rotated{
-    transform: translate(-380px, 380px) translateX(1180px) scale(2.5, 2.5);
+    transform: translate(-25vw, 50vh) translateX(60vw) scale(2.5, 2.5);
     transition : transform ease-out 2s;
 }
 #logo.rotated{
@@ -70,8 +70,9 @@
     padding-bottom: 30%;
 }
 .connection-container{
+    /* background-color: red; */
     display: flex;
-    position:relative;
+    position:absolute;
     justify-content: center;
     width: 80%;
     height: 100%;    
@@ -84,7 +85,7 @@
     height: 110%;
 }
 #pentagon-image.fadeOut{
-    transform: translateX(-155%);
+    transform: translateX(-65vw);
     transition: transform ease-out 2s;
     /* left :0px; */
 }
