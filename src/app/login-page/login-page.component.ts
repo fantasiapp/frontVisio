@@ -65,7 +65,8 @@ export class LoginPageComponent implements OnInit {
       .subscribe((success: any) => {
         if (success) {
           this.userValid = true
-          this.dataservice.requestData();
+          this.dataservice.requestData().subscribe(val => 
+            sessionStorage.setItem('data', JSON.stringify(val)));
           const elmt = document.getElementById('image-container')!;
           const elmt2 = document.getElementById('pentagon-image');
           const elmt3 = document.getElementById('logo-container');

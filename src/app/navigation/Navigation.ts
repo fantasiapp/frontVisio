@@ -89,5 +89,5 @@ class Navigation {
     }
   }
 };
-Navigation.setData(JSON.parse(sessionStorage.getItem('data')!));
+Navigation.setData(MOCK_DATA);
 export default Navigation;

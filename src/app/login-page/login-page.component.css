@@ -59,7 +59,7 @@
 }
 #logo.rotated{
     transform: rotateY(360deg);
-    transition : transform ease-out 2s;
+    transition : transform ease-out 1s;
 }
 .form {
     position: absolute;
