@@ -13,6 +13,7 @@
     position: absolute;
     top: 65px;
     left: 30px;
+    font-weight: 300;
 }
 .close{
     position: absolute;

@@ -57,7 +57,7 @@ label{
     height: 100%;
 }
 #ens.selected{
-
+    font-weight: lighter;
 }
 .right-block{
     position: absolute;
