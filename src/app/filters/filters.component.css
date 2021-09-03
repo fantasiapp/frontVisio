@@ -69,6 +69,7 @@
     justify-content: space-between;
 }
 .navigate-button1{
+    width: 50px;
     background: #FFFFFF 0% 0% no-repeat padding-box;
     opacity: 1;
     font: normal normal normal 20px Roboto;
@@ -88,7 +89,7 @@
     top: 5%;
     right:10px;
     width: fit-content;
-    height: 62px;
+    height: auto;
     text-align: center;
     font: normal normal normal 16px/19px Roboto;
     letter-spacing: 0px;
