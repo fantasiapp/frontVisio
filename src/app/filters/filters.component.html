@@ -19,7 +19,7 @@
       {{ dashName }}
     </option>
   </select>
-  <img (click)="close()" src="../../assets/x icon.svg" class="close" />
+  <img (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
     <ul class="list-button">
       <button
@@ -46,7 +46,7 @@
   <div class="navigate">
     <div class="box-nav1">
       <img
-        src="../../assets/super.svg"
+        src="assets/super.svg"
         class="navigate-button1"
         *ngIf="superLevel.name"
         (click)="updateBlock(this.superLevel)"
@@ -56,7 +56,7 @@
     </div>
     <div class="box-nav2">
       <img
-        src="../../assets/sub.svg"
+        src="assets/sub.svg"
         class="navigate-button2"
         *ngIf="subLevels.id.length"
         (click)="showSub(subLevels)"

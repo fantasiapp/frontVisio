@@ -12,6 +12,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 })
 
 export class UpperbarComponent implements OnInit { 
+  sldValue: number = 1;
   isFilterVisible = false
   searchModel: string = '';
   searchDebounceId!: number; 
@@ -37,7 +38,7 @@ export class UpperbarComponent implements OnInit {
       sessionStorage.getItem('originalPath') || 'login',
     ]);
   }
-  changeFont(){
-    // this.onChange.emit([newvalue])
+  changeFont(value: number){
+    // document.getElementById()
   }
 }

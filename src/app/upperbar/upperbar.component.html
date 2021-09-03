@@ -5,7 +5,7 @@
 
   <div class="ens-org">
     <span><div id="ens">Enseigne</div></span>
-    <input type="range" min="0" max="1" step="1" class="input-range" (onchange)="changeFont()"/>
+    <input type="range" min="0" max="1" step="1" class="input-range" (value)='sldValue' (change)="changeFont(this.sldValue)"/>
     <span ><div id="org">Org. commercial</div></span>
   </div>
 
@@ -24,7 +24,7 @@
       <button class="button search" (click)="toggleSearch()">
         <img
           class="button-img"
-          src="../../assets/Rechercher.svg"
+          src="assets/Rechercher.svg"
           alt="open search button"
         />
       </button>
@@ -33,7 +33,7 @@
       <button class="button">
         <img
           class="button-img"
-          src="../../assets/Mise a jour.svg"
+          src="assets/Mise a jour.svg"
           alt="actualiser"
         />
       </button>
@@ -42,7 +42,7 @@
       <button class="button">
         <img
           class="button-img"
-          src="../../assets/map.svg"
+          src="assets/map.svg"
           alt="actualiser"
         />
       </button>
@@ -51,7 +51,7 @@
       <button class="button" (click)="logOut()">
         <img
           class="button-img"
-          src="../../assets/Log out.svg"
+          src="assets/Log out.svg"
           alt="actualiser"
         />
       </button>
