@@ -61,21 +61,14 @@
     transform: rotateY(360deg);
     transition : transform ease-out 1s;
 }
-.form {
-    position: absolute;
-    padding-top: 12%;
-    left : 67%;
-    width: 40%;
-    height: auto;
-    padding-bottom: 30%;
-}
 .connection-container{
-    /* background-color: red; */
-    display: flex;
     position:absolute;
-    justify-content: center;
-    width: 80%;
-    height: 100%;    
+    display: flex;
+    width: 40%;
+    height: 50%;
+    left: 40%;
+    align-items: center;
+    justify-content: center;   
 }
 #pentagon-image{
     display: flex;

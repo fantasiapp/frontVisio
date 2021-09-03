@@ -1,15 +1,17 @@
+import { DataService } from './../services/data.service';
 import { data as MOCK_DATA } from './data';
-import { DataService } from '../services/data.service';
 import DataExtractionHelper from './DataExtractionHelper';
 import Node from './Node';
 import Dashboard from './Dashboard';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 class Navigation {
   static root: Node;
   static currentLevel: Node;
   static currentDashboard: Dashboard;
-  
-  static setData(data: any) {
+
+  static setData(data : any) {
     DataExtractionHelper.setData(data);
     this.root = Node.loadLevelTree();
     this.currentLevel = this.root;
@@ -89,5 +91,6 @@ class Navigation {
     }
   }
 };
+
 Navigation.setData(MOCK_DATA);
 export default Navigation;

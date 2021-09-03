@@ -56,3 +56,8 @@ select:-webkit-autofill:hover{
     outline: none;
     border: 0.4000000059604645px solid #707070;
 }
+*select{
+    font-family: Roboto;
+    width: 234px;
+    height: 28px;
+}

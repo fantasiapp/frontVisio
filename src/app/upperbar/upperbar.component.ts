@@ -1,3 +1,4 @@
+import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { range } from 'rxjs';
@@ -16,15 +17,17 @@ export class UpperbarComponent implements OnInit {
   isFilterVisible = false
   searchModel: string = '';
   searchDebounceId!: number; 
-  @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
+  @Output() onChange: EventEmitter<any> = new EventEmitter<{value: string;}>();
 
   isSearchOpen = new BehaviorSubject(false)
-  constructor(private router: Router) { }
+  constructor(private router: Router, private filtersState: FiltersStatesService){}
   shouldShowButtons = false
   ngOnInit(): void {
+    this.filtersState.filtersVisible.subscribe((val) => this.isFilterVisible = val)
   }
   showFilters(){
-    this.isFilterVisible = !this.isFilterVisible
+    this.isFilterVisible = !this.filtersState.filtersVisible.getValue()
+    this.filtersState.filtersVisible.next(this.isFilterVisible)
   }
   updateSearchData(searchValue: string) {
     if (this.searchDebounceId) clearTimeout(this.searchDebounceId);
@@ -38,7 +41,20 @@ export class UpperbarComponent implements OnInit {
       sessionStorage.getItem('originalPath') || 'login',
     ]);
   }
-  changeFont(value: number){
-    // document.getElementById()
+  changeFont(){
+    // this.onChange.emit({
+    //   // value : this.onChange.value.username
+    // })
+    // console.debug("la valeur", )
+    // const org = document.getElementById('org');
+    // const ens = document.getElementById('ens');
+    // if() {
+    //   ens?.classList.remove('selected')
+    //   org?.classList.add('selected')
+    // } 
+    // else{
+    //   org?.classList.remove('selected')
+    //   ens?.classList.add('selected')
+    // }
   }
 }

@@ -7,14 +7,14 @@
     <div id="logo-container">
       <img id="logo" src="assets/Logo etex.png" />
     </div>
+    
+  </div>
     <div class="connection-container">
       <app-login-form
-        class="form"
         *ngIf="!userValid"
         @fadeOut
         (onLogin)="onLoading($event.username, $event.password)"
         [errorConnection]="!userValid"
       ></app-login-form>
     </div>
-  </div>
 </div>

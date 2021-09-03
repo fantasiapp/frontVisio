@@ -9,7 +9,7 @@ import { Subject } from 'rxjs/internal/Subject';
 })
 export class SubUpperBarComponent implements OnInit {
   constructor(private filtersStates: FiltersStatesService) {}
-  @Input() filtersVisibles : boolean = false
+  filtersVisibles : boolean = false
   currentDashboard: string = '';
   currentLevel: string =''
   path:  string = ''
@@ -21,6 +21,9 @@ export class SubUpperBarComponent implements OnInit {
         this.path = currentState.States.path
       }
     );
+    this.filtersStates.filtersVisible.subscribe((val) => 
+      this.filtersVisibles = val
+    )
   }
   private destroy$: Subject<void> = new Subject<void>();
 

@@ -1,3 +1,4 @@
+import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import { MOCK_NAVIGATION } from '../structure/mock-structure';
@@ -9,7 +10,8 @@ import { state } from '@angular/animations';
 })
 export class FiltersStatesService {
   currentlevelName: string = '';
-
+  filtersVisible = new BehaviorSubject<boolean>(false)
+  
   stateSubject = new BehaviorSubject({
     States: Navigation.getCurrent(),
   });
@@ -18,7 +20,9 @@ export class FiltersStatesService {
     dashboardArray: Navigation.getArray('dashboard'),
   });
 
-  constructor() {}
+  constructor(private dataService : DataService) {
+    this.dataService.requestData().subscribe((data) => Navigation.setData(data))
+  }
   public updateState(
     levelId?: number,
     dashboardId?: number,

@@ -26,7 +26,8 @@
         class="list-elmt"
         *ngFor="let opts of viewList.name; let idLev = index"
         (click)="updateState(idLev+1, undefined, undefined)"
-        id="{{'pos_'+idLevel}}"
+        (dblclick)="updateStateClose(idLev+1, undefined, undefined)" 
+        id="{{'pos'+idLev}}"
       >
         {{ opts }}
       </button>
@@ -38,6 +39,8 @@
         class="list-elmt"
         *ngFor="let dash of viewList.name; let id = index"
         (click)="updateState(undefined, id, undefined)"
+        (dblclick)="updateStateClose(undefined, id, undefined)" 
+        id="{{'dash'+id}}" 
       >
         {{ dash }}
       </button>
@@ -51,7 +54,7 @@
         *ngIf="superLevel.name"
         (click)="updateBlock(this.superLevel)"
       >
-      <br /><br />
+      <br />
       {{ superLevel.label | lowercase }}
     </div>
     <div class="box-nav2">

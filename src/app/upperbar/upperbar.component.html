@@ -5,8 +5,16 @@
 
   <div class="ens-org">
     <span><div id="ens">Enseigne</div></span>
-    <input type="range" min="0" max="1" step="1" class="input-range" (value)='sldValue' (change)="changeFont(this.sldValue)"/>
-    <span ><div id="org">Org. commercial</div></span>
+    <input
+      type="range"
+      min="0"
+      max="1"
+      step="1"
+      class="input-range"
+      (value)="(sldValue)"
+      (change)="changeFont()"
+    />
+    <span><div id="org">Org. commercial</div></span>
   </div>
 
   <div class="right-block">
@@ -31,29 +39,17 @@
     </div>
     <div class="search-div">
       <button class="button">
-        <img
-          class="button-img"
-          src="assets/Mise a jour.svg"
-          alt="actualiser"
-        />
+        <img class="button-img" src="assets/Mise a jour.svg" alt="actualiser" />
       </button>
     </div>
     <div class="search-div">
       <button class="button">
-        <img
-          class="button-img"
-          src="assets/map.svg"
-          alt="actualiser"
-        />
+        <img class="button-img" src="assets/map.svg" alt="actualiser" />
       </button>
     </div>
     <div class="search-div">
       <button class="button" (click)="logOut()">
-        <img
-          class="button-img"
-          src="assets/Log out.svg"
-          alt="actualiser"
-        />
+        <img class="button-img" src="assets/Log out.svg" alt="actualiser" />
       </button>
     </div>
   </div>
@@ -62,7 +58,5 @@
   <app-filters></app-filters>
 </div>
 <div>
-  <app-sub-upper-bar
-    [filtersVisibles]="isFilterVisible"   
-  ></app-sub-upper-bar>
+  <app-sub-upper-bar></app-sub-upper-bar>
 </div>

@@ -25,7 +25,6 @@ interface lev {
 })
 export class FiltersComponent implements OnInit {
   constructor(private filtersState: FiltersStatesService) {}
-  @Output() closeFilters: boolean = true 
 
   listDashboard!: listDash;
   listLevel!: listLev;
@@ -78,7 +77,7 @@ export class FiltersComponent implements OnInit {
     console.debug('index list', indexDash);
     if (indexLev) {
       this.idLevel=indexLev;
-      const elmt = document.getElementById(`pos_${indexLev}`)
+      const elmt = document.getElementById(`pos${indexLev-1}`)
       elmt!.id = "selected"
       this.filtersState.updateState(this.subLevels.id[indexLev - 1]);
     } else if (indexDash) this.filtersState.updateState(undefined, this.listDashboard.id[indexDash]);
@@ -89,6 +88,10 @@ export class FiltersComponent implements OnInit {
       // this.filtersState.updateState(this.subLevels.id[1])
   }
   close(){
-    this.closeFilters = false;
+    this.filtersState.filtersVisible.next(false)
+  }
+  updateStateClose(indexLev: number|undefined, indexDash: number|undefined, superLev:boolean|undefined){
+    this.updateState(indexLev, indexDash, superLev)
+    this.close()
   }
 }

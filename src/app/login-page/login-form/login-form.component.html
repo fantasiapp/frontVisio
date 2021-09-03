@@ -1,33 +1,35 @@
-<form [formGroup]="loginForm" (ngSubmit)="handleLogin()">
-  <div>
-    <h1 class="title">Connexion</h1>
-    <div class="label-line1">
-      <label class="label" for="login">PSEUDO</label>
-      <br>
-      <input
-        id="input-field1"
-        type="text"
-        placeholder="Saisir votre identifiant"
-        formControlName="username"
-      />
-      
+<div class="container">
+  <form [formGroup]="loginForm" (ngSubmit)="handleLogin()">
+    <div>
+      <h1 class="title">Connexion</h1>
+      <div class="label-line1">
+        <label class="label" for="login">PSEUDO</label>
+        <br>
+        <input
+          id="input-field1"
+          type="text"
+          placeholder="Saisir votre identifiant"
+          formControlName="username"
+        />
+        
+      </div>
+      <div class="empty-error" [hidden]='!showEmptyPseudo'>Le Pseudo est vide, veuillez entrer votre identifiant.</div>
+      <div class="label-line2">
+        <label class="label" for="password">MOT DE PASSE</label>
+        <br>
+        <input
+          id="input-field2"
+          type="password"
+          placeholder="Saisir votre mot de passe"
+          formControlName="password"
+        />
+      </div>
+      <div class="stay-connected" [hidden]="showErrorMessage">
+        <app-checkbox [(value)]="isStayConnected"> </app-checkbox
+        ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
+      </div>
+      <div class="error-message" *ngIf="showErrorMessage">Le mot de passe ou Pseudo entré est incorrect</div>
+      <button id="continueButton" type="submit">Se connecter</button>
     </div>
-    <div class="empty-error" [hidden]='!showEmptyPseudo'>Le Pseudo est vide, veuillez entrer votre identifiant.</div>
-    <div class="label-line2">
-      <label class="label" for="password">MOT DE PASSE</label>
-      <br>
-      <input
-        id="input-field2"
-        type="password"
-        placeholder="Saisir votre mot de passe"
-        formControlName="password"
-      />
-    </div>
-    <div class="stay-connected" [hidden]="showErrorMessage">
-      <app-checkbox [(value)]="isStayConnected"> </app-checkbox
-      ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
-    </div>
-    <div class="error-message" *ngIf="showErrorMessage">Le mot de passe ou Pseudo entré est incorrect</div>
-    <button id="continueButton" type="submit">Se connecter</button>
-  </div>
-</form>
+  </form>
+</div>
