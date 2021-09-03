@@ -38,11 +38,9 @@ export class FiltersComponent implements OnInit {
   subLevels!: listLev;
   sort: number = 0;
   showselect : boolean = false;
-  path : string =''
+  path : string ='';
+  idLevel: number = 0;
   ngOnInit(): void {
-    this.blockToShow();
-  }
-  private blockToShow() {
     combineLatest([
       this.filtersState.arraySubject,
       this.filtersState.stateSubject,
@@ -53,10 +51,14 @@ export class FiltersComponent implements OnInit {
       this.currentLev = currentStates.States.Level;
       this.levelName = currentStates.States.level.label;
       this.superLevel = currentsArrays.levelArray.superLevel;
-      this.path = currentStates.States.path
+      this.path = currentStates.States.path;
       this.showselect = this.levelName !== 'National' ;
-      this.viewList = this.listLevel;
+      this.viewList = this.levelName=='National'? this.listDashboard:this.listLevel;
     });
+    // this.blockToShow();
+  }
+  private blockToShow(list: listDash | listLev) {
+
   }
 
   private destroy$: Subject<void> = new Subject<void>();
@@ -72,15 +74,19 @@ export class FiltersComponent implements OnInit {
     }
   }
 
-  updateState(indexLev?: number, indexDash?: number) {
+  updateState(indexLev: number|undefined, indexDash: number|undefined, superLev:boolean|undefined) {
+    console.debug('index list', indexDash);
     if (indexLev) {
+      this.idLevel=indexLev;
+      const elmt = document.getElementById(`pos_${indexLev}`)
+      elmt!.id = "selected"
       this.filtersState.updateState(this.subLevels.id[indexLev - 1]);
-      console.debug('index list', this.subLevels.id[indexLev]);
-    } else if (indexDash)
-      this.filtersState.updateState(undefined, this.listDashboard.id[indexDash]);
+    } else if (indexDash) this.filtersState.updateState(undefined, this.listDashboard.id[indexDash]);
   }
-  showBrothers(listLev : listLev){
-      this.filtersState.updateState(this.subLevels.id[1])
+  showSub(listLev : listLev){
+      this.viewList = listLev
+      this.showselect = true 
+      // this.filtersState.updateState(this.subLevels.id[1])
   }
   close(){
     this.closeFilters = false;

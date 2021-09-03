@@ -20,3 +20,11 @@ select{
     border-radius: 5px;
     opacity: 1;
 }
+.dash{
+    font-size: 28px;
+    font-weight: 700;
+}
+.level{
+    padding-top: 10px;
+    font-size: 18px;
+}

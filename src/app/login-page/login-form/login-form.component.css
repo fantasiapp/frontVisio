@@ -20,7 +20,9 @@
 }
 #continueButton {
     /* height */
+    position: absolute;
     box-sizing: border-box;
+    top: 60vh;
     width: 100%;
     height: 63px;
     margin: 0;
@@ -33,11 +35,13 @@
     border-radius: 4px;
 }
 #continueButton:hover{
+    cursor: pointer;
     background-color: #E35F00;
 }
-.label-line{
+.label-line1{
+    position: absolute;
     width: 100%;
-    height: 90px;
+    height: 80px;
     display: inline-block;
     direction: vertical;
     justify-content: space-between;
@@ -51,10 +55,28 @@
     text-transform: uppercase;
     opacity: 1;
 }
+.label-line2{
+    position: absolute;
+    width: 100%;
+    height: 80px;
+    top: 45vh;
+    display: inline-block;
+    direction: vertical;
+    justify-content: space-between;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    text-align: left;
+    font:normal normal bold 16px/24px Noto Nastaliq Urdu;
+    letter-spacing: 0.64px;
+    color: #1E2022;
+    text-transform: uppercase;
+    opacity: 1;
+}
 .stay-connected{
     display: flex;
-    padding-top: 30Px;
     position:absolute;
+    top:62vh;
+    padding-top: 30Px;
     right: 0%;
     justify-content: right;
     width: max-content;
@@ -91,8 +113,8 @@
     border-color: red;
 }
 .error-message{
-    top: 464px;
-    left: 781px;
+    position: absolute;
+    top: 62vh;
     width: 100%;
     height: 19px;
     text-align: center;
@@ -102,8 +124,8 @@
     opacity: 1;
 }
 .empty-error{
-    top: 464px;
-    left: 781px;
+    position: absolute;
+    top: 45vh;
     width: 100%;
     height: 19px;
     text-align: center;

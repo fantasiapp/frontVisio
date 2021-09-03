@@ -12,14 +12,14 @@
 .path{
     position: absolute;
     top: 65px;
-    left: 50px;
+    left: 30px;
 }
 .close{
     position: absolute;
     width: 15px;
     justify-content: stretch;
-    right: 5px;
-    top: 5px;
+    right: 20px;
+    top: 20px;
 }
 .list{
     display: inline-block;
@@ -40,6 +40,7 @@
 
 .list-elmt{
     display: flex;
+    align-items: center;
     background-color: #FFFFFF;
     float: left;
     top: 147px;
@@ -49,6 +50,9 @@
     border: none;
 }
 .list-elmt:active{
+    background: #F06D0C 0% 0% no-repeat padding-box;
+}
+#selected{
     background: #F06D0C 0% 0% no-repeat padding-box;
 }
 .list-elmt:hover{
@@ -65,22 +69,15 @@
     justify-content: space-between;
 }
 .navigate-button1{
-    width: 32px;
-    height: 32px;
     background: #FFFFFF 0% 0% no-repeat padding-box;
-    box-shadow: 0px 1px 1px #00000098;
     opacity: 1;
-    border-radius: 16px;
     font: normal normal normal 20px Roboto;
     color: #F06D0C;
 }
 .navigate-button2{
-    width: 32px;
-    height: 32px;
+    width: 50px;
     background: #FFFFFF 0% 0% no-repeat padding-box;
-    box-shadow: 0px 1px 1px #00000098;
     opacity: 1;
-    border-radius: 16px;
     font: normal normal normal 20px Roboto;
     color: #F06D0C;
 }
@@ -90,7 +87,7 @@
     align-items: center;
     top: 5%;
     right:10px;
-    width: 70px;
+    width: fit-content;
     height: 62px;
     text-align: center;
     font: normal normal normal 16px/19px Roboto;
@@ -103,8 +100,8 @@
     align-items: center;
     top: 5%;
     left:10px;
-    width: 75px;
-    height: 62px;
+    width: fit-content;
+    height: auto;
     text-align: center;
     font: normal normal normal 16px/19px Roboto;
     letter-spacing: 0px;

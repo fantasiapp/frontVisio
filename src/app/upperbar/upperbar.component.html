@@ -4,9 +4,9 @@
   </div>
 
   <div class="ens-org">
-    <span>Enseigne</span>
-    <input type="range" min="0" max="1" step="1" class="input-range" />
-    <span>Org. commercial</span>
+    <span><div id="ens">Enseigne</div></span>
+    <input type="range" min="0" max="1" step="1" class="input-range" (onchange)="changeFont()"/>
+    <span ><div id="org">Org. commercial</div></span>
   </div>
 
   <div class="right-block">

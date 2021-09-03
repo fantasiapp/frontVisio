@@ -6,10 +6,10 @@
 *{
     font-family: Roboto;
 }
-input[type=text]:hover,input[type=password]:hover{
+input[type=text]:hover, input[type=password]:hover{
     background: #FFFFFF 0% 0% no-repeat padding-box;
-    box-shadow: inset 0px 3px 6px #00000029;
-    border: 0.4000000059604645px solid #707070;
+    /* box-shadow: inset 0px 3px 6px #00000029; */
+    /* border: 0.4000000059604645px solid #707070; */
     border-radius: 4px;
     opacity: 1;
 }
@@ -29,6 +29,7 @@ input[type=text],input[type=password]{
 }
 input[type=text]:focus,[type=password]:focus{
     outline: none;
+    box-shadow: inset 0px 3px 6px #00000029;
     border: 0.4000000059604645px solid #707070;
 }
 input[type=text]:-webkit-autofill,

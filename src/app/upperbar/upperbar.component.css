@@ -51,7 +51,13 @@ label{
 .ens-org{
     position: absolute;
     left: 42vw;
+    display: flex;
+    justify-content: space-between;
+    width: 250px;
     height: 100%;
+}
+#ens.selected{
+
 }
 .right-block{
     position: absolute;

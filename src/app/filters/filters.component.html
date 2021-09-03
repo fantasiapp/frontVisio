@@ -1,41 +1,43 @@
 <div class="container-filters">
-    <div class="title">
-      {{ this.levelName }}
-    </div>
-    <div class="path">
-      {{ path }}
-    </div>
-      <select
-        (change)="updateState(undefined, value)"
-        class="dashSelection"
-        *ngIf="showselect" 
-      >
-        <option
-          *ngFor="let dashName of listDashboard.name; let id = index"
-          [value]="id"
-          (click)="updateState(undefined, id)"
-        >
-          {{ dashName }}
-        </option>
-      </select>
-      <img (click)='close()' src='../../assets/x icon.svg' class="close">
+  <div class="title">
+    {{ this.levelName }}
+  </div>
+  <div class="path">
+    {{ path }}
+  </div>
+  <select
+    (change)="updateState(undefined, value, undefined)"
+    class="dashSelection"
+    *ngIf="showselect"
+    [disabled]="viewList==subLevels"
+  >
+    <option
+      *ngFor="let dashName of listDashboard.name; let id = index"
+      [value]="id"
+      (click)="updateState(undefined, id, undefined)"
+    >
+      {{ dashName }}
+    </option>
+  </select>
+  <img (click)="close()" src="../../assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
     <ul class="list-button">
-        <button
-          class="list-elmt"
-          (click)="updateState(id + 1)"
-          *ngFor="let opts of viewList.name; let id = index"
-        >
-          {{ opts }}
-        </button>
+      <button
+        class="list-elmt"
+        *ngFor="let opts of viewList.name; let idLev = index"
+        (click)="updateState(idLev+1, undefined, undefined)"
+        id="{{'pos_'+idLevel}}"
+      >
+        {{ opts }}
+      </button>
     </ul>
   </div>
   <ng-container *ngIf="!showselect">
     <ul class="list">
       <button
         class="list-elmt"
-        *ngFor="let dash of listDashboard.name; let id = index"
-        (click)="updateState(undefined, id)"
+        *ngFor="let dash of viewList.name; let id = index"
+        (click)="updateState(undefined, id, undefined)"
       >
         {{ dash }}
       </button>
@@ -43,26 +45,23 @@
   </ng-container>
   <div class="navigate">
     <div class="box-nav1">
-      <button
+      <img
+        src="../../assets/super.svg"
         class="navigate-button1"
         *ngIf="superLevel.name"
         (click)="updateBlock(this.superLevel)"
       >
-        &#060;
-      </button>
-      <br><br>
+      <br /><br />
       {{ superLevel.label | lowercase }}
     </div>
     <div class="box-nav2">
-      <button
+      <img
+        src="../../assets/sub.svg"
         class="navigate-button2"
         *ngIf="subLevels.id.length"
-        [disabled]=""
-        (click)="showBrothers(subLevels)"
-      >
-        &#062;</button
-      ><br /><br/>
-      {{subLevels.label[0]}}
+        (click)="showSub(subLevels)"
+      ><br /><br />
+      {{ subLevels.label[0] }}
     </div>
   </div>
 </div>

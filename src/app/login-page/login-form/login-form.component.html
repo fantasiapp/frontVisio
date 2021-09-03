@@ -1,7 +1,7 @@
 <form [formGroup]="loginForm" (ngSubmit)="handleLogin()">
   <div>
     <h1 class="title">Connexion</h1>
-    <div class="label-line">
+    <div class="label-line1">
       <label class="label" for="login">PSEUDO</label>
       <br>
       <input
@@ -10,9 +10,10 @@
         placeholder="Saisir votre identifiant"
         formControlName="username"
       />
+      
     </div>
     <div class="empty-error" [hidden]='!showEmptyPseudo'>Le Pseudo est vide, veuillez entrer votre identifiant.</div>
-    <div class="label-line">
+    <div class="label-line2">
       <label class="label" for="password">MOT DE PASSE</label>
       <br>
       <input
