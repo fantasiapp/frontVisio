@@ -18,7 +18,7 @@ export class SubUpperBarComponent implements OnInit {
       (currentState) => {
         this.currentDashboard = currentState.States.dashboard.name;
         this.currentLevel = currentState.States.level.name
-        this.path = currentState.States.path.join()
+        this.path = currentState.States.path[currentState.States.path.length-1]
       }
     );
     this.filtersStates.filtersVisible.subscribe((val) => 

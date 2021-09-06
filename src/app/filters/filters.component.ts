@@ -56,7 +56,7 @@ export class FiltersComponent implements OnInit {
       this.levelName = currentStates.States.level.name;
       this.levelLabel = currentStates.States.level.label
       this.superLevel = currentsArrays.levelArray.superLevel;
-      this.path = currentStates.States.path.join();
+      this.path = currentStates.States.path.join(' > ');
       this.showselect = this.levelName !== 'France';
       this.selectedDashboardId = currentStates.States.dashboard.id;
       this.selectedDashboardName = currentStates.States.dashboard.name;

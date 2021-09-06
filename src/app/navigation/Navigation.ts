@@ -63,7 +63,7 @@ export class Navigation {
         name: currentDashboard.name,
       },
       path: currentLevel.path.map(
-        (level) => level.label + ': ' + level.name + ' > '
+        (level) => level.label +': '+ level.name 
       ),
     };
   }
