@@ -43,6 +43,7 @@ export class FiltersComponent implements OnInit {
   idLevel: number = 0;
   selectedDashboardId: number = 4;
   selectedDashboardName: string = '';
+  levelLabel : string = '';
   ngOnInit(): void {
     combineLatest([
       this.filtersState.arraySubject,
@@ -53,6 +54,7 @@ export class FiltersComponent implements OnInit {
       this.currentLev = currentStates.States.level;
       this.listDashboard = currentsArrays.dashboardArray;
       this.levelName = currentStates.States.level.name;
+      this.levelLabel = currentStates.States.level.label
       this.superLevel = currentsArrays.levelArray.superLevel;
       this.path = currentStates.States.path.join();
       this.showselect = this.levelName !== 'France';
@@ -103,6 +105,7 @@ export class FiltersComponent implements OnInit {
   showSub(listSub: listLev) {
     this.viewList = listSub;
     this.showselect = true;
+    this.filtersState.updateState(this.subLevels.id[0], undefined, undefined)
   }
   close() {
     this.filtersState.filtersVisible.next(false);
