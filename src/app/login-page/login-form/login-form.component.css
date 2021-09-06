@@ -4,6 +4,7 @@
     align-self: center;
     width: 650px;
     height: 600px;
+    transform: translate(-50%, -50%);
 }
 .title {
     box-sizing: border-box;

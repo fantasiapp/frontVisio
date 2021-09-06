@@ -50,11 +50,11 @@ export class FiltersComponent implements OnInit {
     ]).subscribe(([currentsArrays, currentStates]) => {
       this.listLevel = currentsArrays.levelArray.currentLevel;
       this.subLevels = currentsArrays.levelArray.subLevel;
-      this.currentLev = currentStates.States.Level;
+      this.currentLev = currentStates.States.level;
       this.listDashboard = currentsArrays.dashboardArray;
       this.levelName = currentStates.States.level.name;
       this.superLevel = currentsArrays.levelArray.superLevel;
-      this.path = currentStates.States.path;
+      this.path = currentStates.States.path.join();
       this.showselect = this.levelName !== 'France';
       this.selectedDashboardId = currentStates.States.dashboard.id;
       this.selectedDashboardName = currentStates.States.dashboard.name;

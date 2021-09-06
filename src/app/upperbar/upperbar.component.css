@@ -35,18 +35,22 @@ label{
     opacity: 1;
 }
 .open-filters{
-    top: 16px;
-    left: 110px;
-    width: 280px;
-    height: 50px;
+    position: absolute;
+    display: flex;
+    left: 5vw;
+    width: 200px;
+    height: 100%;
     border-color: azure;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
     border-width: 0px;
     opacity: 1;
-    text-align: center;
+    text-align: left;
+    align-items: center;
     font: normal normal normal 18px/21px Roboto;
     letter-spacing: 0px;
     color: #151D21;
     opacity: 1;
+    cursor: pointer;
 }
 .ens-org{
     position: absolute;
@@ -84,15 +88,19 @@ label{
     opacity: 1;
 }
 .button-img {
+    position: relative;
     width: 100%;
     height: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+       
 }
 .search-div {
     display: flex;
     flex-direction: row;
     align-items: center;
     border-radius: 5px;
-    padding: 5px;
 }
 .button {
     height: 30px;
@@ -130,4 +138,19 @@ label{
     letter-spacing: 0px;
     color: #151D21;
     opacity: 0.5;
+}
+.arrow-box{
+    position: absolute;
+    right: 0;
+    width: fit-content;
+    height: auto;
+    height: 10%;
+    z-index: 2.3;
+}
+
+.button-container{
+    position: absolute;
+    width: 300px;
+    height: 100%;
+    display: inline-block;
 }

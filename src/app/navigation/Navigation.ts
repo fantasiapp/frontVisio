@@ -18,6 +18,9 @@ export class Navigation {
     this.currentDashboard = this.currentLevel.dashboards[0];
   }
 
+  constructor(private dataservice : DataService){
+  }
+
   getArray(dataType: 'level' | 'dashboard'): any {
     let currentLevel = this.currentLevel!
     if (dataType == 'level') {
@@ -60,7 +63,7 @@ export class Navigation {
         name: currentDashboard.name,
       },
       path: currentLevel.path.map(
-        (level) => level.label + ' ' + level.name
+        (level) => level.label + ': ' + level.name + ' > '
       ),
     };
   }

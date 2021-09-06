@@ -13,6 +13,7 @@
     position: absolute;
     top: 65px;
     left: 30px;
+    font-size: 14px;
     font-weight: 300;
 }
 .close{
@@ -53,14 +54,26 @@
     height: 40px;
     border: none;
 }
-option:hover{
-    background-color: #F06D0C 0% 0% no-repeat padding-box !important;
+select option:hover,
+select option:focus,
+select option:active {
+        background: linear-gradient(#000000, #000000);
+        background-color: #000000 !important;
+        color: #ffed00 !important;
 }
+
+select option:checked {
+        background: linear-gradient(#d6d6d6, #d6d6d6);
+        background-color: #d6d6d6 !important;
+        color: #000000 !important;
+}
+
 .list-elmt:active{
     background: #F06D0C 0% 0% no-repeat padding-box;
 }
 .selected{
     background: #F06D0C 0% 0% no-repeat padding-box !important;
+    color:#FFFFFF;
 }
 .selected:hover{
     background-color: #E35F00!important ;
@@ -71,8 +84,8 @@ option:hover{
 .navigate{
     position: absolute;
     display: flex;
-    top: 280px;
-    left: 620px;
+    top: 270px;
+    left: 610px;
     width: 160px;
     height: 62px;
     opacity: 1;
@@ -96,9 +109,10 @@ option:hover{
     position: absolute;
     justify-content: center;
     align-items: center;
-    top: 5%;
+    top: 0%;
     right:10px;
     width: fit-content;
+    max-width:70px;
     height: auto;
     text-align: center;
     font: normal normal normal 16px/19px Roboto;
@@ -109,9 +123,10 @@ option:hover{
     position: absolute;
     justify-content: center;
     align-items: center;
-    top: 5%;
+    top: 0%;
     left:10px;
     width: fit-content;
+    max-width:70px;
     height: auto;
     text-align: center;
     font: normal normal normal 16px/19px Roboto;

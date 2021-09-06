@@ -11,12 +11,12 @@
     />
     <img
       class="loop-icon"
-      src="assets/loop.svg"
+      src="assets/rechercher.svg"
       (click)="handleLoopClick()"
       *ngIf="!noLense && (!searchModel || searchModel.length == 0)"
     />
     <img
-      src="assets/icons/x icon.svg"
+      src="assets/x icon.svg"
       class="remove-icon"
       (click)="updateSearchModel(''); handleCrossClick()"
       *ngIf="noLense"

@@ -61,3 +61,6 @@ select:-webkit-autofill:hover{
     width: 234px;
     height: 28px;
 }
+body{
+    margin:0;
+}

@@ -12,10 +12,10 @@ export class DataService {
 
   constructor(private http : HttpClient) {}
 
-  public requestData(): Observable<Object[]> {
+  public requestData(): Observable<Object|null> {
     const token = sessionStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Token ${token}`});
-    const response = new BehaviorSubject<Object[]>([]);
+    const response = new BehaviorSubject<Object|null>(null);
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         headers,
