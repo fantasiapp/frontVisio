@@ -6,83 +6,87 @@ import Dashboard from './Dashboard';
 import { Injectable } from '@angular/core';
 
 @Injectable()
-class Navigation {
-  static root: Node;
-  static currentLevel: Node;
-  static currentDashboard: Dashboard;
+export class Navigation {
+  root?: Node;
+  currentLevel?: Node;
+  currentDashboard?: Dashboard;
 
-  static setData(data: any) {
+  setData(data: any) {
     DataExtractionHelper.setData(data);
     this.root = Node.loadLevelTree();
     this.currentLevel = this.root;
     this.currentDashboard = this.currentLevel.dashboards[0];
   }
 
-  static getArray(dataType: 'level' | 'dashboard'): any {
+  getArray(dataType: 'level' | 'dashboard'): any {
+    let currentLevel = this.currentLevel!
     if (dataType == 'level') {
       return {
         currentLevel: {
-          name: this.currentLevel.siblings.map((sibling: Node) => sibling.name),
-          id: this.currentLevel.siblings.map((sibling: Node) => sibling.id),
-          label: this.currentLevel.children.map((child: Node) => child.label),
+          name: currentLevel.siblings.map((sibling: Node) => sibling.name),
+          id: currentLevel.siblings.map((sibling: Node) => sibling.id),
+          label: currentLevel.children.map((child: Node) => child.label),
         },
         subLevel: {
-          name: this.currentLevel.children.map((child: Node) => child.name),
-          id: this.currentLevel.children.map((child: Node) => child.id),
-          label: this.currentLevel.children.map((child: Node) => child.label),
+          name: currentLevel.children.map((child: Node) => child.name),
+          id: currentLevel.children.map((child: Node) => child.id),
+          label: currentLevel.children.map((child: Node) => child.label),
         },
         superLevel: {
-          name: this.currentLevel.parent?.name,
-          id: this.currentLevel.parent?.id,
-          label: this.currentLevel.parent?.label,
+          name: currentLevel.parent?.name,
+          id: currentLevel.parent?.id,
+          label: currentLevel.parent?.label,
         },
       };
     } else {
       return {
-        id: this.currentLevel.dashboards.map((dashboard) => dashboard.id),
-        name: this.currentLevel.dashboards.map((dashboard) => dashboard.name),
+        id: currentLevel.dashboards.map((dashboard) => dashboard.id),
+        name: currentLevel.dashboards.map((dashboard) => dashboard.name),
       };
     }
   }
 
-  static getCurrent(): any {
+  getCurrent(): any {
+    let currentLevel = this.currentLevel!
+    let currentDashboard = this.currentDashboard!
     return {
       level: {
-        id: this.currentLevel.id,
-        name: this.currentLevel.name,
-        label: this.currentLevel.label,
+        id: currentLevel.id,
+        name: currentLevel.name,
+        label: currentLevel.label,
       },
       dashboard: {
-        id: this.currentDashboard.id,
-        name: this.currentDashboard.name,
+        id: currentDashboard.id,
+        name: currentDashboard.name,
       },
-      path: this.currentLevel.path.map(
+      path: currentLevel.path.map(
         (level) => level.label + ' ' + level.name
       ),
     };
   }
 
-  static setCurrent(
+  setCurrent(
     levelId?: number,
     dashboardId?: number,
     superLevel?: boolean
   ) {
+    let currentLevel = this.currentLevel!
+    let currentDashboard = this.currentDashboard!
     if (superLevel) {
-      let dashboardId = this.currentDashboard.id,
+      let dashboardId = currentDashboard.id,
         nextDashboard;
-      this.currentLevel = this.currentLevel.goBack();
+      this.currentLevel = currentLevel.goBack();
       if (dashboardId) {
         nextDashboard = this.currentLevel.dashboards.find(
           (dashboard) => dashboard.id == dashboardId
         );
       }
-      console.debug('le next dashboard vaut', nextDashboard)
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : this.currentLevel.dashboards[0];
     } else if (levelId) {
-      this.currentLevel = this.currentLevel.goChild(levelId);
-      dashboardId = this.currentDashboard.id;
+      this.currentLevel = currentLevel.goChild(levelId);
+      dashboardId = currentDashboard.id;
 
       let nextDashboard = this.currentLevel.dashboards.find(
         (dashboard) => dashboard.id == dashboardId
@@ -91,7 +95,7 @@ class Navigation {
         ? nextDashboard
         : this.currentLevel.dashboards[0];
     } else if (dashboardId) {
-      let nextDashboard = this.currentLevel.dashboards.find(
+      let nextDashboard = currentLevel.dashboards.find(
         (dashboard) => dashboard.id == dashboardId
       );
       this.currentDashboard = nextDashboard
@@ -102,6 +106,3 @@ class Navigation {
     }
   }
 }
-
-Navigation.setData(MOCK_DATA);
-export default Navigation;
