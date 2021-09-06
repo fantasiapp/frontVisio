@@ -4,17 +4,17 @@
   </div>
 
   <div class="ens-org">
-    <span><div id="ens">Enseigne</div></span>
+    <span><div id="ens" [ngClass]="{'light': sldValue==1}">Enseigne</div></span>
     <input
+    [(ngModel)]="sldValue" 
       type="range"
       min="0"
       max="1"
       step="1"
       class="input-range"
-      (value)="(sldValue)"
-      (change)="changeFont()"
+      [value]="sldValue"
     />
-    <span><div id="org">Org. commercial</div></span>
+    <span><div id="org" [ngClass]="{'light': sldValue==0}">Org. commercial</div></span>
   </div>
 
   <div class="right-block">

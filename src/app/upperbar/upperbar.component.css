@@ -53,6 +53,7 @@ label{
     left: 42vw;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 250px;
     height: 100%;
 }
@@ -118,4 +119,15 @@ label{
 }
 .overAll{
     z-index: 2;
+}
+.light{
+    text-align: left;
+    font: normal normal 300 16px/19px Roboto;
+    letter-spacing: 0px;
+    color: #151D21;
+    opacity: 0.5;text-align: left;
+    font: normal normal 300 16px/19px Roboto;
+    letter-spacing: 0px;
+    color: #151D21;
+    opacity: 0.5;
 }

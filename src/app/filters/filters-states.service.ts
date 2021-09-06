@@ -20,8 +20,7 @@ export class FiltersStatesService {
     dashboardArray: Navigation.getArray('dashboard'),
   });
 
-  constructor(private dataService : DataService) {
-    this.dataService.requestData().subscribe((data) => Navigation.setData(data))
+  constructor() {
   }
   public updateState(
     levelId?: number,

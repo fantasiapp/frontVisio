@@ -41,20 +41,4 @@ export class UpperbarComponent implements OnInit {
       sessionStorage.getItem('originalPath') || 'login',
     ]);
   }
-  changeFont(){
-    // this.onChange.emit({
-    //   // value : this.onChange.value.username
-    // })
-    // console.debug("la valeur", )
-    // const org = document.getElementById('org');
-    // const ens = document.getElementById('ens');
-    // if() {
-    //   ens?.classList.remove('selected')
-    //   org?.classList.add('selected')
-    // } 
-    // else{
-    //   org?.classList.remove('selected')
-    //   ens?.classList.add('selected')
-    // }
-  }
 }

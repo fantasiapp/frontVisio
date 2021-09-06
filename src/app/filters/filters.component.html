@@ -6,15 +6,16 @@
     {{ path }}
   </div>
   <select
-    (change)="updateState(undefined, value, undefined)"
+    [(ngModel)]="selectedDashboardId"
+    (ngModelChange)="updateState(undefined, $event, undefined)"
     class="dashSelection"
     *ngIf="showselect"
-    [disabled]="viewList==subLevels"
+    [disabled]="viewList == subLevels"
+    [ngClass]="{'disabled' : subLevels == viewList}"
   >
     <option
-      *ngFor="let dashName of listDashboard.name; let id = index"
-      [value]="id"
-      (click)="updateState(undefined, id, undefined)"
+      *ngFor="let dashName of listDashboard.name; let idPos = index"
+      [value]="this.listDashboard.id[idPos]"
     >
       {{ dashName }}
     </option>
@@ -22,29 +23,34 @@
   <img (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
     <ul class="list-button">
-      <button
-        class="list-elmt"
-        *ngFor="let opts of viewList.name; let idLev = index"
-        (click)="updateState(idLev+1, undefined, undefined)"
-        (dblclick)="updateStateClose(idLev+1, undefined, undefined)" 
-        id="{{'pos'+idLev}}"
+      <ng-container *ngFor="let levName of viewList.name; let idLev = index">
+        <button
+          class="list-elmt"
+          [ngClass]="{ 'selected': levName === this.levelName }"
+          (click)="updateState(idLev + 1, undefined, undefined)"
+          (dblclick)="updateStateClose(idLev + 1, undefined, undefined)"
+        >
+          {{ levName }}
+        </button></ng-container
       >
-        {{ opts }}
-      </button>
     </ul>
   </div>
   <ng-container *ngIf="!showselect">
-    <ul class="list">
+    <div class="list">
       <button
         class="list-elmt"
-        *ngFor="let dash of viewList.name; let id = index"
-        (click)="updateState(undefined, id, undefined)"
-        (dblclick)="updateStateClose(undefined, id, undefined)" 
-        id="{{'dash'+id}}" 
+        *ngFor="let dashboardName of viewList.name; let idPos = index"
+        (click)="
+          updateState(undefined, this.listDashboard.id[idPos], undefined)
+        "
+        [ngClass]="{ 'selected': dashboardName === this.selectedDashboardName }"
+        (dblclick)="
+          updateStateClose(undefined, this.listDashboard.id[idPos], undefined)
+        "
       >
-        {{ dash }}
+        {{ dashboardName }}
       </button>
-    </ul>
+    </div>
   </ng-container>
   <div class="navigate">
     <div class="box-nav1">
@@ -52,18 +58,18 @@
         src="assets/super.svg"
         class="navigate-button1"
         *ngIf="superLevel.name"
-        (click)="updateBlock(this.superLevel)"
-      >
-      <br />
+        (click)="showSuper(this.superLevel)"
+      />
+      <br /><br />
       {{ superLevel.label | lowercase }}
     </div>
-    <div class="box-nav2">
+    <div class="box-nav2" [ngClass]="{'disabled' : subLevels == viewList}">
       <img
         src="assets/sub.svg"
         class="navigate-button2"
         *ngIf="subLevels.id.length"
         (click)="showSub(subLevels)"
-      ><br /><br />
+      /><br /><br />
       {{ subLevels.label[0] }}
     </div>
   </div>
