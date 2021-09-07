@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { MOCK_NAVIGATION } from '../structure/mock-structure';
 import {Navigation} from '../navigation/Navigation';
 import { state } from '@angular/animations';
+import {MatSelectModule} from '@angular/material/select'
 
 @Injectable({
   providedIn: 'root',

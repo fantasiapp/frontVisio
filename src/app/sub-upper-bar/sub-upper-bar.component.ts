@@ -13,6 +13,7 @@ export class SubUpperBarComponent implements OnInit {
   currentDashboard: string = '';
   currentLevel: string =''
   path:  string = ''
+  years:{ value: (string|number); label: string }[] = [{value : 2020, label:'Année 2020'}, {value : 2021, label:'Année 2021'}]
   ngOnInit(): void {
     this.filtersStates.stateSubject.subscribe(
       (currentState) => {

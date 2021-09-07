@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1106" height="287.816" viewBox="0 0 1106 287.816">
+  <defs>
+    <filter id="Rectangle_149509" x="127.5" y="254.5" width="57.721" height="3" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Rectangle_149509-2" x="310.5" y="254.5" width="57.721" height="3" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur-2"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur-2"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Rectangle_149509-3" x="494.5" y="254.5" width="57.721" height="3" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur-3"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur-3"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Rectangle_149509-4" x="677.5" y="254.5" width="57.721" height="3" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur-4"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur-4"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Rectangle_149509-5" x="861.5" y="254.5" width="57.721" height="3" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur-5"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur-5"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Rectangle_149509-6" x="1044.5" y="254.5" width="57.721" height="3" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur-6"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur-6"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_17831" data-name="Group 17831" transform="translate(-113 -470.184)">
+    <text id="_100" data-name="100" transform="translate(148 523)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">100</tspan></text>
+    <text id="_75" data-name="75" transform="translate(152 573)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">75</tspan></text>
+    <text id="_50" data-name="50" transform="translate(152 625)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">50</tspan></text>
+    <text id="_25" data-name="25" transform="translate(152 674)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">25</tspan></text>
+    <text id="_0" data-name="0" transform="translate(157 730)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">0</tspan></text>
+    <g transform="matrix(1, 0, 0, 1, 113, 470.18)" filter="url(#Rectangle_149509)">
+      <rect id="Rectangle_149509-7" data-name="Rectangle 149509" height="54.721" transform="translate(129 255) rotate(-90)" fill="#4aa763"/>
+    </g>
+    <rect id="Rectangle_149513" data-name="Rectangle 149513" width="32.522" height="54.721" transform="translate(242 725.184) rotate(-90)" fill="#d00000"/>
+    <rect id="Rectangle_149510" data-name="Rectangle 149510" width="200.031" height="54.721" transform="translate(242 714.155) rotate(-90)" fill="#4aa763"/>
+    <g transform="matrix(1, 0, 0, 1, 113, 470.18)" filter="url(#Rectangle_149509-2)">
+      <rect id="Rectangle_149509-8" data-name="Rectangle 149509" height="54.721" transform="translate(312 255) rotate(-90)" fill="#4aa763"/>
+    </g>
+    <rect id="Rectangle_149513-2" data-name="Rectangle 149513" width="40.558" height="54.721" transform="translate(425 725.184) rotate(-90)" fill="#d00000"/>
+    <rect id="Rectangle_149510-2" data-name="Rectangle 149510" width="194.063" height="54.721" transform="translate(425 711.171) rotate(-90)" fill="#4aa763"/>
+    <g transform="matrix(1, 0, 0, 1, 113, 470.18)" filter="url(#Rectangle_149509-3)">
+      <rect id="Rectangle_149509-9" data-name="Rectangle 149509" height="54.721" transform="translate(496 255) rotate(-90)" fill="#4aa763"/>
+    </g>
+    <rect id="Rectangle_149513-3" data-name="Rectangle 149513" width="51.522" height="54.721" transform="translate(609 725.184) rotate(-90)" fill="#d00000"/>
+    <rect id="Rectangle_149510-3" data-name="Rectangle 149510" width="185.921" height="54.721" transform="translate(609 707.099) rotate(-90)" fill="#4aa763"/>
+    <g transform="matrix(1, 0, 0, 1, 113, 470.18)" filter="url(#Rectangle_149509-4)">
+      <rect id="Rectangle_149509-10" data-name="Rectangle 149509" height="54.721" transform="translate(679 255) rotate(-90)" fill="#4aa763"/>
+    </g>
+    <rect id="Rectangle_149513-4" data-name="Rectangle 149513" width="38.522" height="54.721" transform="translate(792 725.184) rotate(-90)" fill="#d00000"/>
+    <rect id="Rectangle_149510-4" data-name="Rectangle 149510" width="195.575" height="54.721" transform="translate(792 711.927) rotate(-90)" fill="#4aa763"/>
+    <g transform="matrix(1, 0, 0, 1, 113, 470.18)" filter="url(#Rectangle_149509-5)">
+      <rect id="Rectangle_149509-11" data-name="Rectangle 149509" height="54.721" transform="translate(863 255) rotate(-90)" fill="#4aa763"/>
+    </g>
+    <rect id="Rectangle_149513-5" data-name="Rectangle 149513" width="40.319" height="54.721" transform="translate(976 725.184) rotate(-90)" fill="#d00000"/>
+    <rect id="Rectangle_149510-5" data-name="Rectangle 149510" width="194.241" height="54.721" transform="translate(976 711.259) rotate(-90)" fill="#4aa763"/>
+    <g transform="matrix(1, 0, 0, 1, 113, 470.18)" filter="url(#Rectangle_149509-6)">
+      <rect id="Rectangle_149509-12" data-name="Rectangle 149509" height="54.721" transform="translate(1046 255) rotate(-90)" fill="#4aa763"/>
+    </g>
+    <rect id="Rectangle_149513-6" data-name="Rectangle 149513" width="29.76" height="54.721" transform="translate(1159 725.184) rotate(-90)" fill="#d00000"/>
+    <rect id="Rectangle_149510-6" data-name="Rectangle 149510" width="202.082" height="54.721" transform="translate(1159 715.18) rotate(-90)" fill="#4aa763"/>
+    <g id="Group_17609" data-name="Group 17609" transform="translate(1293.119 725) rotate(90)">
+      <path id="Line_10" data-name="Line 10" d="M.5,1010.291h-1V1008h1Zm0-5.29h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 76.829)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17610" data-name="Group 17610" transform="translate(1299.289 515) rotate(90)">
+      <path id="Line_10-2" data-name="Line 10" d="M.5,1011h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 81.568)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17611" data-name="Group 17611" transform="translate(1295.119 568) rotate(90)">
+      <path id="Line_10-3" data-name="Line 10" d="M.5,1005h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 80.398)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17612" data-name="Group 17612" transform="translate(1295.12 620) rotate(90)">
+      <path id="Line_10-4" data-name="Line 10" d="M.5,1005h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 79.198)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17613" data-name="Group 17613" transform="translate(1292.119 673) rotate(90)">
+      <path id="Line_10-5" data-name="Line 10" d="M.5,1009.09h-1V1008h1Zm0-4.09h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 78.029)" fill="#2f386a"/>
+    </g>
+    <text id="Sud-Ouest" transform="translate(230 752)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">Sud-Ouest</tspan></text>
+    <text id="Rhone-Alpes" transform="translate(408 752)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">Rhone-Alpes</tspan></text>
+    <text id="Ile_de_France" data-name="Ile de France" transform="translate(591 752)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">Ile de France</tspan></text>
+    <text id="Sud-Est" transform="translate(790 752)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">Sud-Est</tspan></text>
+    <text id="Ouest" transform="translate(982 752)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">Ouest</tspan></text>
+    <text id="Nord-Est" transform="translate(1154 752)" font-size="16" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">Nord-Est</tspan></text>
+    <rect id="Rectangle_149645" data-name="Rectangle 149645" width="3.923" height="54.721" transform="translate(242 715.522) rotate(-90)" fill="#ffe200"/>
+    <rect id="Rectangle_149646" data-name="Rectangle 149646" width="3.923" height="54.721" transform="translate(425 711.624) rotate(-90)" fill="#ffe200"/>
+    <rect id="Rectangle_149647" data-name="Rectangle 149647" width="3.923" height="54.721" transform="translate(609 706.549) rotate(-90)" fill="#ffe200"/>
+    <rect id="Rectangle_149648" data-name="Rectangle 149648" width="3.923" height="54.721" transform="translate(792.279 714.498) rotate(-90)" fill="#ffe200"/>
+    <rect id="Rectangle_149649" data-name="Rectangle 149649" width="3.923" height="54.721" transform="translate(976.14 712.537) rotate(-90)" fill="#ffe200"/>
+    <rect id="Rectangle_149650" data-name="Rectangle 149650" width="3.923" height="54.721" transform="translate(1159 721.005) rotate(-90)" fill="#ffe200"/>
+    <g id="Group_17828" data-name="Group 17828" transform="translate(-293 302.184)">
+      <text id="Taux_de_remplissage_par_région" data-name="Taux de remplissage par région" transform="translate(530 185)" fill="#dc6206" font-size="18" font-family="Roboto-Regular, Roboto" letter-spacing="-0.005em"><tspan x="-123.724" y="0">Taux de remplissage par région</tspan></text>
+      <path id="Path_45340" data-name="Path 45340" d="M10740.428,3342.1H10581v-.2h159.428Z" transform="translate(-10134.5 -3148)" fill="#707070"/>
+    </g>
+  </g>
+</svg>

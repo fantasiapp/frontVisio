@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="474.075" height="272" viewBox="0 0 474.075 272">
+  <defs>
+    <filter id="Rectangle_149509" x="74.57" y="109.552" width="34.347" height="138.117" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="0.5" result="blur"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_17830" data-name="Group 17830" transform="translate(-705.5 -171)">
+    <g id="Group_17626" data-name="Group 17626" transform="translate(257.5 3)">
+      <text id="Evolution_de_l_AD" data-name="Evolution de l’AD" transform="translate(527.5 185)" fill="#dc6206" font-size="18" font-family="Roboto-Regular, Roboto" letter-spacing="-0.005em"><tspan x="-65.602" y="0">Evolution de l’AD</tspan></text>
+      <path id="Path_45340" data-name="Path 45340" d="M10740.428,3342.1H10581v-.2h159.428Z" transform="translate(-10133 -3148)" fill="#707070"/>
+    </g>
+    <text id="_3_500" data-name="3 500" transform="translate(729.575 244)" fill="#030303" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">3 500</tspan></text>
+    <text id="_2_800" data-name="2 800" transform="translate(727.799 274.301)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">2 800</tspan></text>
+    <text id="_2_100" data-name="2 100" transform="translate(727.799 309.801)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">2 100</tspan></text>
+    <text id="_1_400" data-name="1 400" transform="translate(727.799 346.812)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">1 400</tspan></text>
+    <text id="_700" data-name="700" transform="translate(733.799 383.823)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">700</tspan></text>
+    <text id="_0" data-name="0" transform="translate(741.799 420.323)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">0</tspan></text>
+    <g id="Group_17544" data-name="Group 17544" transform="translate(781.57 435.718) rotate(-90)">
+      <g transform="matrix(0, 1, -1, 0, 264.72, -76.07)" filter="url(#Rectangle_149509)">
+        <rect id="Rectangle_149509-2" data-name="Rectangle 149509" width="135.117" height="31.347" transform="translate(76.07 245.17) rotate(-90)" fill="#fff"/>
+      </g>
+      <rect id="Rectangle_149513" data-name="Rectangle 149513" width="147.714" height="31.347" transform="translate(19.549 0)" fill="#363565"/>
+    </g>
+    <g id="Group_17543" data-name="Group 17543" transform="translate(1303.969 271.323) rotate(90)">
+      <path id="Line_10" data-name="Line 10" d="M.5,386.132h-1V384h1ZM.5,381h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 149.158)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17543-2" data-name="Group 17543" transform="translate(1300.969 307.323) rotate(90)">
+      <path id="Line_10-2" data-name="Line 10" d="M.5,385.473h-1V384h1ZM.5,381h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 146.817)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17543-3" data-name="Group 17543" transform="translate(1298.969 343.323) rotate(90)">
+      <path id="Line_10-3" data-name="Line 10" d="M.5,385.815h-1V384h1ZM.5,381h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 144.475)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17543-4" data-name="Group 17543" transform="translate(1296.969 379.323) rotate(90)">
+      <path id="Line_10-4" data-name="Line 10" d="M.5,386.157h-1V384h1ZM.5,381h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 142.133)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17543-5" data-name="Group 17543" transform="translate(1293.969 415.323) rotate(90)">
+      <path id="Line_10-5" data-name="Line 10" d="M.5,385.5h-1V384h1Zm0-4.5h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 139.792)" fill="#2f386a"/>
+    </g>
+    <text id="_95" data-name="95" transform="translate(1162.575 244.5)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">95</tspan></text>
+    <text id="_76" data-name="76" transform="translate(1162.575 276.323)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">76</tspan></text>
+    <text id="_57" data-name="57" transform="translate(1162.575 313)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">57</tspan></text>
+    <text id="_38" data-name="38" transform="translate(1162.575 348)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">38</tspan></text>
+    <text id="_19" data-name="19" transform="translate(1162.575 383)" font-size="14" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">19</tspan></text>
+    <text id="_0-2" data-name="0" transform="translate(1166.575 419)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" opacity="0.849"><tspan x="0" y="0">0</tspan></text>
+    <text id="NB_de_PdV_par_sem._et_cumul_en_" data-name="NB de PdV par sem. et cumul en %" transform="translate(826.575 215.269)" fill="#070707" font-size="14" font-family="Roboto-Regular, Roboto" letter-spacing="-0.005em"><tspan x="-105.863" y="0">NB de PdV par sem. et cumul en %</tspan></text>
+    <text id="Avant" transform="translate(792.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-19.702" y="0">Avant</tspan></text>
+    <text id="S-6" transform="translate(845.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-12.255" y="0">S-6</tspan></text>
+    <text id="S-5" transform="translate(895.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-12.262" y="0">S-5</tspan></text>
+    <text id="S-4" transform="translate(945.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-12.262" y="0">S-4</tspan></text>
+    <text id="S-3" transform="translate(996.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-12.262" y="0">S-3</tspan></text>
+    <text id="S-2" transform="translate(1046.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-12.262" y="0">S-2</tspan></text>
+    <text id="S-1" transform="translate(1096.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-12.262" y="0">S-1</tspan></text>
+    <text id="S-0" transform="translate(1146.575 438)" font-size="15" font-family="NunitoSans-Regular, Nunito Sans" letter-spacing="-0.005em"><tspan x="-12.262" y="0">S-0</tspan></text>
+    <g id="Group_17629" data-name="Group 17629" transform="translate(1304.994 240.323) rotate(90)">
+      <path id="Line_10-6" data-name="Line 10" d="M.5,386.132h-1V384h1ZM.5,381h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1v-3h1Zm0-6h-1V96h1Zm0-6h-1V90h1Zm0-6h-1V84h1Zm0-6h-1V78h1Zm0-6h-1V72h1Zm0-6h-1V66h1Zm0-6h-1V60h1Zm0-6h-1V54h1Zm0-6h-1V48h1Zm0-6h-1V42h1Zm0-6h-1V36h1Zm0-6h-1V30h1Zm0-6h-1V24h1Zm0-6h-1V18h1Zm0-6h-1V12h1Zm0-6h-1V6h1Zm0-6h-1V0h1Z" transform="translate(0 149.158)" fill="#2f386a"/>
+    </g>
+    <g id="Group_17628" data-name="Group 17628" transform="translate(-0.08 33)">
+      <circle id="Ellipse_1539" data-name="Ellipse 1539" cx="6" cy="6" r="6" transform="translate(840.575 201)" fill="#f06d0c"/>
+      <g id="Group_17627" data-name="Group 17627">
+        <circle id="Ellipse_1539-2" data-name="Ellipse 1539" cx="6" cy="6" r="6" transform="translate(790.575 201)" fill="#f06d0c"/>
+        <circle id="Ellipse_1539-3" data-name="Ellipse 1539" cx="6" cy="6" r="6" transform="translate(890.575 201)" fill="#f06d0c"/>
+        <ellipse id="Ellipse_1539-4" data-name="Ellipse 1539" cx="6.5" cy="6" rx="6.5" ry="6" transform="translate(939.575 201)" fill="#f06d0c"/>
+        <ellipse id="Ellipse_1539-5" data-name="Ellipse 1539" cx="6.5" cy="6" rx="6.5" ry="6" transform="translate(990.575 201)" fill="#f06d0c"/>
+        <ellipse id="Ellipse_1539-6" data-name="Ellipse 1539" cx="6.5" cy="6" rx="6.5" ry="6" transform="translate(1040.575 201)" fill="#f06d0c"/>
+        <circle id="Ellipse_1539-7" data-name="Ellipse 1539" cx="6" cy="6" r="6" transform="translate(1090.575 201)" fill="#f06d0c"/>
+        <circle id="Ellipse_1539-8" data-name="Ellipse 1539" cx="6" cy="6" r="6" transform="translate(1140.575 201)" fill="#f06d0c"/>
+        <path id="Path_45395" data-name="Path 45395" d="M21999.428-2205H21660v-2h339.428Z" transform="translate(-20857.215 2412.823)" fill="#f06d0c"/>
+      </g>
+    </g>
+  </g>
+</svg>

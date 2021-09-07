@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="544" height="251.367" viewBox="0 0 544 251.367">
+  <g id="Group_17871" data-name="Group 17871" transform="translate(-120 -480.089)">
+    <g id="Group_17406" data-name="Group 17406" transform="translate(-266.936 352.103)">
+      <g id="Group_17405" data-name="Group 17405" transform="translate(546.935 155.779)">
+        <path id="Path_45331" data-name="Path 45331" d="M655.553,155.779A108.618,108.618,0,1,0,764.171,264.4,108.622,108.622,0,0,0,655.553,155.779Zm0,169.3A60.681,60.681,0,1,1,716.234,264.4,60.678,60.678,0,0,1,655.553,325.078Z" transform="translate(-546.935 -155.779)" fill="#dc6206"/>
+        <path id="Path_45332" data-name="Path 45332" d="M655.517,295.359A108.6,108.6,0,0,0,764.088,188.648H716.1a60.613,60.613,0,0,1-121.171,0H546.95A108.6,108.6,0,0,0,655.517,295.359Z" transform="translate(-546.899 -78.124)" fill="#888"/>
+        <path id="Path_45333" data-name="Path 45333" d="M580.574,155.779c-.639,0-1.268.04-1.9.05v47.984c.639-.02,1.261-.1,1.9-.1A60.681,60.681,0,0,1,641.255,264.4c0,.646-.074,1.268-.094,1.907h47.984c.01-.635.047-1.268.047-1.907A108.62,108.62,0,0,0,580.574,155.779Z" transform="translate(-471.956 -155.779)" fill="#e1962a"/>
+        <path id="Path_45334" data-name="Path 45334" d="M612.645,188.648a60.535,60.535,0,0,1-21.887,44.789l29.883,37.489a108.383,108.383,0,0,0,39.941-82.279Z" transform="translate(-443.4 -78.124)" fill="#dedede"/>
+      </g>
+    </g>
+    <g id="Group_17523" data-name="Group 17523" transform="translate(-326.5 312.089)">
+      <text id="Nombre_de_PdV_3_476_PdV" data-name="Nombre de PdV
+3 476 PdV" transform="translate(530 185)" fill="#151d21" font-size="18" font-family="Roboto-Regular, Roboto" letter-spacing="-0.005em"><tspan x="-62.398" y="0">Nombre de PdV</tspan><tspan font-size="16"><tspan x="-36.207" y="30">3 476 PdV</tspan></tspan></text>
+      <path id="Path_45340" data-name="Path 45340" d="M10740.428,3342.1H10581v-.2h159.428Z" transform="translate(-10134.5 -3148)" fill="#707070"/>
+    </g>
+    <g id="Group_17524" data-name="Group 17524" transform="translate(50 176.456)">
+      <rect id="Rectangle_149501" data-name="Rectangle 149501" width="11" height="11" transform="translate(506 491)" fill="#888"/>
+      <rect id="Rectangle_149502" data-name="Rectangle 149502" width="11" height="11" transform="translate(506 525)" fill="#dedede"/>
+      <rect id="Rectangle_149503" data-name="Rectangle 149503" width="11" height="11" transform="translate(506 542)" fill="#dc6206"/>
+      <rect id="Rectangle_149504" data-name="Rectangle 149504" width="11" height="11" transform="translate(506 508)" fill="#e1962a"/>
+      <text id="Généraliste" transform="translate(553 500)" fill="rgba(0,0,0,0.85)" font-size="12" font-family="Roboto-Light, Roboto" font-weight="300" letter-spacing="-0.005em"><tspan x="-29.167" y="0">Généraliste</tspan></text>
+      <text id="Multi_spécialistes" data-name="Multi spécialistes" transform="translate(569 517)" fill="rgba(0,0,0,0.85)" font-size="12" font-family="Roboto-Light, Roboto" font-weight="300" letter-spacing="-0.005em"><tspan x="-44.959" y="0">Multi spécialistes</tspan></text>
+      <text id="Purs_spécialistes" data-name="Purs spécialistes" transform="translate(568 535)" fill="rgba(0,0,0,0.85)" font-size="12" font-family="Roboto-Light, Roboto" font-weight="300" letter-spacing="-0.005em"><tspan x="-43.931" y="0">Purs spécialistes</tspan></text>
+      <text id="Autres" transform="translate(541 552)" fill="rgba(0,0,0,0.85)" font-size="12" font-family="Roboto-Light, Roboto" font-weight="300" letter-spacing="-0.005em"><tspan x="-16.889" y="0">Autres</tspan></text>
+    </g>
+    <g id="Group_17525" data-name="Group 17525" transform="translate(350.405 576.646)">
+      <path id="Path_44487" data-name="Path 44487" d="M2652.479,1300.535h-66.573v-.4h66.381l33.469-41.717.312.25Z" transform="translate(-2568.949 -1258.543)" fill="#151d21"/>
+      <text id="Multi_spécialistes-2" data-name="Multi spécialistes" transform="translate(38.595 35.764)" fill="#151d21" font-size="12" font-family="Roboto-Regular, Roboto" letter-spacing="-0.005em"><tspan x="-46.131" y="0">Multi spécialistes</tspan></text>
+      <text id="_778_Pdv" data-name="778 Pdv" transform="translate(70.595 56.709)" fill="#151d21" font-size="12" font-family="Roboto-Light, Roboto" font-weight="300"><tspan x="-42.621" y="0">778 Pdv</tspan></text>
+    </g>
+  </g>
+</svg>

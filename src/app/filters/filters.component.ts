@@ -1,3 +1,4 @@
+import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { FiltersStatesService } from './filters-states.service';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
@@ -5,7 +6,6 @@ import { ThrowStmt } from '@angular/compiler';
 import { Subject } from 'rxjs/internal/Subject';
 import { combineLatest } from 'rxjs';
 import Dashboard from '../navigation/Dashboard';
-
 interface listDash {
   name: string[];
   id: number[];

@@ -5,21 +5,23 @@
   <div class="path">
     {{ path }}
   </div>
-  <select
-    [(ngModel)]="selectedDashboardId"
-    (ngModelChange)="updateState(undefined, $event, undefined)"
-    class="dashSelection"
-    *ngIf="showselect"
-    [disabled]="viewList == subLevels"
-    [ngClass]="{ disabled: subLevels == viewList }"
-  >
-    <option
-      *ngFor="let dashName of listDashboard.name; let idPos = index"
-      [value]="this.listDashboard.id[idPos]"
+    
+    <select
+      name="fieldName" ngDefaultControl
+      [(ngModel)]="selectedDashboardId"
+      (ngModelChange)="updateState(undefined, $event, undefined)"
+      class="dashSelection"
+      *ngIf="showselect"
+      [disabled]="viewList == subLevels"
+      [ngClass]="{ disabled: subLevels == viewList }"
     >
-      {{ dashName }}
-    </option>
-  </select>
+      <option
+        *ngFor="let dashName of listDashboard.name; let idPos = index"
+        [value]="this.listDashboard.id[idPos]"
+      >
+        {{ dashName }}
+      </option>
+    </select>
   <img (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
     <ul class="list-button">

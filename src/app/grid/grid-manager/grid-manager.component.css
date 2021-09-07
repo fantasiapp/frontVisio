@@ -1,0 +1,8 @@
+:host(.container) {
+  width: 600px;
+  height: 600px;
+  outline: 1px dashed #333;
+  display: grid;
+  column-gap: 10px;
+  row-gap: 10px;
+}

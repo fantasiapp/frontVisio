@@ -1,3 +1,4 @@
+import { MatSelectModule } from '@angular/material/select';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,6 +21,11 @@ import { MapComponent } from './map/map.component';
 import { ViewComponent } from './view/view.component';
 // import { AgmCoreModule } from '@agm/core';
 import { Navigation } from './navigation/Navigation';
+import {MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { SelectComponent } from './general/select/select.component';
+import { MatIconModule } from '@angular/material/icon'
+import { MatButtonModule } from  '@angular/material/button'
 @NgModule({
   declarations: [
     AppComponent,
@@ -35,14 +41,19 @@ import { Navigation } from './navigation/Navigation';
     SubUpperBarComponent,
     MapComponent,
     ViewComponent,
+    SelectComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
+    MatInputModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatIconModule
     // AgmCoreModule.forRoot({
     //   apiKey:''
     // })

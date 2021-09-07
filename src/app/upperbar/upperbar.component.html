@@ -1,9 +1,9 @@
 <div class="container-bar">
   <div class="button-container">
     <div (click)="showFilters()" class="open-filters">
-      Options</div>
+      Options
         <div class="arrow-box">
-          <img class="arrow" scr="assets/icon-option.svg" /></div
+          <mat-icon class="expand-icon">expand_more</mat-icon></div></div
       >
   </div>
 
@@ -64,9 +64,12 @@
     </div>
   </div>
 </div>
-<div *ngIf="isFilterVisible">
-  <app-filters></app-filters>
-</div>
 <div>
   <app-sub-upper-bar></app-sub-upper-bar>
+</div>
+<div> 
+  <app-data-stat></app-data-stat>
+</div>
+<div *ngIf="isFilterVisible">
+  <app-filters></app-filters>
 </div>
