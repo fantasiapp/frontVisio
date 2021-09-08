@@ -25,7 +25,9 @@ import {MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-f
 import { MatInputModule } from '@angular/material/input';
 import { SelectComponent } from './general/select/select.component';
 import { MatIconModule } from '@angular/material/icon'
-import { MatButtonModule } from  '@angular/material/button'
+import { MatButtonModule } from  '@angular/material/button';
+import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
+import { SimpleDonutsComponent } from './widgets/simple-donuts/simple-donuts.component'
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,6 +44,8 @@ import { MatButtonModule } from  '@angular/material/button'
     MapComponent,
     ViewComponent,
     SelectComponent,
+    SimplePieComponent,
+    SimpleDonutsComponent,
   ],
   imports: [
     BrowserModule,

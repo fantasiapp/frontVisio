@@ -57,12 +57,12 @@ export class FiltersComponent implements OnInit {
       this.levelLabel = currentStates.States.level.label
       this.superLevel = currentsArrays.levelArray.superLevel;
       this.path = currentStates.States.path.join(' > ');
-      this.showselect = this.levelName !== 'France';
+      this.showselect = this.superLevel.name === undefined ? false : true;
       this.selectedDashboardId = currentStates.States.dashboard.id;
       this.selectedDashboardName = currentStates.States.dashboard.name;
     });
     this.viewList =
-      this.levelName == 'France' ? this.listDashboard : this.listLevel;
+    this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
   private blockToShow(list: listDash | listLev) {}
 
@@ -76,7 +76,7 @@ export class FiltersComponent implements OnInit {
   showSuper(level?: lev, levels?: listLev) {
     this.filtersState.updateState(undefined, undefined, true);
     this.viewList =
-      this.levelName == 'France' ? this.listDashboard : this.listLevel;
+    this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
 
   updateState(
