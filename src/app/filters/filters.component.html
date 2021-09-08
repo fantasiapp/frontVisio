@@ -1,8 +1,8 @@
 <div class="container-filters">
-  <div class="title">
+  <div class="title left-aligned">
     {{ this.levelLabel }}
   </div>
-  <div class="path">
+  <div class="path left-aligned">
     {{ path }}
   </div>
     
@@ -24,10 +24,10 @@
     </select>
   <img (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
-    <ul class="list-button">
+    <div class="list-button">
       <ng-container *ngFor="let levName of viewList.name; let idLev = index">
         <button
-          class="list-elmt"
+          class="list-elmt left-aligned"
           [ngClass]="{ selected: levName === this.levelName }"
           (click)="updateState(idLev + 1, undefined, undefined)"
           (dblclick)="updateStateClose(idLev + 1, undefined, undefined)"
@@ -35,12 +35,12 @@
           {{ levName }}
         </button></ng-container
       >
-    </ul>
+      </div>
   </div>
   <ng-container *ngIf="!showselect">
     <div class="list">
       <button
-        class="list-elmt"
+        class="list-elmt left-aligned"
         *ngFor="let dashboardName of viewList.name; let idPos = index"
         (click)="
           updateState(undefined, this.listDashboard.id[idPos], undefined)

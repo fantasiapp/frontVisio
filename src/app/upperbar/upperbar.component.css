@@ -1,14 +1,9 @@
 .container-bar{
     position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
+    width: 90%;
     height: 60px;
     opacity: 1;
-    display: flex;
-    justify-content: space-between;
     background: #FFFFFF 0% 0% no-repeat padding-box;
-    opacity: 1;
 }
 .input-range{
     -moz-appearance: none;
@@ -37,10 +32,9 @@ label{
 .open-filters{
     position: absolute;
     display: flex;
-    left: 5vw;
     width: 200px;
     height: 100%;
-    border-color: azure;
+    border-color: rgb(229, 252, 252);
     background: #FFFFFF 0% 0% no-repeat padding-box;
     border-width: 0px;
     opacity: 1;
@@ -68,7 +62,7 @@ label{
     position: absolute;
     display: flex;
     height: 100%;
-    right: 6vw;
+    right: 0px;
 }
 .input[type ="range"]::-webkit-slider-runnable-track{
     -moz-appearance: none;
@@ -141,7 +135,7 @@ label{
 }
 .arrow-box{
     position: absolute;
-    right: 0;
+    left: 70px; bottom: 35px;
     width: fit-content;
     height: auto;
     height: 10%;

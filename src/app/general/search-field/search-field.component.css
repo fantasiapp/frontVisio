@@ -31,6 +31,7 @@
   .remove-icon {
     height: 1em;
     cursor: pointer;
+    padding-left: 10px;
   }
   .container.lightMode .remove-icon {
     filter: invert(1);
