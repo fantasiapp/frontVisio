@@ -1,3 +1,4 @@
+import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
 import { ViewComponent } from './view/view.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -14,7 +15,10 @@ const routes: Routes = [
   {
         path: 'login',
         component: LoginPageComponent,
-  },
+  },{
+      path: 'pie',
+      component: SimplePieComponent,
+},
   {
         path: 'logged',
         component: ViewComponent,

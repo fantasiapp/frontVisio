@@ -8,9 +8,6 @@ class DataExtractionHelper {
   
   //Represent levels as a vertical array rather than a recursive structure
   private static levels: any[] = [];
-
-  //Used for adding `Département` before departement number
-  private static departementIdx: number;
   
   static setData(d: any) {
     let structure = d['structure'];
@@ -26,8 +23,6 @@ class DataExtractionHelper {
       this.levels.push(level.slice(0, 4));
       if ( !(level = level[this.SUBLEVEL_INDEX]) ) break;
     }
-
-    this.departementIdx = this.levels.findIndex(x => x[this.LABEL_INDEX] == 'dep');
   }
 
   static height() {
@@ -49,12 +44,8 @@ class DataExtractionHelper {
   }
   
   static getLevelName(height: number, id: number): string {
-    if ( height == 0 ) return "France";
     let name = this.data[this.getLevel(height)[this.LABEL_INDEX]][id];
-    if ( !name ) throw `No level with id=${id}`;
-    
-    if ( height == this.departementIdx )
-      name = 'Département ' + name;
+    if ( name === undefined ) throw `No level with id=${id}`;
     return name;
   }
 

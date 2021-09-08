@@ -68,6 +68,10 @@ export class Navigation {
     };
   }
 
+  isTopLevel() {
+    return this.currentLevel?.parent;
+  }
+
   setCurrent(
     levelId?: number,
     dashboardId?: number,
