@@ -3,14 +3,12 @@
     position: absolute;
     display: flex;
     top : 70px;
-    left: 5%;
-    right: 5%;
     z-index: 0;
+    justify-content: space-between;
 }
 select{
     position:absolute;
     top: 10px;
-    right: 2.7vw; 
     width: 134px;
     height: 36px;
     background: #FFFFFF 0% 0% no-repeat padding-box;

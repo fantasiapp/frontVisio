@@ -70,3 +70,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 *svg{
     font-family: Roboto;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.aligned {
+    padding-left: 5%;
+    padding-right: 5%;
+}
