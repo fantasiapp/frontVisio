@@ -6,7 +6,7 @@ import { FiltersComponent } from './filters/filters.component';
 import { LoggedPageComponent } from './logged-page/logged-page.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { PublicPageComponent } from './public-page/public-page.component';
-import { PieChartComponent } from './widgets/piechart/piechart.component';
+//import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
 const routes: Routes = [
@@ -16,10 +16,11 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginPageComponent,
-  }, {
-    path: 'pie',
-    component: PieChartComponent,
   },
+  // }, {
+  //   path: 'pie',
+  //   component: PieChartComponent,
+  // },
   {
     path: 'logged',
     component: ViewComponent,
