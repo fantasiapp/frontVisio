@@ -126,9 +126,14 @@
 }
 img{
     position: absolute;
-    width: 40%;
+    width: 35%;
 }
 img.ad{
     position: absolute;
     width: 80%;
+}
+#svg{
+    position: absolute;
+    width: 50%;
+    padding-left:5% ;
 }
