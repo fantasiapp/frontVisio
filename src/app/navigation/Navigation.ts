@@ -19,6 +19,7 @@ export class Navigation {
   }
 
   constructor(private dataservice : DataService){
+    
   }
 
   getArray(dataType: 'level' | 'dashboard'): any {
@@ -65,6 +66,9 @@ export class Navigation {
       path: currentLevel.path.map(
         (level) => level.label +': '+ level.name 
       ),
+      _path: currentLevel.path.map(
+        (level) => [level.label, level.id] 
+      )
     };
   }
 

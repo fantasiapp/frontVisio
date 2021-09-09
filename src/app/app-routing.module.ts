@@ -6,6 +6,7 @@ import { FiltersComponent } from './filters/filters.component';
 import { LoggedPageComponent } from './logged-page/logged-page.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { PublicPageComponent } from './public-page/public-page.component';
+import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
 const routes: Routes = [
@@ -13,19 +14,19 @@ const routes: Routes = [
   {path: 'login', redirectTo: 'login', pathMatch: 'full'},
 
   {
-        path: 'login',
-        component: LoginPageComponent,
-  },{
-      path: 'pie',
-      component: SimplePieComponent,
-},
-  {
-        path: 'logged',
-        component: ViewComponent,
+    path: 'login',
+    component: LoginPageComponent,
+  }, {
+    path: 'pie',
+    component: PieChartComponent,
   },
   {
-        path: 'filters',
-        component: FiltersComponent,
+    path: 'logged',
+    component: ViewComponent,
+  },
+  {
+    path: 'filters',
+    component: FiltersComponent,
   },
   // {
   //   path: '',

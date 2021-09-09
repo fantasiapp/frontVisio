@@ -1,4 +1,3 @@
-import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { FiltersStatesService } from './filters-states.service';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
