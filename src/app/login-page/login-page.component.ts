@@ -1,3 +1,4 @@
+import { FiltersStatesService } from './../filters/filters-states.service';
 import {
   ChangeDetectorRef,
   Component,
@@ -48,6 +49,7 @@ export class LoginPageComponent implements OnInit {
     cdr: ChangeDetectorRef,
     private authService: AuthService,
     private dataservice: DataService,
+    private filtersStates : FiltersStatesService,
     private router: Router
   ) {}
   userValid = false;

@@ -48,6 +48,7 @@ export class FiltersComponent implements OnInit {
       this.filtersState.arraySubject,
       this.filtersState.stateSubject,
     ]).subscribe(([currentsArrays, currentStates]) => {
+      console.debug("le filters state", currentsArrays)
       this.listLevel = currentsArrays.levelArray.currentLevel;
       this.subLevels = currentsArrays.levelArray.subLevel;
       this.currentLev = currentStates.States.level;

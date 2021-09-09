@@ -12,7 +12,7 @@ export class DataService {
 
   constructor(private http : HttpClient) {}
 
-  public requestData(): Observable<Object|null> {
+  public requestData(): BehaviorSubject<Object|null> {
     const token = sessionStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Token ${token}`});
     const response = new BehaviorSubject<Object|null>(null);
