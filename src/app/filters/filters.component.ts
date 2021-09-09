@@ -4,7 +4,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ThrowStmt } from '@angular/compiler';
 import { Subject } from 'rxjs/internal/Subject';
 import { combineLatest } from 'rxjs';
-import Dashboard from '../navigation/Dashboard';
+import Dashboard from '../sliceDice/Dashboard';
 interface listDash {
   name: string[];
   id: number[];

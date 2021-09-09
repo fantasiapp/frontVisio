@@ -2,7 +2,11 @@ import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import { MOCK_NAVIGATION } from '../structure/mock-structure';
-import {Navigation} from '../navigation/Navigation';
+import DataExtractionHelper from '../sliceDice/DataExtractionHelper';
+import {Navigation} from '../sliceDice/Navigation';
+//!!!HACK
+import { load } from '../sliceDice/Slice&Dice';
+
 import { state } from '@angular/animations';
 import {MatSelectModule} from '@angular/material/select'
 
@@ -17,7 +21,9 @@ export class FiltersStatesService {
     this.dataservice.requestData().subscribe((data) => {
       if (data){
         console.debug('les datas ', data);
-        this.navigation.setData(data);
+        DataExtractionHelper.setData(data);
+        //HACK!!
+        this.navigation.load(load());
         const currentArrays = {
           levelArray: this.navigation.getArray('level'),
           dashboardArray: this.navigation.getArray('dashboard'),

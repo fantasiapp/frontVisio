@@ -1,9 +1,8 @@
 import { nationalP2CD } from './../../structure/test-widget';
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-import { Navigation } from 'src/app/navigation/Navigation';
-import { SliceDice } from 'src/sliceDice/sliceDice/Slice&Dice';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { Navigation } from 'src/app/sliceDice/Navigation';
+import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
 
 @Component({
   selector: 'app-simple-pie',
@@ -20,6 +19,7 @@ export class SimplePieComponent implements OnInit, OnChanges {
 
   ngOnChanges(): void {
     this.data = this.sliceDice.dnMarcheP2cd(this.path);
+    console.log(this.data);
     d3.select('div#container svg').remove();
     this.createSvg();
     this.createColors();
