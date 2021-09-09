@@ -59,11 +59,11 @@
       <img
         src="assets/super.svg"
         class="navigate-button1"
-        *ngIf="superLevel.name"
+        *ngIf="superLevel.label"
         (click)="showSuper(this.superLevel)"
       />
       <br />
-      {{ superLevel.label | lowercase }}
+      {{ superLevel.label }}
     </div>
     <div class="box-nav2" [ngClass]="{ disabled: subLevels == viewList }">
       <img

@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   resUrl: 'https://gaia.fantasiapp.tech/',
-  backUrl: 'http://current.visio.fantasiapp.tech:2439/',
+  backUrl: 'http://work.visio.fantasiapp.tech:2438/',
 };
 /*
  * For easier debugging in development mode, you can import the following file

@@ -1,6 +1,6 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { MOCK_NAVIGATION } from '../structure/mock-structure';
 import {Navigation} from '../navigation/Navigation';
 import { state } from '@angular/animations';
@@ -9,7 +9,7 @@ import {MatSelectModule} from '@angular/material/select'
 @Injectable({
   providedIn: 'root',
 })
-export class FiltersStatesService {
+export class FiltersStatesService implements OnInit{
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
   
@@ -29,6 +29,22 @@ export class FiltersStatesService {
         this.arraySubject.next(currentArrays);}
     });
 
+  }
+  ngOnInit():void {
+    this.dataservice.requestData().subscribe((data) => {
+      if (data){
+        console.debug('les datas ', data);
+        this.navigation.setData(data);
+        const currentArrays = {
+          levelArray: this.navigation.getArray('level'),
+          dashboardArray: this.navigation.getArray('dashboard'),
+        };
+        const currentState = {
+          States: this.navigation.getCurrent(),
+        };
+        this.stateSubject.next(currentState);
+        this.arraySubject.next(currentArrays);}
+    });
   }
 
   stateSubject = new BehaviorSubject({
