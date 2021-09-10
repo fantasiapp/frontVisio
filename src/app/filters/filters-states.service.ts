@@ -14,7 +14,7 @@ export class FiltersStatesService {
   filtersVisible = new BehaviorSubject<boolean>(false);
   
   constructor(private navigation: Navigation, private dataservice : DataService) {
-    this.dataservice.requestData().subscribe((data) => {
+    this.dataservice.response.subscribe((data) => {
       if (data){
         console.debug('les datas ', data);
         this.navigation.setData(data);

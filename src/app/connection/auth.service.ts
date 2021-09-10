@@ -14,7 +14,8 @@ import { environment } from 'src/environments/environment';
 })
 export class AuthService {
   token: string;
-  username: string ='';
+  username: string = '';
+  isLoggedIn = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient, private router: Router) {
     this.token = sessionStorage.getItem('token') || '';
@@ -25,16 +26,19 @@ export class AuthService {
       username,
       password,
     };
-    return this.http
-      .post(environment.backUrl + 'visioServer/api-token-auth/', data)
-      .pipe(
-        map((response : any) => {
-          this.token = response['token'];
-          this.username = username;
-          sessionStorage.setItem('token', this.token);
-          return true;
-        })
-      ) || of(false);
+    return (
+      this.http
+        .post(environment.backUrl + 'visioServer/api-token-auth/', data)
+        .pipe(
+          map((response: any) => {
+            this.token = response['token'];
+            this.username = username;
+            sessionStorage.setItem('token', this.token);
+            this.isLoggedIn.next(true);
+            return true;
+          })
+        ) || of(false)
+    );
   }
 
   getUser() {
@@ -43,9 +47,11 @@ export class AuthService {
 
   logoutFromServer() {
     setTimeout(() => {
-      console.log('entered logout');
       sessionStorage.removeItem('token');
+      this.isLoggedIn.next(false)
       this.router.navigate(['login']);
+      localStorage.clear();
+      sessionStorage.clear();
     }, 1000);
   }
 }

@@ -1,11 +1,13 @@
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { FiltersStatesService } from './filters-states.service';
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ThrowStmt } from '@angular/compiler';
 import { Subject } from 'rxjs/internal/Subject';
 import { combineLatest } from 'rxjs';
 import Dashboard from '../navigation/Dashboard';
+import { DataService } from '../services/data.service';
+import { takeUntil } from 'rxjs/operators';
 interface listDash {
   name: string[];
   id: number[];
@@ -25,8 +27,8 @@ interface lev {
   templateUrl: './filters.component.html',
   styleUrls: ['./filters.component.css'],
 })
-export class FiltersComponent implements OnInit {
-  constructor(private filtersState: FiltersStatesService) {}
+export class FiltersComponent implements OnInit , OnDestroy{
+  constructor(private filtersState: FiltersStatesService, private dataservice : DataService) {}
 
   listDashboard!: listDash;
   listLevel!: listLev;
@@ -48,7 +50,7 @@ export class FiltersComponent implements OnInit {
     combineLatest([
       this.filtersState.arraySubject,
       this.filtersState.stateSubject,
-    ]).subscribe(([currentsArrays, currentStates]) => {
+    ]).pipe(takeUntil(this.destroy$)).subscribe(([currentsArrays, currentStates]) => {
       console.debug("le filters state", currentsArrays)
       this.listLevel = currentsArrays.levelArray.currentLevel;
       this.subLevels = currentsArrays.levelArray.subLevel;

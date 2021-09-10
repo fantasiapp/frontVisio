@@ -1,3 +1,4 @@
+import { AuthGuard } from './connection/auth.guard';
 import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
 import { ViewComponent } from './view/view.component';
 import { NgModule } from '@angular/core';
@@ -21,33 +22,19 @@ const routes: Routes = [
 },
   {
         path: 'logged',
-        component: ViewComponent,
+        component: ViewComponent, 
+        canActivate:[AuthGuard],
   },
   {
         path: 'filters',
         component: FiltersComponent,
+        canActivate:[AuthGuard],
   },
-  // {
-  //   path: '',
-  //   component: LoggedPageComponent,
-  //   children: [
-  //     {
-  //       path: ':annee',
-  //       data: { breadcrumb: 'Annee' },
-  //       children: [
-  //         {
-  //           path: '',{}
-  //           data: { breadcrumb: null },
-  //           component: DataViewComponent,
-  //         }
-  //       ],
-  //     },
-  //   ],
-  // },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [AuthGuard]
 })
 export class AppRoutingModule { }

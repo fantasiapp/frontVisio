@@ -11,11 +11,11 @@ import { environment } from 'src/environments/environment';
 export class DataService {
 
   constructor(private http : HttpClient) {}
-
-  public requestData(): BehaviorSubject<Object|null> {
+  
+  response = new BehaviorSubject<Object|null>(null);
+  public requestData(): Observable<Object|null> {
     const token = sessionStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Token ${token}`});
-    const response = new BehaviorSubject<Object|null>(null);
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         headers,
@@ -29,8 +29,8 @@ export class DataService {
         })
       )
       .subscribe((data) => {
-        response.next(data);
+        this.response.next(data);
       });
-    return response;
+    return this.response;
   }
 }
