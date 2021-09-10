@@ -1,42 +1,44 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
+import { SimplePieComponent } from '../../widgets/simple-pie/simple-pie.component';
 
 interface Layout {
-  grid: [string, string]
-  areas: [string, string, any][]
+  grid: [string, string],
+  template: string;
+  areas: [string, any][]
 };
-
-/* Some component example */
-@Component({
-  selector: 'some-component',
-  template: '<p>some-component works!</p>',
-  styles: [':host(.box) { display: block; outline: 1px dashed #aaa; }']
-})
-export class SomeComponent extends GridArea implements OnInit {
-  constructor(public viewContainerRef: ViewContainerRef) { super(); }
-  ngOnInit(): void {}
-}
 
 @Component({
   selector: 'grid-manager',
   templateUrl: './grid-manager.component.html',
   styleUrls: ['./grid-manager.component.css'],
 })
-export class GridManager implements OnInit, AfterViewInit {
+export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
-  private layout: Layout = {
-    grid: ["2", "2"],
-    areas: [
-      ["1 / 2", "1 / 2", SomeComponent],
-      ["2 / 2", "2 / 2", SomeComponent],
-      //["2 / 2", "1 / 3", SomeComponent]
-    ]
+  private $layout: Layout = {
+    grid: ["1", "1"],
+    template: `
+      "x"
+    `,
+    areas: []
+  }
+
+  get layout(): Layout {
+    return this.$layout;
+  }
+
+  @Input()
+  set layout(layout: Layout) {
+    this.$layout = layout;
+    this.computeLayout();
   }
 
   @HostBinding('style.grid-template-columns')
   private gridColumns: string = 'repeat(' + this.layout.grid[0] + ', 1fr)';
   @HostBinding('style.grid-template-rows')
   private gridRows: string = 'repeat(' + this.layout.grid[1] + ', 1fr)';
+  @HostBinding('style.grid-template-areas')
+  private gridAreaTemplate: string = this.layout.template;
 
   private componentRefs: ComponentRef<any>[] = [];
 
@@ -45,17 +47,23 @@ export class GridManager implements OnInit, AfterViewInit {
 
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) { }
+  
   ngAfterViewInit() {
-      this.createComponents();
+    this.createComponents();
   }
-  createComponents() {
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('[GridManager.prototype.ngOnChanges]: What is wrong ?;');
+  }
+
+  private createComponents() {
     this.ref.detach();
     for ( let area of this.layout.areas ) {
-      let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(area[2]);
+      if ( !area ) continue;
+      let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(area[1]);
       let component = this.ref.createComponent(factory);
       this.componentRefs.push(component);
-      component.instance.gridColumn = area[0];
-      component.instance.gridRow = area[1];
+      component.instance.gridArea = area[0];
       this.ref.insert(component.hostView);
     }
     this.cd.detectChanges();
@@ -66,5 +74,45 @@ export class GridManager implements OnInit, AfterViewInit {
   ngOnDestroy() {
     for ( let componentRef of this.componentRefs )
       componentRef.destroy();
+  }
+
+  private computeLayout() {
+    this.gridColumns = 'repeat(' + this.layout.grid[0] + ', 1fr)';
+    this.gridRows = 'repeat(' + this.layout.grid[1] + ', 1fr)';
+    this.gridAreaTemplate = this.layout.template;
+  }
+}
+
+@Component({
+  selector: 'simple-component',
+  template: `<p>it works!</p>`
+})
+export class SimpleComponent extends GridArea {
+
+}
+
+
+@Component({
+  'selector': 'grid-wrapper',
+  template: `<grid-manager [layout]="layout"></grid-manager>`,
+  styles: []
+})
+export class GridManagerWrap {
+  
+  public layout: Layout = {
+    grid: ["2", "2"],
+    template: `
+      "a c"
+      "b c"
+    `,
+    areas: [
+      ["a", SimplePieComponent],
+      ["b", SimpleComponent],
+      ["c", SimpleComponent]
+    ]
+  }
+  
+  constructor() {
+
   }
 }

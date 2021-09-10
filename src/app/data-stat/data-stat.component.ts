@@ -33,16 +33,6 @@ export class DataStatComponent implements OnInit {
           };
       this.layout = +elmt!.LayOut;
       
-      if ( this.nav.currentLevel ) {
-        this.path = this.nav.getCurrent()._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
-          if ( idx == 0 )
-            acc['Région'] = level[1]
-          else acc[level[0]]=level[1];
-          return acc;
-        }, {});
-      }
     });
   }
-
-  public path = {};
 }
