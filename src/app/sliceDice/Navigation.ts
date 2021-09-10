@@ -29,17 +29,22 @@ export class Navigation {
   getArray(dataType: 'level' | 'dashboard'): any {
     let currentLevel = this.currentLevel!
     if (dataType == 'level') {
+
+      let subLevel = !this.childIsPdv(currentLevel) ? {
+        name: currentLevel.children.map((child: Node) => child.name),
+        id: currentLevel.children.map((child: Node) => child.id),
+        label: currentLevel.children.map((child: Node) => child.label),
+      } : {name: [], id: [], label:[]};
+
+      console.log()
+
       return {
         currentLevel: {
           name: currentLevel.siblings.map((sibling: Node) => sibling.name),
           id: currentLevel.siblings.map((sibling: Node) => sibling.id),
           label: currentLevel.children.map((child: Node) => child.label),
         },
-        subLevel: {
-          name: currentLevel.children.map((child: Node) => child.name),
-          id: currentLevel.children.map((child: Node) => child.id),
-          label: currentLevel.children.map((child: Node) => child.label),
-        },
+        subLevel,
         superLevel: {
           name: currentLevel.parent?.name,
           id: currentLevel.parent?.id,
@@ -52,6 +57,10 @@ export class Navigation {
         name: currentLevel.dashboards.map((dashboard) => dashboard.name),
       };
     }
+  }
+
+  private childIsPdv(child: Node): boolean{
+    return <boolean>(child.children.length && child.children[0].children.length === 0);
   }
 
   getCurrent(): any {
