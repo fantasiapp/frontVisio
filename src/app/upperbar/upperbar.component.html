@@ -30,6 +30,7 @@
   <div class="right-block">
     <div class="search-div">
       <span
+      [@openClose]="shouldShowButtons ? 'open' : 'closed'"
         ><app-search-field
           *ngIf="shouldShowButtons === true"
           class="search-bar"

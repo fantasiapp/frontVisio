@@ -46,4 +46,5 @@ export class SearchFieldComponent implements OnInit, OnChanges {
   handleCrossClick() {
     this.onCrossClick.emit(this.searchModel);
   }
+
 }
