@@ -33,9 +33,14 @@ export class FiltersStatesService {
         };
         this.stateSubject.next(currentState);
         this.arraySubject.next(currentArrays);}
+        this.$path.next({});
     });
 
   }
+
+  $path = new BehaviorSubject({
+
+  });
 
   stateSubject = new BehaviorSubject({
     States: {
@@ -88,6 +93,17 @@ export class FiltersStatesService {
       States: this.navigation.getCurrent(),
     };
     this.stateSubject.next(currentState);
-    this.arraySubject.next(currentArrays)
+    this.arraySubject.next(currentArrays);
+    
+    if ( this.navigation.currentLevel ) {
+      let path = this.navigation.getCurrent()._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
+        if ( idx == 0 )
+          acc['Région'] = level[1]
+        else acc[level[0]]=level[1];
+        return acc;
+      }, {});
+
+      this.$path.next(path);
+    }
   }
 }

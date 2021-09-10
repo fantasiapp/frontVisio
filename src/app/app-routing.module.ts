@@ -7,6 +7,7 @@ import { FiltersComponent } from './filters/filters.component';
 import { LoggedPageComponent } from './logged-page/logged-page.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { PublicPageComponent } from './public-page/public-page.component';
+import { GridManager, GridManagerWrap } from './grid/grid-manager/grid-manager.component';
 //import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
@@ -28,6 +29,10 @@ const routes: Routes = [
         component: FiltersComponent,
         canActivate:[AuthGuard],
   },
+  {
+    path: 'grid-test',
+    component: GridManagerWrap
+  }
 ];
 
 @NgModule({

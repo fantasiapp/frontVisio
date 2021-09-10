@@ -284,8 +284,10 @@ export class PDV {
     Object.keys(dataAxe1).forEach((id, index) => idToI[parseInt(id)] = index);
     Object.keys(dataAxe2).forEach((id, index) => idToJ[parseInt(id)] = index);
 
-    let pdvs: PDV[] = [...this.instances.values()], childrenOfSlice: any;
+    let pdvs: PDV[] = [], childrenOfSlice: any;
     if ( slice ) {
+      //!!OPTIMIZE
+      //!! We are calling sliceTree once per widget, even if it is the same slice
       [pdvs, childrenOfSlice] = this.sliceTree(slice);
       if ( childrenOfSlice.hasOwnProperty(axe1) ) {
         rowsTitles = childrenOfSlice[axe1].map((node: any) => node.name);
@@ -296,6 +298,8 @@ export class PDV {
         rowsTitles = childrenOfSlice[axe2].map((node: any) => node.name);
         childrenOfSlice[axe2].forEach((id: number, index: number) => idToJ[id] = index);
       }
+    } else {
+      pdvs = [...this.instances.values()];
     }
 
 

@@ -1,8 +1,8 @@
-import { nationalP2CD } from './../../structure/test-widget';
-import { ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { GridArea } from 'src/app/grid/grid-area/grid-area';
 import * as d3 from 'd3';
-import { Navigation } from 'src/app/sliceDice/Navigation';
 import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
+import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
 @Component({
   selector: 'app-simple-pie',
@@ -10,23 +10,31 @@ import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
   styleUrls: ['./simple-pie.component.css'],
   providers: [SliceDice]
 })
-export class SimplePieComponent implements OnInit, OnChanges {
-  constructor(private sliceDice: SliceDice) {
-    
+export class SimplePieComponent extends GridArea implements OnInit, OnChanges {
+  constructor(private filtersService: FiltersStatesService, private sliceDice: SliceDice) {
+    super();
+    filtersService.$path.subscribe(path => {
+      this.path = path;
+      this.update();
+    });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.update();
+  }
 
   ngOnChanges(): void {
+    this.update();
+  }
+
+  private update() {
     this.data = this.sliceDice.dnMarcheP2cd(this.path);
-    console.log(this.data);
     d3.select('div#container svg').remove();
     this.createSvg();
     this.createColors();
     this.drawChart();
   }
   
-  @Input()
   public path = {};
 
   private data: any[] = []; //nationalP2CD.tableauHaut;
