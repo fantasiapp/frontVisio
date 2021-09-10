@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  backUrl: 'http://current.visio.fantasiapp.tech:2439/',
+  //resUrl: 'https://gaia.fantasiapp.tech/',
+  backUrl: 'http://work.visio.fantasiapp.tech:2438/',
 };

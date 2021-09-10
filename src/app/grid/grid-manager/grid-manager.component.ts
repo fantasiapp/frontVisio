@@ -33,8 +33,6 @@ export class GridManager implements OnInit, AfterViewInit {
     ]
   }
 
-  @HostBinding('class.container')
-  private isContainer: boolean = true;
   @HostBinding('style.grid-template-columns')
   private gridColumns: string = 'repeat(' + this.layout.grid[0] + ', 1fr)';
   @HostBinding('style.grid-template-rows')

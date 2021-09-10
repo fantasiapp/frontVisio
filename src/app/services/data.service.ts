@@ -19,7 +19,7 @@ export class DataService {
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         headers,
-        params : {"action" : "navigation"},
+        params : {"action" : "dashboard"},
       }) as Observable<Object[]>
     )
       .pipe(

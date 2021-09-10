@@ -1,4 +1,4 @@
-:host(.container) {
+:host {
   width: 600px;
   height: 600px;
   outline: 1px dashed #333;

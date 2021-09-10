@@ -20,7 +20,7 @@ import { FiltersStatesService } from './filters/filters-states.service';
 import { MapComponent } from './map/map.component';
 import { ViewComponent } from './view/view.component';
 // import { AgmCoreModule } from '@agm/core';
-import { Navigation } from './navigation/Navigation';
+import { Navigation } from './sliceDice/Navigation';
 import {MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SelectComponent } from './general/select/select.component';

@@ -17,7 +17,7 @@ export default class Tree {
     let depthCallback = (currentHeight: number, height: number, result: any): any[] => {
       if ( currentHeight == height )
         return [result];
-      return result.children.map((node) => depthCallback(currentHeight+1, height, node)).flat();
+      return result.children.map((node: any) => depthCallback(currentHeight+1, height, node)).flat();
     };
 
     return depthCallback(0, height, this.root);

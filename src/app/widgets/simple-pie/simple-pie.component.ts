@@ -1,20 +1,35 @@
 import { nationalP2CD } from './../../structure/test-widget';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
 import * as d3 from 'd3';
+import { Navigation } from 'src/app/sliceDice/Navigation';
+import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
+
 @Component({
   selector: 'app-simple-pie',
   templateUrl: './simple-pie.component.html',
   styleUrls: ['./simple-pie.component.css'],
+  providers: [SliceDice]
 })
-export class SimplePieComponent implements OnInit {
-  constructor() {}
+export class SimplePieComponent implements OnInit, OnChanges {
+  constructor(private sliceDice: SliceDice) {
+    
+  }
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngOnChanges(): void {
+    this.data = this.sliceDice.dnMarcheP2cd(this.path);
+    console.log(this.data);
+    d3.select('div#container svg').remove();
     this.createSvg();
     this.createColors();
     this.drawChart();
   }
-  private data = nationalP2CD.tableauHaut;
+  
+  @Input()
+  public path = {};
+
+  private data: any[] = []; //nationalP2CD.tableauHaut;
   private svg: any = {};
   private margin = 150;
   private width = 750;
@@ -41,12 +56,12 @@ export class SimplePieComponent implements OnInit {
   createColors(): void {
     this.colors = d3
       .scaleOrdinal()
-      .domain(this.data.map((d) => d.valeur.toString()))
+      .domain(this.data.map((d) => d.value.toString()))
       .range(['#DC6206', '#888888', '#E1962A', '#DEDEDE']);
   }
   drawChart(): void {
     // Compute the position of each group on the pie:
-    const pie = d3.pie<any>().value((d: any) => Number(d.valeur));
+    const pie = d3.pie<any>().value((d: any) => Number(d.value));
 
     this.svg
       .selectAll('pieces')

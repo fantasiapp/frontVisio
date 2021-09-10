@@ -1,7 +1,6 @@
 import Dashboard from './Dashboard';
 import DataExtractionHelper from './DataExtractionHelper';
 import Tree, { DataTree } from './Tree';
-import {PDV} from './Slice&Dice';
 
 export interface NavigationNode {
   readonly id: number;

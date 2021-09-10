@@ -1,11 +1,10 @@
-import { MatInputModule } from '@angular/material/input';
+import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
 import { FormsModule } from '@angular/forms';
 import { FiltersStatesService } from './filters-states.service';
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ThrowStmt } from '@angular/compiler';
 import { Subject } from 'rxjs/internal/Subject';
 import { combineLatest } from 'rxjs';
-import Dashboard from '../navigation/Dashboard';
 import { DataService } from '../services/data.service';
 import { takeUntil } from 'rxjs/operators';
 interface listDash {

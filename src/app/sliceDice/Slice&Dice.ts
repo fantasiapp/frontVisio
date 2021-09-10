@@ -3,6 +3,8 @@ import Tree from './Tree';
 import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
+import { Injectable } from '@angular/core';
+import { DataService } from '../services/data.service';
 
 //make a useless Tree and Node objects
 //extend to get navigation and trade
@@ -42,12 +44,12 @@ class DataWidget {
 
   // Pour le moment on ne change pas les dict iToI et iToJ, donc une fois la fonction utilisée le datawidget ne peut plus être modifié
   groupData(groupsAxe1: string[], groupsAxe2: string[], simpleFormat=false, percent=false) {
-    groupsAxe1 = (groupsAxe1!.length === 0) ? this.rowsTitles : groupsAxe1;
+    groupsAxe1 = (groupsAxe1.length === 0) ? this.rowsTitles : groupsAxe1;
     groupsAxe2 = (groupsAxe2.length === 0) ? this.columnsTitles : groupsAxe2;
     let newData: number[][] = DataWidget.zeros(groupsAxe1.length, groupsAxe2.length);
     for (let i = 0; i < this.rowsTitles.length; i++) {
       let titleRow = this.rowsTitles[i];
-      let sumRow = this.data[i].reduce((acc:any, value:any) => acc + value, 0)
+      let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0)
       if (sumRow === 0) continue;
       for (let j = 0; j < this.columnsTitles.length; j++) {
         let titleColumn = this.columnsTitles[j];
@@ -102,7 +104,7 @@ class DataWidget {
     console.log(displayArray)
   }
 
-  removeZeros(){
+  removeZeros() {
     let n = this.rowsTitles.length,
       m = this.columnsTitles.length;
     let newData: number[][] = [];
@@ -110,14 +112,14 @@ class DataWidget {
     let realColumnsIndexes: number[] = [];
     let i = 0;
     for (let i = 0; i < n; i++) {
-      let lineNull = this.data[i].reduce((acc:any, value:any) => acc && (value === 0), true);
+      let lineNull = this.data[i].reduce((acc: number, value: number) => acc && (value === 0), true);
       if (!lineNull) realLinesIndexes.push(i);        
       }
     for (let _ in realLinesIndexes){
       newData.push([]);
     }
     for (let j = 0; j < m; j++){
-      let colNull = this.data.reduce((acc:any, line:any) => acc && (line[j] === 0), true)
+      let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] === 0), true)
       if (!colNull){
         realColumnsIndexes.push(j)
         for (let i = 0; i < realLinesIndexes.length; i++){
@@ -367,8 +369,8 @@ export class PDV {
 };
 
 // // test
-DataExtractionHelper.setData(MOCK_DATA);
-PDV.load();
+// DataExtractionHelper.setData(MOCK_DATA);
+// PDV.load();
 // let dataWidget = PDV.getData({DRV: 1}, "segmentMarketing", "segmentCommercial", "dn");
 // // let dataWidget = PDV.getData({DRV: 1, Secteur: 6, Département: 38}, "enseigne", "industrie", "p2cd");
 // // let dataWidget = PDV.getData({DRV: 1, Secteur: 6, Département:38}, "segmentMarketing", "segmentCommercial", "p2cd");
@@ -380,11 +382,24 @@ PDV.load();
 
 // il faut encore régler le problème des dep qui sont dans plusieurs agents
 
-export function dnMarcheP2cd(slice:any) {
-  // DataExtractionHelper.setData(MOCK_DATA);
-  // PDV.load();
-  let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
-  dataWidget.removeZeros();
-  dataWidget.groupData([], ['@other'], true)
-  return dataWidget.formatSimpleWidget();
+@Injectable()
+class SliceDice {
+  //use some service to correctly load data
+  constructor() {
+    
+  }
+
+  dnMarcheP2cd(slice:any) {
+    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
+    dataWidget.removeZeros();
+    dataWidget.groupData([], ['@other'], true)
+    return dataWidget.formatSimpleWidget();
+  }
+};
+
+function load() {
+  PDV.load();
+  return PDV.geoTree;
 }
+
+export { SliceDice, load };
