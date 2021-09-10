@@ -1,10 +1,9 @@
-import { data as MOCK_DATA } from './test'
+import { data, data as MOCK_DATA } from './test'
+import { Injectable } from '@angular/core';
 import Tree from './Tree';
 import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
-import { Injectable } from '@angular/core';
-import { DataService } from '../services/data.service';
 
 //make a useless Tree and Node objects
 //extend to get navigation and trade
@@ -61,8 +60,8 @@ class DataWidget {
       }
     }
     if (simpleFormat && groupsAxe1.length == 1 && groupsAxe2.length == 1){
-      this.data = newData[0][0];    
-      this.rowsTitles = ['all'];
+      this.data = newData[0][0];
+      if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
       this.columnsTitles = ['all'];
     }else if (simpleFormat && groupsAxe1.length == 1){
       this.data = newData[0];
@@ -79,15 +78,35 @@ class DataWidget {
     }
   }
 
+  basicTreatement(){
+    this.removeZeros();
+    this.sortLines();
+  }
+
   formatSimpleWidget(){
     let widgetParts: any[] = [];
-    for (let i = 0; i < this.rowsTitles.length; i++){
-      widgetParts.push({label: this.rowsTitles[i], value: this.data[i]})
+    if (Number.isInteger(this.data)){
+      widgetParts.push({label: this.rowsTitles[0], value: Math.round(this.data)})
+    }else {
+      for (let i = 0; i < this.rowsTitles.length; i++){
+        widgetParts.push({label: this.rowsTitles[i], value: Math.round(this.data[i])})
+      }
     }
     return widgetParts
   }
 
+  private sortLines(sortFunct = ((line: number[]) => line.reduce((acc: number, value: number) => acc + value, 0))){
+    let coupleList: [string, number[]][] = [];
+    for (let i = 0; i < this.rowsTitles.length; i ++)
+      coupleList.push([this.rowsTitles[i], this.data[i]]);
+    let sortCoupleListFunct = ((couple:[string, number[]]) => sortFunct(couple[1]));
+    let sortedCoupleList = coupleList.sort((couple1: [string, number[]], couple2: [string, number[]]) => sortCoupleListFunct(couple2) - sortCoupleListFunct(couple1));
+    this.rowsTitles = sortedCoupleList.map((couple: [string, number[]]) => couple[0]);
+    this.data = sortedCoupleList.map((couple: [string, number[]]) => couple[1]);
+  }
+
   // A supprimer dans la version finale
+  // Ne marche pas quand la widget n'est plus une matrice
   display(roundNumber = false){
     let n = this.rowsTitles.length,
       m = this.columnsTitles.length;
@@ -104,7 +123,7 @@ class DataWidget {
     console.log(displayArray)
   }
 
-  removeZeros() {
+  private removeZeros(){
     let n = this.rowsTitles.length,
       m = this.columnsTitles.length;
     let newData: number[][] = [];
@@ -112,7 +131,7 @@ class DataWidget {
     let realColumnsIndexes: number[] = [];
     let i = 0;
     for (let i = 0; i < n; i++) {
-      let lineNull = this.data[i].reduce((acc: number, value: number) => acc && (value === 0), true);
+      let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
       if (!lineNull) realLinesIndexes.push(i);        
       }
     for (let _ in realLinesIndexes){
@@ -368,19 +387,6 @@ export class PDV {
 
 };
 
-// // test
-// DataExtractionHelper.setData(MOCK_DATA);
-// PDV.load();
-// let dataWidget = PDV.getData({DRV: 1}, "segmentMarketing", "segmentCommercial", "dn");
-// // let dataWidget = PDV.getData({DRV: 1, Secteur: 6, Département: 38}, "enseigne", "industrie", "p2cd");
-// // let dataWidget = PDV.getData({DRV: 1, Secteur: 6, Département:38}, "segmentMarketing", "segmentCommercial", "p2cd");
-// dataWidget.removeZeros();
-// // dataWidget.groupData([], ['Siniat', 'Placo', 'Knauf', '@other']);
-// dataWidget.groupData([], ['@other'], true)
-// console.log(dataWidget.formatSimpleWidget());
-// // dataWidget.display(true);
-
-// il faut encore régler le problème des dep qui sont dans plusieurs agents
 
 @Injectable()
 class SliceDice {
@@ -390,9 +396,18 @@ class SliceDice {
   }
 
   dnMarcheP2cd(slice:any) {
+    PDV.load();
     let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
-    dataWidget.removeZeros();
+    dataWidget.basicTreatement();
     dataWidget.groupData([], ['@other'], true)
+    return dataWidget.formatSimpleWidget();
+  }
+  
+  p2cdMarcheP2cd(slice:any) {
+    PDV.load();
+    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "p2cd");
+    dataWidget.basicTreatement();
+    dataWidget.groupData([], ["@other"], true)
     return dataWidget.formatSimpleWidget();
   }
 };

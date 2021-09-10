@@ -131,6 +131,7 @@ class DataExtractionHelper {
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
     
     //trades have less info that geo
+    this.geoLevels = [];
     this.tradeLevels = tradeStructure;
     //compute geoLevels
     let geolevel = this.data['levels'];
