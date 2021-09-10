@@ -6,7 +6,7 @@
   (clickOutside)="isOpen = false"
 >
   <span class="label"
-    >{{ opts[0].label }} {{ selectedOpt?.label }}</span
+    >{{ selectedOpt?.label ?  selectedOpt?.label : opts[0].label}}</span
   >
   <mat-icon class="expand-icon" *ngIf="!disabled">expand_more</mat-icon>
   <div class="options-list" [class.isOpen]="isOpen">

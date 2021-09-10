@@ -1,12 +1,15 @@
 /* Select */
 .selector {
+    font: normal normal 700 14px/16px Roboto;
+    color: #F17B24;
     position: absolute;
+    right: 40px;
+    top:40px;
     box-sizing: border-box;
-    width: 200px;
     display: flex;
-    padding: 5px 0.8em;
-    right: 4vw;
     cursor: pointer;
+    min-width: 150px;
+    width: fit-content;
   }
   .selector.disabled {
     color: var(--grey) !important;
@@ -20,8 +23,8 @@
     border: 0.5px solid;
   }
   .selector.normal {
-    border: 0.5px solid ;
-    border-radius: 12px;
+    border: 0.2px solid ;
+    border-radius: 4px;
   }
   
   .label {
@@ -41,6 +44,8 @@
     display: flex;
     flex-direction: column;
     transition: max-height 0.2s;
+    box-shadow: 2px 2px 1px #96887e;
+    border-radius: 0 0 4px 4px;
   }
   .options-list.isOpen {
     max-height: 200px;
@@ -55,10 +60,12 @@
     padding: 0.5em 1em;
     width: 100%;
     cursor: pointer;
-    color: inherit;
+    color: black;
+    text-align: left;
   }
   .option:hover {
-    background-color: red;
+    background-color: #E6E6E6;
+    color: black;
   }
   
   .color-indicator {
@@ -66,5 +73,10 @@
     height: 1em;
     border: 1px solid #55555555;
     display: inline-block;
+  }
+
+  .expand-icon {
+    position: absolute;
+    right: 0px;
   }
   

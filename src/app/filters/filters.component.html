@@ -22,6 +22,16 @@
         {{ dashName }}
       </option>
     </select>
+    <app-select
+      [opts]="[{value: 0, label: 'Courte'},{value: 1, label: 'Un peu plus long'}]"
+    >
+      <option
+      *ngFor="let dashName of listDashboard.name; let idPos = index"
+      [value]="this.listDashboard.id[idPos]"
+      >
+      {{ dashName }}
+      </option>
+    </app-select>
   <img (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
     <div class="list-button">
