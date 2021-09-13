@@ -117,7 +117,7 @@ export class GridManagerWrap {
     `,
     areas: [
       ["a", SimplePieComponent],
-      ["b", SimpleDonutsComponent],
+      ["b", SimpleComponent],
       ["c", SimpleComponent]
     ]
   }

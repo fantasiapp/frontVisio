@@ -25,7 +25,6 @@ export class SimpleDonutsComponent extends GridArea {
     d3.select(this.ref.nativeElement).selectAll('div > svg').remove();
     this.rect = this.ref.nativeElement.getBoundingClientRect()
     this.data = this.sliceDice.dnMarcheP2cd(this.path);
-    console.log('>', this.rect);
     this.createSvg();
     this.createColors();
     this.drawChart();
