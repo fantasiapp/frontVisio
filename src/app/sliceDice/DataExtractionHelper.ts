@@ -105,6 +105,8 @@ const dashboards = {
   }
 };
 
+const layout = {};
+
 
 class DataExtractionHelper {  
   static data: any;
@@ -180,8 +182,12 @@ class DataExtractionHelper {
     return name;
   }
 
-  static getDashboards(): {[key:string]: {'name': string}} {
+  static getDashboards(): any {
     return dashboards;
+  }
+
+  static getLayouts(): any {
+    return layout
   }
   
   static getDashboardsAt(height: number): number[] {
