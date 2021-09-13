@@ -1,6 +1,7 @@
 import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { SimplePieComponent } from '../../widgets/simple-pie/simple-pie.component';
+import { SimpleDonutsComponent } from 'src/app/widgets/simple-donuts/simple-donuts.component';
 
 interface Layout {
   grid: [string, string],
@@ -53,7 +54,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('[GridManager.prototype.ngOnChanges]: What is wrong ?;');
+    console.log('[GridManager.ngOnChanges]: What is wrong ?;');
   }
 
   private createComponents() {
@@ -74,6 +75,8 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   ngOnDestroy() {
     for ( let componentRef of this.componentRefs )
       componentRef.destroy();
+    
+    this.componentRefs.length = 0;
   }
 
   private computeLayout() {
@@ -95,7 +98,14 @@ export class SimpleComponent extends GridArea {
 @Component({
   'selector': 'grid-wrapper',
   template: `<grid-manager [layout]="layout"></grid-manager>`,
-  styles: []
+  styles: [`
+    :host {
+      display: block;
+      box-sizing: border-box;
+      margin: 200px 5% 0;
+      height: calc(100% - 200px);
+    }
+  `]
 })
 export class GridManagerWrap {
   
@@ -107,7 +117,7 @@ export class GridManagerWrap {
     `,
     areas: [
       ["a", SimplePieComponent],
-      ["b", SimpleComponent],
+      ["b", SimpleDonutsComponent],
       ["c", SimpleComponent]
     ]
   }

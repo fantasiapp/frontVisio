@@ -106,6 +106,7 @@ const dashboards = {
 };
 
 
+//Will have to make this non static one day
 class DataExtractionHelper {  
   static data: any;
   static ID_INDEX: number;
