@@ -65,8 +65,9 @@ function navigationNodeConstructor(tree: Tree) {
       tree.attributes['dashboards'] = [];
 
       let dashboards = DataExtractionHelper.getDashboards();
+      let layouts = DataExtractionHelper.getLayouts();
       for ( let height = 0; height < DataExtractionHelper.geoHeight; height++ )
-        tree.attributes['dashboards'].push(DataExtractionHelper.getDashboardsAt(height).map((id: number) => new Dashboard(id, dashboards[id].name)));
+        tree.attributes['dashboards'].push(DataExtractionHelper.getDashboardsAt(height).map((id: number) => new Dashboard(id, dashboards[id], layouts[dashboards[id].layout])));
       
       //for PDV
       tree.attributes['dashboards'].push([]);
