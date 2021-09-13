@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, Renderer2, ViewEncapsulation } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { SimplePieComponent } from '../../widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from 'src/app/widgets/simple-donuts/simple-donuts.component';
@@ -15,8 +15,8 @@ interface Layout {
   styleUrls: ['./grid-manager.component.css'],
 })
 export class GridManager implements OnInit, AfterViewInit, OnChanges {
-
-  private $layout: Layout = {
+  //default layout
+  private $layout: Layout | null = {
     grid: ["1", "1"],
     template: `
       "x"
@@ -24,8 +24,17 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     areas: []
   }
 
+  //grid structure
+  @HostBinding('style.grid-template-columns')
+  private gridColumns: string = '';
+  @HostBinding('style.grid-template-rows')
+  private gridRows: string = '';
+  @HostBinding('style.grid-template-areas')
+  private gridAreaTemplate: string = '';
+
+
   get layout(): Layout {
-    return this.$layout;
+    return this.$layout!;
   }
 
   @Input()
@@ -34,13 +43,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.computeLayout();
   }
 
-  @HostBinding('style.grid-template-columns')
-  private gridColumns: string = 'repeat(' + this.layout.grid[0] + ', 1fr)';
-  @HostBinding('style.grid-template-rows')
-  private gridRows: string = 'repeat(' + this.layout.grid[1] + ', 1fr)';
-  @HostBinding('style.grid-template-areas')
-  private gridAreaTemplate: string = this.layout.template;
-
+  //children
   private componentRefs: ComponentRef<any>[] = [];
 
   @ViewChild('target', {read: ViewContainerRef})
@@ -63,9 +66,9 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
       if ( !area ) continue;
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(area[1]);
       let component = this.ref.createComponent(factory);
-      this.componentRefs.push(component);
       component.instance.gridArea = area[0];
       this.ref.insert(component.hostView);
+      this.componentRefs.push(component);
     }
     this.cd.detectChanges();
   }

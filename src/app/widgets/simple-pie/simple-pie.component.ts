@@ -30,17 +30,25 @@ export class SimplePieComponent extends GridArea implements AfterViewInit {
   private update() {
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();
     this.data = this.sliceDice.dnMarcheP2cd(this.path);
+    let sum = this.data.reduce((acc, d) => acc + d.value, 0);
 
     bb.generate({
+      bindto: this.content.nativeElement,
       data: {
         columns: this.data.map(d => [d.label, d.value]),
         type: pie()
       },
-      bindto: this.content.nativeElement
-    })
-    // this.createSvg();
-    // this.createColors();
-    // this.drawChart();
+      tooltip: {
+        contents(d, defaultTitleFormat, defaultValueFormat, color) {
+          const data = d[0];
+          return `
+            <div class="tooltip">
+              ${data.id}: ${(sum * data.ratio).toFixed(0)} u
+            </div>
+          `;
+        }
+      }
+    });
   }
   
   private path = {};

@@ -30,17 +30,25 @@ export class SimpleDonutComponent extends GridArea implements AfterViewInit {
   private update() {
     d3.select(this.ref.nativeElement).selectAll('div > svg').remove();
     this.data = this.sliceDice.dnMarcheP2cd(this.path);
+    let sum = this.data.reduce((acc, d) => acc + d.value, 0);
 
     bb.generate({
       data: {
         columns: this.data.map(d => [d.label, d.value]),
         type: donut()
       },
-      bindto: this.content.nativeElement
+      bindto: this.content.nativeElement,
+      tooltip: {
+        contents(d, defaultTitleFormat, defaultValueFormat, color) {
+          const data = d[0];
+          return `
+            <div class="tooltip">
+              ${data.id}: ${(sum * data.ratio).toFixed(0)} 
+            </div>
+          `;
+        }
+      }
     })
-    // this.createSvg();
-    // this.createColors();
-    // this.drawChart();
   }
   
   private path = {};

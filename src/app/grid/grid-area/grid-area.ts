@@ -5,12 +5,13 @@ import { Subject } from 'rxjs';
 // |     #content                   |
 // |                                |
 //  --------------------------------
+
+//maybe a global css class ?
 @Directive()
 export abstract class GridArea implements AfterViewInit {
-  @HostBinding('style.display')
-  private display: string = 'block';
   @HostBinding('style.grid-area')
   public gridArea: string = '';
+  
 
   protected ready: Subject<never> | null = null;
 

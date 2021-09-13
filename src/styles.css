@@ -80,3 +80,25 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Common styles for charts -- the theme */
+
+:root {
+    --tooltip-padding: 5px;
+    --tooltip-border-radius: 5px;
+    --tooltip-font-family: inherit;
+    --tooltip-font-size: 14px;
+    --tooltip-color: white;
+    --tooltip-background-color: rgba(0, 0, 0, 0.5);
+}
+
+.tooltip {
+    padding: var(--tooltip-padding);
+    border-radius: var(--tooltip-border-radius);
+    font-family: var(--tooltip-font-family);
+    font-size: var(--tooltip-font-size);
+    color: var(--tooltip-color);
+    background-color: var(--tooltip-background-color);
+
+    transform: translate(-100%, -100%);
+}
