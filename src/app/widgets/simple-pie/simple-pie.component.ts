@@ -3,7 +3,7 @@ import { GridArea } from 'src/app/grid/grid-area/grid-area';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { Subject, combineLatest } from 'rxjs';
+import { combineLatest } from 'rxjs';
 
 import bb, {pie} from 'billboard.js';
 
@@ -28,7 +28,7 @@ export class SimplePieComponent extends GridArea implements AfterViewInit {
   }
 
   private update() {
-    d3.select(this.ref.nativeElement).selectAll('div > svg').remove();
+    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
     this.data = this.sliceDice.dnMarcheP2cd(this.path);
 
     bb.generate({

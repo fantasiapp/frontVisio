@@ -1,7 +1,7 @@
 import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { SimplePieComponent } from '../../widgets/simple-pie/simple-pie.component';
-import { SimpleDonutsComponent } from 'src/app/widgets/simple-donuts/simple-donuts.component';
+import { SimpleDonutComponent } from 'src/app/widgets/simple-donuts/simple-donuts.component';
 
 interface Layout {
   grid: [string, string],
@@ -117,7 +117,7 @@ export class GridManagerWrap {
     `,
     areas: [
       ["a", SimplePieComponent],
-      ["b", SimpleComponent],
+      ["b", SimpleDonutComponent],
       ["c", SimpleComponent]
     ]
   }
