@@ -27,9 +27,9 @@ import { SelectComponent } from './general/select/select.component';
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from  '@angular/material/button';
 import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
-import { SimpleDonutsComponent } from './widgets/simple-donuts/simple-donuts.component';
+import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.component';
 //---------------------------------------------------------------------------------------
-import { GridManager, GridManagerWrap } from './grid/grid-manager/grid-manager.component';
+import { GridManager } from './grid/grid-manager/grid-manager.component';
 
 @NgModule({
   declarations: [
@@ -48,10 +48,9 @@ import { GridManager, GridManagerWrap } from './grid/grid-manager/grid-manager.c
     ViewComponent,
     SelectComponent,
     SimplePieComponent,
-    SimpleDonutsComponent,
+    SimpleDonutComponent,
     //------------------------
-    GridManager,
-    GridManagerWrap
+    GridManager
   ],
   imports: [
     BrowserModule,

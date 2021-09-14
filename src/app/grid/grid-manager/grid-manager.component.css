@@ -1,8 +1,17 @@
 :host {
-  outline: 1px dashed #333;
   display: grid;
-  width: 100%;
-  min-height: 500px;
-  column-gap: 10px;
-  row-gap: 10px;
+  column-gap: 20px;
+  row-gap: 20px;
+  /* tune this */
+  margin: 200px 5% 0;
+  height: calc(100% - 200px);
+}
+
+:host::ng-deep > * {
+  display: block;
+  background: white;
+  padding: 20px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }

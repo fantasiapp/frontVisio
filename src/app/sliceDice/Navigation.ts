@@ -1,4 +1,3 @@
-import { DataService } from './../services/data.service';
 import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor, {NavigationNode as Node} from './NavigationNode';
 import Dashboard from './Dashboard';
@@ -22,10 +21,6 @@ export class Navigation {
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
 
-  constructor(private dataservice : DataService) {
-    
-  }
-
   getArray(dataType: 'level' | 'dashboard'): any {
     let currentLevel = this.currentLevel!
     if (dataType == 'level') {
@@ -35,8 +30,6 @@ export class Navigation {
         id: currentLevel.children.map((child: Node) => child.id),
         label: currentLevel.children.map((child: Node) => child.label),
       } : {name: [], id: [], label:[]};
-
-      console.log()
 
       return {
         currentLevel: {
@@ -75,6 +68,9 @@ export class Navigation {
       dashboard: {
         id: currentDashboard.id,
         name: currentDashboard.name,
+        grid: currentDashboard.grid,
+        template: currentDashboard.template,
+        areas: currentDashboard.areas
       },
       path: currentLevel.path.map(
         (level) => level.label +': '+ level.name 

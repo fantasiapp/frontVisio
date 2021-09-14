@@ -1,111 +1,11 @@
-const fields = [
-  "code",
-  "name",
-  "drv",
-  "agent",
-  "dep",
-  "bassin",
-  "ville",
-  "latitude",
-  "longitude",
-  "segmentCommercial",
-  "segmentMarketing",
-  "enseigne",
-  "ensemble",
-  "sousEnsemble",
-  "site",
-  "available",
-  "sale",
-  "redistributed",
-  "redistributedEnduit",
-  "pointFeu",
-  "closedAt",
-  "sales"
-];
-
-const structure = [
-  "levelName",
-  "prettyPrint",
-  "listDashBoards",
-  "subLevel"
-];
-
 const tradeStructure = [
   "enseigne",
   "ensemble",
   "sousEnsemble"
 ];
 
-const dashboards = {
-  "8":{
-      "name":"DN Enduit"
-  },
-  "10":{
-      "name":"DN Enduit Simulation"
-  },
-  "7":{
-      "name":"DN P2CD"
-  },
-  "9":{
-      "name":"DN P2CD Simulation"
-  },
-  "2":{
-      "name":"March\u00e9 Enduit"
-  },
-  "20":{
-      "name":"March\u00e9 Enduit Enseigne"
-  },
-  "1":{
-      "name":"March\u00e9 P2CD"
-  },
-  "19":{
-      "name":"March\u00e9 P2CD Enseigne"
-  },
-  "4":{
-      "name":"PdM Enduit"
-  },
-  "22":{
-      "name":"PdM Enduit Enseigne"
-  },
-  "6":{
-      "name":"PdM Enduit Simulation"
-  },
-  "3":{
-      "name":"PdM P2CD"
-  },
-  "21":{
-      "name":"PdM P2CD Enseigne"
-  },
-  "5":{
-      "name":"PdM P2CD Simulation"
-  },
-  "12":{
-      "name":"Points de Vente Enduit"
-  },
-  "11":{
-      "name":"Points de Vente P2CD"
-  },
-  "17":{
-      "name":"Suivi AD"
-  },
-  "18":{
-      "name":"Suivi des Visites"
-  },
-  "14":{
-      "name":"Synth\u00e8se Enduit"
-  },
-  "16":{
-      "name":"Synth\u00e8se Enduit Simulation"
-  },
-  "13":{
-      "name":"Synth\u00e8se P2CD"
-  },
-  "15":{
-      "name":"Synth\u00e8se P2CD Simulation"
-  }
-};
 
-
+//Will have to make this non static one day
 class DataExtractionHelper {  
   static data: any;
   static ID_INDEX: number;
@@ -113,6 +13,11 @@ class DataExtractionHelper {
   static PRETTY_INDEX: number;
   static DASHBOARD_INDEX: number;
   static SUBLEVEL_INDEX: number;
+  static LAYOUT_TEMPLATE_INDEX: number;
+  static DASHBOARD_LAYOUT_INDEX: number;
+  static DASHBOARD_WIDGET_INDEX: number;
+  static DASHBOARD_NAME_INDEX: number;
+  static WIDGETPARAMS_WIDGET_INDEX: number;
   
   //Represent levels as a vertical array rather than a recursive structure
   private static geoLevels: any[] = [];
@@ -124,19 +29,26 @@ class DataExtractionHelper {
   static setData(d: any) {
     console.log(d);
     this.data = d;
+    let structure = this.data['structureLevel'];
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
     this.PRETTY_INDEX = structure.indexOf('prettyPrint');
     this.DASHBOARD_INDEX = structure.indexOf('listDashBoards');
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
+    this.LAYOUT_TEMPLATE_INDEX = this.data['structureLayout'].indexOf('template');
+    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
+    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
+    this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
+    this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
     
     //trades have less info that geo
+    
     this.geoLevels = [];
     this.tradeLevels = tradeStructure;
     //compute geoLevels
-    let geolevel = this.data['levels'];
+    let geolevel = this.data['levelGeo'];
     while ( true ) {
-      this.geoLevels.push(geolevel.slice(0, 4));
+      this.geoLevels.push(geolevel.slice(0, structure.length-1));
       if ( !(geolevel = geolevel[this.SUBLEVEL_INDEX]) ) break;
     }
 
@@ -164,9 +76,9 @@ class DataExtractionHelper {
   }
   
   static getGeoLevelName(height: number, id: number): string {
-    if ( height == 0 ) return 'France';
+    // if ( height == 0 ) return 'France';
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
-    if ( !name ) throw `No level with id=${id}`;
+    if ( name === undefined ) throw `No level with id=${id}`;
     return name;
   }
 
@@ -181,8 +93,20 @@ class DataExtractionHelper {
     return name;
   }
 
-  static getDashboards(): {[key:string]: {'name': string}} {
-    return dashboards;
+  static getDashboards(): any {
+    return this.data['dashboards'];
+  }
+
+  static getLayouts(): any {
+    return this.data['layout']
+  }
+
+  static getCompleteWidgetParams(id: number){
+    let widgetParams = this.data['widgetParams'][id];    
+    let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
+    let widget = this.data["widget"][widgetId];
+    widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;
+    return widgetParams
   }
   
   static getDashboardsAt(height: number): number[] {
@@ -192,7 +116,7 @@ class DataExtractionHelper {
   }
 
   static getPDVFields() {
-    return fields;
+    return this.data['structurePdv'];
   }
 
   static get(field: string) {

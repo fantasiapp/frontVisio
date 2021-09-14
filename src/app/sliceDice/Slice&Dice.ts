@@ -1,9 +1,8 @@
-import { data, data as MOCK_DATA } from './test'
-import { Injectable } from '@angular/core';
 import Tree from './Tree';
 import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
+import { Injectable } from '@angular/core';
 
 //make a useless Tree and Node objects
 //extend to get navigation and trade
@@ -201,7 +200,7 @@ export class PDV {
   static load(loadTrees = true) {
     //load properties
     this.createIndexMapping();
-    for ( let [id, data] of Object.entries(DataExtractionHelper.get('pdv')) ) {
+    for ( let [id, data] of Object.entries(DataExtractionHelper.get('pdvs')) ) {
       let intId = parseInt(id);
       if ( Number.isNaN(intId) ) continue;
       this.instances.set(intId, new PDV(intId, <any[]>data));
@@ -211,7 +210,7 @@ export class PDV {
   };
 
   private static createIndexMapping() {
-    const fields = DataExtractionHelper.get('pdv')['fields'] as string[];
+    const fields = DataExtractionHelper.get('structurePdv') as string[];
     this.indexMapping = new Map<string, number>();
     fields.forEach((value: string, index: number) => 
       this.indexMapping.set(value, index)

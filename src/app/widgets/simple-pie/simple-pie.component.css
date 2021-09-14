@@ -1,13 +1,14 @@
-.svg-container {
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    vertical-align: top;
-    overflow: hidden;
+/* maybe make this public */
+:host {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
 }
-.svg-content {
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    left: 0;
+
+h1, p {
+    margin: 0;
+}
+
+.container {
+    flex-grow: 1;
 }

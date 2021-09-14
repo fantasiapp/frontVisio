@@ -9,6 +9,7 @@ import { load } from '../sliceDice/Slice&Dice';
 
 import { state } from '@angular/animations';
 import {MatSelectModule} from '@angular/material/select'
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +32,7 @@ export class FiltersStatesService {
         const currentState = {
           States: this.navigation.getCurrent(),
         };
+
         this.stateSubject.next(currentState);
         this.arraySubject.next(currentArrays);}
         this.$path.next({});
@@ -38,9 +40,8 @@ export class FiltersStatesService {
 
   }
 
-  $path = new BehaviorSubject({
 
-  });
+  $path: BehaviorSubject<{}> = new BehaviorSubject({});
 
   stateSubject = new BehaviorSubject({
     States: {
@@ -52,6 +53,9 @@ export class FiltersStatesService {
       dashboard: {
         id: 0,
         name: '',
+        grid: ["1", "1"] as [string, string],
+        areas: {x: null},
+        template: 'x',
       },
       path: []
     },
