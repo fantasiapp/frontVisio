@@ -68,6 +68,9 @@ export class Navigation {
       dashboard: {
         id: currentDashboard.id,
         name: currentDashboard.name,
+        grid: currentDashboard.grid,
+        template: currentDashboard.template,
+        areas: currentDashboard.areas
       },
       path: currentLevel.path.map(
         (level) => level.label +': '+ level.name 

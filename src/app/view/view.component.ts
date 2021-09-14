@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { FiltersStatesService } from '../filters/filters-states.service';
+import { Layout } from '../grid/grid-manager/grid-manager.component';
 
 @Component({
   selector: 'app-view',
@@ -7,9 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ViewComponent implements OnInit {
 
-  constructor() { }
+  public layout: Layout | null = null;
 
-  ngOnInit(): void {
+  constructor(private filtersService: FiltersStatesService) {
+    filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
+      console.log('[View]: ready');
+      this.layout = dashboard;
+    })
   }
 
+  ngOnInit(): void {
+ 
+  }
 }

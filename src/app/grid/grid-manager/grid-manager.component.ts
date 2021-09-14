@@ -1,28 +1,23 @@
 import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, Renderer2, ViewEncapsulation } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
-import { SimplePieComponent } from '../../widgets/simple-pie/simple-pie.component';
-import { SimpleDonutComponent } from 'src/app/widgets/simple-donuts/simple-donuts.component';
+import { WidgetManagerService } from '../widget-manager.service';
 
-interface Layout {
+export interface Layout {
   grid: [string, string],
   template: string;
-  areas: [string, any][]
+  areas: {[key:string]: string | null}
 };
+
 
 @Component({
   selector: 'grid-manager',
   templateUrl: './grid-manager.component.html',
   styleUrls: ['./grid-manager.component.css'],
+  providers: [WidgetManagerService]
 })
 export class GridManager implements OnInit, AfterViewInit, OnChanges {
   //default layout
-  private $layout: Layout | null = {
-    grid: ["1", "1"],
-    template: `
-      "x"
-    `,
-    areas: []
-  }
+  private $layout: Layout = defaultLayout;
 
   //grid structure
   @HostBinding('style.grid-template-columns')
@@ -34,12 +29,12 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
 
   get layout(): Layout {
-    return this.$layout!;
+    return this.$layout;
   }
 
   @Input()
-  set layout(layout: Layout) {
-    this.$layout = layout;
+  set layout(layout: Layout | null) {
+    this.$layout = layout || defaultLayout;
     this.computeLayout();
   }
 
@@ -50,7 +45,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   ref!: ViewContainerRef;
 
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) { }
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) { }
   
   ngAfterViewInit() {
     this.createComponents();
@@ -62,11 +57,12 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
   private createComponents() {
     this.ref.detach();
-    for ( let area of this.layout.areas ) {
-      if ( !area ) continue;
-      let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(area[1]);
+    for ( let name of Object.keys(this.layout.areas) ) {
+      if ( !this.layout.areas[name] ) continue; //unused field
+      let cls = this.widgetManager.findComponent(name); 
+      let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
-      component.instance.gridArea = area[0];
+      component.instance.gridArea = name;
       this.ref.insert(component.hostView);
       this.componentRefs.push(component);
     }
@@ -89,43 +85,11 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   }
 }
 
-@Component({
-  selector: 'simple-component',
-  template: `<p>it works!</p>`
-})
-export class SimpleComponent extends GridArea {
 
-}
+/******** DEFAULTS *********/
 
-
-@Component({
-  'selector': 'grid-wrapper',
-  template: `<grid-manager [layout]="layout"></grid-manager>`,
-  styles: [`
-    :host {
-      display: block;
-      box-sizing: border-box;
-      margin: 200px 5% 0;
-      height: calc(100% - 200px);
-    }
-  `]
-})
-export class GridManagerWrap {
-  
-  public layout: Layout = {
-    grid: ["2", "2"],
-    template: `
-      "a c"
-      "b c"
-    `,
-    areas: [
-      ["a", SimplePieComponent],
-      ["b", SimpleDonutComponent],
-      ["c", SimpleComponent]
-    ]
-  }
-  
-  constructor() {
-
-  }
-}
+const defaultLayout: Layout = {
+  grid: ['1', '1'],
+  template: `x`,
+  areas: {'x': 'default'}
+};

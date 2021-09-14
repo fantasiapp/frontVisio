@@ -29,7 +29,7 @@ export class SimpleDonutComponent extends GridArea implements AfterViewInit {
 
   private update() {
     d3.select(this.ref.nativeElement).selectAll('div > svg').remove();
-    this.data = this.sliceDice.dnMarcheP2cd(this.path);
+    this.data = this.sliceDice.p2cdMarcheP2cd(this.path);
     let sum = this.data.reduce((acc, d) => acc + d.value, 0);
 
     bb.generate({

@@ -53,6 +53,9 @@ export class FiltersStatesService {
       dashboard: {
         id: 0,
         name: '',
+        grid: ["1", "1"] as [string, string],
+        areas: {x: null},
+        template: 'x',
       },
       path: []
     },
