@@ -1,4 +1,3 @@
-import { DataService } from './../services/data.service';
 import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor, {NavigationNode as Node} from './NavigationNode';
 import Dashboard from './Dashboard';
@@ -20,10 +19,6 @@ export class Navigation {
     
     this.currentLevel = this.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
-  }
-
-  constructor(private dataservice : DataService) {
-    
   }
 
   getArray(dataType: 'level' | 'dashboard'): any {
