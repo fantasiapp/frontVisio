@@ -17,6 +17,7 @@ class DataExtractionHelper {
   static DASHBOARD_LAYOUT_INDEX: number;
   static DASHBOARD_WIDGET_INDEX: number;
   static DASHBOARD_NAME_INDEX: number;
+  static WIDGETPARAMS_WIDGET_INDEX: number;
   
   //Represent levels as a vertical array rather than a recursive structure
   private static geoLevels: any[] = [];
@@ -38,6 +39,7 @@ class DataExtractionHelper {
     this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
     this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
     this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
+    this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
     
     //trades have less info that geo
     
@@ -97,6 +99,14 @@ class DataExtractionHelper {
 
   static getLayouts(): any {
     return this.data['layout']
+  }
+
+  static getCompleteWidgetParams(id: number){
+    let widgetParams = this.data['widgetParams'][id];    
+    let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
+    let widget = this.data["widget"][widgetId];
+    widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;
+    return widgetParams
   }
   
   static getDashboardsAt(height: number): number[] {
