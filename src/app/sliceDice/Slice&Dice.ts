@@ -397,20 +397,11 @@ class SliceDice {
   constructor() {
     
   }
-
-  dnMarcheP2cd(slice:any) {
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean) {
     PDV.load();
-    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
+    let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
     dataWidget.basicTreatement();
-    dataWidget.groupData([], ['@other'], true)
-    return dataWidget.formatSimpleWidget();
-  }
-  
-  p2cdMarcheP2cd(slice:any) {
-    PDV.load();
-    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "p2cd");
-    dataWidget.basicTreatement();
-    dataWidget.groupData([], ["@other"], true)
+    dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
     return dataWidget.formatSimpleWidget();
   }
 };
