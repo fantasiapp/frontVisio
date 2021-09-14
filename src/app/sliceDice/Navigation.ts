@@ -31,8 +31,6 @@ export class Navigation {
         label: currentLevel.children.map((child: Node) => child.label),
       } : {name: [], id: [], label:[]};
 
-      console.log()
-
       return {
         currentLevel: {
           name: currentLevel.siblings.map((sibling: Node) => sibling.name),

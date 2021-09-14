@@ -13,8 +13,10 @@ class DataExtractionHelper {
   static PRETTY_INDEX: number;
   static DASHBOARD_INDEX: number;
   static SUBLEVEL_INDEX: number;
-  static TEMPLATE_INDEX: number;
-  static LAYOUT_INDEX: number;
+  static LAYOUT_TEMPLATE_INDEX: number;
+  static DASHBOARD_LAYOUT_INDEX: number;
+  static DASHBOARD_WIDGET_INDEX: number;
+  static DASHBOARD_NAME_INDEX: number;
   
   //Represent levels as a vertical array rather than a recursive structure
   private static geoLevels: any[] = [];
@@ -32,10 +34,13 @@ class DataExtractionHelper {
     this.PRETTY_INDEX = structure.indexOf('prettyPrint');
     this.DASHBOARD_INDEX = structure.indexOf('listDashBoards');
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
-    this.TEMPLATE_INDEX = this.data['structureLayout'].indexOf('template');
-    this.LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
+    this.LAYOUT_TEMPLATE_INDEX = this.data['structureLayout'].indexOf('template');
+    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
+    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
+    this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
     
     //trades have less info that geo
+    
     this.geoLevels = [];
     this.tradeLevels = tradeStructure;
     //compute geoLevels
@@ -71,7 +76,7 @@ class DataExtractionHelper {
   static getGeoLevelName(height: number, id: number): string {
     // if ( height == 0 ) return 'France';
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
-    if ( !name ) throw `No level with id=${id}`;
+    if ( name === undefined ) throw `No level with id=${id}`;
     return name;
   }
 
@@ -80,7 +85,7 @@ class DataExtractionHelper {
   }
 
   static getTradeLevelName(height: number, id: number): string {
-    // if ( height == 0 ) return 'Général';
+    if ( height == 0 ) return 'Général';
     let name = this.data[this.getTradeLevelLabel(height)][id];
     if ( name === undefined ) throw `No level with id=${id}`;
     return name;
