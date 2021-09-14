@@ -53,11 +53,13 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ( !changes['layout'].isFirstChange() )
+    let layoutChanges = changes['layout'];
+    if ( layoutChanges && !layoutChanges.isFirstChange() )
       this.createComponents();
   }
 
-  private createComponents() {
+  /* Same layout but different widgets can cause performance issues */
+  private createComponents() {    
     this.ref.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];

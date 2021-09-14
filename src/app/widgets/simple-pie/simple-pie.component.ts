@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { GridArea } from 'src/app/grid/grid-area/grid-area';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
@@ -13,7 +13,7 @@ import bb, {pie} from 'billboard.js';
   styleUrls: ['./simple-pie.component.css'],
   providers: [SliceDice]
 })
-export class SimplePieComponent extends GridArea implements AfterViewInit {
+export class SimplePieComponent extends GridArea implements AfterViewInit, OnDestroy {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;
 
@@ -32,23 +32,31 @@ export class SimplePieComponent extends GridArea implements AfterViewInit {
     this.data = this.sliceDice.dnMarcheP2cd(this.path);
     let sum = this.data.reduce((acc, d) => acc + d.value, 0);
 
-    bb.generate({
-      bindto: this.content.nativeElement,
-      data: {
-        columns: this.data.map(d => [d.label, d.value]),
-        type: pie()
-      },
-      tooltip: {
-        contents(d, defaultTitleFormat, defaultValueFormat, color) {
-          const data = d[0];
-          return `
-            <div class="tooltip">
-              ${data.id}: ${(sum * data.ratio).toFixed(0)} u
-            </div>
-          `;
+    setTimeout((_: any) => {
+      bb.generate({
+        bindto: this.content.nativeElement,
+        data: {
+          columns: this.data.map(d => [d.label, d.value]),
+          type: pie()
+        },
+        tooltip: {
+          contents(d, defaultTitleFormat, defaultValueFormat, color) {
+            const data = d[0];
+            return `
+              <div class="tooltip">
+                ${data.id}: ${(sum * data.ratio).toFixed(0)} u
+              </div>
+            `;
+          }
         }
-      }
-    }).resize();
+      })
+    }, 100);
+    
+  }
+
+  ngOnDestroy() {
+    if ( this.ref )
+      d3.select(this.ref.nativeElement).selectAll('div > *').remove();
   }
   
   private path = {};
