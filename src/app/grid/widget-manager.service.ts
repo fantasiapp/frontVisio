@@ -6,7 +6,10 @@ import { GridArea } from './grid-area/grid-area';
 
 @Component({
   selector: 'simple-component',
-  template: `<p>grid-manager default layout</p>`
+  template: `
+    <h1>{{properties.title}}</h1>
+    <h3>{{properties.description}}</h3>
+  `
 })
 export class DefaultComponent extends GridArea {
 
@@ -19,12 +22,10 @@ function createDefaultComponent(name: string, src: string) {
       <img [alt]="name" [src]="src"/>
     `
   })
-  class DefaultImage {
+  class DefaultImage extends GridArea {
     
     public name: string = name;
     public src: string = src;
-
-    constructor() {}
   };
 
   return DefaultImage;
@@ -37,7 +38,9 @@ export class WidgetManagerService {
     'default': DefaultComponent,
     'pie': SimplePieComponent,
     'donut': SimpleDonutComponent,
-    'image': "assets/for-mock-view/pdm-enseigne.svg"
+    'historow': "assets/for-mock-view/pdm-enseigne.svg",
+    'histocolumn': "assets/for-mock-view/pdm-enseigne.svg",
+    'table': "assets/for-mock-view/pdm-enseigne.svg"
   };
 
   constructor() {
@@ -45,9 +48,10 @@ export class WidgetManagerService {
   }
 
   findComponent(name: string): any {
+    console.log(name);
     let component = this.mapping[name];
     if ( !component )
-      return DefaultComponent;
+      return SimplePieComponent;//DefaultComponent;
     if ( typeof component === 'string' )
       return createDefaultComponent(name, component);
     return component;

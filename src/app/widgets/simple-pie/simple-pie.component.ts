@@ -48,7 +48,7 @@ export class SimplePieComponent extends GridArea implements AfterViewInit {
           `;
         }
       }
-    });
+    }).resize();
   }
   
   private path = {};

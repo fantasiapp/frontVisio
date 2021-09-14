@@ -3,7 +3,6 @@
   column-gap: 20px;
   row-gap: 20px;
   /* tune this */
-  max-width: 100%;
   margin: 200px 5% 0;
   height: calc(100% - 200px);
 }
@@ -12,4 +11,7 @@
   display: block;
   background: white;
   padding: 20px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }

@@ -48,7 +48,7 @@ export class SimpleDonutComponent extends GridArea implements AfterViewInit {
           `;
         }
       }
-    })
+    }).resize();
   }
   
   private path = {};

@@ -13,7 +13,6 @@ export class ViewComponent implements OnInit {
 
   constructor(private filtersService: FiltersStatesService) {
     filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
-      console.log('[View]: ready');
       this.layout = dashboard;
     })
   }

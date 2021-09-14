@@ -2,10 +2,12 @@ import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, 
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
+
+type WidgetParams = [string, string, string, string];
 export interface Layout {
   grid: [string, string],
   template: string;
-  areas: {[key:string]: string | null}
+  areas: {[key:string]: WidgetParams | null}
 };
 
 
@@ -44,7 +46,6 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('target', {read: ViewContainerRef})
   ref!: ViewContainerRef;
 
-
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) { }
   
   ngAfterViewInit() {
@@ -52,17 +53,24 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('[GridManager.ngOnChanges]: What is wrong ?;');
+    if ( !changes['layout'].isFirstChange() )
+      this.createComponents();
   }
 
   private createComponents() {
-    this.ref.detach();
+    this.ref.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
-      if ( !this.layout.areas[name] ) continue; //unused field
-      let cls = this.widgetManager.findComponent(name); 
+      let desc = this.layout.areas[name];
+      if ( !desc ) continue; //unused field
+      let cls = this.widgetManager.findComponent(desc[2]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
       component.instance.gridArea = name;
+      
+      /**** object properties *****/
+      component.instance.properties.title = desc[0];
+      component.instance.properties.description = desc[1];
+
       this.ref.insert(component.hostView);
       this.componentRefs.push(component);
     }
@@ -74,13 +82,12 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   ngOnDestroy() {
     for ( let componentRef of this.componentRefs )
       componentRef.destroy();
-    
     this.componentRefs.length = 0;
   }
 
   private computeLayout() {
-    this.gridColumns = 'repeat(' + this.layout.grid[0] + ', 1fr)';
-    this.gridRows = 'repeat(' + this.layout.grid[1] + ', 1fr)';
+    this.gridColumns = 'repeat(' + this.layout.grid[1] + ', 1fr)';
+    this.gridRows = 'repeat(' + this.layout.grid[0] + ', 1fr)';
     this.gridAreaTemplate = this.layout.template;
   }
 }
@@ -91,5 +98,5 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 const defaultLayout: Layout = {
   grid: ['1', '1'],
   template: `x`,
-  areas: {'x': 'default'}
+  areas: {'x': ['<title>', '<description>', 'default', 'empty']}
 };
