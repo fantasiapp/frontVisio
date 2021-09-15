@@ -397,6 +397,13 @@ class SliceDice {
   constructor() {
     
   }
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean) {
+    PDV.load(false);
+    let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
+    dataWidget.basicTreatement();
+    dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
+    return dataWidget.formatSimpleWidget();  
+  }
 
   dnMarcheP2cd(slice:any) {
     PDV.load(false);
@@ -406,6 +413,7 @@ class SliceDice {
     return dataWidget.formatSimpleWidget();
   }
   
+<<<<<<< HEAD
   p2cdMarcheP2cd(slice:any) {
     PDV.load(false);
     let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "p2cd");
@@ -413,6 +421,8 @@ class SliceDice {
     dataWidget.groupData([], ["@other"], true)
     return dataWidget.formatSimpleWidget();
   }
+=======
+>>>>>>> vivian
 };
 
 function load() {

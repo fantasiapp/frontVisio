@@ -18,6 +18,7 @@ class DataExtractionHelper {
   static DASHBOARD_WIDGET_INDEX: number;
   static DASHBOARD_NAME_INDEX: number;
   static WIDGETPARAMS_WIDGET_INDEX: number;
+  static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
   
   //Represent levels as a vertical array rather than a recursive structure
   private static geoLevels: any[] = [];
@@ -39,6 +40,7 @@ class DataExtractionHelper {
     this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
     this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
     this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
+    this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetParam'].indexOf('widgetCompute');
     
     //trades have less info that geo
     
@@ -101,10 +103,13 @@ class DataExtractionHelper {
   }
 
   static getCompleteWidgetParams(id: number){
-    let widgetParams = this.data['widgetParams'][id];    
+    let widgetParams = this.data['widgetParams'][id];  
     let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
     let widget = this.data["widget"][widgetId];
     widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;
+    let widgetComputeId = widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX];
+    let widgetCompute = this.data["widgetCompute"][widgetComputeId];
+    widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX] = widgetCompute;
     return widgetParams
   }
   
