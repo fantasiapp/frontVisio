@@ -1,8 +1,8 @@
 import Dashboard from './Dashboard';
 import DataExtractionHelper from './DataExtractionHelper';
-import Tree, { DataTree } from './Tree';
+import Tree, {DataTree} from './Tree';
 
-export interface NavigationNode {
+export interface NavigationNode{
   readonly id: number;
   readonly children: NavigationNode[];
   readonly parent: NavigationNode | null;
@@ -18,37 +18,36 @@ export interface NavigationNode {
 };
 
 //dirty code, must find a day for two-way parent-child communication
-function navigationNodeConstructor(tree: Tree) {
-  return class HiddenNode implements NavigationNode {
+function navigationNodeConstructor(tree: Tree){
+  return class HiddenNode implements NavigationNode{
     id: number;
     name: string;
     children: HiddenNode[];
     parent: HiddenNode | null;
   
     constructor(tree: DataTree, parent: HiddenNode | null = null, height: number = 0) {
-      if ( typeof tree == "number" ) {
+      if (typeof tree == "number"){
         this.id = tree;
         this.children = [];
-      } else {
+      } else{
         this.id = tree[0];
         //don't include last level, which is sale points
         this.children = tree[1].map((subtree: DataTree) => new HiddenNode(subtree, this, height+1));
       }
   
-      this.name = (height >=  DataExtractionHelper.geoHeight) ? "" : DataExtractionHelper.getGeoLevelName(height, this.id);
+      this.name = (height >= DataExtractionHelper.geoHeight) ? "" : DataExtractionHelper.getGeoLevelName(height, this.id);
       this.parent = parent;
     }
     
-    get height(): number { return this.parent ? this.parent.height + 1 : 0; }
-    get path(): HiddenNode[] { return this.parent ? this.parent.path.concat([this]) : [this]; }
-    get siblings(): HiddenNode[] { return this.parent ? this.parent.children : [this]; }
-
-    get dashboards(): Dashboard[] { return tree.attributes['dashboards'][this.height]; }
-    get label(): string { return tree.attributes['labels'][this.height]; }
+    get height(): number{return this.parent ? this.parent.height + 1 : 0;}
+    get path(): HiddenNode[]{return this.parent ? this.parent.path.concat([this]) : [this];}
+    get siblings(): HiddenNode[]{return this.parent ? this.parent.children : [this];}
+    get dashboards(): Dashboard[]{ return tree.attributes['dashboards'][this.height];}
+    get label(): string{return tree.attributes['labels'][this.height];}
   
-    isLeaf(): boolean { return this.children.length == 0; }
+    isLeaf(): boolean {return this.children.length == 0;}
   
-    goChild(id: number): HiddenNode {
+    goChild(id: number): HiddenNode{
       return this.children.find(child => child.id == id) || this;
     }
   
@@ -56,19 +55,19 @@ function navigationNodeConstructor(tree: Tree) {
       return this.parent || this;
     }
 
-    static computeAttributes() {
+    static computeAttributes(){
       this.loadDashboards();
       this.loadLabels();
     }
 
-    private static loadDashboards() {
+    private static loadDashboards(){
       tree.attributes['dashboards'] = [];
 
       let dashboards = DataExtractionHelper.getDashboards();
       let layoutIndex = DataExtractionHelper.DASHBOARD_LAYOUT_INDEX;
       let templateIndex = DataExtractionHelper.LAYOUT_TEMPLATE_INDEX;
       let layouts = DataExtractionHelper.getLayouts();
-      for ( let height = 0; height < DataExtractionHelper.geoHeight; height++ )
+      for (let height = 0; height < DataExtractionHelper.geoHeight; height++)
         tree.attributes['dashboards'].push(
           DataExtractionHelper.getDashboardsAt(height).map(
             (id: number) => new Dashboard(
@@ -83,11 +82,10 @@ function navigationNodeConstructor(tree: Tree) {
       tree.attributes['dashboards'].push([]);
     }
 
-    private static loadLabels() {
+    private static loadLabels(){
       tree.attributes['labels'] = [];
       for ( let height = 0; height < DataExtractionHelper.geoHeight; height++ )
-        tree.attributes['labels'].push(DataExtractionHelper.getGeoLevelLabel(height));
-      
+        tree.attributes['labels'].push(DataExtractionHelper.getGeoLevelLabel(height));      
       tree.attributes['labels'].push('pdv');
     }
   };
