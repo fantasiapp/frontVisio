@@ -103,7 +103,7 @@ class DataExtractionHelper{
   }
 
   static getCompleteWidgetParams(id: number){
-    let widgetParams = this.data['widgetParams'][id];  
+    let widgetParams = this.data['widgetParams'][id].slice();  
     let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
     let widget = this.data["widget"][widgetId];
     widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;

@@ -1,28 +1,27 @@
 import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, Renderer2, ViewEncapsulation } from '@angular/core';
+import { AsyncSubject, combineLatest } from 'rxjs';
 import { GridArea } from '../grid-area/grid-area';
-import { SimplePieComponent } from '../../widgets/simple-pie/simple-pie.component';
-import { SimpleDonutComponent } from 'src/app/widgets/simple-donuts/simple-donuts.component';
+import { WidgetManagerService } from '../widget-manager.service';
 
-interface Layout {
+
+type WidgetParams = [string, string, string, string];
+export interface Layout {
   grid: [string, string],
   template: string;
-  areas: [string, any][]
+  areas: {[key:string]: WidgetParams | null}
 };
 
+//If you have time, try to use template inside the html file
+//ngFor grid areas and ngComponentOutlet, it can remove the need for requestAnimationFrame
 @Component({
   selector: 'grid-manager',
   templateUrl: './grid-manager.component.html',
   styleUrls: ['./grid-manager.component.css'],
+  providers: [WidgetManagerService]
 })
 export class GridManager implements OnInit, AfterViewInit, OnChanges {
   //default layout
-  private $layout: Layout | null = {
-    grid: ["1", "1"],
-    template: `
-      "x"
-    `,
-    areas: []
-  }
+  private $layout: Layout = defaultLayout;
 
   //grid structure
   @HostBinding('style.grid-template-columns')
@@ -34,12 +33,12 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
 
   get layout(): Layout {
-    return this.$layout!;
+    return this.$layout;
   }
 
   @Input()
-  set layout(layout: Layout) {
-    this.$layout = layout;
+  set layout(layout: Layout | null) {
+    this.$layout = layout || defaultLayout;
     this.computeLayout();
   }
 
@@ -49,24 +48,34 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('target', {read: ViewContainerRef})
   ref!: ViewContainerRef;
 
-
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) { }
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) { }
   
   ngAfterViewInit() {
     this.createComponents();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('[GridManager.ngOnChanges]: What is wrong ?;');
+    let layoutChanges = changes['layout'];
+    if ( layoutChanges && !layoutChanges.isFirstChange() )
+      this.createComponents();
   }
 
+  /* Same layout but different widgets can cause performance issues */
   private createComponents() {
-    this.ref.detach();
-    for ( let area of this.layout.areas ) {
-      if ( !area ) continue;
-      let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(area[1]);
+    this.ref.clear();
+    for ( let name of Object.keys(this.layout.areas) ) {
+      let desc = this.layout.areas[name];
+      if ( !desc ) continue; //unused field
+      let cls = this.widgetManager.findComponent(desc[2]);
+      let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
-      component.instance.gridArea = area[0];
+      component.instance.gridArea = name;
+      
+      /**** object properties *****/
+      component.instance.properties.title = desc[0];
+      component.instance.properties.description = desc[1];
+      /***************************/
+
       this.ref.insert(component.hostView);
       this.componentRefs.push(component);
     }
@@ -83,49 +92,17 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   }
 
   private computeLayout() {
-    this.gridColumns = 'repeat(' + this.layout.grid[0] + ', 1fr)';
-    this.gridRows = 'repeat(' + this.layout.grid[1] + ', 1fr)';
+    this.gridColumns = 'repeat(' + this.layout.grid[1] + ', minmax(0, 1fr))';
+    this.gridRows = 'repeat(' + this.layout.grid[0] + ', minmax(0, 1fr))';
     this.gridAreaTemplate = this.layout.template;
   }
 }
 
-@Component({
-  selector: 'simple-component',
-  template: `<p>it works!</p>`
-})
-export class SimpleComponent extends GridArea {
 
-}
+/******** DEFAULTS *********/
 
-
-@Component({
-  'selector': 'grid-wrapper',
-  template: `<grid-manager [layout]="layout"></grid-manager>`,
-  styles: [`
-    :host {
-      display: block;
-      box-sizing: border-box;
-      margin: 200px 5% 0;
-      height: calc(100% - 200px);
-    }
-  `]
-})
-export class GridManagerWrap {
-  
-  public layout: Layout = {
-    grid: ["2", "2"],
-    template: `
-      "a c"
-      "b c"
-    `,
-    areas: [
-      ["a", SimplePieComponent],
-      ["b", SimpleDonutComponent],
-      ["c", SimpleComponent]
-    ]
-  }
-  
-  constructor() {
-
-  }
-}
+const defaultLayout: Layout = {
+  grid: ['1', '1'],
+  template: `x`,
+  areas: {'x': ['<title>', '<description>', 'default', 'empty']}
+};

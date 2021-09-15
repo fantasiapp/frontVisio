@@ -12,8 +12,9 @@ export abstract class GridArea implements AfterViewInit {
   @HostBinding('style.grid-area')
   public gridArea: string = '';
   
-
-  protected ready: Subject<never> | null = null;
+  //maybe this should be declared by children, or make a class that extends this ?
+  public properties: {[key:string]: string} = {};
+  public ready: Subject<never> | null = null;
 
   constructor() {
     this.ready = new Subject<never>();
