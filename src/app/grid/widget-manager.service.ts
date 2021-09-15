@@ -51,7 +51,7 @@ export class WidgetManagerService {
     console.log(name);
     let component = this.mapping[name];
     if ( !component )
-      return SimplePieComponent;//DefaultComponent;
+      return DefaultComponent;
     if ( typeof component === 'string' )
       return createDefaultComponent(name, component);
     return component;

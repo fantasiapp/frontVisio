@@ -27,7 +27,6 @@ class DataExtractionHelper {
   static tradeHeight: number;
   
   static setData(d: any) {
-    console.log(d);
     this.data = d;
     let structure = this.data['structureLevel'];
     this.ID_INDEX = structure.indexOf('id');
@@ -102,7 +101,6 @@ class DataExtractionHelper {
   }
 
   static getCompleteWidgetParams(id: number){
-    console.log('')
     let widgetParams = this.data['widgetParams'][id];    
     let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
     let widget = this.data["widget"][widgetId];

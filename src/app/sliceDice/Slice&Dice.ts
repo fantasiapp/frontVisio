@@ -399,7 +399,7 @@ class SliceDice {
   }
 
   dnMarcheP2cd(slice:any) {
-    PDV.load();
+    PDV.load(false);
     let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
     dataWidget.basicTreatement();
     dataWidget.groupData([], ['@other'], true)
@@ -407,7 +407,7 @@ class SliceDice {
   }
   
   p2cdMarcheP2cd(slice:any) {
-    PDV.load();
+    PDV.load(false);
     let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "p2cd");
     dataWidget.basicTreatement();
     dataWidget.groupData([], ["@other"], true)
@@ -416,7 +416,7 @@ class SliceDice {
 };
 
 function load() {
-  PDV.load();
+  PDV.load(true);
   return PDV.geoTree;
 }
 
