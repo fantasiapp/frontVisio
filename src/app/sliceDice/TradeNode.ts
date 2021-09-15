@@ -1,8 +1,7 @@
-import Tree, { DataTree } from './Tree';
+import Tree, {DataTree} from './Tree';
 import DataExtractionHelper from './DataExtractionHelper';
-import { PDV } from './Slice&Dice';
 
-export interface TradeNode {
+export interface TradeNode{
   readonly id: number;
   readonly name: string;
   readonly children: TradeNode[];
@@ -12,18 +11,18 @@ export interface TradeNode {
   readonly path: TradeNode[];
 }
 
-export default function tradeNodeConstructor(tree: Tree) {
+export default function tradeNodeConstructor(tree: Tree){
   return class HiddenNode implements TradeNode {
     id: number;
     name: string;
     children: HiddenNode[];
     parent: HiddenNode | null;
   
-    constructor(tree: DataTree, parent: HiddenNode | null = null, height: number = 0) {
-      if ( typeof tree == "number" ) {
+    constructor(tree: DataTree, parent: HiddenNode | null = null, height: number = 0){
+      if (typeof tree == "number"){
         this.id = tree;
         this.children = [];
-      } else {
+      } else{
         this.id = tree[0];
         //don't include last level, which is sale points
         this.children = tree[1].map((subtree: DataTree) => new HiddenNode(subtree, this, height+1));
@@ -33,21 +32,20 @@ export default function tradeNodeConstructor(tree: Tree) {
       this.parent = parent;
     }
     
-    get height(): number { return this.parent ? this.parent.height + 1 : 0; }
-    get path(): HiddenNode[] { return this.parent ? this.parent.path.concat([this]) : [this]; }
-    get siblings(): HiddenNode[] { return this.parent ? this.parent.children : [this]; }
+    get height(): number {return this.parent ? this.parent.height + 1 : 0;}
+    get path(): HiddenNode[] {return this.parent ? this.parent.path.concat([this]) : [this];}
+    get siblings(): HiddenNode[] {return this.parent ? this.parent.children : [this];}
   
-    isLeaf(): boolean { return this.children.length == 0; }
+    isLeaf(): boolean {return this.children.length == 0;}
 
-    static computeAttributes() {
+    static computeAttributes(){
       this.loadLabels();
     }
 
-    private static loadLabels() {
+    private static loadLabels(){
       tree.attributes['labels'] = [];
-      for ( let height = 0; height < DataExtractionHelper.tradeHeight; height++ )
-        tree.attributes['labels'].push(DataExtractionHelper.getTradeLevelLabel(height));
-      
+      for (let height = 0; height < DataExtractionHelper.tradeHeight; height++)
+        tree.attributes['labels'].push(DataExtractionHelper.getTradeLevelLabel(height));      
       tree.attributes['labels'].push('pdv');
     }
   };

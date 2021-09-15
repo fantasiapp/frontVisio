@@ -1,36 +1,33 @@
 import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor, {NavigationNode as Node} from './NavigationNode';
 import Dashboard from './Dashboard';
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import Tree from './Tree';
 
 @Injectable()
-export class Navigation {
+export class Navigation{
   root?: Node;
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
-  load(t: any) {
+  load(t: any){
     //!HACK
-    if ( t )
+    if (t)
       this.root = t.root;
     else
-      this.root = new Tree(DataExtractionHelper.getGeoTree(), navigationNodeConstructor).root;
-    
+      this.root = new Tree(DataExtractionHelper.getGeoTree(), navigationNodeConstructor).root;    
     this.currentLevel = this.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
 
-  getArray(dataType: 'level' | 'dashboard'): any {
+  getArray(dataType: 'level' | 'dashboard'): any{
     let currentLevel = this.currentLevel!
-    if (dataType == 'level') {
-
-      let subLevel = !this.childIsPdv(currentLevel) ? {
+    if (dataType == 'level'){
+      let subLevel = (!this.childIsPdv(currentLevel)) ? {
         name: currentLevel.children.map((child: Node) => child.name),
         id: currentLevel.children.map((child: Node) => child.id),
         label: currentLevel.children.map((child: Node) => child.label),
-      } : {name: [], id: [], label:[]};
-
+      }: {name: [], id: [], label:[]};
       return {
         currentLevel: {
           name: currentLevel.siblings.map((sibling: Node) => sibling.name),
@@ -44,8 +41,8 @@ export class Navigation {
           label: currentLevel.parent?.label,
         },
       };
-    } else {
-      return {
+    } else{
+      return{
         id: currentLevel.dashboards.map((dashboard) => dashboard.id),
         name: currentLevel.dashboards.map((dashboard) => dashboard.name),
       };
@@ -56,7 +53,7 @@ export class Navigation {
     return <boolean>(child.children.length && child.children[0].children.length === 0);
   }
 
-  getCurrent(): any {
+  getCurrent(): any{
     let currentLevel = this.currentLevel!
     let currentDashboard = this.currentDashboard!
     return {
@@ -78,7 +75,7 @@ export class Navigation {
     };
   }
 
-  isTopLevel() {
+  isTopLevel(){
     return this.currentLevel?.parent;
   }
 
@@ -86,14 +83,14 @@ export class Navigation {
     levelId?: number,
     dashboardId?: number,
     superLevel?: boolean
-  ) {
+  ){
     let currentLevel = this.currentLevel!
     let currentDashboard = this.currentDashboard!
-    if (superLevel) {
+    if (superLevel){
       let dashboardId = currentDashboard.id,
         nextDashboard;
       this.currentLevel = currentLevel.goBack();
-      if (dashboardId) {
+      if (dashboardId){
         nextDashboard = this.currentLevel.dashboards.find(
           (dashboard) => dashboard.id == dashboardId
         );
@@ -101,7 +98,7 @@ export class Navigation {
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : this.currentLevel.dashboards[0];
-    } else if (levelId) {
+    } else if (levelId){
       this.currentLevel = currentLevel.goChild(levelId);
       dashboardId = currentDashboard.id;
 
@@ -111,14 +108,14 @@ export class Navigation {
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : this.currentLevel.dashboards[0];
-    } else if (dashboardId) {
+    } else if (dashboardId){
       let nextDashboard = currentLevel.dashboards.find(
         (dashboard) => dashboard.id == dashboardId
       );
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : this.currentDashboard;
-    } else {
+    } else{
       console.warn('[Navigation.ts -- setCurrent]: nothing to do.');
     }
   }
