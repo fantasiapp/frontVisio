@@ -2,41 +2,38 @@ import Tree from './Tree';
 import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
-//make a useless Tree and Node objects
-//extend to get navigation and trade
-//then make everything an object
 
-class DataWidget {
+class DataWidget{
   private data: any;
   constructor(
     public rowsTitles: string[],
     public columnsTitles: string[],
     public idToI: {[key:number]: number},
     public idToJ: {[key:number]: number}
-  ) {
+  ){
     let n = rowsTitles.length, m = columnsTitles.length;
     this.data = DataWidget.zeros(n, m);
   }
 
-  addOnCase(x: number, y: number, value: number) {
+  addOnCase(x: number, y: number, value: number){
     this.data[this.idToI[x]][this.idToJ[y]] += value;
   }
 
-  addOnRow(x: number, vect: number[]) {
+  addOnRow(x: number, vect: number[]){
     let m = this.columnsTitles.length;
     for (let j = 0; j < m; j++)
       this.data[this.idToI[x]][j] += vect[j];
   }
 
-  addOnColumn(y: number, vect: number[]) {
+  addOnColumn(y: number, vect: number[]){
     let n = this.columnsTitles.length;
     for (let i = 0; i < n; i++)
       this.data[i][this.idToI[y]] += vect[i];
   }
 
-  get(fieldId1: number, fieldId2: number) {
+  get(fieldId1: number, fieldId2: number){
     return this.data[this.idToI[fieldId1]][this.idToJ[fieldId2]];
   }
 
@@ -150,7 +147,7 @@ class DataWidget {
     this.columnsTitles = realColumnsIndexes.map(index => this.columnsTitles[index]);
   }
 
-  private static zeros(n:number, m:number): number[][] {
+  private static zeros(n:number, m:number): number[][]{
     let data: number[][] = [];
     for (let i = 0; i < n; i++)
         data.push(new Array(m).fill(0));
@@ -158,7 +155,7 @@ class DataWidget {
   }
 
   // A supprimer dans la version finale
-  private static initializeDisplayArray(n:number, m:number): (number|string)[][] {
+  private static initializeDisplayArray(n:number, m:number): (number|string)[][]{
     let data: (number|string)[][] = [];
     for (let i = 0; i < n; i++)
       data.push(new Array(m).fill('x'));
@@ -170,46 +167,43 @@ class DataWidget {
 }
 
 class Sale {
-  static INDUSTRY_ID_INDEX: number = 0;
-  static PRODUCT_ID_INDEX: number = 1;
-  static VOLUME_INDEX: number = 2;
+  static INDUSTRY_ID_INDEX = 0;
+  static PRODUCT_ID_INDEX = 1;
+  static VOLUME_INDEX = 2;
 
   constructor(private data: any[]) {};
-  get type(): string {
-    return this.productId < 4 ? 'p2cd' : (this.productId == 4 ? 'enduit' : 'other');
+  get type(): string{
+    return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');
   }
 
-  get industryId() { return this.data[Sale.INDUSTRY_ID_INDEX]; }
-  get productId() { return this.data[Sale.PRODUCT_ID_INDEX]; }
-  get volume() { return this.data[Sale.VOLUME_INDEX]; }
+  get industryId() {return this.data[Sale.INDUSTRY_ID_INDEX];}
+  get productId() {return this.data[Sale.PRODUCT_ID_INDEX];}
+  get volume() {return this.data[Sale.VOLUME_INDEX];}
 };
 
 export class PDV {
   private static instances: Map<number, PDV> = new Map<number, PDV>();
-
   static geoTree: Tree;
   static tradeTree: Tree;
   private static indexMapping: Map<string, number>;
 
   static getInstances(): Map<number, PDV> {
-    if ( !this.instances )
+    if (!this.instances)
       this.load(false);
     return this.instances;
   }
 
-  static load(loadTrees = true) {
-    //load properties
+  static load(loadTrees = true){
     this.createIndexMapping();
-    for ( let [id, data] of Object.entries(DataExtractionHelper.get('pdvs')) ) {
+    for (let [id, data] of Object.entries(DataExtractionHelper.get('pdvs'))){
       let intId = parseInt(id);
-      if ( Number.isNaN(intId) ) continue;
+      if (Number.isNaN(intId)) continue;
       this.instances.set(intId, new PDV(intId, <any[]>data));
     }
-
-    if ( loadTrees ) this.loadTrees();
+    if (loadTrees) this.loadTrees();
   };
 
-  private static createIndexMapping() {
+  private static createIndexMapping(){
     const fields = DataExtractionHelper.get('structurePdv') as string[];
     this.indexMapping = new Map<string, number>();
     fields.forEach((value: string, index: number) => 
@@ -227,26 +221,23 @@ export class PDV {
   }
   
   readonly sales: Sale[];
-  constructor(readonly id: number, private values: any[]) {
+  constructor(readonly id: number, private values: any[]){
     this.sales = [];
-    for ( let d of this.attribute('sales') )
+    for (let d of this.attribute('sales'))
       this.sales.push(new Sale(d));
   };
 
-  private getValue(indicator: string, byIndustries=false): number | number[] {
-    if ( indicator == 'dn' ) return 1;
+  private getValue(indicator: string, byIndustries=false): (number | number[]){
+    if (indicator == 'dn') return 1;
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
-    if ( byIndustries ) {
+    if (byIndustries){
       let keys = Object.keys(DataExtractionHelper.get('industrie'));
-
       let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
       keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
-      for ( let sale of relevantSales )
-        diced[idIndustries[sale.industryId]] += sale.volume;
-      
+      for (let sale of relevantSales)
+        diced[idIndustries[sale.industryId]] += sale.volume;      
       return diced;
     }
-
     return relevantSales.reduce((acc, sale) => acc + sale.volume, 0);
   }
 
@@ -271,7 +262,6 @@ export class PDV {
     return this.values[PDV.index(name)];
   }
 
-  //this is correct, but the order of elements is just different
   static getData(slice: any, axe1: string, axe2: string, indicator: string) {
     let dataAxe1 = DataExtractionHelper.get(axe1);
     let dataAxe2 = DataExtractionHelper.get(axe2);
@@ -284,7 +274,7 @@ export class PDV {
     Object.keys(dataAxe2).forEach((id, index) => idToJ[parseInt(id)] = index);
 
     let pdvs: PDV[] = [], childrenOfSlice: any;
-    if ( slice ) {
+    if (slice) {
       //!!OPTIMIZE
       //!! We are calling sliceTree once per widget, even if it is the same slice
       [pdvs, childrenOfSlice] = this.sliceTree(slice);
@@ -376,7 +366,7 @@ export class PDV {
       
       //verify is the slice structure is correct
       connectedNodes = nodes.filter((node, idx) => parentNodes[idx] && parentNodes[idx].id == slice[keys[i-1]]);
-//      console.log(connectedNodes);
+      //console.log(connectedNodes);
       lastNodes = nodes;
     }
 
@@ -386,38 +376,33 @@ export class PDV {
     let pdvs = connectedNodes.map(node => this.getLeaves(tree, node, node.height, dictChildren)).flat();
     return pdvs;
   }
-
-
 };
 
 
 @Injectable()
 class SliceDice {
-  //use some service to correctly load data
-  constructor() {
-    
+  constructor() {}
+
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean){
+    PDV.load(false);
+    let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
+    dataWidget.basicTreatement();
+    dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
+    return dataWidget.formatSimpleWidget();  
   }
 
-  dnMarcheP2cd(slice:any) {
-    PDV.load();
+  dnMarcheP2cd(slice:any){
+    PDV.load(false);
     let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
     dataWidget.basicTreatement();
     dataWidget.groupData([], ['@other'], true)
     return dataWidget.formatSimpleWidget();
-  }
-  
-  p2cdMarcheP2cd(slice:any) {
-    PDV.load();
-    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "p2cd");
-    dataWidget.basicTreatement();
-    dataWidget.groupData([], ["@other"], true)
-    return dataWidget.formatSimpleWidget();
-  }
+  }  
 };
 
 function load() {
-  PDV.load();
+  PDV.load(true);
   return PDV.geoTree;
 }
 
-export { SliceDice, load };
+export {SliceDice, load};
