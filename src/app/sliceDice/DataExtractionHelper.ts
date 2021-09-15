@@ -103,14 +103,14 @@ class DataExtractionHelper {
   }
 
   static getCompleteWidgetParams(id: number){
-    let widgetParams = this.data['widgetParams'][id];  
+    let widgetParams = this.data['widgetParams'][id];
     let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
     let widget = this.data["widget"][widgetId];
     widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;
-    let widgetComputeId = widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX];
+    let widgetComputeId = widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX]; //might not always be an index
     let widgetCompute = this.data["widgetCompute"][widgetComputeId];
-    widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX] = widgetCompute;
-    return widgetParams
+    widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX] = widgetCompute || widgetComputeId;
+    return widgetParams;
   }
   
   static getDashboardsAt(height: number): number[] {

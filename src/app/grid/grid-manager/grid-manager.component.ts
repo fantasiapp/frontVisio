@@ -4,11 +4,12 @@ import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
 
-type WidgetParams = [string, string, string, string];
+type WidgetParams = [string, string, string, string[], string[], boolean];
+export type Widget= [string, string, string, WidgetParams];
 export interface Layout {
   grid: [string, string],
   template: string;
-  areas: {[key:string]: WidgetParams | null}
+  areas: {[key:string]: Widget | null}
 };
 
 //If you have time, try to use template inside the html file
@@ -64,16 +65,17 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.ref.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
-      console.log(desc);
       if ( !desc ) continue; //unused field
       let cls = this.widgetManager.findComponent(desc[2]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
       component.instance.gridArea = name;
       
+      
       /**** object properties *****/
       component.instance.properties.title = desc[0];
       component.instance.properties.description = desc[1];
+      component.instance.properties.arguments = <WidgetParams>desc[3];
       /***************************/
 
       this.ref.insert(component.hostView);
@@ -104,5 +106,8 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 const defaultLayout: Layout = {
   grid: ['1', '1'],
   template: `x`,
-  areas: {'x': ['<title>', '<description>', 'default', 'empty']}
+  areas: {'x': ['<title>', '<description>', 'default', [
+    "segmentMarketing", "segmentCommercial", "dn",
+    [], ["@other"], true
+  ]]}
 };

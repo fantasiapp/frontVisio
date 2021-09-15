@@ -13,7 +13,7 @@ export abstract class GridArea implements AfterViewInit {
   public gridArea: string = '';
   
   //maybe this should be declared by children, or make a class that extends this ?
-  public properties: {[key:string]: string} = {};
+  public properties: {[key:string]: any} = {};
   public ready: Subject<never> | null = null;
 
   constructor() {
