@@ -27,8 +27,12 @@ class DataExtractionHelper{
   static geoHeight: number;
   static tradeHeight: number;
   
+<<<<<<< HEAD
   static setData(d: any){
     console.log(d);
+=======
+  static setData(d: any) {
+>>>>>>> widgets2
     this.data = d;
     let structure = this.data['structureLevel'];
     this.ID_INDEX = structure.indexOf('id');
@@ -103,14 +107,18 @@ class DataExtractionHelper{
   }
 
   static getCompleteWidgetParams(id: number){
+<<<<<<< HEAD
     let widgetParams = this.data['widgetParams'][id].slice();  
+=======
+    let widgetParams = this.data['widgetParams'][id].slice();
+>>>>>>> widgets2
     let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
     let widget = this.data["widget"][widgetId];
     widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;
-    let widgetComputeId = widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX];
+    let widgetComputeId = widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX]; //might not always be an index
     let widgetCompute = this.data["widgetCompute"][widgetComputeId];
     widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX] = widgetCompute;
-    return widgetParams
+    return widgetParams;
   }
   
   static getDashboardsAt(height: number): number[]{

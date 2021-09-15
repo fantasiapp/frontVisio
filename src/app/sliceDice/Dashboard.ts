@@ -12,12 +12,19 @@ class Dashboard {
     let widgetsIds: number[] = data[DataExtractionHelper.DASHBOARD_WIDGET_INDEX];
     let i = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
     for (let char of template.flat())
       if (!(char in this.areas)) this.areas[char] = DataExtractionHelper.getCompleteWidgetParams(widgetsIds[i++]);
 =======
     for (let char of template.flat()) { /* !!HACK WIDGET ID */
       if (!(char in this.areas)) this.areas[char] = DataExtractionHelper.getCompleteWidgetParams(widgetsIds[i++] || 1);
     }
+>>>>>>> widgets2
+=======
+    for (let char of template.flat())
+      if (!(char in this.areas)) {
+        this.areas[char] = DataExtractionHelper.getCompleteWidgetParams(widgetsIds[i++]);
+      }
 >>>>>>> widgets2
   }
 };

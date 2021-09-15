@@ -38,8 +38,8 @@ export class WidgetManagerService {
     'default': DefaultComponent,
     'pie': SimplePieComponent,
     'donut': SimpleDonutComponent,
-    'historow': "assets/for-mock-view/pdm-enseigne.svg",
-    'histocolumn': "assets/for-mock-view/pdm-enseigne.svg",
+    'histoRow': "assets/for-mock-view/Group%2017831.svg",
+    'histoColumn': "assets/for-mock-view/pdm-enseigne.svg",
     'table': "assets/for-mock-view/pdm-enseigne.svg"
   };
 
@@ -48,10 +48,9 @@ export class WidgetManagerService {
   }
 
   findComponent(name: string): any {
-    console.log(name);
     let component = this.mapping[name];
     if ( !component )
-      return SimplePieComponent;//DefaultComponent;
+      return DefaultComponent;
     if ( typeof component === 'string' )
       return createDefaultComponent(name, component);
     return component;
