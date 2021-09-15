@@ -9,11 +9,12 @@ import { Layout } from '../grid/grid-manager/grid-manager.component';
 })
 export class ViewComponent implements OnInit {
 
-  public layout: Layout | null = null;
+  public layout: (Layout & {id: number}) | null = null;
 
   constructor(private filtersService: FiltersStatesService) {
     filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
-      this.layout = dashboard;
+      if ( !this.layout || (this.layout?.id !== dashboard.id) )
+        this.layout = dashboard;
     })
   }
 

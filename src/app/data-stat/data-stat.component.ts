@@ -4,8 +4,8 @@ import { Injectable } from '@angular/core';
 import { dashboardLayout } from './../structure/mock-layout';
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, OnInit } from '@angular/core';
-import Dashboard from '../sliceDice/Dashboard';
-import {Navigation} from 'src/app/sliceDice/Navigation';
+import Dashboard from '../middle/Dashboard';
+import {Navigation} from 'src/app/middle/Navigation';
 
 @Component({
   selector: 'app-data-stat',

@@ -6,7 +6,7 @@ const tradeStructure = [
 
 
 //Will have to make this non static one day
-class DataExtractionHelper {  
+class DataExtractionHelper{  
   static data: any;
   static ID_INDEX: number;
   static LABEL_INDEX: number;
@@ -18,6 +18,7 @@ class DataExtractionHelper {
   static DASHBOARD_WIDGET_INDEX: number;
   static DASHBOARD_NAME_INDEX: number;
   static WIDGETPARAMS_WIDGET_INDEX: number;
+  static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
   
   //Represent levels as a vertical array rather than a recursive structure
   private static geoLevels: any[] = [];
@@ -26,7 +27,7 @@ class DataExtractionHelper {
   static geoHeight: number;
   static tradeHeight: number;
   
-  static setData(d: any) {
+  static setData(d: any){
     console.log(d);
     this.data = d;
     let structure = this.data['structureLevel'];
@@ -40,6 +41,7 @@ class DataExtractionHelper {
     this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
     this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
     this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
+    this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetParam'].indexOf('widgetCompute');
     
     //trades have less info that geo
     
@@ -47,79 +49,81 @@ class DataExtractionHelper {
     this.tradeLevels = tradeStructure;
     //compute geoLevels
     let geolevel = this.data['levelGeo'];
-    while ( true ) {
+    while (true){
       this.geoLevels.push(geolevel.slice(0, structure.length-1));
-      if ( !(geolevel = geolevel[this.SUBLEVEL_INDEX]) ) break;
+      if (!(geolevel = geolevel[this.SUBLEVEL_INDEX])) break;
     }
 
-    //heights
     this.geoHeight = this.geoLevels.length;
     this.tradeHeight = this.tradeLevels.length;
   }
 
-  static getGeoLevel(height: number) {
-    if ( height >= this.geoLevels.length || height < 0 )
+  static getGeoLevel(height: number){
+    if (height >= this.geoLevels.length || height < 0)
       throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
     return this.geoLevels[height];
   }
 
-  static getGeoTree(): {} {
+  static getGeoTree(): {}{
     return this.data['geoTree'];
   }
 
-  static getTradeTree(): {} {
+  static getTradeTree(): {}{
     return this.data['tradeTree'];
   }
 
-  static getGeoLevelLabel(height: number): string {
+  static getGeoLevelLabel(height: number): string{
     return this.getGeoLevel(height)[this.PRETTY_INDEX];
   }
   
-  static getGeoLevelName(height: number, id: number): string {
-    // if ( height == 0 ) return 'France';
+  static getGeoLevelName(height: number, id: number): string{
+    // if (height == 0) return 'France';
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
-    if ( name === undefined ) throw `No level with id=${id}`;
+    if (name === undefined) throw `No level with id=${id}`;
     return name;
   }
 
-  static getTradeLevelLabel(height: number): string {
+  static getTradeLevelLabel(height: number): string{
     return this.tradeLevels[height];
   }
 
-  static getTradeLevelName(height: number, id: number): string {
-    if ( height == 0 ) return 'Général';
+  static getTradeLevelName(height: number, id: number): string{
+    if (height == 0) return 'Général';
     let name = this.data[this.getTradeLevelLabel(height)][id];
-    if ( name === undefined ) throw `No level with id=${id}`;
+    if (name === undefined) throw `No level with id=${id}`;
     return name;
   }
 
-  static getDashboards(): any {
+  static getDashboards(): any{
     return this.data['dashboards'];
   }
 
-  static getLayouts(): any {
+  static getLayouts(): any{
     return this.data['layout']
   }
 
   static getCompleteWidgetParams(id: number){
-    let widgetParams = this.data['widgetParams'][id];    
+    let widgetParams = this.data['widgetParams'][id].slice();  
     let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
     let widget = this.data["widget"][widgetId];
     widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;
-    return widgetParams
+    let widgetComputeId = widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX]; //might not always be an index
+    let widgetCompute = this.data["widgetCompute"][widgetComputeId];
+    widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX] = widgetCompute;
+    return widgetParams;
   }
   
-  static getDashboardsAt(height: number): number[] {
-    if ( height >= this.geoLevels.length || height < 0 )
+  static getDashboardsAt(height: number): number[]{
+    if (height >= this.geoLevels.length || height < 0)
       throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
     return this.getGeoLevel(height)[this.DASHBOARD_INDEX];
   }
 
-  static getPDVFields() {
+  static getPDVFields(){
     return this.data['structurePdv'];
   }
 
-  static get(field: string) {
+  static get(field: string){
     return this.data[field];
   };
 }
