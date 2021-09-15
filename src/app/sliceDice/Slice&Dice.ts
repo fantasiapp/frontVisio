@@ -381,47 +381,23 @@ export class PDV {
 
 @Injectable()
 class SliceDice {
-<<<<<<< HEAD
   constructor() {}
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean){
     PDV.load(false);
-=======
-  //use some service to correctly load data
-  constructor() {
-    
-  }
-  
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean) {
->>>>>>> widgets2
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
     dataWidget.basicTreatement();
     dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
     return dataWidget.formatSimpleWidget();  
   }
 
-<<<<<<< HEAD
   dnMarcheP2cd(slice:any){
     PDV.load(false);
-=======
-  dnMarcheP2cd(slice:any) {
->>>>>>> widgets2
     let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
     dataWidget.basicTreatement();
     dataWidget.groupData([], ['@other'], true)
     return dataWidget.formatSimpleWidget();
-<<<<<<< HEAD
   }  
-=======
-  }
-  
-  p2cdMarcheP2cd(slice:any) {
-    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "p2cd");
-    dataWidget.basicTreatement();
-    dataWidget.groupData([], ["@other"], true)
-    return dataWidget.formatSimpleWidget();
-  }
->>>>>>> widgets2
 };
 
 function load() {
