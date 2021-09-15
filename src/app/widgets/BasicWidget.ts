@@ -30,8 +30,10 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   private start(): void {
     let data = this.updateData();
     //used to wait for css to render components correctly <--> needs investigation
+    let d: any = new Date;
     requestAnimationFrame((_: any) => {
       this.updateGraph(data);
+      console.log('it took', <any>new Date - d, 'ms to actually show the component');
     });
   }
 

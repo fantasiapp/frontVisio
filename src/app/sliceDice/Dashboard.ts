@@ -13,7 +13,7 @@ class Dashboard {
     let i = 0;
     for (let char of template.flat())
       if (!(char in this.areas)) {
-        this.areas[char] = DataExtractionHelper.getCompleteWidgetParams(widgetsIds[i++] || 1);
+        this.areas[char] = DataExtractionHelper.getCompleteWidgetParams(widgetsIds[i++]);
       }
   }
 };

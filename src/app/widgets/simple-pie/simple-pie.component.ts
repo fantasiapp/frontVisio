@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
@@ -10,7 +10,8 @@ import bb, {pie} from 'billboard.js';
   selector: 'app-simple-pie',
   templateUrl: './simple-pie.component.html',
   styleUrls: ['./simple-pie.component.css'],
-  providers: [SliceDice]
+  providers: [SliceDice],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class SimplePieComponent extends BasicWidget {
