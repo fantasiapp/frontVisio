@@ -45,8 +45,8 @@ export class WidgetManagerService {
     'default': DefaultComponent,
     'pie': SimplePieComponent,
     'donut': SimpleDonutComponent,
-    'histoRow': "/assets/for-mock-view/Group%2017725.svg",
-    'histoColumn': "assets/for-mock-view/pdm-enseigne.svg",
+    'histoRow': "assets/for-mock-view/pdm-enseigne.svg",
+    'histoColumn': "assets/for-mock-view/Group%2017725.svg",
     'table': "assets/for-mock-view/Group%2017871.svg"
   };
 

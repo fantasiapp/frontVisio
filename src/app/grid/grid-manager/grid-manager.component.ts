@@ -2,7 +2,6 @@ import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, 
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
-
 type WidgetParams = [string, string, string, string[], string[], boolean];
 export type Widget= [string, string, string, WidgetParams];
 export interface Layout {
@@ -82,7 +81,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
       this.ref.insert(component.hostView);
     }
 
-    //this is slow
+    //this is slt 
     
     this.cd.detectChanges();
   }
