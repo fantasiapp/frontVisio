@@ -20,7 +20,14 @@ function createDefaultComponent(name: string, src: string) {
   @Component({
     template: `
       <img [alt]="name" [src]="src"/>
-    `
+    `,
+    styles: [`
+      :host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    `]
   })
   class DefaultImage extends GridArea {
     
@@ -38,9 +45,9 @@ export class WidgetManagerService {
     'default': DefaultComponent,
     'pie': SimplePieComponent,
     'donut': SimpleDonutComponent,
-    'histoRow': "assets/for-mock-view/Group%2017831.svg",
+    'histoRow': "/assets/for-mock-view/Group%2017725.svg",
     'histoColumn': "assets/for-mock-view/pdm-enseigne.svg",
-    'table': "assets/for-mock-view/pdm-enseigne.svg"
+    'table': "assets/for-mock-view/Group%2017871.svg"
   };
 
   constructor() {

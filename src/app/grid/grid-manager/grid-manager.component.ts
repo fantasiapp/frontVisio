@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, Renderer2, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
@@ -84,9 +84,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
     //this is slow
     
-    let d: any = new Date;
     this.cd.detectChanges();
-    console.log('CD took', <any>new Date - d, 'ms');
   }
 
   ngOnInit(): void { }
