@@ -1,4 +1,5 @@
 import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, Renderer2, ViewEncapsulation } from '@angular/core';
+import { AsyncSubject, combineLatest } from 'rxjs';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
@@ -10,7 +11,8 @@ export interface Layout {
   areas: {[key:string]: WidgetParams | null}
 };
 
-
+//If you have time, try to use template inside the html file
+//ngFor grid areas and ngComponentOutlet, it can remove the need for requestAnimationFrame
 @Component({
   selector: 'grid-manager',
   templateUrl: './grid-manager.component.html',
@@ -59,7 +61,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   }
 
   /* Same layout but different widgets can cause performance issues */
-  private createComponents() {    
+  private createComponents() {
     this.ref.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
@@ -72,6 +74,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
       /**** object properties *****/
       component.instance.properties.title = desc[0];
       component.instance.properties.description = desc[1];
+      /***************************/
 
       this.ref.insert(component.hostView);
       this.componentRefs.push(component);
@@ -84,12 +87,13 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   ngOnDestroy() {
     for ( let componentRef of this.componentRefs )
       componentRef.destroy();
+    
     this.componentRefs.length = 0;
   }
 
   private computeLayout() {
-    this.gridColumns = 'repeat(' + this.layout.grid[1] + ', 1fr)';
-    this.gridRows = 'repeat(' + this.layout.grid[0] + ', 1fr)';
+    this.gridColumns = 'repeat(' + this.layout.grid[1] + ', minmax(0, 1fr))';
+    this.gridRows = 'repeat(' + this.layout.grid[0] + ', minmax(0, 1fr))';
     this.gridAreaTemplate = this.layout.template;
   }
 }
