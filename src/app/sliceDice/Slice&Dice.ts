@@ -398,16 +398,25 @@ class SliceDice {
     
   }
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean) {
-    PDV.load();
+    PDV.load(false);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
     dataWidget.basicTreatement();
     dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
+    return dataWidget.formatSimpleWidget();  
+  }
+
+  dnMarcheP2cd(slice:any) {
+    PDV.load(false);
+    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
+    dataWidget.basicTreatement();
+    dataWidget.groupData([], ['@other'], true)
     return dataWidget.formatSimpleWidget();
   }
+  
 };
 
 function load() {
-  PDV.load();
+  PDV.load(true);
   return PDV.geoTree;
 }
 

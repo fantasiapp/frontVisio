@@ -11,9 +11,8 @@ class Dashboard {
     this.areas  = {};
     let widgetsIds: number[] = data[DataExtractionHelper.DASHBOARD_WIDGET_INDEX];
     let i = 0;
-    for (let char of template.flat()) {
+    for (let char of template.flat())
       if (!(char in this.areas)) this.areas[char] = DataExtractionHelper.getCompleteWidgetParams(widgetsIds[i++]);
-    }
   }
 };
 
