@@ -5,8 +5,9 @@ import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
 
 
-class DataWidget{
+class DataWidget {
   private data: any;
+  private dim: number;
   constructor(
     public rowsTitles: string[],
     public columnsTitles: string[],
@@ -15,6 +16,7 @@ class DataWidget{
   ){
     let n = rowsTitles.length, m = columnsTitles.length;
     this.data = DataWidget.zeros(n, m);
+    this.dim = 2;
   }
 
   addOnCase(x: number, y: number, value: number){
@@ -56,14 +58,17 @@ class DataWidget{
       }
     }
     if (simpleFormat && groupsAxe1.length == 1 && groupsAxe2.length == 1){
+      this.dim = 0;
       this.data = newData[0][0];
       if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
       this.columnsTitles = ['all'];
     }else if (simpleFormat && groupsAxe1.length == 1){
+      this.dim = 1;
       this.data = newData[0];
       this.rowsTitles = ['all'];  
       this.columnsTitles = groupsAxe2; 
     }else if (simpleFormat && groupsAxe2.length == 1){
+      this.dim = 1;
       this.data = newData.map(x => x[0]);
       this.rowsTitles = groupsAxe1;
       this.columnsTitles = ['all'];
@@ -79,14 +84,20 @@ class DataWidget{
     this.sortLines();
   }
 
-  formatSimpleWidget(){
-    let widgetParts: any[] = [];
-    if (Number.isInteger(this.data)){
-      widgetParts.push({label: this.rowsTitles[0], value: Math.round(this.data)})
-    }else {
-      for (let i = 0; i < this.rowsTitles.length; i++){
-        widgetParts.push({label: this.rowsTitles[i], value: Math.round(this.data[i])})
-      }
+  formatWidget(){
+    if (this.dim === 0) return [{label: this.rowsTitles[0], value: Math.round(this.data)}];
+    if (this.dim === 1){
+      let widgetParts: {[name: string]: number|string}[] = [];    
+        for (let i = 0; i < this.rowsTitles.length; i++)
+          widgetParts.push({label: this.rowsTitles[i], value: Math.round(this.data[i])})
+      return widgetParts
+    }
+    let widgetParts: {[name: string]: string|{[name: string]: number|string}[]}[] = [];
+    for (let i = 0; i < this.rowsTitles.length; i++){
+      let widgetLine: {[name: string]: number|string}[] = [];
+      for (let j = 0; j < this.columnsTitles.length; j++)
+        widgetLine.push({label: this.columnsTitles[j], value: this.data[i][j]});
+      widgetParts.push({label: this.rowsTitles[i], value: widgetLine});
     }
     return widgetParts
   }
@@ -100,25 +111,7 @@ class DataWidget{
     this.rowsTitles = sortedCoupleList.map((couple: [string, number[]]) => couple[0]);
     this.data = sortedCoupleList.map((couple: [string, number[]]) => couple[1]);
   }
-
-  // A supprimer dans la version finale
-  // Ne marche pas quand la widget n'est plus une matrice
-  display(roundNumber = false){
-    let n = this.rowsTitles.length,
-      m = this.columnsTitles.length;
-    let displayArray = DataWidget.initializeDisplayArray(n + 1, m + 1)
-    for (let i = 1; i < n + 1; i++){
-      for (let j = 1; j < m + 1; j++){
-        displayArray[i][j] = roundNumber ? Math.round(this.data[i - 1][j - 1]): this.data[i - 1][j - 1];
-      }
-    }
-    for (let i = 1; i < n + 1; i++)
-      displayArray[i][0] = this.rowsTitles[i - 1];
-    for (let j = 1; j < m + 1; j++)
-      displayArray[0][j] = this.columnsTitles[j - 1];
-    console.log(displayArray)
-  }
-
+  
   private removeZeros(){
     let n = this.rowsTitles.length,
       m = this.columnsTitles.length;
@@ -126,10 +119,10 @@ class DataWidget{
     let realLinesIndexes: number[] = [];
     let realColumnsIndexes: number[] = [];
     let i = 0;
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++){
       let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
       if (!lineNull) realLinesIndexes.push(i);        
-      }
+    }
     for (let _ in realLinesIndexes){
       newData.push([]);
     }
@@ -146,24 +139,20 @@ class DataWidget{
     this.rowsTitles = realLinesIndexes.map(index => this.rowsTitles[index]);
     this.columnsTitles = realColumnsIndexes.map(index => this.columnsTitles[index]);
   }
-
+  
   private static zeros(n:number, m:number): number[][]{
     let data: number[][] = [];
     for (let i = 0; i < n; i++)
-        data.push(new Array(m).fill(0));
+      data.push(new Array(m).fill(0));
     return data;
   }
-
-  // A supprimer dans la version finale
-  private static initializeDisplayArray(n:number, m:number): (number|string)[][]{
-    let data: (number|string)[][] = [];
-    for (let i = 0; i < n; i++)
-      data.push(new Array(m).fill('x'));
-    return data;
-  }
-
-  // A supprimer dans la version finale
-  getData(){return this.data}
+  
+  getSum(){
+    if (this.dim === 0) return Math.round(this.data);
+    if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
+    return Math.round(
+      this.data.reduce((acc:number, list:number[]) => acc + list.reduce((acc:number, value:number) => acc + value, 0), 0));
+    }
 }
 
 class Sale {
@@ -388,16 +377,8 @@ class SliceDice {
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
     dataWidget.basicTreatement();
     dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
-    return dataWidget.formatSimpleWidget();  
+    return dataWidget.formatWidget();  
   }
-
-  dnMarcheP2cd(slice:any){
-    PDV.load(false);
-    let dataWidget = PDV.getData(slice, "segmentMarketing", "segmentCommercial", "dn");
-    dataWidget.basicTreatement();
-    dataWidget.groupData([], ['@other'], true)
-    return dataWidget.formatSimpleWidget();
-  }  
 };
 
 function load() {
