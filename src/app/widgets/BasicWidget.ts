@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { combineLatest, Subscription } from "rxjs";
 import { FiltersStatesService } from "../filters/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
-import { SliceDice } from "../sliceDice/Slice&Dice";
+import { SliceDice } from "../middle/Slice&Dice";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements OnDestroy {

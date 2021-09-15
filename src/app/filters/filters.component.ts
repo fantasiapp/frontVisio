@@ -1,4 +1,4 @@
-import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FormsModule } from '@angular/forms';
 import { FiltersStatesService } from './filters-states.service';
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';

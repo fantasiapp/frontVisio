@@ -1,15 +1,10 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
-import { MOCK_NAVIGATION } from '../structure/mock-structure';
-import DataExtractionHelper from '../sliceDice/DataExtractionHelper';
-import {Navigation} from '../sliceDice/Navigation';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
+import {Navigation} from '../middle/Navigation';
 //!!!HACK
-import { load } from '../sliceDice/Slice&Dice';
-
-import { state } from '@angular/animations';
-import {MatSelectModule} from '@angular/material/select'
-import { Subject } from 'rxjs';
+import { load } from '../middle/Slice&Dice';
 
 @Injectable({
   providedIn: 'root',
