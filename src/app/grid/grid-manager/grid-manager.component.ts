@@ -65,7 +65,6 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
       if ( !desc ) continue; //unused field
-      console.log(name, desc);
       let cls = this.widgetManager.findComponent(desc[2]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);

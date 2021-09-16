@@ -30,15 +30,8 @@ export class SimplePieComponent extends BasicWidget {
       data: {
         columns: data.map(d => [d.label, d.value]),
         type: pie(),
-        onclick(d, el) {
-          this.tooltip.show({
-            
-            index: d.index
-          });
-        },
       },
       tooltip: {
-        show: false,
         contents(d, defaultTitleFormat, defaultValueFormat, color) {
           const data = d[0];
           return `
