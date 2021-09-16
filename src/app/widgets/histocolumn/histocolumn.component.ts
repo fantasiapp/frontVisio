@@ -23,32 +23,33 @@ export class HistoColumnComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();  
-    console.log(data);    
+    for ( let i = 1; i < data.length; i++ )
+      data[i].push(1);
+    
+    let d = new Array(data[0].length);
+    
+    for ( let i = 0; i < data[0].length; i++ ) {
+      d[i] = new Array(data.length);
+      for ( let j = 0; j < data.length; j++ )
+        d[i][j] = data[j][i];
+    }
+
+    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
         x: "x",
-        columns: [
-          ["x", "2013-01-01", "2013-01-02", "2013-01-03", "2013-01-04", "2013-01-05", "2013-01-06"],
-          ["data1", 20, 50, 100, 50, 50, 50],
-          ["data2", 50, 90, 110, 80, 22, 74],
-          ["data3", 100, 20, 90, 70, 52, 44],
-          ["data4", 90, 50, 70, 55, 75, 65],
-        ],
+        columns: d,
         type: bar(),
-        groups: [
-          ["data1", "data2", "data3", "data4"],
-        ]
+        groups: [d.slice(1).map(x => x[0])]
       },
       tooltip: {
         grouped: false
       },
       axis: {
         x: {
-          type: "timeseries"
-        },
-        //rotated: true
+          type: 'category'
+        }
       }
     });
   }

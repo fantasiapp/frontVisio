@@ -371,7 +371,7 @@ class SliceDice{
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean){
     PDV.load(false);
-    let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
+    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
