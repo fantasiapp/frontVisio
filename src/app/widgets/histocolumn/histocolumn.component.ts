@@ -23,25 +23,15 @@ export class HistoColumnComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    for ( let i = 1; i < data.length; i++ )
-      data[i].push(1);
-    
-    let d = new Array(data[0].length);
-    
-    for ( let i = 0; i < data[0].length; i++ ) {
-      d[i] = new Array(data.length);
-      for ( let j = 0; j < data.length; j++ )
-        d[i][j] = data[j][i];
-    }
-
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
         x: "x",
-        columns: d,
+        columns: data,
         type: bar(),
-        groups: [d.slice(1).map(x => x[0])]
+        groups: [data.slice(1).map(x => x[0])],
+        order: null
       },
       tooltip: {
         grouped: false
