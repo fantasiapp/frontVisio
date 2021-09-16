@@ -93,11 +93,14 @@ class DataWidget{
   }
   
   formatWidget(transpose:boolean){
-    if (this.dim === 0) return [{label: this.rowsTitles[0], value: Math.round(this.data)}];
+    // Pas très beau pour les deux prochaines lignes
+    if (this.columnsTitles[this.columnsTitles.length - 1] === '@other') this.columnsTitles[this.columnsTitles.length - 1] = 'Autres'; 
+    if (this.rowsTitles[this.rowsTitles.length - 1] === '@other') this.rowsTitles[this.rowsTitles.length - 1] = 'Autres'; 
+    if (this.dim === 0) return [[this.rowsTitles[0], Math.round(this.data)]];
     if (this.dim === 1){
-      let widgetParts: {[name: string]: number|string}[] = [];    
+      let widgetParts: [string, number][] = [];    
       for (let i = 0; i < this.rowsTitles.length; i++)
-      widgetParts.push({label: this.rowsTitles[i], value: Math.round(this.data[i])})
+        widgetParts.push([this.rowsTitles[i], Math.round(this.data[i])]);
       return widgetParts
     }
     if (transpose){
@@ -105,7 +108,7 @@ class DataWidget{
       for (let j = 0; j < this.columnsTitles.length; j++){
         let line: (number | string)[] = [this.columnsTitles[j]]
         for (let i = 0; i < this.rowsTitles.length; i++)
-          line.push(this.data[i][j]);
+          line.push(Math.round(this.data[i][j]));
         widgetParts.push(line);
       }
       return widgetParts;  
@@ -114,7 +117,7 @@ class DataWidget{
     for (let i = 0; i < this.rowsTitles.length; i++){
       let line: (number | string)[] = [this.rowsTitles[i]]
       for (let j = 0; j < this.columnsTitles.length; j++)
-        line.push(this.data[i][j]);
+        line.push(Math.round(this.data[i][j]));
       widgetParts.push(line);
     }
     return widgetParts;    
