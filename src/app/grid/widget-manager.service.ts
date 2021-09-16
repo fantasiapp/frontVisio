@@ -3,6 +3,7 @@ import { SimplePieComponent } from '../widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from '../widgets/simple-donuts/simple-donuts.component';
 import { HistoColumnComponent } from '../widgets/histocolumn/histocolumn.component';
 import { GridArea } from './grid-area/grid-area';
+import { HistoRowComponent } from '../widgets/historow/historow.component';
 
 
 @Component({
@@ -46,7 +47,7 @@ export class WidgetManagerService {
     'default': DefaultComponent,
     'pie': SimplePieComponent,
     'donut': SimpleDonutComponent,
-    'histoRow': "assets/for-mock-view/pdm-enseigne.svg",
+    'histoRow': HistoRowComponent,
     'histoColumn': HistoColumnComponent,
     'table': "assets/for-mock-view/Group%2017871.svg"
   };

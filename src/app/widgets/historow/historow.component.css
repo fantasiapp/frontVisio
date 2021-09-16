@@ -1,0 +1,14 @@
+/* maybe make this public */
+:host {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+h1, p {
+    margin: 0;
+}
+
+.container {
+    flex-grow: 1;
+}

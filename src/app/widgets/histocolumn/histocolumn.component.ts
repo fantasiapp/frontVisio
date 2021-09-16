@@ -42,11 +42,9 @@ export class HistoColumnComponent extends BasicWidget {
       },
       axis: {
         x: {
-          type: "timeseries",
-          tick: {
-            format: "%Y-%m-%d"
-          }
-        }
+          type: "timeseries"
+        },
+        //rotated: true
       }
     });
   }
