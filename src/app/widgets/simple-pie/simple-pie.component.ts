@@ -23,12 +23,13 @@ export class SimplePieComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    let sum = data.reduce((acc, d) => acc + d.value, 0);
+    let sum = data.reduce((acc, d) => acc + d[1], 0);
+    
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
-        columns: data.map(d => [d.label, d.value]),
+        columns: data,
         type: pie(),
       },
       tooltip: {

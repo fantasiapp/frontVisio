@@ -49,7 +49,7 @@ export class WidgetManagerService {
     'donut': SimpleDonutComponent,
     'histoRow': HistoRowComponent,
     'histoColumn': HistoColumnComponent,
-    'table': "assets/for-mock-view/Group%2017871.svg"
+    'table': "assets/table.png"
   };
 
   constructor() {
