@@ -101,9 +101,9 @@ class DataWidget{
       return widgetParts
     }
     let widgetParts: (number | string)[][] = [['x'].concat(this.columnsTitles)];
-    for (let i = 1; i < this.rowsTitles.length; i++){
+    for (let i = 0; i < this.rowsTitles.length; i++){
       let line: (number | string)[] = [this.rowsTitles[i]]
-      for (let j = 1; j < this.columnsTitles.length; j++)
+      for (let j = 0; j < this.columnsTitles.length; j++)
         line.push(this.data[i][j]);
       widgetParts.push(line);
     }
