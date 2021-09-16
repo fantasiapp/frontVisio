@@ -34,9 +34,9 @@ export class SimpleDonutComponent extends BasicWidget {
         contents(d, defaultTitleFormat, defaultValueFormat, color) {
           const data = d[0];
           return `
-            <div class="tooltip">
-              ${data.id}: ${(sum * data.ratio).toFixed(0)} u
-            </div>
+          <div class="tooltip">
+            ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
+          </div>
           `;
         }
       }
