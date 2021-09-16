@@ -44,7 +44,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
-    let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
+    let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
     return data;
   }
 
