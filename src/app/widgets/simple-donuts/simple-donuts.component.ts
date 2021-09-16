@@ -13,7 +13,6 @@ import bb, {donut} from 'billboard.js';
   providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class SimpleDonutComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;

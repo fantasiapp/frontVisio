@@ -22,8 +22,10 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       this.path = path;
       //view is initialized
       this.subscription = filtersService.$path.subscribe(path => {
-        this.path = path;
-        this.updateGraph(this.updateData());
+        if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
+          this.path = path;
+          this.updateGraph(this.updateData());
+        }
       });
       this.start();
     });
@@ -31,18 +33,19 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
   private start(): void {
     let data = this.updateData();
-    //used to wait for css to render components correctly <--> needs investigation
+    //used to wait for css to render components correctly <--> needs investigation   v
     requestAnimationFrame((_: any) => {
-      let d: any = new Date;
       this.updateGraph(data);
     });
   }
 
+  /* In case of a library change, this is the method that should be changed         ^ */
   abstract updateGraph(data: any[]): void;
 
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
-    return this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5]);  
+    let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5]);
+    return data;
   }
 
   ngOnDestroy() {
@@ -50,4 +53,23 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
   }
+
+  static shallowArrayEquality(obj: any[], other: any[]): boolean {
+    let l = obj.length;
+    if ( l != other.length ) return false;
+    for ( let i = 0; i < l; i++ )
+      if ( obj[i] != other[i] ) return false;
+    return true;
+  }
+
+  static shallowObjectEquality(obj: {[key:string]:any}, other: {[key:string]: any}): boolean {
+    let objKeys: string[] = Object.keys(obj),
+      otherKeys: string[] = Object.keys(other);
+    
+    if ( !this.shallowArrayEquality(objKeys, otherKeys) ) return false;
+    for ( let key of objKeys )
+      if ( obj[key] != other[key] ) return false;
+    
+    return true;
+  };
 };

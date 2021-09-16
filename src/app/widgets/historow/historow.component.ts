@@ -4,24 +4,23 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
-import bb, {pie} from 'billboard.js';
+import bb, {donut} from 'billboard.js';
+
 
 @Component({
-  selector: 'app-simple-pie',
-  templateUrl: './simple-pie.component.html',
-  styleUrls: ['./simple-pie.component.css'],
+  selector: 'app-historow',
+  templateUrl: './historow.component.html',
+  styleUrls: ['./historow.component.css'],
   providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-
-export class SimplePieComponent extends BasicWidget {
+export class HistorowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
-
 
   updateGraph(data: any[]) {
     let sum = data.reduce((acc, d) => acc + d.value, 0);
@@ -30,7 +29,7 @@ export class SimplePieComponent extends BasicWidget {
       bindto: this.content.nativeElement,
       data: {
         columns: data.map(d => [d.label, d.value]),
-        type: pie()
+        type: donut()
       },
       tooltip: {
         contents(d, defaultTitleFormat, defaultValueFormat, color) {

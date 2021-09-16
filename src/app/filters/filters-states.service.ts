@@ -95,6 +95,7 @@ export class FiltersStatesService {
     this.arraySubject.next(currentArrays);
     
     if ( this.navigation.currentLevel ) {
+      /* Rework this */
       let path = this.navigation.getCurrent()._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
         if ( idx == 0 )
           acc['Région'] = level[1]

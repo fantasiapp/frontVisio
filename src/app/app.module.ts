@@ -28,6 +28,7 @@ import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.component';
 //---------------------------------------------------------------------------------------
 import { GridManager } from './grid/grid-manager/grid-manager.component';
+import { HistorowComponent } from './widgets/historow/historow.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { GridManager } from './grid/grid-manager/grid-manager.component';
     SimplePieComponent,
     SimpleDonutComponent,
     //------------------------
-    GridManager
+    GridManager,
+    HistorowComponent
   ],
   imports: [
     BrowserModule,
