@@ -58,7 +58,7 @@
       <img
         src="assets/super.svg"
         class="navigate-button1"
-        *ngIf="superLevel.label"
+        [style.display]="superLevel.label ? 'initial' : 'none'"
         (click)="showSuper(this.superLevel)"
       />
       <br />
@@ -68,7 +68,7 @@
       <img
         src="assets/sub.svg"
         class="navigate-button2"
-        *ngIf="subLevels.id.length"
+        [style.display]="subLevels.id.length ? 'initial' : 'none'"
         (click)="showSub(subLevels)"
       /><br />
       {{ subLevels.label[0] }}

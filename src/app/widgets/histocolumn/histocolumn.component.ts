@@ -23,7 +23,8 @@ export class HistoColumnComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    d3.select(this.ref.nativeElement).selectAll('div > *').remove();  
+    console.log(data);    
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
@@ -39,6 +40,9 @@ export class HistoColumnComponent extends BasicWidget {
         groups: [
           ["data1", "data2", "data3", "data4"],
         ]
+      },
+      tooltip: {
+        grouped: false
       },
       axis: {
         x: {

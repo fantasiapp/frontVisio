@@ -40,6 +40,9 @@ export class HistoRowComponent extends BasicWidget {
           ["data1", "data2", "data3", "data4"],
         ]
       },
+      tooltip: {
+        grouped: false
+      },
       axis: {
         x: {
           type: "timeseries"
