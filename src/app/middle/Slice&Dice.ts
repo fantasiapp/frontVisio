@@ -3,7 +3,7 @@ import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
-import { WidgetManagerService } from '../grid/widget-manager.service';
+import {WidgetManagerService} from '../grid/widget-manager.service';
 
 
 class DataWidget{
@@ -92,13 +92,23 @@ class DataWidget{
     this.sortLines();
   }
   
-  formatWidget(){
+  formatWidget(transpose:boolean){
     if (this.dim === 0) return [{label: this.rowsTitles[0], value: Math.round(this.data)}];
     if (this.dim === 1){
       let widgetParts: {[name: string]: number|string}[] = [];    
       for (let i = 0; i < this.rowsTitles.length; i++)
       widgetParts.push({label: this.rowsTitles[i], value: Math.round(this.data[i])})
       return widgetParts
+    }
+    if (transpose){
+      let widgetParts: (number | string)[][] = [['x'].concat(this.rowsTitles)];
+      for (let j = 0; j < this.columnsTitles.length; j++){
+        let line: (number | string)[] = [this.columnsTitles[j]]
+        for (let i = 0; i < this.rowsTitles.length; i++)
+          line.push(this.data[i][j]);
+        widgetParts.push(line);
+      }
+      return widgetParts;  
     }
     let widgetParts: (number | string)[][] = [['x'].concat(this.columnsTitles)];
     for (let i = 0; i < this.rowsTitles.length; i++){
@@ -107,7 +117,7 @@ class DataWidget{
         line.push(this.data[i][j]);
       widgetParts.push(line);
     }
-    return widgetParts;
+    return widgetParts;    
   }
 
   private sortLines(sortFunct = ((line: number[]) => line.reduce((acc: number, value: number) => acc + value, 0))){
@@ -369,13 +379,13 @@ export class PDV{
 class SliceDice{
   constructor(){}
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean){
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean, transpose = false){
     PDV.load(false);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
-    return dataWidget.formatWidget();  
+    return dataWidget.formatWidget(transpose);  
   }
 };
 
