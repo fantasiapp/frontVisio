@@ -3,6 +3,7 @@ import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
+import { WidgetManagerService } from '../grid/widget-manager.service';
 
 
 class DataWidget{
@@ -99,19 +100,14 @@ class DataWidget{
       widgetParts.push({label: this.rowsTitles[i], value: Math.round(this.data[i])})
       return widgetParts
     }
-    let n = this.rowsTitles.length,
-      m = this.columnsTitles.length;
-    let widgetParts = DataWidget.initializeDisplayArray(n + 1, m + 1)
-    for (let i = 1; i < n + 1; i++){
-      for (let j = 1; j < m + 1; j++){
-        widgetParts[i][j] = Math.round(this.data[i - 1][j - 1]);
-      }
+    let widgetParts: (number | string)[][] = [['x'].concat(this.columnsTitles)];
+    for (let i = 1; i < this.rowsTitles.length; i++){
+      let line: (number | string)[] = [this.rowsTitles[i]]
+      for (let j = 1; j < this.columnsTitles.length; j++)
+        line.push(this.data[i][j]);
+      widgetParts.push(line);
     }
-    for (let i = 1; i < n + 1; i++)
-      widgetParts[i][0] = this.rowsTitles[i - 1];
-    for (let j = 1; j < m + 1; j++)
-      widgetParts[0][j] = this.columnsTitles[j - 1];
-    return widgetParts
+    return widgetParts;
   }
 
   private sortLines(sortFunct = ((line: number[]) => line.reduce((acc: number, value: number) => acc + value, 0))){
@@ -164,13 +160,6 @@ class DataWidget{
     if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
     return Math.round(
       this.data.reduce((acc:number, list:number[]) => acc + list.reduce((acc:number, value:number) => acc + value, 0), 0));
-    }
-     
-  private static initializeDisplayArray(n:number, m:number): (number|string)[][] {
-    let data: (number|string)[][] = [];
-    for (let i = 0; i < n; i++)
-      data.push(new Array(m).fill('x'));
-    return data;
   }
 }
 
