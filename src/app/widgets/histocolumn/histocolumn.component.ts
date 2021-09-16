@@ -4,17 +4,17 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
-import bb, {donut} from 'billboard.js';
+import bb, {bar} from 'billboard.js';
 
 
 @Component({
-  selector: 'app-historow',
-  templateUrl: './historow.component.html',
-  styleUrls: ['./historow.component.css'],
+  selector: 'app-histocolumn',
+  templateUrl: './histocolumn.component.html',
+  styleUrls: ['./histocolumn.component.css'],
   providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HistorowComponent extends BasicWidget {
+export class HistoColumnComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;
 
@@ -23,22 +23,29 @@ export class HistorowComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    let sum = data.reduce((acc, d) => acc + d.value, 0);
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
-        columns: data.map(d => [d.label, d.value]),
-        type: donut()
+        x: "x",
+        columns: [
+          ["x", "2013-01-01", "2013-01-02", "2013-01-03", "2013-01-04", "2013-01-05", "2013-01-06"],
+          ["data1", 20, 50, 100, 50, 50, 50],
+          ["data2", 50, 90, 110, 80, 22, 74],
+          ["data3", 100, 20, 90, 70, 52, 44],
+          ["data4", 90, 50, 70, 55, 75, 65],
+        ],
+        type: bar(),
+        groups: [
+          ["data1", "data2", "data3", "data4"],
+        ]
       },
-      tooltip: {
-        contents(d, defaultTitleFormat, defaultValueFormat, color) {
-          const data = d[0];
-          return `
-            <div class="tooltip">
-              ${data.id}: ${(sum * data.ratio).toFixed(0)} u
-            </div>
-          `;
+      axis: {
+        x: {
+          type: "timeseries",
+          tick: {
+            format: "%Y-%m-%d"
+          }
         }
       }
     });

@@ -22,7 +22,6 @@ export class SimplePieComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-
   updateGraph(data: any[]) {
     let sum = data.reduce((acc, d) => acc + d.value, 0);
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
@@ -37,7 +36,7 @@ export class SimplePieComponent extends BasicWidget {
           const data = d[0];
           return `
             <div class="tooltip">
-              ${data.id}: ${(sum * data.ratio).toFixed(0)} u
+              ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)} u
             </div>
           `;
         }

@@ -71,5 +71,18 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       if ( obj[key] != other[key] ) return false;
     
     return true;
-  };
+  }
+
+  static format(q: number, n: number = 3): string {
+    q |= 0; //convert to int
+    let base = Math.pow(10, n);
+    let str = '';
+    while (q >= base) {
+      str = (q % base).toString().padStart(n, '0') + ' ' + str;
+      q = (q / base) | 0;
+    };
+    if ( q ) str = q.toString() + ' ' + str;
+    if ( !str ) str = '0';
+    return str;
+  }
 };

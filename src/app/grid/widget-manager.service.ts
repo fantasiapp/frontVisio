@@ -1,6 +1,7 @@
 import { Component, Injectable, Input } from '@angular/core';
 import { SimplePieComponent } from '../widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from '../widgets/simple-donuts/simple-donuts.component';
+import { HistoColumnComponent } from '../widgets/histocolumn/histocolumn.component';
 import { GridArea } from './grid-area/grid-area';
 
 
@@ -46,7 +47,7 @@ export class WidgetManagerService {
     'pie': SimplePieComponent,
     'donut': SimpleDonutComponent,
     'histoRow': "assets/for-mock-view/pdm-enseigne.svg",
-    'histoColumn': "assets/for-mock-view/Group%2017725.svg",
+    'histoColumn': HistoColumnComponent,
     'table': "assets/for-mock-view/Group%2017871.svg"
   };
 
