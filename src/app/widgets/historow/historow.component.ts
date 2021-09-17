@@ -47,6 +47,11 @@ export class HistoRowComponent extends BasicWidget {
         },
         rotated: true
       },
+      grid: {
+        y: {
+          show: true
+        }
+      },
       //disable clicks on legend
       legend: {
         item: {

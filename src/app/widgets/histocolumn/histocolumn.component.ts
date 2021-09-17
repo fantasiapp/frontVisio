@@ -27,7 +27,7 @@ export class HistoColumnComponent extends BasicWidget {
     if ( !(data[0].length - 1) )
       return this.noData(this.content);
     /****************⚠️ ***************/
-    
+
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
@@ -44,6 +44,11 @@ export class HistoColumnComponent extends BasicWidget {
       axis: {
         x: {
           type: 'category'
+        }
+      },
+      grid: {
+        x: {
+          show: true
         }
       },
       //disable clicks on legend
