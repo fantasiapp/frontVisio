@@ -32,7 +32,7 @@ export class HistoRowComponent extends BasicWidget {
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
-        x: 'x',
+        x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
         columns: data,
         type: bar(),
         groups: [data.slice(1).map(x => x[0])],
