@@ -24,7 +24,7 @@ export class HistoRowComponent extends BasicWidget {
 
   updateGraph(data: any[]) {
     //temporary code to print no data⚠️
-    if ( !(data[0].length - 1) )
+    if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
     /****************⚠️ ***************/
 
@@ -32,7 +32,7 @@ export class HistoRowComponent extends BasicWidget {
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
-        x: "x",
+        x: 'x',
         columns: data,
         type: bar(),
         groups: [data.slice(1).map(x => x[0])],

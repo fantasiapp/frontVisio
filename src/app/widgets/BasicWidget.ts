@@ -57,6 +57,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   }
 
   noData(content: ElementRef) {
+    d3.select(content.nativeElement).select('div > svg').remove();
     content.nativeElement.innerHTML = `
       <div class="nodata">Il n'y a pas de données.</div>
     `;

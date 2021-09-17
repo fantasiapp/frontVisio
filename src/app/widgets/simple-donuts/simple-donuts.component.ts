@@ -22,12 +22,12 @@ export class SimpleDonutComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
+    let sum = data.reduce((acc, d) => acc + d[1], 0);
     //temporary code to print no data⚠️
-    if ( !data.length )
+    if ( !data.length || !sum )
       return this.noData(this.content);
     /****************⚠️ ***************/
-
-    let sum = data.reduce((acc, d) => acc + d[1], 0);
+    
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
