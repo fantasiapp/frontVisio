@@ -13,6 +13,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class AuthService {
+
   token: string;
   username: string = '';
   isLoggedIn = new BehaviorSubject<boolean>(false);
@@ -44,6 +45,10 @@ export class AuthService {
   getUser() {
     return { name: this.username };
   }
+
+  getAuthorizationToken() {
+    return this.token;
+}
 
   logoutFromServer() {
     setTimeout(() => {

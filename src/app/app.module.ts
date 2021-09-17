@@ -30,6 +30,7 @@ import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.comp
 import { GridManager } from './grid/grid-manager/grid-manager.component';
 import { HistoColumnComponent } from './widgets/histocolumn/histocolumn.component';
 import { HistoRowComponent } from './widgets/historow/historow.component';
+import { httpInterceptorProviders } from './http-interceptors/index';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,7 @@ import { HistoRowComponent } from './widgets/historow/historow.component';
     //   apiKey:''
     // })
   ],
-  providers: [Navigation],
+  providers: [Navigation, httpInterceptorProviders],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
