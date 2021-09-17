@@ -46,7 +46,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   ref!: ViewContainerRef;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-    
+   
   }
   
   ngAfterViewInit() {
@@ -64,7 +64,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.ref.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
-      if ( !desc ) continue; //unused field
+      if ( !desc ) throw '[GridManager.createComponents]: Unknown component';
       let cls = this.widgetManager.findComponent(desc[2]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
@@ -79,9 +79,6 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
       this.ref.insert(component.hostView);
     }
-
-    //this is slt 
-    
     this.cd.detectChanges();
   }
 

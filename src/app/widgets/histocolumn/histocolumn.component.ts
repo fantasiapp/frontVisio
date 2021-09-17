@@ -40,7 +40,13 @@ export class HistoColumnComponent extends BasicWidget {
         x: {
           type: 'category'
         }
+      },
+      //disable clicks on legend
+      legend: {
+      item: {
+        onclick() {}
       }
+    }
     });
   }
 }

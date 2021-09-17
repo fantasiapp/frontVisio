@@ -34,10 +34,17 @@ export class SimpleDonutComponent extends BasicWidget {
         contents(d, defaultTitleFormat, defaultValueFormat, color) {
           const data = d[0];
           return `
-          <div class="tooltip">
-            ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
-          </div>
+            <div class="tooltip">
+              ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
+              <div class="tooltip-tail"></div>
+            </div>
           `;
+        },
+      },
+      //disable clicks on legend
+      legend: {
+        item: {
+          onclick() {}
         }
       }
     });
