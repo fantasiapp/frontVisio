@@ -4,7 +4,6 @@ import { Observable } from "rxjs";
 
 import { AuthService } from "../connection/auth.service";
 
-import { HTTP_INTERCEPTORS } from "@angular/common/http";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor{ //set default headers on outgoing requests with the authentification token
@@ -13,12 +12,14 @@ export class AuthInterceptor implements HttpInterceptor{ //set default headers o
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-        const authToken = this.auth.getAuthorizationToken();
+        if (!req.url.includes('api-token-auth')) { //The auth.servcie request can't use a token in the header
+            const authToken = this.auth.getAuthorizationToken();
 
-        // Clone the request and set the new header in one step.
-        const authReq = req.clone({ setHeaders: { Authorization: `Token ${authToken}` } });
-        
-        return next.handle(authReq);
+            const authReq = req.clone({ setHeaders: { Authorization: `Token ${authToken}` } });
+            
+            return next.handle(authReq);
+        }
+        return next.handle(req);
     }
 
 }
