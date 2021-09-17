@@ -23,6 +23,11 @@ export class HistoColumnComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
+    //temporary code to print no data⚠️
+    if ( !(data[0].length - 1) )
+      return this.noData(this.content);
+    /****************⚠️ ***************/
+    
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,

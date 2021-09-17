@@ -54,6 +54,12 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
   }
 
+  noData(content: ElementRef) {
+    content.nativeElement.innerHTML = `
+      <div class="nodata">Il n'y a pas de données</div>
+    `;
+  }
+
   static shallowArrayEquality(obj: any[], other: any[]): boolean {
     let l = obj.length;
     if ( l != other.length ) return false;

@@ -23,7 +23,12 @@ export class HistoRowComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    //temporary code to print no data⚠️
+    if ( !(data[0].length - 1) )
+      return this.noData(this.content);
+    /****************⚠️ ***************/
+
+    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
@@ -38,7 +43,7 @@ export class HistoRowComponent extends BasicWidget {
       },
       axis: {
         x: {
-          type: 'category'
+          type: 'category',
         },
         rotated: true
       },
