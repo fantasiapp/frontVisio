@@ -12,6 +12,8 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
+  /* Styling */
+  protected tileHeight: number = 16;
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();

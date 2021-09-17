@@ -121,7 +121,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     overflow: hidden;
     transform: rotate(-90deg);
     top: calc(1px + var(--tooltip-height));
-    right: var(--tooltip-tail-base);
+    right: calc(var(--tooltip-tail-base)*0.5);
 }
 
 .tooltip-tail::after {
@@ -134,6 +134,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     background: var(--tooltip-background-color);
     transform: rotate(45deg);
     border-radius: var(--tooltip-tail-border-radius);
+}
+
+/*override default styling on historow x-grid lines. ⚠️*/
+app-historow .bb-xgrid {
+    stroke-dasharray: none;
 }
 
 /*temporary code to print no data⚠️*/

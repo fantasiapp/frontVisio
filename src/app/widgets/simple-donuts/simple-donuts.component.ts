@@ -49,7 +49,13 @@ export class SimpleDonutComponent extends BasicWidget {
       //disable clicks on legend
       legend: {
         item: {
-          onclick() {}
+          onclick() {},
+          tile: {height: this.tileHeight}
+        },
+        position: 'inset',
+        inset: {
+          anchor: 'bottom-left',
+          y: 5 + (data.length) * this.tileHeight
         }
       }
     });

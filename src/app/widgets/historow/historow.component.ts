@@ -41,6 +41,9 @@ export class HistoRowComponent extends BasicWidget {
       tooltip: {
         grouped: false
       },
+      bar: {
+        sensitivity: 10,
+      },
       axis: {
         x: {
           type: 'category',
@@ -49,6 +52,9 @@ export class HistoRowComponent extends BasicWidget {
       },
       grid: {
         y: {
+          show: true
+        },
+        x: {
           show: true
         }
       },
