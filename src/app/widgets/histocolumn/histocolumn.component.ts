@@ -47,7 +47,7 @@ export class HistoColumnComponent extends BasicWidget {
         }
       },
       grid: {
-        x: {
+        y: {
           show: true
         }
       },
