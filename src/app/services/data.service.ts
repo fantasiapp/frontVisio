@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
@@ -15,10 +15,8 @@ export class DataService {
   response = new BehaviorSubject<Object|null>(null);
   public requestData(): Observable<Object|null> {
     const token = sessionStorage.getItem('token');
-    const headers = new HttpHeaders({ Authorization: `Token ${token}`});
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
-        headers,
         params : {"action" : "dashboard"},
       }) as Observable<Object[]>
     )

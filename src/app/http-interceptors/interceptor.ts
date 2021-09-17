@@ -9,6 +9,7 @@ export class Interceptor implements HttpInterceptor{
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
+            console.log("HTTP REQUEST INTERCEPTED : do nothing")
             return next.handle(req);
     }
 
