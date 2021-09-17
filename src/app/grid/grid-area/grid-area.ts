@@ -1,4 +1,4 @@
-import { Directive, HostBinding, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Directive, HostBinding, AfterViewInit } from '@angular/core';
 import { Subject } from 'rxjs';
 
 //  --------------------------------

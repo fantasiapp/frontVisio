@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
@@ -46,7 +46,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   ref!: ViewContainerRef;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-   
+    console.log('[GridManager]: On.')
   }
   
   ngAfterViewInit() {
@@ -64,7 +64,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.ref.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
-      if ( !desc ) throw '[GridManager.createComponents]: Unknown component';
+      if ( !desc ) throw '[GridManager -- createComponents]: Unknown component.';
       let cls = this.widgetManager.findComponent(desc[2]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);

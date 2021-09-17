@@ -27,6 +27,8 @@ export class HistoRowComponent extends BasicWidget {
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
     /****************⚠️ ***************/
+    if ( data[0][0] != 'x' )
+      console.log('[HistoColumnComponent]: Rendering inaccurate format because `x` axis is unspecified.')
 
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();
     bb.generate({
@@ -53,9 +55,6 @@ export class HistoRowComponent extends BasicWidget {
       grid: {
         y: {
           show: true
-        },
-        x: {
-          show: true
         }
       },
       //disable clicks on legend
@@ -70,6 +69,7 @@ export class HistoRowComponent extends BasicWidget {
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
+    console.log('[HistoRowComponent -- updateData]: Retrieving Data. Result:', data);
     return data;
   }
 }
