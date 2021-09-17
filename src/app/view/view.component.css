@@ -5,3 +5,11 @@
     background: #F7F7F7 0% 0% no-repeat padding-box;
     opacity: 1;
 }
+
+.description {
+    display: flex;
+    width: 90%;
+    position: absolute;
+    top: 120px;
+    justify-content: end;
+}

@@ -56,7 +56,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
   noData(content: ElementRef) {
     content.nativeElement.innerHTML = `
-      <div class="nodata">Il n'y a pas de données</div>
+      <div class="nodata">Il n'y a pas de données.</div>
     `;
   }
 
