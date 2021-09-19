@@ -28,7 +28,6 @@ class DataExtractionHelper{
   static tradeHeight: number;
   
   static setData(d: any){
-    console.log(d);
     this.data = d;
     let structure = this.data['structureLevel'];
     this.ID_INDEX = structure.indexOf('id');

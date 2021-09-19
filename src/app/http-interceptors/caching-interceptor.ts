@@ -4,44 +4,58 @@ import { Observable, of } from "rxjs";
 import { tap } from "rxjs/operators";
 import { LocalStorageService } from "../services/local-storage.service";
 
+
 @Injectable()
-export class CachingInterceptor implements HttpInterceptor{ //set default headers on outgoing requests with the authentification token
+export class CachingInterceptor implements HttpInterceptor{ // Checks if it is necessary to ask for the data 
 
     constructor(private localStorageService: LocalStorageService) {}
+    
+    private cache: Map<HttpRequest<any>, HttpResponse<any>> = new Map()
 
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>{
 
-        if (isCacheable(req)){
-            console.log("Cacheable request intercepted")
-            const storedData = localStorage[JSON.stringify(req)];
-            return storedData ? of(storedData) : fetchData(req, next)   
+        if (!this.isCacheable(req)) {
+            return next.handle(req);
         }
-        
-        return next.handle(req); // Upgrade to cache the response
-     
-    }
-
-}
-
-function isCacheable(req: HttpRequest<any>) {
-    if (req.method === 'GET' || req.method === 'POST') {
-        return true;
-    }
-    return false;
-}
-
-function fetchData(
-    req: HttpRequest<any>,
-    next: HttpHandler): Observable<HttpEvent<any>> {
+        const storedResponse = JSON.parse(this.localStorageService.get("data"));
+        if(storedResponse) {
+            return of(new HttpResponse<any>(storedResponse));
+        }
         return next.handle(req).pipe(
-            tap(event => {
-                if (event instanceof HttpResponse) {
-                    localStorage[JSON.stringify(req)] = JSON.stringify(event);
-                }
-            })
+                tap(stateEvent => {
+                    if(stateEvent instanceof HttpResponse) {
+                        this.localStorageService.set("data", JSON.stringify(stateEvent))
+                        console.log("Newly cached data : ", stateEvent);
+                    }
+                })
         )
+    }    
+
+    isCacheable(req: HttpRequest<any>) {
+        if (req.method === 'GET') {
+            return true;
+        }
+        return false;
+    }
+    
+
+    fetchData(
+        req: HttpRequest<any>,
+        next: HttpHandler): Observable<HttpEvent<any>> {
+            return next.handle(req).pipe(
+                tap(event => {
+                    if (event instanceof HttpResponse) {
+                        this.cache.set(req, event);
+                    }
+                })
+            )
+    }
+
+    clearCache(): void {
+        this.cache.clear()
+    }
+
 }
 
-function clearCache(): void {
-    localStorage.clear()
-}
+
+
