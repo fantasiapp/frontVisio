@@ -81,11 +81,29 @@ class DataWidget{
     }
   }
   
-  m2ToKm2(){
+  private m2ToKm2(){
     for (let i = 0; i < this.rowsTitles.length; i++)
     for (let j = 0; j < this.columnsTitles.length; j++)
     this.data[i][j] = this.data[i][j]/1000;
   }
+
+  // percent(){
+  //   if (this.dim == 0) this.data = 100;
+  //   else if (this.dim == 1){
+  //     let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
+  //     for (let i=0; i < this.data.length; i++)
+  //       this.data[i] = 100 * this.data[i] / sum;
+  //   }
+  //   else if (this.dim == 2){
+  //     for (let i = 0; i < this.rowsTitles.length; i++){
+  //       console.log(this.data[i]);
+  //       let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
+  //       for (let j = 0; j < this.columnsTitles.length; j++){
+  //         this.data += 100 * this.data[i][j] / sumRow;
+  //       }
+  //     }
+  //   }
+  // }
   
   basicTreatement(km2 = false){
     if (km2) this.m2ToKm2();
@@ -95,13 +113,13 @@ class DataWidget{
   
   formatWidget(transpose:boolean){
     // Pas très beau pour les deux prochaines lignes
-    if (this.columnsTitles[this.columnsTitles.length - 1] === '@other') this.columnsTitles[this.columnsTitles.length - 1] = 'Autres'; 
-    if (this.rowsTitles[this.rowsTitles.length - 1] === '@other') this.rowsTitles[this.rowsTitles.length - 1] = 'Autres'; 
-    if (this.dim === 0) return [[this.rowsTitles[0], Math.round(this.data)]];
+    if (this.columnsTitles[this.columnsTitles.length - 1] === '@other') this.columnsTitles[this.columnsTitles.length - 1] = 'Challengers'; 
+    if (this.rowsTitles[this.rowsTitles.length - 1] === '@other') this.rowsTitles[this.rowsTitles.length - 1] = 'Challengers'; 
+    if (this.dim === 0) return [[this.rowsTitles[0], this.data]];
     if (this.dim === 1){
       let widgetParts: [string, number][] = [];    
       for (let i = 0; i < this.rowsTitles.length; i++)
-        widgetParts.push([this.rowsTitles[i], Math.round(this.data[i])]);
+        widgetParts.push([this.rowsTitles[i], this.data[i]]);
       return widgetParts
     }
     if (transpose){
@@ -109,7 +127,7 @@ class DataWidget{
       for (let j = 0; j < this.columnsTitles.length; j++){
         let line: (number | string)[] = [this.columnsTitles[j]]
         for (let i = 0; i < this.rowsTitles.length; i++)
-          line.push(Math.round(this.data[i][j]));
+          line.push(this.data[i][j]);
         widgetParts.push(line);
       }
       return widgetParts;  
@@ -118,7 +136,7 @@ class DataWidget{
     for (let i = 0; i < this.rowsTitles.length; i++){
       let line: (number | string)[] = [this.rowsTitles[i]]
       for (let j = 0; j < this.columnsTitles.length; j++)
-        line.push(Math.round(this.data[i][j]));
+        line.push(this.data[i][j]);
       widgetParts.push(line);
     }
     return widgetParts;    
@@ -433,8 +451,7 @@ class SliceDice{
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent);
-    let result = dataWidget.formatWidget(transpose);
-    return result;  
+    return dataWidget.formatWidget(transpose);
   }
 };
 
