@@ -11,7 +11,6 @@ import bb, {bar, Chart} from 'billboard.js';
   selector: 'app-historow',
   templateUrl: './historow.component.html',
   styleUrls: ['./historow.component.css'],
-  providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HistoRowComponent extends BasicWidget {
@@ -56,7 +55,7 @@ export class HistoRowComponent extends BasicWidget {
       },
       axis: {
         x: {
-          type: 'category',
+          type: 'category'
         },
         rotated: true
       },
@@ -72,22 +71,25 @@ export class HistoRowComponent extends BasicWidget {
         }
       },
       transition: {
-        duration: 100
+        duration: 0
       }
     });
   }
 
+  //wait on delays
   updateGraph(data: any[]) {
     this.chart!.load({
-      columns: data.slice(1),
-      unload: true
-    })
+      columns: data,
+      unload: true,
+      done: () => {
+        this.chart!.categories(data[0].slice(1))
+      }
+  });
   } 
 
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
-    console.log('[HistoRowComponent -- updateData]: Retrieving Data. Result:', data);
     return data;
   }
 }

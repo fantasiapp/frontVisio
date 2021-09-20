@@ -49,14 +49,13 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   updateGraph(data: any[]): void {
     this.chart?.load({
       columns: data,
-      unload: true
+      //unload: true
     })
   }
 
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
-    console.log('[BasicWidget -- updateData]: Retrieving Data. Result:', data);
     return data;
   }
 

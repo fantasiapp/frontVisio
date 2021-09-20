@@ -11,7 +11,6 @@ import bb, {bar} from 'billboard.js';
   selector: 'app-histocolumn',
   templateUrl: './histocolumn.component.html',
   styleUrls: ['./histocolumn.component.css'],
-  providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HistoColumnComponent extends BasicWidget {
@@ -68,15 +67,15 @@ export class HistoColumnComponent extends BasicWidget {
         },
       },
       transition: {
-        duration: 100
+        duration: 0
       }
     });
   }
 
   updateGraph(data: any[]) {
     this.chart!.load({
-      columns: data.slice(1),
-      unload: true
+      columns: data,
+     // unload: true
     });
   }  
 }

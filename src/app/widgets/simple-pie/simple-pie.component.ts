@@ -10,7 +10,6 @@ import bb, {pie} from 'billboard.js';
   selector: 'app-simple-pie',
   templateUrl: './simple-pie.component.html',
   styleUrls: ['./simple-pie.component.css'],
-  providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
@@ -41,7 +40,7 @@ export class SimplePieComponent extends BasicWidget {
           const data = d[0];
           return `
             <div class="tooltip">
-              <span style="color:${color(data)}">${data.id}</span>: ${BasicWidget.format(data.value, 3)}
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)}
               <div class="tooltip-tail"></div>
             </div>
           `;

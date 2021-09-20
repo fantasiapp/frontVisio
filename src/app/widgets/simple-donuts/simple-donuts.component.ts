@@ -10,7 +10,6 @@ import bb, {donut} from 'billboard.js';
   selector: 'app-simple-donut',
   templateUrl: './simple-donut.component.html',
   styleUrls: ['./simple-donut.component.css'],
-  providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SimpleDonutComponent extends BasicWidget {

@@ -66,7 +66,7 @@ export class WidgetManagerService {
   findComponent(name: string): any {
     console.log(`[WidgetManager -- findComponent]: Resolving "${name}".`);
     let component = this.mapping[name];
-    console.log('[WidgetManager -- findComponent]: Component found.')
+    console.log('[WidgetManager -- findComponent]: Component' + (component ? '' : ' not') + ' found.')
     if ( !component )
       return DefaultComponent;
     if ( typeof component === 'string' )
