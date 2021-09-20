@@ -3,7 +3,7 @@ import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
 type WidgetParams = [string, string, string, string[], string[], boolean];
-export type Widget= [string, string, string, WidgetParams];
+export type Widget= [string, string, string, string, WidgetParams];
 export interface Layout {
   grid: [string, string],
   template: string;
@@ -65,7 +65,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
       if ( !desc ) throw '[GridManager -- createComponents]: Unknown component.';
-      let cls = this.widgetManager.findComponent(desc[2]);
+      let cls = this.widgetManager.findComponent(desc[3]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
       component.instance.gridArea = name;
@@ -74,7 +74,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
       /**** object properties *****/
       component.instance.properties.title = desc[0];
       component.instance.properties.description = desc[1];
-      component.instance.properties.arguments = <WidgetParams>desc[3];
+      component.instance.properties.arguments = <WidgetParams>desc[4];
       /***************************/
 
       this.ref.insert(component.hostView);
@@ -102,7 +102,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 const defaultLayout: Layout = {
   grid: ['1', '1'],
   template: `x`,
-  areas: {'x': ['<title>', '<description>', 'default', [
+  areas: {'x': ['<title>', '<description>', 'm','default', [
     "segmentMarketing", "segmentCommercial", "dn",
     [], ["@other"], true
   ]]}
