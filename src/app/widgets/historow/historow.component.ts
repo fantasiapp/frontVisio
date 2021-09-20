@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
-import bb, {bar} from 'billboard.js';
+import bb, {bar, Chart} from 'billboard.js';
 
 
 @Component({
@@ -41,7 +41,15 @@ export class HistoRowComponent extends BasicWidget {
         order: null
       },
       tooltip: {
-        grouped: false
+        grouped: false,
+        contents(d, defaultTitleFormat, defaultValueFormat, color) {
+          return `
+            <div class="tooltip historow-tooltip">
+              ${d.map((data: any) => data.id + ': ' + BasicWidget.format(data.value, 3)).join('<br/>')}
+              <div class="tooltip-tail"></div>
+            </div>
+          `;
+        }
       },
       bar: {
         sensitivity: 10,

@@ -4,6 +4,7 @@ import { SimpleDonutComponent } from '../widgets/simple-donuts/simple-donuts.com
 import { HistoColumnComponent } from '../widgets/histocolumn/histocolumn.component';
 import { GridArea } from './grid-area/grid-area';
 import { HistoRowComponent } from '../widgets/historow/historow.component';
+import { GaugeComponent } from '../widgets/gauge/gauge.component';
 
 
 @Component({
@@ -54,6 +55,7 @@ export class WidgetManagerService {
     'donut': SimpleDonutComponent,
     'histoRow': HistoRowComponent,
     'histoColumn': HistoColumnComponent,
+    'gauge': GaugeComponent,
     'table': "assets/table.png"
   };
 

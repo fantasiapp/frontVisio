@@ -38,14 +38,14 @@ export class SimplePieComponent extends BasicWidget {
       },
       tooltip: {
         contents(d, defaultTitleFormat, defaultValueFormat, color) {
-          let data = d[0];
+          const data = d[0];
           return `
             <div class="tooltip">
               ${data.id}: ${BasicWidget.format(data.value, 3)}
               <div class="tooltip-tail"></div>
             </div>
           `;
-        }
+        },
       },
       //disable clicks on legend
       legend: {

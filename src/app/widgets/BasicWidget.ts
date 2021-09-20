@@ -47,7 +47,6 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
   /* In case of a library change, this is the method that should be changed         ^ */
   updateGraph(data: any[]): void {
-    console.log(this, 'is updaing', data);
     this.chart?.load({
       columns: data,
       unload: true

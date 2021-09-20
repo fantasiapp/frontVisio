@@ -41,7 +41,15 @@ export class HistoColumnComponent extends BasicWidget {
         order: null
       },
       tooltip: {
-        grouped: false
+        grouped: false,
+        contents(d, defaultTitleFormat, defaultValueFormat, color) {
+          return `
+            <div class="tooltip histocolumn-tooltip">
+              ${d.map((data: any) => data.id + ': ' + BasicWidget.format(data.value, 3)).join('<br/>')}
+              <div class="tooltip-tail"></div>
+            </div>
+          `;
+        }
       },
       axis: {
         x: {

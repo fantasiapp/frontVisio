@@ -380,7 +380,7 @@ export class PDV{
 
 @Injectable()
 class SliceDice{
-  constructor(){}
+  constructor(){ console.log('[SliceDice]: on'); }
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean, transpose = false){
     PDV.load(false);
