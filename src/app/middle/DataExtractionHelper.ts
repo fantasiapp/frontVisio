@@ -1,9 +1,27 @@
+// mocks
 const tradeStructure = [
   "enseigne",
   "ensemble",
   "sousEnsemble"
 ];
 
+const paramsCompute = {
+  growthConquestLimit: 0.1,
+  theoricalRatioEnduit: 0.360
+}
+
+const enduitIndustrie = {
+  1: "Salsi", 
+  2: "Pregy", 
+  3: "Croissance", 
+  4: "Conquête"
+};
+
+const segmentDnEnduit = {
+  1: "Pur prospect",
+  2: "P2CD + Enduit",
+  3: "Enduit hors P2CD"
+}
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -19,6 +37,10 @@ class DataExtractionHelper{
   static DASHBOARD_NAME_INDEX: number;
   static WIDGETPARAMS_WIDGET_INDEX: number;
   static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
+  static INDUSTRIE_SALSI_ID: any;
+  static INDUSTRIE_PREGY_ID: any;
+  static INDUSTRIE_SINIAT_ID: any;
+
   
   //Represent levels as a vertical array rather than a recursive structure
   private static geoLevels: any[] = [];
@@ -41,6 +63,10 @@ class DataExtractionHelper{
     this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
     this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetParam'].indexOf('widgetCompute');
+    this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
+    this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
+    this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
+
     
     //trades have less info that geo
     
@@ -63,10 +89,12 @@ class DataExtractionHelper{
     return this.geoLevels[height];
   }
 
+  // a enlever, normalement on peut utiliser le get pour ça
   static getGeoTree(): {}{
     return this.data['geoTree'];
   }
 
+  // a enlever, normalement on peut utiliser le get pour ça
   static getTradeTree(): {}{
     return this.data['tradeTree'];
   }
@@ -93,10 +121,12 @@ class DataExtractionHelper{
     return name;
   }
 
+  // a enlever, normalement on peut utiliser le get pour ça
   static getDashboards(): any{
     return this.data['dashboards'];
   }
 
+  // a enlever, normalement on peut utiliser le get pour ça
   static getLayouts(): any{
     return this.data['layout']
   }
@@ -118,13 +148,22 @@ class DataExtractionHelper{
     return this.getGeoLevel(height)[this.DASHBOARD_INDEX];
   }
 
+  // a enlever, normalement on peut utiliser le get pour ça
   static getPDVFields(){
     return this.data['structurePdv'];
   }
 
   static get(field: string){
+    // A enlever quand le back sera à jour
+    if (field == 'enduitIndustrie') return enduitIndustrie;
+    if (field == 'segmentDnEnduit') return segmentDnEnduit;
+    if (field == 'paramsCompute') return paramsCompute;
     return this.data[field];
-  };
+  }
+
+  static getKeyByValue(object:any, value:any) {
+    return Object.keys(object).find(key => object[key] === value);
+  }
 }
 
 export default DataExtractionHelper;
