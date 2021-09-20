@@ -92,7 +92,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     --tooltip-font-family: inherit;
     --tooltip-font-size: 14px;
     --tooltip-color: white;
-    --tooltip-background-color: rgba(0, 0, 0, 0.5);
+    --tooltip-background-color: rgba(0, 0, 0, 0.8);
 
     --tooltip-tail-base: 30px;
     --tooltip-tail-factor: 0.4;
