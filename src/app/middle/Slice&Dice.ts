@@ -248,15 +248,13 @@ export class PDV{
       if (enduit){
         let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
           salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+          siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
           dnEnduit = new Array(3).fill(0),
           saleP2cd = false,
           saleEnduit = false;
         for (let sale of this.sales){
-          if (sale.industryId == pregyId || sale.industryId == salsiId){
-            console.log(sale.industryId)
-            if (sale.type == 'enduit') saleEnduit = true;
-            else if (sale.type == 'p2cd') saleP2cd = true;
-          }
+          if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
+          else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
         }        
         if (saleP2cd && saleEnduit) dnEnduit[1] = 1;
         else if (saleEnduit) dnEnduit[2] = 1;
