@@ -31,6 +31,7 @@ import { GridManager } from './grid/grid-manager/grid-manager.component';
 import { HistoColumnComponent } from './widgets/histocolumn/histocolumn.component';
 import { HistoRowComponent } from './widgets/historow/historow.component';
 import { GaugeComponent } from './widgets/gauge/gauge.component';
+import { httpInterceptorProviders } from './http-interceptors/index';
 
 @NgModule({
   declarations: [
@@ -71,7 +72,7 @@ import { GaugeComponent } from './widgets/gauge/gauge.component';
     //   apiKey:''
     // })
   ],
-  providers: [Navigation],
+  providers: [Navigation, httpInterceptorProviders],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
