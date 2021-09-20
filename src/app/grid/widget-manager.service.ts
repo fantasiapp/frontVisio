@@ -14,7 +14,10 @@ import { HistoRowComponent } from '../widgets/historow/historow.component';
   `
 })
 export class DefaultComponent extends GridArea {
-
+  constructor() {
+    super();
+    console.log('[DefaultComponent]: Component not found, rendering default.') 
+  }
 }
 
 function createDefaultComponent(name: string, src: string) {
@@ -32,9 +35,12 @@ function createDefaultComponent(name: string, src: string) {
     `]
   })
   class DefaultImage extends GridArea {
-    
     public name: string = name;
     public src: string = src;
+    constructor() {
+      super();
+      console.log('[DefaultImage]: Component found but not initialized, rendering a default image.');
+    }
   };
 
   return DefaultImage;
@@ -57,7 +63,9 @@ export class WidgetManagerService {
   }
 
   findComponent(name: string): any {
+    console.log(`[WidgetManager -- findComponent]: Resolving "${name}".`);
     let component = this.mapping[name];
+    console.log('[WidgetManager -- findComponent]: Component found.')
     if ( !component )
       return DefaultComponent;
     if ( typeof component === 'string' )

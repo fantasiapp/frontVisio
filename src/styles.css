@@ -86,12 +86,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 /* Common styles for charts -- the theme */
 
 :root {
+    --tooltip-height: 20px;
     --tooltip-padding: 5px;
     --tooltip-border-radius: 5px;
     --tooltip-font-family: inherit;
     --tooltip-font-size: 14px;
     --tooltip-color: white;
     --tooltip-background-color: rgba(0, 0, 0, 0.5);
+
+    --tooltip-tail-base: 30px;
+    --tooltip-tail-factor: 0.4;
+    --tooltip-tail-border-radius: 2px;
 }
 
 .tooltip {
@@ -101,6 +106,48 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     font-size: var(--tooltip-font-size);
     color: var(--tooltip-color);
     background-color: var(--tooltip-background-color);
+    height: var(--tooltip-height);
 
     transform: translate(-100%, -100%);
+    position: relative; /*for the tail*/
+}
+
+/*tail of the tooltip*/
+/*made throught trial and error, should figure out the formulas. ⚠️*/
+.tooltip-tail {
+    position: absolute;
+    height: var(--tooltip-tail-base);
+    width: calc(var(--tooltip-tail-factor)*var(--tooltip-tail-base));
+    overflow: hidden;
+    transform: rotate(-90deg);
+    top: calc(1px + var(--tooltip-height));
+    right: calc(var(--tooltip-tail-base)*0.5);
+}
+
+.tooltip-tail::after {
+    display: block;
+    content: "";
+    position: absolute;
+    width: var(--tooltip-tail-base);
+    height: 100%;
+    left: 10px;
+    background: var(--tooltip-background-color);
+    transform: rotate(45deg);
+    border-radius: var(--tooltip-tail-border-radius);
+}
+
+/*override default styling on historow x-grid lines. ⚠️*/
+app-historow .bb-xgrid {
+    stroke-dasharray: none;
+}
+
+/*temporary code to print no data⚠️*/
+/****************⚠️ ***************/
+.nodata {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    color: #aaa;
 }

@@ -23,6 +23,11 @@ export class SimpleDonutComponent extends BasicWidget {
 
   updateGraph(data: any[]) {
     let sum = data.reduce((acc, d) => acc + d[1], 0);
+    //temporary code to print no data⚠️
+    if ( !data.length || !sum )
+      return this.noData(this.content);
+    /****************⚠️ ***************/
+    
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
@@ -34,10 +39,23 @@ export class SimpleDonutComponent extends BasicWidget {
         contents(d, defaultTitleFormat, defaultValueFormat, color) {
           const data = d[0];
           return `
-          <div class="tooltip">
-            ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
-          </div>
+            <div class="tooltip">
+              ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
+              <div class="tooltip-tail"></div>
+            </div>
           `;
+        },
+      },
+      //disable clicks on legend
+      legend: {
+        item: {
+          onclick() {},
+          tile: {height: this.tileHeight}
+        },
+        position: 'inset',
+        inset: {
+          anchor: 'bottom-left',
+          y: 5 + (data.length) * this.tileHeight
         }
       }
     });

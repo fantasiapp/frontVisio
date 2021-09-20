@@ -24,6 +24,10 @@ export class SimplePieComponent extends BasicWidget {
 
   updateGraph(data: any[]) {
     let sum = data.reduce((acc, d) => acc + d[1], 0);
+      //temporary code to print no data⚠️
+      if ( !data.length || !sum )
+      return this.noData(this.content);
+    /****************⚠️ ***************/
     
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
@@ -34,12 +38,25 @@ export class SimplePieComponent extends BasicWidget {
       },
       tooltip: {
         contents(d, defaultTitleFormat, defaultValueFormat, color) {
-          const data = d[0];
+          let data = d[0];
           return `
             <div class="tooltip">
               ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
+              <div class="tooltip-tail"></div>
             </div>
           `;
+        }
+      },
+      //disable clicks on legend
+      legend: {
+        item: {
+          onclick() {},
+          tile: {height: this.tileHeight}
+        },
+        position: 'inset',
+        inset: {
+          anchor: 'bottom-left',
+          y: 5 + (data.length) * this.tileHeight
         }
       }
     });

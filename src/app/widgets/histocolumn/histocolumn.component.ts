@@ -23,11 +23,18 @@ export class HistoColumnComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    //temporary code to print no data⚠️
+    if ( !(data.length - 1) || !(data[0].length - 1) )
+      return this.noData(this.content);
+    /****************⚠️ ***************/
+    if ( data[0][0] != 'x' )
+      console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
+    
+      d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
     bb.generate({
       bindto: this.content.nativeElement,
       data: {
-        x: "x",
+        x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
         columns: data,
         type: bar(),
         groups: [data.slice(1).map(x => x[0])],
@@ -40,7 +47,18 @@ export class HistoColumnComponent extends BasicWidget {
         x: {
           type: 'category'
         }
+      },
+      grid: {
+        y: {
+          show: true
+        }
+      },
+      //disable clicks on legend
+      legend: {
+      item: {
+        onclick() {}
       }
+    }
     });
   }
 }

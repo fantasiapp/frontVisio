@@ -12,6 +12,8 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
+  /* Styling */
+  protected tileHeight: number = 16;
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
@@ -45,6 +47,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
+    console.log('[BasicWidget -- updateData]: Retrieving Data. Result:', data);
     return data;
   }
 
@@ -52,6 +55,15 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     this.subscription.unsubscribe();
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
+  }
+
+  noData(content: ElementRef) {
+    console.log('[BasicWidget -- noData]: No data is supplied, this is most probably a error.');
+
+    d3.select(content.nativeElement).select('div > svg').remove();
+    content.nativeElement.innerHTML = `
+      <div class="nodata">Il n'y a pas de données.</div>
+    `;
   }
 
   static shallowArrayEquality(obj: any[], other: any[]): boolean {
