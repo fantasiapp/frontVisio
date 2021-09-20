@@ -23,7 +23,9 @@ export class LoginFormComponent implements OnInit {
     password: string;
   }>();
   showEmptyPseudo: boolean = false;
-  showErrorMessage: boolean = false;
+  showErrorMessage: number = -1;
+
+
   // @Input() badCredentials: boolean;
   // @Input() ready: boolean;
 
@@ -56,7 +58,7 @@ export class LoginFormComponent implements OnInit {
           input1?.classList.add('red-border');
         } else {
           this.showEmptyPseudo = false;
-          this.showErrorMessage = true;
+          this.showErrorMessage = this.authService.errorCode;
           const input1 = document.getElementById('input-field1');
           const input2 = document.getElementById('input-field2');
           setTimeout(() => {
