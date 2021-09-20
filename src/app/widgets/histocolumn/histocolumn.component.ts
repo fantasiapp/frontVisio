@@ -22,7 +22,7 @@ export class HistoColumnComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  updateGraph(data: any[]) {
+  createGraph(data: any[]) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
@@ -30,8 +30,8 @@ export class HistoColumnComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
     
-      d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
-    bb.generate({
+    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
@@ -55,10 +55,20 @@ export class HistoColumnComponent extends BasicWidget {
       },
       //disable clicks on legend
       legend: {
-      item: {
-        onclick() {}
+        item: {
+          onclick() {}
+        },
+      },
+      transition: {
+        duration: 100
       }
-    }
     });
   }
+
+  updateGraph(data: any[]) {
+    this.chart!.load({
+      columns: data.slice(1),
+      unload: true
+    });
+  }  
 }

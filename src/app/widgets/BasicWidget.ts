@@ -1,4 +1,5 @@
 import { Directive, ElementRef, OnDestroy } from "@angular/core";
+import { Chart } from "billboard.js";
 import * as d3 from "d3";
 import { combineLatest, Subscription } from "rxjs";
 import { FiltersStatesService } from "../filters/filters-states.service";
@@ -12,6 +13,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
+  protected chart: Chart | null = null;
   /* Styling */
   protected tileHeight: number = 16;
 
@@ -37,12 +39,20 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     let data = this.updateData();
     //used to wait for css to render components correctly <--> needs investigation   v
     requestAnimationFrame((_: any) => {
-      this.updateGraph(data);
+      this.createGraph(data);
     });
   }
 
+  abstract createGraph(data: any[]): void;
+
   /* In case of a library change, this is the method that should be changed         ^ */
-  abstract updateGraph(data: any[]): void;
+  updateGraph(data: any[]): void {
+    console.log(this, 'is updaing', data);
+    this.chart?.load({
+      columns: data,
+      unload: true
+    })
+  }
 
   updateData(): any[] {
     let args: any[] = this.properties.arguments;

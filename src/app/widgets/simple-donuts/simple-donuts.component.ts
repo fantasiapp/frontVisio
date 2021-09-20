@@ -21,7 +21,7 @@ export class SimpleDonutComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  updateGraph(data: any[]) {
+  createGraph(data: any[]) {
     let sum = data.reduce((acc, d) => acc + d[1], 0);
     //temporary code to print no data⚠️
     if ( !data.length || !sum )
@@ -29,7 +29,7 @@ export class SimpleDonutComponent extends BasicWidget {
     /****************⚠️ ***************/
     
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
-    bb.generate({
+    this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
         columns: data,
@@ -40,7 +40,7 @@ export class SimpleDonutComponent extends BasicWidget {
           const data = d[0];
           return `
             <div class="tooltip">
-              ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
+              ${data.id}: ${BasicWidget.format(data.value, 3)}
               <div class="tooltip-tail"></div>
             </div>
           `;
@@ -57,6 +57,9 @@ export class SimpleDonutComponent extends BasicWidget {
           anchor: 'bottom-left',
           y: 5 + (data.length) * this.tileHeight
         }
+      },
+      transition: {
+        duration: 100
       }
     });
   }

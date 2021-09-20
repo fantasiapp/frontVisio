@@ -30,6 +30,7 @@ import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.comp
 import { GridManager } from './grid/grid-manager/grid-manager.component';
 import { HistoColumnComponent } from './widgets/histocolumn/histocolumn.component';
 import { HistoRowComponent } from './widgets/historow/historow.component';
+import { GaugeComponent } from './widgets/gauge/gauge.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { HistoRowComponent } from './widgets/historow/historow.component';
     //------------------------
     GridManager,
     HistoColumnComponent,
-    HistoRowComponent
+    HistoRowComponent,
+    GaugeComponent
   ],
   imports: [
     BrowserModule,

@@ -21,7 +21,6 @@ export class DefaultComponent extends GridArea {
 }
 
 function createDefaultComponent(name: string, src: string) {
-
   @Component({
     template: `
       <img [alt]="name" [src]="src"/>
