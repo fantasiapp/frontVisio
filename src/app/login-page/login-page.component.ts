@@ -44,7 +44,32 @@ import { Router } from '@angular/router';
 })
 export class LoginPageComponent implements OnInit {
   private destroy$: Subject<void> = new Subject<void>();
-
+  private logInObserver = {
+    next: (success: any) => {
+      if (success) {
+        this.userValid = true
+        this.dataservice.requestData().subscribe(val => {
+          sessionStorage.setItem('data', JSON.stringify(val))
+          });
+        const elmt = document.getElementById('image-container')!;
+        const elmt2 = document.getElementById('pentagon-image');
+        const elmt3 = document.getElementById('logo-container');
+        const elmt4 = document.getElementById('logo');
+        const elmt5 = document.getElementById('image-login')
+        elmt.classList.add('fadeOut');
+        elmt3?.classList.add('translated');
+        setTimeout(() => elmt2?.classList.add('fadeOut'), 2000);
+        setTimeout(() => {elmt3?.classList.add('rotated')
+        setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
+        setTimeout(() => elmt5?.classList.add('scale'), 900)
+        setTimeout(() => {
+          this.router.navigate([
+            sessionStorage.getItem('originalPath') || 'logged',
+          ]);
+        }, 6000)
+      }
+    }
+  }
   constructor(
     cdr: ChangeDetectorRef,
     private authService: AuthService,
@@ -54,7 +79,13 @@ export class LoginPageComponent implements OnInit {
   ) {}
   userValid = false;
   retry = true;
-  ngOnInit(): void {}
+
+  ngOnInit(): void {
+    if(this.authService.getStayConnected()) {
+      this.logInObserver.next(true);
+      this.authService.isLoggedIn.next(true);
+    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -64,29 +95,7 @@ export class LoginPageComponent implements OnInit {
   onLoading(username: string, password: string) {
     this.authService
       .loginToServer(username, password)
-      .subscribe((success: any) => {
-        if (success) {
-          this.userValid = true
-          this.dataservice.requestData().subscribe(val => {
-            sessionStorage.setItem('data', JSON.stringify(val))
-            });
-          const elmt = document.getElementById('image-container')!;
-          const elmt2 = document.getElementById('pentagon-image');
-          const elmt3 = document.getElementById('logo-container');
-          const elmt4 = document.getElementById('logo');
-          const elmt5 = document.getElementById('image-login')
-          elmt.classList.add('fadeOut');
-          elmt3?.classList.add('translated');
-          setTimeout(() => elmt2?.classList.add('fadeOut'), 2000);
-          setTimeout(() => {elmt3?.classList.add('rotated')
-          setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
-          setTimeout(() => elmt5?.classList.add('scale'), 900)
-          setTimeout(() => {
-            this.router.navigate([
-              sessionStorage.getItem('originalPath') || 'logged',
-            ]);
-          }, 6000)
-        }
-      });
+      .subscribe(this.logInObserver);
   }
+
 }
