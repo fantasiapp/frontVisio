@@ -4,6 +4,7 @@ import { SimpleDonutComponent } from '../widgets/simple-donuts/simple-donuts.com
 import { HistoColumnComponent } from '../widgets/histocolumn/histocolumn.component';
 import { GridArea } from './grid-area/grid-area';
 import { HistoRowComponent } from '../widgets/historow/historow.component';
+import { GaugeComponent } from '../widgets/gauge/gauge.component';
 
 
 @Component({
@@ -21,7 +22,6 @@ export class DefaultComponent extends GridArea {
 }
 
 function createDefaultComponent(name: string, src: string) {
-
   @Component({
     template: `
       <img [alt]="name" [src]="src"/>
@@ -55,6 +55,7 @@ export class WidgetManagerService {
     'donut': SimpleDonutComponent,
     'histoRow': HistoRowComponent,
     'histoColumn': HistoColumnComponent,
+    'gauge': GaugeComponent,
     'table': "assets/table.png"
   };
 
@@ -65,7 +66,7 @@ export class WidgetManagerService {
   findComponent(name: string): any {
     console.log(`[WidgetManager -- findComponent]: Resolving "${name}".`);
     let component = this.mapping[name];
-    console.log('[WidgetManager -- findComponent]: Component found.')
+    console.log('[WidgetManager -- findComponent]: Component' + (component ? '' : ' not') + ' found.')
     if ( !component )
       return DefaultComponent;
     if ( typeof component === 'string' )

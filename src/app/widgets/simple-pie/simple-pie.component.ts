@@ -10,7 +10,6 @@ import bb, {pie} from 'billboard.js';
   selector: 'app-simple-pie',
   templateUrl: './simple-pie.component.html',
   styleUrls: ['./simple-pie.component.css'],
-  providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
@@ -22,7 +21,7 @@ export class SimplePieComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  updateGraph(data: any[]) {
+  createGraph(data: any[]) {
     let sum = data.reduce((acc, d) => acc + d[1], 0);
       //temporary code to print no data⚠️
       if ( !data.length || !sum )
@@ -30,7 +29,7 @@ export class SimplePieComponent extends BasicWidget {
     /****************⚠️ ***************/
     
     d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
-    bb.generate({
+    this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
         columns: data,
@@ -38,14 +37,14 @@ export class SimplePieComponent extends BasicWidget {
       },
       tooltip: {
         contents(d, defaultTitleFormat, defaultValueFormat, color) {
-          let data = d[0];
+          const data = d[0];
           return `
             <div class="tooltip">
-              ${data.id}: ${BasicWidget.format(sum * data.ratio, 3)}
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)}
               <div class="tooltip-tail"></div>
             </div>
           `;
-        }
+        },
       },
       //disable clicks on legend
       legend: {
@@ -58,6 +57,9 @@ export class SimplePieComponent extends BasicWidget {
           anchor: 'bottom-left',
           y: 5 + (data.length) * this.tileHeight
         }
+      },
+      transition: {
+        duration: 100
       }
     });
   }
