@@ -62,9 +62,9 @@ export class GaugeComponent extends BasicWidget {
     });
 
     // to set the new title without api
-    this.chart.$.main.select(".bb-chart-arcs-title").text("my new title");
+    //this.chart.$.main.select(".bb-chart-arcs-gauge-title").text("my new title");
     //--------------------
-    this.chart.config('donut.title', 'title', true);
+    //this.chart.config('donut.title', 'title', true);
     //this.chart.setArcTitle()
   }
 

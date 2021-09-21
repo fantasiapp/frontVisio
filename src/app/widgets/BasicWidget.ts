@@ -58,8 +58,12 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
-    if ( this.properties.description == '@sum' )
-      this.properties.description = data.sum.toString();
+
+    // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
+    if ( this.properties.description == '@sum' ) {
+      this.properties.description = data.sum.toString() + ' ' + this.properties.unit;
+      d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
+    }
     return data.data;
   }
 

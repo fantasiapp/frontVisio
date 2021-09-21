@@ -72,6 +72,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
       
       
       /**** object properties *****/
+      //component.instance.properties.grid = this;
       component.instance.properties.title = desc[0];
       component.instance.properties.description = desc[1];
       component.instance.properties.unit = desc[2];
