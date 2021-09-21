@@ -130,7 +130,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     width: calc(var(--tooltip-tail-factor)*var(--tooltip-tail-base));
     overflow: hidden;
     transform: rotate(-270deg);
-    bottom: calc(100% - 9px);
+    bottom: calc(100% - 10px);
     left: 10px;
 }
 
