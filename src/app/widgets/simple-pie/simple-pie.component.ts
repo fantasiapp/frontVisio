@@ -59,7 +59,7 @@ export class SimplePieComponent extends BasicWidget {
         }
       },
       transition: {
-        duration: 100
+        duration: 250
       }
     });
   }

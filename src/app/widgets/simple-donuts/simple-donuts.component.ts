@@ -58,7 +58,7 @@ export class SimpleDonutComponent extends BasicWidget {
         }
       },
       transition: {
-        duration: 100
+        duration: 250
       }
     });
   }

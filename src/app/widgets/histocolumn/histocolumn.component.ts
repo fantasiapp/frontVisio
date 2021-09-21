@@ -5,6 +5,7 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
 import bb, {bar} from 'billboard.js';
+import { SequentialSchedule } from '../Schedule';
 
 
 @Component({
@@ -16,6 +17,8 @@ import bb, {bar} from 'billboard.js';
 export class HistoColumnComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;
+
+  private schedule: SequentialSchedule = new SequentialSchedule;
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -67,15 +70,22 @@ export class HistoColumnComponent extends BasicWidget {
         },
       },
       transition: {
-        duration: 0
+        duration: 250
       }
     });
   }
 
+  //wait on delays
   updateGraph(data: any[]) {
-    this.chart!.load({
-      columns: data,
-     // unload: true
+    this.schedule.queue(() => {
+      this.chart!.categories(data[0].slice(1));
+      this.chart!.load({
+        columns: data,
+        unload: true,
+        done: () => {
+          this.schedule.emit();
+        }
+      })
     });
-  }  
+  }   
 }

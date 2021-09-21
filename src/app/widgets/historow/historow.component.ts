@@ -3,7 +3,7 @@ import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-
+import { SequentialSchedule } from '../Schedule';
 import bb, {bar, Chart} from 'billboard.js';
 
 
@@ -16,6 +16,9 @@ import bb, {bar, Chart} from 'billboard.js';
 export class HistoRowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;
+
+  //schedule animations
+  private schedule: SequentialSchedule = new SequentialSchedule;
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -71,17 +74,22 @@ export class HistoRowComponent extends BasicWidget {
         }
       },
       transition: {
-        duration: 0
+        duration: 250
       }
     });
   }
 
   //wait on delays
   updateGraph(data: any[]) {
-    this.chart!.categories(data[0].slice(1))
-    this.chart!.load({
-      columns: data,
-      unload: true
+    this.schedule.queue(() => {
+      this.chart!.categories(data[0].slice(1));
+      this.chart!.load({
+        columns: data,
+        unload: true,
+        done: () => {
+          this.schedule.emit();
+        }
+      })
     });
   } 
 
