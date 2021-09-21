@@ -457,7 +457,7 @@ class SliceDice{
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1, groupsAxis2, true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
-    return dataWidget.formatWidget(transpose);
+    return {data: dataWidget.formatWidget(transpose), sum: dataWidget.getSum()};
   }
 };
 
