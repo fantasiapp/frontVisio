@@ -85,18 +85,26 @@ class DataWidget{
     this.data[i][j] = this.data[i][j]/1000;
   }
 
-  percent(){
+  percent(onCols=false){
     if (this.dim == 0) this.data = 100;
     else if (this.dim == 1){
       let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
       for (let i=0; i < this.data.length; i++)
         this.data[i] = 100 * this.data[i] / sum;
     }
-    else if (this.dim == 2){
-      for (let i = 0; i < this.rowsTitles.length; i++){
-        let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
+    else{
+      if (!onCols){
+        for (let i = 0; i < this.rowsTitles.length; i++){
+          let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
+          for (let j = 0; j < this.columnsTitles.length; j++)
+            this.data[i][j] = 100 * this.data[i][j] / sumRow;
+        }
+      }
+      else{
         for (let j = 0; j < this.columnsTitles.length; j++){
-          this.data[i][j] = 100 * this.data[i][j] / sumRow;
+          let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
+          for (let i = 0; i < this.rowsTitles.length; i++)
+            this.data[i][j] = 100 * this.data[i][j] / sumCol;
         }
       }
     }
@@ -443,12 +451,12 @@ export class PDV{
 class SliceDice{
   constructor(){}
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean, transpose = false){
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose = false){
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1, groupsAxis2, true);
-    if (percent) dataWidget.percent();
+    if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     return dataWidget.formatWidget(transpose);
   }
 };
