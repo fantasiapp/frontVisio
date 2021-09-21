@@ -45,27 +45,32 @@ export class HistoRowComponent extends BasicWidget {
       tooltip: {
         grouped: false,
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          const data = d[0];
           return `
             <div class="historow-tooltip tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              ${d.map((data: any) => `
+                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              `).join('<br/>')}
               <div class="tooltip-tail"></div>
             </div>
           `;
         }
       },
       bar: {
-        sensitivity: 10,
+        sensitivity: 10
       },
       axis: {
         x: {
           type: 'category',
+          max: {
+            fit: true
+          }
         },
         rotated: true
       },
       grid: {
         y: {
-          show: true
+          show: true,
+          ticks: 6
         }
       },
       //disable clicks on legend

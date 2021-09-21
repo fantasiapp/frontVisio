@@ -57,7 +57,7 @@ export class SimpleDonutComponent extends BasicWidget {
         },
         position: 'inset',
         inset: {
-          anchor: 'bottom-left',
+          anchor: 'bottom-right',
           y: 5 + (data.length) * this.tileHeight
         }
       },
