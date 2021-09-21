@@ -86,25 +86,25 @@ class DataWidget{
   }
 
   percent(onCols=false){
-    if (this.dim == 0) this.data = 100;
+    if (this.dim == 0) this.data = 99.999;
     else if (this.dim == 1){
       let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
       for (let i=0; i < this.data.length; i++)
-        this.data[i] = 100 * this.data[i] / sum;
+        this.data[i] = 99.999 * this.data[i] / sum;
     }
     else{
       if (!onCols){
         for (let i = 0; i < this.rowsTitles.length; i++){
           let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
           for (let j = 0; j < this.columnsTitles.length; j++)
-            this.data[i][j] = 100 * this.data[i][j] / sumRow;
+            this.data[i][j] = 99.999 * this.data[i][j] / sumRow;
         }
       }
       else{
         for (let j = 0; j < this.columnsTitles.length; j++){
           let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
           for (let i = 0; i < this.rowsTitles.length; i++)
-            this.data[i][j] = 100 * this.data[i][j] / sumCol;
+            this.data[i][j] = 99.999 * this.data[i][j] / sumCol;
         }
       }
     }
@@ -266,7 +266,7 @@ export class PDV{
       this.sales.push(new Sale(d));
   };
 
-  private getValue(indicator: string, byIndustries=false, enduit=false): (number | number[]){
+  private getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false): (number | number[]){
     if (indicator == 'dn'){
       if (enduit){
         let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
@@ -279,10 +279,25 @@ export class PDV{
           if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
           else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
         }        
-        if (saleP2cd && saleEnduit) dnEnduit[1] = 1;
+        // Les 0, 1, 2 c'est pas propre qu'ils soient en dur
+        if (saleP2cd && saleEnduit) dnEnduit[1] = 1; 
         else if (saleEnduit) dnEnduit[2] = 1;
         else dnEnduit[0] = 1;
         return dnEnduit
+      } else if (clientProspect){
+        if (this.sales.length === 0) return [0, 0, 1];
+        let totalP2cd = 0,
+          siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+          clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
+          siniatP2cd = 0;
+        for (let sale of this.sales){
+          if (sale.type == 'p2cd'){
+            totalP2cd += sale.volume;
+            if (sale.industryId == siniatId) siniatP2cd += sale.volume;
+          }
+        }
+        if (siniatP2cd > clientProspectLimit * totalP2cd) return [1, 0, 0];
+        return [0, 1, 0];
       } else return 1;
     }
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
@@ -327,11 +342,14 @@ export class PDV{
           dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, true) as number[]);
         else if (axe2 == 'industrie')
           dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, true) as number[]);
-        else if (axe1 == 'enduitIndustrie' || axe1 == 'segmentDnEnduit'){
+        else if (axe1 == 'enduitIndustrie' || axe1 == 'segmentDnEnduit')
           dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, true) as number[]);
-        }
         else if (axe2 == 'enduitIndustrie' || axe2 == 'segmentDnEnduit')
           dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, true) as number[]);
+        else if (axe1 == 'clientProspect')
+          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, false, true) as number[]);
+        else if (axe2 == 'clientProspect')
+          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, false, true) as number[]);
         else
           dataWidget.addOnCase(pdv.attribute(axe1), pdv.attribute(axe2), pdv.getValue(indicator, false) as number);
       }
