@@ -16,6 +16,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   protected chart: Chart | null = null;
   /* Styling */
   protected tileHeight: number = 16;
+  protected dynamicDescription: boolean = false;
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
@@ -60,7 +61,8 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
 
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
-    if ( this.properties.description == '@sum' ) {
+    if ( this.dynamicDescription || this.properties.description == '@sum' ) {
+      this.dynamicDescription = true;
       this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
       d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
     }
