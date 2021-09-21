@@ -170,4 +170,5 @@ app-historow .bb-xgrid {
 
 .bb-legend-background {
     stroke: none;
+    stroke-width: 0;
 }
