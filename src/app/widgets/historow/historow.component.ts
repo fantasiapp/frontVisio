@@ -101,7 +101,7 @@ export class HistoRowComponent extends BasicWidget {
 
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
     if ( this.properties.description == '@sum' ) {
-      this.properties.description = data.sum.toString() + ' ' + this.properties.unit;
+      this.properties.description = BasicWidget.format(data.sum) + ' ' + this.properties.unit;
       d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
     }
     

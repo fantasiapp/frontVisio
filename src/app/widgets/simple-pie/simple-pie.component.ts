@@ -34,6 +34,7 @@ export class SimplePieComponent extends BasicWidget {
       data: {
         columns: data,
         type: pie(),
+        labels: {format(v, id, i, j) { return '' }}
       },
       tooltip: {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
