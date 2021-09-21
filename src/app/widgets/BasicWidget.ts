@@ -45,6 +45,8 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
   abstract createGraph(data: any[]): void;
 
+  // ⚠️⚠️⚠️ Scheduling: Maybe schedular a base class property and schedule all here
+  
   /* In case of a library change, this is the method that should be changed         ^ */
   updateGraph(data: any[]): void {
     this.chart?.load({
