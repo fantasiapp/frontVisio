@@ -123,7 +123,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 /*tail of the tooltip*/
-/*made throught trial and error, should figure out the formulas. ⚠️*/
+/*made through trial and error, should figure out the formulas. ⚠️*/
 .tooltip-tail {
     position: absolute;
     height: var(--tooltip-tail-base);

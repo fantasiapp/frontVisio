@@ -46,6 +46,10 @@ export class SimplePieComponent extends BasicWidget {
           `;
         },
       },
+      //remove labels on slices
+      pie: {
+        label: {format(v: number, ratio: number, id: string) { return '' }}
+      },
       //disable clicks on legend
       legend: {
         item: {

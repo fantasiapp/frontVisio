@@ -23,8 +23,12 @@
   padding: 0 25px 5px;
 }
 
+:host::ng-deep * p {
+  padding-left: 25px;
+}
+
 /* try to use fit-content if available, if not it's not that bad*/
-@supports(width: 10px) {
+@supports(width: fit-content) {
   :host::ng-deep > * h2 {
     width: fit-content;
     border-bottom: 1px solid #aaa;
