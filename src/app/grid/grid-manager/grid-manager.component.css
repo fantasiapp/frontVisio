@@ -30,6 +30,7 @@
   font-size: 14px;
   font-weight: 500;
   padding-left: 25px;
+  margin-bottom: 5px;
 }
 
 /* try to use fit-content if available, if not it's not that bad*/
