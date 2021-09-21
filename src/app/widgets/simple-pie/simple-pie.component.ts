@@ -34,7 +34,6 @@ export class SimplePieComponent extends BasicWidget {
       data: {
         columns: data,
         type: pie(),
-        labels: {format(v, id, i, j) { return '' }}
       },
       tooltip: {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
@@ -46,6 +45,10 @@ export class SimplePieComponent extends BasicWidget {
             </div>
           `;
         },
+      },
+      //remove labels on slices
+      pie: {
+        label: {format(v: number, ratio: number, id: string) { return '' }}
       },
       //disable clicks on legend
       legend: {

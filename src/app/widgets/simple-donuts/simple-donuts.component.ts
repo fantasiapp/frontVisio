@@ -45,6 +45,10 @@ export class SimpleDonutComponent extends BasicWidget {
           `;
         },
       },
+      //remove labels on slices
+      donut: {
+        label: {format(v: number, ratio: number, id: string) { return '' }}
+      },
       //disable clicks on legend
       legend: {
         item: {

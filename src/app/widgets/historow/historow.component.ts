@@ -47,7 +47,7 @@ export class HistoRowComponent extends BasicWidget {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           const data = d[0];
           return `
-            <div class="tooltip">
+            <div class="historow-tooltip tooltip">
               <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               <div class="tooltip-tail"></div>
             </div>
@@ -59,7 +59,7 @@ export class HistoRowComponent extends BasicWidget {
       },
       axis: {
         x: {
-          type: 'category'
+          type: 'category',
         },
         rotated: true
       },
