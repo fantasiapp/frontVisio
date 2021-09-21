@@ -28,7 +28,7 @@ export class SimplePieComponent extends BasicWidget {
       return this.noData(this.content);
     /****************⚠️ ***************/
     
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {

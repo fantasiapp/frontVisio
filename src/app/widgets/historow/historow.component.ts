@@ -32,8 +32,8 @@ export class HistoRowComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoColumnComponent]: Rendering inaccurate format because `x` axis is unspecified.')
 
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
-    this.chart = bb.generate({
+      d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
+      this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
@@ -103,13 +103,12 @@ export class HistoRowComponent extends BasicWidget {
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
-
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
-    if ( this.properties.description == '@sum' ) {
-      this.properties.description = BasicWidget.format(data.sum) + ' ' + this.properties.unit;
-      d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
+    if ( this.dynamicDescription || this.properties.description == '@sum' ) {
+      this.dynamicDescription = true;
+      this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
+      d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
     }
-    
     return data.data;
   }
 }
