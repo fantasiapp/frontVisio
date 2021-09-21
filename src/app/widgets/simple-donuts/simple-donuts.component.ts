@@ -35,11 +35,11 @@ export class SimpleDonutComponent extends BasicWidget {
         type: donut()
       },
       tooltip: {
-        contents(d, defaultTitleFormat, defaultValueFormat, color) {
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           const data = d[0];
           return `
             <div class="tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)}
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               <div class="tooltip-tail"></div>
             </div>
           `;
@@ -58,7 +58,7 @@ export class SimpleDonutComponent extends BasicWidget {
         }
       },
       transition: {
-        duration: 100
+        duration: 250
       }
     });
   }

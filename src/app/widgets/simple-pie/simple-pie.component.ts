@@ -34,13 +34,14 @@ export class SimplePieComponent extends BasicWidget {
       data: {
         columns: data,
         type: pie(),
+        labels: {format(v, id, i, j) { return '' }}
       },
       tooltip: {
-        contents(d, defaultTitleFormat, defaultValueFormat, color) {
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           const data = d[0];
           return `
             <div class="tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)}
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               <div class="tooltip-tail"></div>
             </div>
           `;
@@ -59,7 +60,7 @@ export class SimplePieComponent extends BasicWidget {
         }
       },
       transition: {
-        duration: 100
+        duration: 250
       }
     });
   }

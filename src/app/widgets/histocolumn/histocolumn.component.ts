@@ -5,6 +5,7 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
 import bb, {bar} from 'billboard.js';
+import { SequentialSchedule } from '../Schedule';
 
 
 @Component({
@@ -16,6 +17,8 @@ import bb, {bar} from 'billboard.js';
 export class HistoColumnComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;
+
+  private schedule: SequentialSchedule = new SequentialSchedule;
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -41,10 +44,11 @@ export class HistoColumnComponent extends BasicWidget {
       },
       tooltip: {
         grouped: false,
-        contents(data, defaultTitleFormat, defaultValueFormat, color) {
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
+          const data = d[0];
           return `
-            <div class="tooltip histocolumn-tooltip">
-              ${data.map((d: any) => `<span style="color: ${color(d.id)}">${d.id}: </span>${BasicWidget.format(d.value, 3)}`).join('<br/>')}
+            <div class="tooltip">
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               <div class="tooltip-tail"></div>
             </div>
           `;
@@ -67,15 +71,22 @@ export class HistoColumnComponent extends BasicWidget {
         },
       },
       transition: {
-        duration: 0
+        duration: 250
       }
     });
   }
 
+  //wait on delays
   updateGraph(data: any[]) {
-    this.chart!.load({
-      columns: data,
-     // unload: true
+    this.schedule.queue(() => {
+      this.chart!.categories(data[0].slice(1));
+      this.chart!.load({
+        columns: data,
+        unload: true,
+        done: () => {
+          this.schedule.emit();
+        }
+      })
     });
-  }  
+  }   
 }
