@@ -7,8 +7,9 @@ const tradeStructure = [
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
-  theoricalRatioEnduit: 0.360
-}
+  theoricalRatioEnduit: 0.360,
+  clientProspectLimit: 0.1
+};
 
 const enduitIndustrie = {
   1: "Salsi", 
@@ -21,6 +22,12 @@ const segmentDnEnduit = {
   1: "Pur prospect",
   2: "P2CD + Enduit",
   3: "Enduit hors P2CD"
+}
+
+const clientProspect = {
+  1: "Client",
+  2: "Prospect",
+  3: "Non documenté"
 }
 
 //Will have to make this non static one day
@@ -158,6 +165,7 @@ class DataExtractionHelper{
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
     if (field == 'paramsCompute') return paramsCompute;
+    if (field == 'clientProspect') return clientProspect;
     return this.data[field];
   }
 
