@@ -32,7 +32,7 @@ export class HistoColumnComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
     
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {

@@ -34,6 +34,20 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       });
       this.start();
     });
+
+    // let frame: any = null, resizeCallback = () => {
+    //   this.chart?.resize();
+    //   frame = null;
+    // };
+
+    // window.addEventListener('resize', (e) => {
+    //   if ( !frame )
+    //     frame = setTimeout(resizeCallback, 100);
+    //   else {
+    //     clearTimeout(frame);
+    //     frame = setTimeout(resizeCallback, 100)
+    //   }
+    // });
   }
 
   private start(): void {
@@ -64,7 +78,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     if ( this.dynamicDescription || this.properties.description == '@sum' ) {
       this.dynamicDescription = true;
       this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
-      d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
+      d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
     }
     return data.data;
   }

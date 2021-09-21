@@ -19,25 +19,30 @@
   overflow: hidden;
 }
 
-:host::ng-deep * h2 {
+:host::ng-deep * .props h2 {
   margin-bottom: 5px;
   font-size: 18px;
   font-weight: 500;
   padding: 0 25px 5px;
+  border-bottom: 2px solid #aaa;
 }
 
-:host::ng-deep * p {
+:host::ng-deep * .props p {
   font-size: 14px;
   font-weight: 500;
-  padding-left: 25px;
   margin-bottom: 5px;
+}
+
+:host::ng-deep * .props {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* try to use fit-content if available, if not it's not that bad*/
 @supports(width: fit-content) {
-  :host::ng-deep > * h2 {
+  :host::ng-deep * .props {
     width: fit-content;
-    border-bottom: 1px solid #aaa;
   }
 }
 
