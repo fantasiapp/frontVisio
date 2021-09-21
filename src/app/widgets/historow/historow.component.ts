@@ -78,13 +78,11 @@ export class HistoRowComponent extends BasicWidget {
 
   //wait on delays
   updateGraph(data: any[]) {
+    this.chart!.categories(data[0].slice(1))
     this.chart!.load({
       columns: data,
-      unload: true,
-      done: () => {
-        this.chart!.categories(data[0].slice(1))
-      }
-  });
+      unload: true
+    });
   } 
 
   updateData(): any[] {
