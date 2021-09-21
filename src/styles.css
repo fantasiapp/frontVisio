@@ -167,3 +167,7 @@ app-historow .bb-xgrid {
     --x-axis-font-size: 13px;
     font-size: var(--x-axis-font-size);
 }
+
+.bb-legend-background {
+    stroke: none;
+}
