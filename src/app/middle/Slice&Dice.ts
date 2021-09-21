@@ -42,21 +42,19 @@ class DataWidget{
   }
 
   // Pour le moment on ne change pas les dict iToI et iToJ, donc une fois la fonction utilisée le datawidget ne peut plus être modifié
-  groupData(groupsAxe1: string[], groupsAxe2: string[], simpleFormat=false, percent=false){
+  groupData(groupsAxe1: string[], groupsAxe2: string[], simpleFormat=false){
     groupsAxe1 = (groupsAxe1.length === 0) ? this.rowsTitles : groupsAxe1;
     groupsAxe2 = (groupsAxe2.length === 0) ? this.columnsTitles : groupsAxe2;
     let newData: number[][] = DataWidget.zeros(groupsAxe1.length, groupsAxe2.length);
     for (let i = 0; i < this.rowsTitles.length; i++){
       let titleRow = this.rowsTitles[i];
-      let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0)
-      if (sumRow === 0) continue;
       for (let j = 0; j < this.columnsTitles.length; j++){
         let titleColumn = this.columnsTitles[j];
         let newI = groupsAxe1.indexOf(titleRow),
             newJ = groupsAxe2.indexOf(titleColumn);
         if (newI < 0) newI = groupsAxe1.length - 1;
         if (newJ < 0) newJ = groupsAxe2.length - 1;
-        newData[newI][newJ] += percent ? 100*this.data[i][j]/sumRow: this.data[i][j];
+        newData[newI][newJ] += this.data[i][j];
       }
     }
     if (simpleFormat && groupsAxe1.length == 1 && groupsAxe2.length == 1){
@@ -87,23 +85,30 @@ class DataWidget{
     this.data[i][j] = this.data[i][j]/1000;
   }
 
-  // percent(){
-  //   if (this.dim == 0) this.data = 100;
-  //   else if (this.dim == 1){
-  //     let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
-  //     for (let i=0; i < this.data.length; i++)
-  //       this.data[i] = 100 * this.data[i] / sum;
-  //   }
-  //   else if (this.dim == 2){
-  //     for (let i = 0; i < this.rowsTitles.length; i++){
-  //       console.log(this.data[i]);
-  //       let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
-  //       for (let j = 0; j < this.columnsTitles.length; j++){
-  //         this.data += 100 * this.data[i][j] / sumRow;
-  //       }
-  //     }
-  //   }
-  // }
+  percent(onCols=false){
+    if (this.dim == 0) this.data = 100;
+    else if (this.dim == 1){
+      let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
+      for (let i=0; i < this.data.length; i++)
+        this.data[i] = 100 * this.data[i] / sum;
+    }
+    else{
+      if (!onCols){
+        for (let i = 0; i < this.rowsTitles.length; i++){
+          let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
+          for (let j = 0; j < this.columnsTitles.length; j++)
+            this.data[i][j] = 100 * this.data[i][j] / sumRow;
+        }
+      }
+      else{
+        for (let j = 0; j < this.columnsTitles.length; j++){
+          let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
+          for (let i = 0; i < this.rowsTitles.length; i++)
+            this.data[i][j] = 100 * this.data[i][j] / sumCol;
+        }
+      }
+    }
+  }
   
   basicTreatement(km2 = false){
     if (km2) this.m2ToKm2();
@@ -446,11 +451,12 @@ export class PDV{
 class SliceDice{
   constructor(){}
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean, transpose = false){
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose = false){
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
-    dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent);
+    dataWidget.groupData(groupsAxis1, groupsAxis2, true);
+    if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     return dataWidget.formatWidget(transpose);
   }
 };
