@@ -28,6 +28,14 @@ export class GaugeComponent extends BasicWidget {
         columns: data.slice(0, 1),
         type: gauge(),
       },
+      gauge: {
+        title: "Hello",
+        label: {
+          extents(value, isMax) {
+            return "";
+          },
+        }
+      },
       tooltip: {
         show: false
       },
@@ -45,16 +53,19 @@ export class GaugeComponent extends BasicWidget {
           ]
         }
       },
-      interaction: {
-        enabled: false
-      },
       legend: {
         show: false
       },
       transition: {
-        duration: 100,
+        duration: 250,
       }
     });
+
+    // to set the new title without api
+    //this.chart.$.main.select(".bb-chart-arcs-gauge-title").text("my new title");
+    //--------------------
+    //this.chart.config('donut.title', 'title', true);
+    //this.chart.setArcTitle()
   }
 
 }

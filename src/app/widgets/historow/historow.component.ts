@@ -44,10 +44,11 @@ export class HistoRowComponent extends BasicWidget {
       },
       tooltip: {
         grouped: false,
-        contents(data, defaultTitleFormat, defaultValueFormat, color) {
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
+          const data = d[0];
           return `
-            <div class="tooltip historow-tooltip">
-              ${data.map((d: any) => `<span style="color: ${color(d.id)}">${d.id}: </span>${BasicWidget.format(d.value, 3)}`).join('<br/>')}
+            <div class="tooltip">
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               <div class="tooltip-tail"></div>
             </div>
           `;
@@ -82,6 +83,7 @@ export class HistoRowComponent extends BasicWidget {
   //wait on delays
   updateGraph(data: any[]) {
     this.schedule.queue(() => {
+      console.log(data);
       this.chart!.categories(data[0].slice(1));
       this.chart!.load({
         columns: data,
@@ -96,6 +98,13 @@ export class HistoRowComponent extends BasicWidget {
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
-    return data;
+
+    // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
+    if ( this.properties.description == '@sum' ) {
+      this.properties.description = data.sum.toString() + ' ' + this.properties.unit;
+      d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
+    }
+    
+    return data.data;
   }
 }

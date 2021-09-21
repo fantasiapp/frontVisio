@@ -36,11 +36,11 @@ export class SimplePieComponent extends BasicWidget {
         type: pie(),
       },
       tooltip: {
-        contents(d, defaultTitleFormat, defaultValueFormat, color) {
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           const data = d[0];
           return `
             <div class="tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)}
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               <div class="tooltip-tail"></div>
             </div>
           `;
