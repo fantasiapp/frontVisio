@@ -79,8 +79,9 @@ export class GaugeComponent extends BasicWidget {
   }
 
   updateGraph(data: any) {
+    let names = ['Généralistes', 'Multi Spécialistes', 'Purs Spécialistes', 'Autres'];
     this.chart?.load({
-      columns: [['x', (Math.random()*100) | 0]],
+      columns: [[names[(Math.random()*4) | 0], (Math.random()*100) | 0]],
     })
   }
 
