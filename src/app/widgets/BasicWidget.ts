@@ -64,6 +64,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   
   /* In case of a library change, this is the method that should be changed         ^ */
   updateGraph(data: any[]): void {
+    //unload and synchronize ?
     this.chart?.load({
       columns: data,
       //unload: true
@@ -71,6 +72,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   }
 
   updateData(): any[] {
+    this.chart?.tooltip.hide();
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
 
