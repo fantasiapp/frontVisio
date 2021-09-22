@@ -5,8 +5,7 @@ import { BasicWidget } from '../BasicWidget';
 import bb, {gauge} from 'billboard.js';
 import * as d3 from 'd3';
 
-
-//Huge rework
+//unmock & present
 @Component({
   selector: 'app-gauge',
   templateUrl: './gauge.component.html',
@@ -17,6 +16,8 @@ import * as d3 from 'd3';
 export class GaugeComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   private content!: ElementRef;
+
+  private padding: number = 15;
   
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -26,12 +27,14 @@ export class GaugeComponent extends BasicWidget {
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
+      padding: { //makes the chart smaller
+        left: this.padding, top: this.padding, bottom: this.padding, right: this.padding
+      },
       data: {
-        columns: data.slice(0, 1),
+        columns: [['x', 10]],
         type: gauge(),
       },
       gauge: {
-        title: "Hello",
         label: {
           extents(value, isMax) {
             return "";
@@ -39,7 +42,15 @@ export class GaugeComponent extends BasicWidget {
         }
       },
       tooltip: {
-        show: false
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
+          const data = d[0];
+          return `
+            <div class="tooltip">
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              <div class="tooltip-tail"></div>
+            </div>
+          `;
+        },
       },
       color: {
         pattern: [
@@ -56,18 +67,21 @@ export class GaugeComponent extends BasicWidget {
         }
       },
       legend: {
-        show: false
+        item: {
+          onclick() {}
+        }
       },
       transition: {
-        duration: 250,
+        duration: 250
       }
     });
+    
+  }
 
-    // to set the new title without api
-    //this.chart.$.main.select(".bb-chart-arcs-gauge-title").text("my new title");
-    //--------------------
-    //this.chart.config('donut.title', 'title', true);
-    //this.chart.setArcTitle()
+  updateGraph(data: any) {
+    this.chart?.load({
+      columns: [['x', (Math.random()*100) | 0]],
+    })
   }
 
 }

@@ -35,6 +35,9 @@ export class HistoRowComponent extends BasicWidget {
       d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
       this.chart = bb.generate({
       bindto: this.content.nativeElement,
+      padding: {
+        left: 120
+      },
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
         columns: data,
@@ -101,6 +104,8 @@ export class HistoRowComponent extends BasicWidget {
   } 
 
   updateData(): any[] {
+    this.chart?.tooltip.hide();
+
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
