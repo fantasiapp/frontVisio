@@ -33,7 +33,7 @@ export class SimplePieComponent extends BasicWidget {
       bindto: this.content.nativeElement,
       data: {
         columns: data,
-        type: pie(),
+        type: pie()
       },
       tooltip: {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
@@ -48,7 +48,9 @@ export class SimplePieComponent extends BasicWidget {
       },
       //remove labels on slices
       pie: {
-        label: {format(v: number, ratio: number, id: string) { return '' }}
+        label: {format(v: number, ratio: number, id: string) { return '' }},
+        padding: 0,
+        startingAngle: 0
       },
       //disable clicks on legend
       legend: {

@@ -34,11 +34,6 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       });
       this.start();
     });
-
-    let frame: any = null, resizeCallback = () => {
-      this.chart?.resize();
-      frame = null;
-    };
   }
 
   private start(): void {
@@ -56,9 +51,11 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   /* In case of a library change, this is the method that should be changed         ^ */
   updateGraph(data: any[]): void {
     //unload and synchronize ?
+    let newIds = data.map(d => d[0]);
+    let oldIds = this.chart!.data().map((d: any) => d.id);
     this.chart?.load({
       columns: data,
-      //unload: true
+      unload: oldIds.filter(x => !newIds.includes(x))
     })
   }
 

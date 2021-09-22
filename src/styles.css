@@ -172,3 +172,7 @@ app-historow .bb-xgrid {
     stroke: none !important;
     stroke-width: 0;
 }
+
+g.simple-needle line {
+    transition: transform 250ms ease-out 0s;
+}
