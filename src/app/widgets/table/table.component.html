@@ -1,7 +1,20 @@
+<h2>PdV : ??? Siniat : ??? sur un total identifié de : ??? en Km²</h2>
+<div class="tableNavivation">
+    <form>
+        <label *ngFor="let navOpt of navOpts" class="radio-inline">
+            <input type="radio" name="optradio" (click)="updateGroups(navOpt.id)" > {{ navOpt.name }}
+        </label>
+    </form>
+  </div>
+
 <ag-grid-angular
-    style="width: 500px; height: 500px;"
+    #myGrid
+    id="myGrid"
+    style="width: 100%; height: 100%;"
     class="ag-theme-alpine"
     [rowData]="rowData"
+    [defaultColDef]="defaultColDef"
     [columnDefs]="columnDefs"
+    (gridReady)="onGridReady($event)"
 >
 </ag-grid-angular>
