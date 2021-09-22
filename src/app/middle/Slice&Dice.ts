@@ -3,7 +3,6 @@ import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
-import {WidgetManagerService} from '../grid/widget-manager.service';
 
 
 class DataWidget{
@@ -31,9 +30,9 @@ class DataWidget{
   }
 
   addOnColumn(y: number, vect: number[]){
-    let n = this.columnsTitles.length;
+    let n = this.rowsTitles.length;
     for (let i = 0; i < n; i++)
-      this.data[i][this.idToI[y]] += vect[i];
+      this.data[i][this.idToJ[y]] += vect[i];
   }
 
   get(fieldId1: number, fieldId2: number){
@@ -41,21 +40,19 @@ class DataWidget{
   }
 
   // Pour le moment on ne change pas les dict iToI et iToJ, donc une fois la fonction utilisée le datawidget ne peut plus être modifié
-  groupData(groupsAxe1: string[], groupsAxe2: string[], simpleFormat=false, percent=false){
+  groupData(groupsAxe1: string[], groupsAxe2: string[], simpleFormat=false){
     groupsAxe1 = (groupsAxe1.length === 0) ? this.rowsTitles : groupsAxe1;
     groupsAxe2 = (groupsAxe2.length === 0) ? this.columnsTitles : groupsAxe2;
     let newData: number[][] = DataWidget.zeros(groupsAxe1.length, groupsAxe2.length);
     for (let i = 0; i < this.rowsTitles.length; i++){
       let titleRow = this.rowsTitles[i];
-      let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0)
-      if (sumRow === 0) continue;
       for (let j = 0; j < this.columnsTitles.length; j++){
         let titleColumn = this.columnsTitles[j];
         let newI = groupsAxe1.indexOf(titleRow),
             newJ = groupsAxe2.indexOf(titleColumn);
         if (newI < 0) newI = groupsAxe1.length - 1;
         if (newJ < 0) newJ = groupsAxe2.length - 1;
-        newData[newI][newJ] += percent ? 100*this.data[i][j]/sumRow: this.data[i][j];
+        newData[newI][newJ] += this.data[i][j];
       }
     }
     if (simpleFormat && groupsAxe1.length == 1 && groupsAxe2.length == 1){
@@ -80,10 +77,35 @@ class DataWidget{
     }
   }
   
-  m2ToKm2(){
+  private m2ToKm2(){
     for (let i = 0; i < this.rowsTitles.length; i++)
     for (let j = 0; j < this.columnsTitles.length; j++)
     this.data[i][j] = this.data[i][j]/1000;
+  }
+
+  percent(onCols=false){
+    if (this.dim == 0) this.data = 99.999;
+    else if (this.dim == 1){
+      let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
+      for (let i=0; i < this.data.length; i++)
+        this.data[i] = 99.999 * this.data[i] / sum;
+    }
+    else{
+      if (!onCols){
+        for (let i = 0; i < this.rowsTitles.length; i++){
+          let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
+          for (let j = 0; j < this.columnsTitles.length; j++)
+            this.data[i][j] = 99.999 * this.data[i][j] / sumRow;
+        }
+      }
+      else{
+        for (let j = 0; j < this.columnsTitles.length; j++){
+          let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
+          for (let i = 0; i < this.rowsTitles.length; i++)
+            this.data[i][j] = 99.999 * this.data[i][j] / sumCol;
+        }
+      }
+    }
   }
   
   basicTreatement(km2 = false){
@@ -93,14 +115,11 @@ class DataWidget{
   }
   
   formatWidget(transpose:boolean){
-    // Pas très beau pour les deux prochaines lignes
-    if (this.columnsTitles[this.columnsTitles.length - 1] === '@other') this.columnsTitles[this.columnsTitles.length - 1] = 'Autres'; 
-    if (this.rowsTitles[this.rowsTitles.length - 1] === '@other') this.rowsTitles[this.rowsTitles.length - 1] = 'Autres'; 
-    if (this.dim === 0) return [[this.rowsTitles[0], Math.round(this.data)]];
+    if (this.dim === 0) return [[this.rowsTitles[0], this.data]];
     if (this.dim === 1){
       let widgetParts: [string, number][] = [];    
       for (let i = 0; i < this.rowsTitles.length; i++)
-        widgetParts.push([this.rowsTitles[i], Math.round(this.data[i])]);
+        widgetParts.push([this.rowsTitles[i], this.data[i]]);
       return widgetParts
     }
     if (transpose){
@@ -108,7 +127,7 @@ class DataWidget{
       for (let j = 0; j < this.columnsTitles.length; j++){
         let line: (number | string)[] = [this.columnsTitles[j]]
         for (let i = 0; i < this.rowsTitles.length; i++)
-          line.push(Math.round(this.data[i][j]));
+          line.push(this.data[i][j]);
         widgetParts.push(line);
       }
       return widgetParts;  
@@ -117,7 +136,7 @@ class DataWidget{
     for (let i = 0; i < this.rowsTitles.length; i++){
       let line: (number | string)[] = [this.rowsTitles[i]]
       for (let j = 0; j < this.columnsTitles.length; j++)
-        line.push(Math.round(this.data[i][j]));
+        line.push(this.data[i][j]);
       widgetParts.push(line);
     }
     return widgetParts;    
@@ -173,6 +192,10 @@ class DataWidget{
     if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
     return Math.round(
       this.data.reduce((acc:number, list:number[]) => acc + list.reduce((acc:number, value:number) => acc + value, 0), 0));
+  }
+
+  getData(){
+    return this.data;
   }
 }
 
@@ -238,9 +261,44 @@ export class PDV{
       this.sales.push(new Sale(d));
   };
 
-  private getValue(indicator: string, byIndustries=false): (number | number[]){
-    if (indicator == 'dn') return 1;
+  private getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false): (number | number[]){
+    if (indicator == 'dn'){
+      if (enduit){
+        let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+          salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+          siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+          dnEnduit = new Array(3).fill(0),
+          saleP2cd = false,
+          saleEnduit = false;
+        for (let sale of this.sales){
+          if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
+          else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
+        }        
+        // Les 0, 1, 2 c'est pas propre qu'ils soient en dur
+        if (saleP2cd && saleEnduit) dnEnduit[1] = 1; 
+        else if (saleEnduit) dnEnduit[2] = 1;
+        else dnEnduit[0] = 1;
+        return dnEnduit
+      } else if (clientProspect){
+        // pareil, ce n'est pas très générique
+        if (this.sales.length === 0) return [0, 0, 1];
+        let totalP2cd = 0,
+          siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+          clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
+          siniatP2cd = 0;
+        for (let sale of this.sales){
+          if (sale.type == 'p2cd'){
+            totalP2cd += sale.volume;
+            if (sale.industryId == siniatId) siniatP2cd += sale.volume;
+          }
+        }
+        if (siniatP2cd > clientProspectLimit * totalP2cd) return [1, 0, 0];
+        return [0, 1, 0];
+      } else return 1;
+    }
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
+    // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
+    let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd');
     if (byIndustries){
       let keys = Object.keys(DataExtractionHelper.get('industrie'));
       let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
@@ -249,7 +307,24 @@ export class PDV{
         diced[idIndustries[sale.industryId]] += sale.volume;      
       return diced;
     }
-    return relevantSales.reduce((acc, sale) => acc + sale.volume, 0);
+    let total = p2cdSales.reduce((acc, sale) => acc + sale.volume, 0);
+    if (enduit){
+      // pour le moment ce n'est pas très générique, les places de chaque élément des axes sont en dur
+      let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+       totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+       diced = new Array(4).fill(0);
+      let growthConquestLimit = DataExtractionHelper.get('paramsCompute')['growthConquestLimit'] * totalEnduit;
+      for (let sale of relevantSales){
+        if (sale.industryId == pregyId) diced[0] += sale.volume;
+        else if (sale.industryId == salsiId) diced[1] += sale.volume;    
+      }
+      let other = Math.max(totalEnduit - diced[0] - diced[1], 0)
+      if (diced[0] + diced[1] > growthConquestLimit) diced[2] = other; 
+      else diced[3] = other;
+      return diced;
+    }
+    return total;
   }
 
   static findById(id: number): PDV | undefined {
@@ -263,6 +338,14 @@ export class PDV{
           dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, true) as number[]);
         else if (axe2 == 'industrie')
           dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, true) as number[]);
+        else if (axe1 == 'enduitIndustrie' || axe1 == 'segmentDnEnduit')
+          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, true) as number[]);
+        else if (axe2 == 'enduitIndustrie' || axe2 == 'segmentDnEnduit')
+          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, true) as number[]);
+        else if (axe1 == 'clientProspect')
+          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, false, true) as number[]);
+        else if (axe2 == 'clientProspect')
+          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, false, true) as number[]);
         else
           dataWidget.addOnCase(pdv.attribute(axe1), pdv.attribute(axe2), pdv.getValue(indicator, false) as number);
       }
@@ -274,6 +357,18 @@ export class PDV{
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string) {
+    if (axe2 == 'lg-1') {
+      let labelsToLevelName: {[key: string]: string}= {
+        Région: 'drv', 
+        Secteur: 'agent',
+        Département: 'dep', 
+        Bassin: 'bassin'
+      };
+      let labels = this.geoTree.attributes['labels'];      
+      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
+      let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
+      axe2 = subLevelLabel;
+    }
     let dataAxe1 = DataExtractionHelper.get(axe1);
     let dataAxe2 = DataExtractionHelper.get(axe2);
     let rowsTitles = Object.values(dataAxe1) as string[];
@@ -380,15 +475,15 @@ export class PDV{
 
 @Injectable()
 class SliceDice{
-  constructor(){}
+  constructor(){ console.log('[SliceDice]: on'); }
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:boolean, transpose = false){
-    PDV.load(false);
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose = false){
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
-    dataWidget.groupData(groupsAxis1, groupsAxis2, true, percent)
-    return dataWidget.formatWidget(transpose);  
+    dataWidget.groupData(groupsAxis1, groupsAxis2, true);
+    if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
+    return {data: dataWidget.formatWidget(transpose), sum: dataWidget.getSum()};
   }
 };
 

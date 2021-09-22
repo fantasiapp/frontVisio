@@ -81,7 +81,8 @@ export class FiltersStatesService {
   public updateState(
     levelId?: number,
     dashboardId?: number,
-    superlevel?: boolean
+    superlevel?: boolean,
+    emit: boolean = true
   ) {
     this.navigation.setCurrent(levelId, dashboardId, superlevel);
     const currentArrays = {
@@ -91,8 +92,9 @@ export class FiltersStatesService {
     const currentState = {
       States: this.navigation.getCurrent(),
     };
-    this.stateSubject.next(currentState);
-    this.arraySubject.next(currentArrays);
+    if ( emit )
+      this.stateSubject.next(currentState);
+      this.arraySubject.next(currentArrays);
     
     if ( this.navigation.currentLevel ) {
       /* Rework this */
@@ -101,7 +103,8 @@ export class FiltersStatesService {
         return acc;
       }, {});
 
-      this.$path.next(path);
+      if ( emit )
+        this.$path.next(path);
     }
   }
 }

@@ -1,18 +1,12 @@
-import { Directive, HostBinding, AfterViewInit } from '@angular/core';
+import { Directive, HostBinding, AfterViewInit, Input } from '@angular/core';
 import { Subject } from 'rxjs';
 
-//  --------------------------------
-// |     #content                   |
-// |                                |
-//  --------------------------------
 
-//maybe a global css class ?
 @Directive()
 export abstract class GridArea implements AfterViewInit {
   @HostBinding('style.grid-area')
   public gridArea: string = '';
   
-  //maybe this should be declared by children, or make a class that extends this ?
   public properties: {[key:string]: any} = {};
   public ready: Subject<never> | null = null;
 

@@ -1,3 +1,5 @@
-<h2>{{properties.title}}</h2>
-<p>{{properties.description}}</p>
+<div class="props">
+    <h2 [style.display]="properties.title?  'initial' : 'none'">{{properties.title}}</h2>
+    <p>{{properties.description}}</p>
+</div>
 <div class="container" #content></div>

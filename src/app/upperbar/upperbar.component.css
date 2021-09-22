@@ -4,6 +4,8 @@
     height: 60px;
     opacity: 1;
     background: #FFFFFF 0% 0% no-repeat padding-box;
+    display: flex;
+    justify-content: space-between;
 }
 .input-range{
     -moz-appearance: none;
@@ -47,8 +49,6 @@ label{
     cursor: pointer;
 }
 .ens-org{
-    position: absolute;
-    left: 42vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -59,10 +59,8 @@ label{
     font-size:199px;
 }
 .right-block{
-    position: absolute;
     display: flex;
     height: 100%;
-    right: 0px;
 }
 .input[type ="range"]::-webkit-slider-runnable-track{
     -moz-appearance: none;
@@ -143,7 +141,6 @@ label{
 }
 
 .button-container{
-    position: absolute;
     width: 300px;
     height: 100%;
     display: inline-block;

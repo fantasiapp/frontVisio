@@ -30,7 +30,9 @@ import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.comp
 import { GridManager } from './grid/grid-manager/grid-manager.component';
 import { HistoColumnComponent } from './widgets/histocolumn/histocolumn.component';
 import { HistoRowComponent } from './widgets/historow/historow.component';
+import { GaugeComponent } from './widgets/gauge/gauge.component';
 import { httpInterceptorProviders } from './http-interceptors/index';
+import { SliceDice } from './middle/Slice&Dice';
 
 import { AgGridModule } from 'ag-grid-angular';
 import { TableComponent } from './widgets/table/table.component';
@@ -57,7 +59,8 @@ import { TableComponent } from './widgets/table/table.component';
     GridManager,
     HistoColumnComponent,
     HistoRowComponent,
-    TableComponent
+    TableComponent,
+    GaugeComponent,
   ],
   imports: [
     BrowserModule,
@@ -75,7 +78,7 @@ import { TableComponent } from './widgets/table/table.component';
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [Navigation, httpInterceptorProviders],
+  providers: [Navigation, SliceDice, httpInterceptorProviders],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

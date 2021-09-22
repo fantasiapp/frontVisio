@@ -10,8 +10,11 @@ import { BasicWidget } from '../BasicWidget';
   providers: [SliceDice],
 })
 export class TableComponent extends BasicWidget {
+  createGraph(data: any[]): void {
+    throw new Error('Method not implemented.');
+  }
   private content!: ElementRef;
-  
+
    columnDefs = [
     { field: 'make' },
     { field: 'model' },

@@ -1,4 +1,5 @@
 import { Directive, ElementRef, OnDestroy } from "@angular/core";
+import { Chart } from "billboard.js";
 import * as d3 from "d3";
 import { combineLatest, Subscription } from "rxjs";
 import { FiltersStatesService } from "../filters/filters-states.service";
@@ -12,8 +13,10 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
+  protected chart: Chart | null = null;
   /* Styling */
   protected tileHeight: number = 16;
+  protected dynamicDescription: boolean = false;
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
@@ -31,24 +34,55 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       });
       this.start();
     });
+
+    // let frame: any = null, resizeCallback = () => {
+    //   this.chart?.resize();
+    //   frame = null;
+    // };
+
+    // window.addEventListener('resize', (e) => {
+    //   if ( !frame )
+    //     frame = setTimeout(resizeCallback, 100);
+    //   else {
+    //     clearTimeout(frame);
+    //     frame = setTimeout(resizeCallback, 100)
+    //   }
+    // });
   }
 
   private start(): void {
     let data = this.updateData();
     //used to wait for css to render components correctly <--> needs investigation   v
     requestAnimationFrame((_: any) => {
-      this.updateGraph(data);
+      this.createGraph(data);
     });
   }
 
+  abstract createGraph(data: any[]): void;
+
+  // ⚠️⚠️⚠️ Scheduling: Maybe schedular a base class property and schedule all here
+  
   /* In case of a library change, this is the method that should be changed         ^ */
-  abstract updateGraph(data: any[]): void;
+  updateGraph(data: any[]): void {
+    //unload and synchronize ?
+    this.chart?.load({
+      columns: data,
+      //unload: true
+    })
+  }
 
   updateData(): any[] {
+    this.chart?.tooltip.hide();
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
-    console.log('[BasicWidget -- updateData]: Retrieving Data. Result:', data);
-    return data;
+
+    // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
+    if ( this.dynamicDescription || this.properties.description == '@sum' ) {
+      this.dynamicDescription = true;
+      this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
+      d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
+    }
+    return data.data;
   }
 
   ngOnDestroy() {

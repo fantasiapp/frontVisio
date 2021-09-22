@@ -92,11 +92,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 :root {
     --tooltip-height: 20px;
     --tooltip-padding: 5px;
-    --tooltip-border-radius: 5px;
+    --tooltip-border-radius: 4px;
     --tooltip-font-family: inherit;
     --tooltip-font-size: 14px;
     --tooltip-color: white;
-    --tooltip-background-color: rgba(0, 0, 0, 0.5);
+    --tooltip-background-color: rgba(0, 0, 0, 0.8);
 
     --tooltip-tail-base: 30px;
     --tooltip-tail-factor: 0.4;
@@ -110,22 +110,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     font-size: var(--tooltip-font-size);
     color: var(--tooltip-color);
     background-color: var(--tooltip-background-color);
-    height: var(--tooltip-height);
+    /* height: var(--tooltip-height); */
 
-    transform: translate(-100%, -100%);
     position: relative; /*for the tail*/
+    transform: translate(-10px, 10px);
+}
+
+/* histograms automatically lower the tooltip */
+.historow-tooltip {
+    transform: translate(-10px, 0);
+}
+
+/* histograms automatically lower the tooltip */
+.histocolumn-tooltip {
+    transform: translate(-10px, 20px);
 }
 
 /*tail of the tooltip*/
-/*made throught trial and error, should figure out the formulas. ⚠️*/
+/*made through trial and error, should figure out the formulas. ⚠️*/
 .tooltip-tail {
     position: absolute;
     height: var(--tooltip-tail-base);
     width: calc(var(--tooltip-tail-factor)*var(--tooltip-tail-base));
     overflow: hidden;
-    transform: rotate(-90deg);
-    top: calc(1px + var(--tooltip-height));
-    right: calc(var(--tooltip-tail-base)*0.5);
+    transform: rotate(-270deg);
+    bottom: calc(100% - 10px);
+    left: 10px;
 }
 
 .tooltip-tail::after {
@@ -154,4 +164,15 @@ app-historow .bb-xgrid {
     align-items: center;
     font-size: 2em;
     color: #aaa;
+}
+
+/* font-size on axis */
+.bb-axis.bb-axis-x .tick text {
+    --x-axis-font-size: 14px;
+    font-size: var(--x-axis-font-size);
+}
+
+.bb-legend-background {
+    stroke: none;
+    stroke-width: 0;
 }
