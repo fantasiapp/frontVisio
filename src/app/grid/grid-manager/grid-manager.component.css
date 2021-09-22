@@ -21,7 +21,7 @@
 
 :host::ng-deep * .props h2 {
   margin: 0;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
   font-size: 18px;
   font-weight: 500;
   padding: 0 25px 5px;
@@ -50,5 +50,6 @@
 
 
 :host::ng-deep > * .container {
-  flex-grow: 1;
+  flex: 1;
+  overflow: hidden;
 }

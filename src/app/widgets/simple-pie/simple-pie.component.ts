@@ -15,7 +15,7 @@ import bb, {pie} from 'billboard.js';
 
 export class SimplePieComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
-  private content!: ElementRef;
+  protected content!: ElementRef;
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);

@@ -15,7 +15,7 @@ import bb, {bar, Chart} from 'billboard.js';
 })
 export class HistoRowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
-  private content!: ElementRef;
+  protected content!: ElementRef;
 
   //schedule animations
   private schedule: SequentialSchedule = new SequentialSchedule;

@@ -35,19 +35,10 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       this.start();
     });
 
-    // let frame: any = null, resizeCallback = () => {
-    //   this.chart?.resize();
-    //   frame = null;
-    // };
-
-    // window.addEventListener('resize', (e) => {
-    //   if ( !frame )
-    //     frame = setTimeout(resizeCallback, 100);
-    //   else {
-    //     clearTimeout(frame);
-    //     frame = setTimeout(resizeCallback, 100)
-    //   }
-    // });
+    let frame: any = null, resizeCallback = () => {
+      this.chart?.resize();
+      frame = null;
+    };
   }
 
   private start(): void {

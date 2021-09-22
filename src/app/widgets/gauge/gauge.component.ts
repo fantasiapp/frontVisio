@@ -15,7 +15,7 @@ import * as d3 from 'd3';
 })
 export class GaugeComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
-  private content!: ElementRef;
+  protected content!: ElementRef;
 
   private padding: number = 15;
   

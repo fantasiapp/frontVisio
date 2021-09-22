@@ -16,7 +16,7 @@ import { SequentialSchedule } from '../Schedule';
 })
 export class HistoColumnComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
-  private content!: ElementRef;
+  protected content!: ElementRef;
 
   private schedule: SequentialSchedule = new SequentialSchedule;
 
