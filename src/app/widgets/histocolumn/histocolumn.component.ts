@@ -87,14 +87,15 @@ export class HistoColumnComponent extends BasicWidget {
   //wait on delays
   updateGraph(data: any[]) {
     this.schedule.queue(() => {
+      let currentCategories = this.chart!.categories();
       this.chart!.categories(data[0].slice(1));
       this.chart!.load({
         columns: data,
-        unload: true,
+        unload: currentCategories,
         done: () => {
           this.schedule.emit();
         }
-      })
+      });
     });
   }   
 }
