@@ -173,7 +173,7 @@ app-historow .bb-xgrid {
 }
 
 .bb-legend-background {
-    stroke: none;
+    stroke: none !important;
     stroke-width: 0;
 }
 
@@ -184,3 +184,6 @@ app-historow .bb-xgrid {
     background-color: #F06D0C;
     color: white;
   }
+g.simple-needle line {
+    transition: transform 250ms ease-out 0s;
+}

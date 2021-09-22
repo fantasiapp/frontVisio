@@ -15,7 +15,7 @@ import * as d3 from 'd3';
 })
 export class GaugeComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
-  private content!: ElementRef;
+  protected content!: ElementRef;
 
   private padding: number = 15;
   
@@ -79,8 +79,9 @@ export class GaugeComponent extends BasicWidget {
   }
 
   updateGraph(data: any) {
+    let names = ['Généralistes', 'Multi Spécialistes', 'Purs Spécialistes', 'Autres'];
     this.chart?.load({
-      columns: [['x', (Math.random()*100) | 0]],
+      columns: [[names[(Math.random()*4) | 0], (Math.random()*100) | 0]],
     })
   }
 

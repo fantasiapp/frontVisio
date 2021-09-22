@@ -30,6 +30,30 @@ const clientProspect = {
   3: "Non documenté"
 }
 
+const clientProspectTarget = {
+  1: "Client",
+  2: "Prospect",
+  3: "Non documenté",
+  4: "Potentiel ciblé"
+}
+
+const segmentDnEnduitTarget = {
+  1: "Pur prospect",
+  2: "P2CD + Enduit",
+  3: "Enduit hors P2CD",
+  4: "Cible Pur Prospect",
+  5: "Cible P2CD"
+}
+
+const enduitIndustrieTarget = {
+  1: "Salsi", 
+  2: "Pregy", 
+  3: "Croissance", 
+  4: "Conquête",
+  5: "Cible Croissance",
+  6: "Cible Conquête"
+};
+
 //Will have to make this non static one day
 class DataExtractionHelper{  
   static data: any;
@@ -166,6 +190,14 @@ class DataExtractionHelper{
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
     if (field == 'paramsCompute') return paramsCompute;
     if (field == 'clientProspect') return clientProspect;
+    if (field == 'clientProspectTarget') return clientProspectTarget;
+    if (field == 'segmentDnEnduitTarget') return segmentDnEnduitTarget;
+    if (field == 'enduitIndustrieTarget') return enduitIndustrieTarget;
+    if (field == 'industrieTarget'){
+      let industries = this.data[field];
+      industries.set('0', 'Potentiel');
+      return industries
+    }    
     return this.data[field];
   }
 
