@@ -3,8 +3,6 @@ import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
-import {WidgetManagerService} from '../grid/widget-manager.service';
-import { CDK_CONNECTED_OVERLAY_SCROLL_STRATEGY_PROVIDER_FACTORY } from '@angular/cdk/overlay/overlay-directives';
 
 
 class DataWidget{
@@ -117,9 +115,6 @@ class DataWidget{
   }
   
   formatWidget(transpose:boolean){
-    // Pas très beau pour les deux prochaines lignes
-    if (this.columnsTitles[this.columnsTitles.length - 1] === '@other') this.columnsTitles[this.columnsTitles.length - 1] = 'Challengers'; 
-    if (this.rowsTitles[this.rowsTitles.length - 1] === '@other') this.rowsTitles[this.rowsTitles.length - 1] = 'Challengers'; 
     if (this.dim === 0) return [[this.rowsTitles[0], this.data]];
     if (this.dim === 1){
       let widgetParts: [string, number][] = [];    
@@ -285,6 +280,7 @@ export class PDV{
         else dnEnduit[0] = 1;
         return dnEnduit
       } else if (clientProspect){
+        // pareil, ce n'est pas très générique
         if (this.sales.length === 0) return [0, 0, 1];
         let totalP2cd = 0,
           siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
@@ -313,7 +309,7 @@ export class PDV{
     }
     let total = p2cdSales.reduce((acc, sale) => acc + sale.volume, 0);
     if (enduit){
-      // pour le moment ce n'est pas très générique
+      // pour le moment ce n'est pas très générique, les places de chaque élément des axes sont en dur
       let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
        salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
        totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
@@ -361,6 +357,18 @@ export class PDV{
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string) {
+    if (axe2 == 'lg-1') {
+      let labelsToLevelName: {[key: string]: string}= {
+        Région: 'drv', 
+        Secteur: 'agent',
+        Département: 'dep', 
+        Bassin: 'bassin'
+      };
+      let labels = this.geoTree.attributes['labels'];      
+      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
+      let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
+      axe2 = subLevelLabel;
+    }
     let dataAxe1 = DataExtractionHelper.get(axe1);
     let dataAxe2 = DataExtractionHelper.get(axe2);
     let rowsTitles = Object.values(dataAxe1) as string[];
