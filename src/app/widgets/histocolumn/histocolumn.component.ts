@@ -61,6 +61,13 @@ export class HistoColumnComponent extends BasicWidget {
           type: 'category',
           max: {
             fit: true,
+          },
+          tick: {
+            format(index: number, category: string) {
+              if ( index < this.categories().length )
+                return category;
+              return '';
+            }
           }
         }
       },
@@ -82,14 +89,15 @@ export class HistoColumnComponent extends BasicWidget {
     });
   }
 
-  //wait on delays
   updateGraph(data: any[]) {
     this.schedule.queue(() => {
-      let currentCategories = this.chart!.categories();
-      this.chart!.categories(data[0].slice(1));
+      let currentCategories = this.chart!.categories(),
+        newCategories = data[0].slice(1);
+      
+      this.chart!.categories(newCategories);
       this.chart!.load({
         columns: data,
-        unload: currentCategories,
+        unload: currentCategories.filter(x => !newCategories.includes(x)),
         done: () => {
           this.schedule.emit();
         }
