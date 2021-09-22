@@ -1,6 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
-@import '~billboard.js/dist/billboard.css';
+@import '~billboard.js/dist/billboard.css'; 
+
+@import "~ag-grid-community/dist/styles/ag-grid.css";
+@import "~ag-grid-community/dist/styles/ag-theme-alpine.css";
+
 
 .main-container{
     background: #F7F7F7 0% 0% no-repeat padding-box;

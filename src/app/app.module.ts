@@ -32,6 +32,9 @@ import { HistoColumnComponent } from './widgets/histocolumn/histocolumn.componen
 import { HistoRowComponent } from './widgets/historow/historow.component';
 import { httpInterceptorProviders } from './http-interceptors/index';
 
+import { AgGridModule } from 'ag-grid-angular';
+import { TableComponent } from './widgets/table/table.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -53,7 +56,8 @@ import { httpInterceptorProviders } from './http-interceptors/index';
     //------------------------
     GridManager,
     HistoColumnComponent,
-    HistoRowComponent
+    HistoRowComponent,
+    TableComponent
   ],
   imports: [
     BrowserModule,
@@ -65,10 +69,11 @@ import { httpInterceptorProviders } from './http-interceptors/index';
     BrowserAnimationsModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
     // AgmCoreModule.forRoot({
     //   apiKey:''
     // })
+    AgGridModule.withComponents([])
   ],
   providers: [Navigation, httpInterceptorProviders],
   bootstrap: [AppComponent],
