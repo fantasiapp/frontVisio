@@ -32,9 +32,12 @@ export class HistoRowComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoColumnComponent]: Rendering inaccurate format because `x` axis is unspecified.')
 
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
-    this.chart = bb.generate({
+      d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
+      this.chart = bb.generate({
       bindto: this.content.nativeElement,
+      padding: {
+        left: 120
+      },
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
         columns: data,
@@ -45,27 +48,32 @@ export class HistoRowComponent extends BasicWidget {
       tooltip: {
         grouped: false,
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          const data = d[0];
           return `
             <div class="historow-tooltip tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              ${d.map((data: any) => `
+                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              `).join('<br/>')}
               <div class="tooltip-tail"></div>
             </div>
           `;
         }
       },
       bar: {
-        sensitivity: 10,
+        sensitivity: 10
       },
       axis: {
         x: {
           type: 'category',
+          max: {
+            fit: true
+          }
         },
         rotated: true
       },
       grid: {
         y: {
-          show: true
+          show: true,
+          ticks: 6
         }
       },
       //disable clicks on legend
@@ -96,15 +104,16 @@ export class HistoRowComponent extends BasicWidget {
   } 
 
   updateData(): any[] {
+    this.chart?.tooltip.hide();
+
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
-
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
-    if ( this.properties.description == '@sum' ) {
-      this.properties.description = BasicWidget.format(data.sum) + ' ' + this.properties.unit;
-      d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
+    if ( this.dynamicDescription || this.properties.description == '@sum' ) {
+      this.dynamicDescription = true;
+      this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
+      d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
     }
-    
     return data.data;
   }
 }

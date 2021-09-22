@@ -27,7 +27,7 @@ export class SimpleDonutComponent extends BasicWidget {
       return this.noData(this.content);
     /****************⚠️ ***************/
     
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
@@ -57,7 +57,7 @@ export class SimpleDonutComponent extends BasicWidget {
         },
         position: 'inset',
         inset: {
-          anchor: 'bottom-left',
+          anchor: 'bottom-right',
           y: 5 + (data.length) * this.tileHeight
         }
       },

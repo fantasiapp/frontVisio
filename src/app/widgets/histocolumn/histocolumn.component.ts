@@ -32,7 +32,7 @@ export class HistoColumnComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
     
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();      
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
@@ -45,10 +45,11 @@ export class HistoColumnComponent extends BasicWidget {
       tooltip: {
         grouped: false,
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          const data = d[0];
           return `
-            <div class="tooltip histocolumn-tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+            <div class="historow-tooltip tooltip">
+              ${d.map((data: any) => `
+                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              `).join('<br/>')}
               <div class="tooltip-tail"></div>
             </div>
           `;
@@ -59,12 +60,16 @@ export class HistoColumnComponent extends BasicWidget {
       },
       axis: {
         x: {
-          type: 'category'
+          type: 'category',
+          max: {
+            fit: true,
+          }
         }
       },
       grid: {
         y: {
-          show: true
+          show: true,
+          ticks: 6
         }
       },
       //disable clicks on legend

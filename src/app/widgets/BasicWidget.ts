@@ -16,6 +16,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   protected chart: Chart | null = null;
   /* Styling */
   protected tileHeight: number = 16;
+  protected dynamicDescription: boolean = false;
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
@@ -33,6 +34,20 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       });
       this.start();
     });
+
+    // let frame: any = null, resizeCallback = () => {
+    //   this.chart?.resize();
+    //   frame = null;
+    // };
+
+    // window.addEventListener('resize', (e) => {
+    //   if ( !frame )
+    //     frame = setTimeout(resizeCallback, 100);
+    //   else {
+    //     clearTimeout(frame);
+    //     frame = setTimeout(resizeCallback, 100)
+    //   }
+    // });
   }
 
   private start(): void {
@@ -49,6 +64,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   
   /* In case of a library change, this is the method that should be changed         ^ */
   updateGraph(data: any[]): void {
+    //unload and synchronize ?
     this.chart?.load({
       columns: data,
       //unload: true
@@ -56,13 +72,15 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   }
 
   updateData(): any[] {
+    this.chart?.tooltip.hide();
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
 
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
-    if ( this.properties.description == '@sum' ) {
+    if ( this.dynamicDescription || this.properties.description == '@sum' ) {
+      this.dynamicDescription = true;
       this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
-      d3.select(this.ref.nativeElement).select('p').text(this.properties.description);
+      d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
     }
     return data.data;
   }

@@ -11,5 +11,8 @@
     width: 90%;
     position: absolute;
     top: 125px;
-    justify-content: end;
+    font-size: 14px;
+    font-weight: 200;
+    font-size: 14px;
+    justify-content: start;
 }

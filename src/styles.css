@@ -161,3 +161,14 @@ app-historow .bb-xgrid {
     font-size: 2em;
     color: #aaa;
 }
+
+/* font-size on axis */
+.bb-axis.bb-axis-x .tick text {
+    --x-axis-font-size: 14px;
+    font-size: var(--x-axis-font-size);
+}
+
+.bb-legend-background {
+    stroke: none;
+    stroke-width: 0;
+}
