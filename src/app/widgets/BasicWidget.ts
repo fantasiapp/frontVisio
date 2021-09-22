@@ -5,6 +5,7 @@ import { combineLatest, Subscription } from "rxjs";
 import { FiltersStatesService } from "../filters/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
 import { SliceDice } from "../middle/Slice&Dice";
+import { SequentialSchedule } from "./Schedule";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements OnDestroy {
@@ -17,6 +18,10 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   /* Styling */
   protected tileHeight: number = 16;
   protected dynamicDescription: boolean = false;
+
+  /* order animation */
+  protected schedule: SequentialSchedule = new SequentialSchedule;
+
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
@@ -34,20 +39,6 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       });
       this.start();
     });
-
-    // let frame: any = null, resizeCallback = () => {
-    //   this.chart?.resize();
-    //   frame = null;
-    // };
-
-    // window.addEventListener('resize', (e) => {
-    //   if ( !frame )
-    //     frame = setTimeout(resizeCallback, 100);
-    //   else {
-    //     clearTimeout(frame);
-    //     frame = setTimeout(resizeCallback, 100)
-    //   }
-    // });
   }
 
   private start(): void {
@@ -60,15 +51,21 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
   abstract createGraph(data: any[]): void;
 
-  // ⚠️⚠️⚠️ Scheduling: Maybe schedular a base class property and schedule all here
-  
-  /* In case of a library change, this is the method that should be changed         ^ */
   updateGraph(data: any[]): void {
     //unload and synchronize ?
-    this.chart?.load({
-      columns: data,
-      //unload: true
-    })
+    this.schedule.queue(() => {
+      let newIds = data.map(d => d[0]);
+      let oldIds = this.chart!.data().map((d: any) => d.id);
+      this.chart?.load({
+        columns: data,
+        unload: oldIds.filter(x => !newIds.includes(x)),
+        done: () => {
+          this.schedule.emit();
+        }
+      });
+    });
+    
+    
   }
 
   updateData(): any[] {

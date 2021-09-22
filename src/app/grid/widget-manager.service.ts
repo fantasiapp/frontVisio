@@ -5,6 +5,7 @@ import { HistoColumnComponent } from '../widgets/histocolumn/histocolumn.compone
 import { GridArea } from './grid-area/grid-area';
 import { HistoRowComponent } from '../widgets/historow/historow.component';
 import { GaugeComponent } from '../widgets/gauge/gauge.component';
+import { PieTargetComponent } from '../widgets/pie-target/pie-target.component';
 
 
 @Component({
@@ -56,6 +57,7 @@ export class WidgetManagerService {
     'histoRow': HistoRowComponent,
     'histoColumn': HistoColumnComponent,
     'gauge': GaugeComponent,
+    'pieTarget': PieTargetComponent,
     'table': "assets/table.png"
   };
 
