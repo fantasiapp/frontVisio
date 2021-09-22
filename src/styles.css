@@ -176,3 +176,11 @@ app-historow .bb-xgrid {
     stroke: none;
     stroke-width: 0;
 }
+
+.ag-theme-alpine {
+    font-weight: 300;
+}
+.ag-theme-alpine .ag-row.ag-row-level-0 {
+    background-color: #F06D0C;
+    color: white;
+  }

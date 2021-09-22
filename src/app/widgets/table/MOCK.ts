@@ -20,11 +20,11 @@ export abstract class MOCK_DATA {
   
     static getInitialColumnDefs() {
         return [
-            { field: 'brand', hide: false, rowGroup: true},
-            { field: 'clientOrProspect', hide: true, rowGroup: false},
-            { field: 'markSeg', hide: true, rowGroup: false},
-            { field: 'portSeg', hide: true, rowGroup: false},
-            { field: 'ensemble', hide: true, rowGroup: false},
+            { field: 'brand', hide: true, rowGroup: true},
+            { field: 'clientOrProspect', hide: true},
+            { field: 'markSeg', hide: true},
+            { field: 'portSeg', hide: true},
+            { field: 'ensemble', hide: true},
             { field: 'name' },
             { field: 'siniatSells' },
             { field: 'totalSells'}

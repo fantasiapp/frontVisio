@@ -4,6 +4,7 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 
 import { MOCK_DATA } from './MOCK';
+import 'ag-grid-enterprise';
 
 @Component({
   selector: 'app-table',
@@ -20,10 +21,14 @@ export class TableComponent extends BasicWidget {
   
   //Columns
   defaultColDef: any;
-  columnDefs;
+  columnDefs: any;
 
   //Rows
   rowData;
+
+  //Groups
+  groupDisplayType: any;
+  groupDefaultExpanded?: number;
 
   //Apis
   gridApi: any;
@@ -36,16 +41,16 @@ export class TableComponent extends BasicWidget {
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
     this.navOpts = MOCK_DATA.getNavOpts();
-    console.log(this.navOpts)
     this.columnDefs = MOCK_DATA.getInitialColumnDefs();
     this.rowData = MOCK_DATA.getRowData();
     this.defaultColDef = {
       flex: 1,
       editable: false,
       resizable: false,
-      suppressMenu: true,
       suppressMovable: true,
     };
+    this.groupDisplayType = 'groupRows';
+    this.groupDefaultExpanded = -1;
   }
 
 
@@ -63,14 +68,13 @@ export class TableComponent extends BasicWidget {
 
     columnDefs.forEach((colDef: any) => {
       if(navIds.includes(colDef.field)) {
-        colDef.hide = true; colDef.rowGroup = false;
+        colDef.rowGroup = false;
       }
       if(colDef.field === id) {
-        colDef.hide = false; colDef.rowGroup = true;
+        colDef.rowGroup = true;
       }
 
     })
-    console.log(columnDefs)
     this.columnDefs = columnDefs;
   }
 
