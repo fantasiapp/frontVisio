@@ -247,7 +247,6 @@ export class PDV{
       let pdv = this.instances.get(pdvId) as PDV;
       let targetP2cd: number = data[indexTargetP2cd] as number;
       let targetFinition:boolean = data[indexTargetFinition] as boolean;
-      console.log(targetP2cd);
       pdv.targetP2cd = targetP2cd;
       pdv.targetFinition = targetFinition;
     }
