@@ -84,25 +84,26 @@ class DataWidget{
   }
 
   percent(onCols=false){
-    if (this.dim == 0) this.data = 99.999;
+    let almost100 = 99.999;
+    if (this.dim == 0) this.data = almost100;
     else if (this.dim == 1){
       let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
       for (let i=0; i < this.data.length; i++)
-        this.data[i] = 99.999 * this.data[i] / sum;
+        this.data[i] = almost100 * this.data[i] / sum;
     }
     else{
       if (!onCols){
         for (let i = 0; i < this.rowsTitles.length; i++){
           let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
           for (let j = 0; j < this.columnsTitles.length; j++)
-            this.data[i][j] = 99.999 * this.data[i][j] / sumRow;
+            this.data[i][j] = almost100 * this.data[i][j] / sumRow;
         }
       }
       else{
         for (let j = 0; j < this.columnsTitles.length; j++){
           let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
           for (let i = 0; i < this.rowsTitles.length; i++)
-            this.data[i][j] = 99.999 * this.data[i][j] / sumCol;
+            this.data[i][j] = almost100 * this.data[i][j] / sumCol;
         }
       }
     }
@@ -194,6 +195,7 @@ class DataWidget{
       this.data.reduce((acc:number, list:number[]) => acc + list.reduce((acc:number, value:number) => acc + value, 0), 0));
   }
 
+  // juste pour le debug
   getData(){
     return this.data;
   }
@@ -290,8 +292,12 @@ export class PDV{
     return total;
   }
 
-  private computeDn(enduit=false, clientProspect=false, target=false){
+  private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
     if (enduit){
+      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('segmentDnEnduitTarget'))): Object.values(DataExtractionHelper.get(('segmentDnEnduitTarget'))),
+        associatedIndex :{[key: string]: number}= {};
+      for (let i = 0; i < axe.length; i++)
+        associatedIndex[axe[i]] = i;
       let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
@@ -301,27 +307,31 @@ export class PDV{
       for (let sale of this.sales){
         if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
         else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
-      }        
-      // Les 0, 1, 2 c'est pas propre qu'ils soient en dur
-      if (saleP2cd && saleEnduit) dnEnduit[1] = 1;
-      else if (saleEnduit){
-        if (target && this.targetFinition)
-          dnEnduit[4] = 1;
-        else
-          dnEnduit[2] = 1;
       }
-      else{
-        if (target && this.targetFinition)
-          dnEnduit[3] = 1;
-        else
-          dnEnduit[0] = 1;
+      if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
+      else if (saleEnduit){
+        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
+        else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
+      } else{
+        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
+        else dnEnduit[associatedIndex["Pur prospect"]] = 1;
       }
       return dnEnduit
     } else if (clientProspect){
-      // pareil, ce n'est pas très générique
-      if (target && this.targetP2cd > 0) return [0, 0, 0, 1]; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
-      let nonDocumentedResult = (target)? [0, 0, 1, 0]: [0, 0, 1];
-      if (this.sales.length === 0) return nonDocumentedResult;
+      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('clientProspectTarget'))): Object.values(DataExtractionHelper.get(('clientProspect'))),
+        associatedIndex :{[key: string]: number}= {};
+      for (let i = 0; i < axe.length; i++)
+        associatedIndex[axe[i]] = i;
+      let resultTemplate = new Array(axe.length).fill(0);
+
+      if (target && this.targetP2cd > 0){
+        resultTemplate[associatedIndex["Potentiel ciblé"]] = 1;
+        return resultTemplate; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
+      }
+      if (this.sales.length === 0){
+        resultTemplate[associatedIndex["Non documenté"]] = 1;
+        return resultTemplate;
+      }
       let totalP2cd = 0,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
         clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
@@ -333,11 +343,11 @@ export class PDV{
         }
       }
       if (siniatP2cd > clientProspectLimit * totalP2cd){
-        if (target) return [1, 0, 0, 0];
-        return [1, 0, 0];
+        resultTemplate[associatedIndex["Client"]] = 1;
+        return resultTemplate;
       }
-      if (target) return [0, 1, 0, 0];
-      return [0, 1, 0];
+      resultTemplate[associatedIndex["Prospect"]] = 1;
+      return resultTemplate;
     } else return 1;
   }
 
@@ -417,12 +427,7 @@ export class PDV{
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string) {
     if (axe2 == 'lg-1') {
-      let labelsToLevelName: {[key: string]: string}= {
-        Région: 'drv', 
-        Secteur: 'agent',
-        Département: 'dep', 
-        Bassin: 'bassin'
-      };
+      let labelsToLevelName: {[key: string]: string}= {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
       let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
@@ -497,7 +502,6 @@ export class PDV{
     else
       return [this.instances.get(node.id)!];
   }
-
 
   static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}){
     //verify if slice is correct
