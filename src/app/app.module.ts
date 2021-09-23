@@ -35,7 +35,6 @@ import { GaugeComponent } from './widgets/gauge/gauge.component';
 import { SliceDice } from './middle/Slice&Dice';
 import { PieTargetComponent } from './widgets/pie-target/pie-target.component';
 
-
 import { AgGridModule } from 'ag-grid-angular';
 import { TableComponent } from './widgets/table/table.component';
 

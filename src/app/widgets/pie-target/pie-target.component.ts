@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { d3Selection } from 'billboard.js';
+import { d3Selection, pie } from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
@@ -26,13 +26,36 @@ export class PieTargetComponent extends SimplePieComponent {
   createGraph(data: any[]) {
     //draw base curve
 //    this.data = data;
-    super.createGraph(data);
+    super.createGraph(data, {
+      data: {
+        columns: data,
+        type: pie(),
+        onover: () => {
+          //check if needle is over the slice 
+          let rads = this.needleRotate * Math.PI / 180;
+          let g = this.needle?.select(function() { return this.parentNode; });
+            g!
+            .style('transform-origin', (Math.sin(rads) >= 0 ? '0' : '100%') + ' ' + (Math.cos(rads) >= 0 ? 0 : '100%'))
+            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
+        },
+        onout: () => {
+          let g = this.needle?.select(function() { return this.parentNode; });
+            g!
+            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1)`);
+        }
+      }
+    });
+
     this.chart!.config('onrendered', () => {
       this.createNeedle(data!);
       this.chart!.config('onrendered', null);
     });
 
-    console.log((<any>window).chart = this.chart);
+    this.chart!.config('onresized', () => {
+      this.createNeedle(null)
+    });
+
+    (<any>window).chart = this.chart;
   }
 
   private updateNeedle(data: any[]) {
@@ -41,10 +64,12 @@ export class PieTargetComponent extends SimplePieComponent {
     
     //assumes box doesn't change in size
     this.needleRotate = this.computeNeedlePosition(data);
-    this.needle!.style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) rotate(${this.needleRotate}deg)`)
+    this.needle!.select(function(){ return this.parentNode;})
+      .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) `);
+    this.needle!.style('transform', `rotate(${this.needleRotate}deg)`)
   }
 
-  private createNeedle(data: any[]) {
+  private createNeedle(data: any) {
     d3.select('.simple-needle').remove();
 
     let svg = this.chart!.$.svg, svgRect = svg.node().getBoundingClientRect();
@@ -56,8 +81,9 @@ export class PieTargetComponent extends SimplePieComponent {
     
     this.needle = svg.append('g')
       .classed('simple-needle', true)
+      .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px)`)
       .append('line')
-      .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) rotate(${this.needleRotate}deg)`)
+      .style('transform', `rotate(${this.needleRotate}deg)`)
       .style('stroke', 'yellow')
       .style('stroke-width', 3)
       .style('stroke-linecap', 'round')
@@ -68,12 +94,9 @@ export class PieTargetComponent extends SimplePieComponent {
   }
 
   // 🛑 this is the mission of the middle 🛑
-  computeNeedlePosition(data: any[]) {
+  computeNeedlePosition(data: any) {
     //Data is ordered so that the greatest two elements come first
-    console.log(data);
-    let portion = data[0][1] + (data[1] ? data[1][1] : 0),
-      ratio = portion / data.reduce((acc: number, d: any) => acc + d[1], 0);
-
+    let ratio = Math.random();
     return 360*ratio - 180;
   }
 

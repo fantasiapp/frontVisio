@@ -21,7 +21,7 @@ export class HistoRowComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any[], opt: {} = {}) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
@@ -88,7 +88,8 @@ export class HistoRowComponent extends BasicWidget {
       },
       transition: {
         duration: 250
-      }
+      },
+      ...opt
     });
   }
 

@@ -23,7 +23,7 @@ export class GaugeComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any[], opt: {} = {}) {
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
@@ -73,7 +73,8 @@ export class GaugeComponent extends BasicWidget {
       },
       transition: {
         duration: 250
-      }
+      },
+      ...opt
     });
     
   }

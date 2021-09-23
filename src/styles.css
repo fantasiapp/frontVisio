@@ -183,7 +183,13 @@ app-historow .bb-xgrid {
 .ag-theme-alpine .ag-row.ag-row-level-0 {
     background-color: #F06D0C;
     color: white;
-  }
+}
+
+g.simple-needle {
+    pointer-events: none;
+    transition: transform 40ms ease-in-out 0s;
+}
+
 g.simple-needle line {
     transition: transform 250ms ease-out 0s;
 }

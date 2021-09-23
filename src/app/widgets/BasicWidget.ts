@@ -49,7 +49,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     });
   }
 
-  abstract createGraph(data: any[]): void;
+  abstract createGraph(data: any[], opt?: {}): void;
 
   updateGraph(data: any[]): void {
     //unload and synchronize ?
@@ -64,8 +64,6 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
         }
       });
     });
-    
-    
   }
 
   updateData(): any[] {
@@ -117,7 +115,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   }
 
   static format(q: number, n: number = 3): string {
-    q |= 0; //convert to int
+    q = Math.round(q); //convert to int
     let base = Math.pow(10, n);
     let str = '';
     while (q >= base) {
