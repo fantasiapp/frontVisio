@@ -84,6 +84,8 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     this.subscription.unsubscribe();
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
+    // if ( this.chart )
+    //   this.chart.destroy();
   }
 
   noData(content: ElementRef) {

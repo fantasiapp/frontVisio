@@ -193,4 +193,7 @@ g.simple-needle {
 
 g.simple-needle line {
     transition: transform 250ms ease-out 0s;
+    stroke: yellow;
+    stroke-width: 3px;
+    stroke-linecap: round;
 }
