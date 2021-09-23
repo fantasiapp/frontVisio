@@ -65,6 +65,7 @@ export class HistoRowComponent extends BasicWidget {
             fit: true
           },
           tick: {
+            autorotate: true,
             format(index: number, category: string) {
               if ( index < this.categories().length )
                 return category;

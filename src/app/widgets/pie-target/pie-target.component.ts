@@ -29,19 +29,20 @@ export class PieTargetComponent extends SimplePieComponent {
     super.createGraph(data, {
       data: {
         columns: data,
-        type: pie()
-      },
-      onover: () => {
-        let rads = (this.needleRotate) * Math.PI / 180;
-        console.log(this.needleRotate, rads, Math.cos(rads), Math.sin(rads))
-        let g = this.needle?.select(function() { return this.parentNode; });
-          g!
-          .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
-      },
-      onout: () => {
-        let g = this.needle?.select(function() { return this.parentNode; });
-          g!
-          .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1)`);
+        type: pie(),
+        onover: () => {
+          //check if needle is over the slice 
+          let rads = (this.needleRotate) * Math.PI / 180;
+          console.log(this.needleRotate, rads, Math.cos(rads), Math.sin(rads))
+          let g = this.needle?.select(function() { return this.parentNode; });
+            g!
+            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
+        },
+        onout: () => {
+          let g = this.needle?.select(function() { return this.parentNode; });
+            g!
+            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1)`);
+        }
       },
       onrendered: () => {
         console.log('rendered');
@@ -82,7 +83,7 @@ export class PieTargetComponent extends SimplePieComponent {
       .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px)`)
       .append('line')
       .style('transform', `rotate(${this.needleRotate }deg)`)
-      .style('stroke', 'yellow')
+      .style('stroke', '#BDB76B')
       .style('stroke-width', 3)
       .style('stroke-linecap', 'round')
       .attr('x1', 0)

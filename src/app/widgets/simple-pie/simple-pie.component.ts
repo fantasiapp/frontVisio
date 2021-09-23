@@ -50,7 +50,6 @@ export class SimplePieComponent extends BasicWidget {
       pie: {
         label: {format(v: number, ratio: number, id: string) { return '' }},
         padding: 0,
-        startingAngle: 0
       },
       //disable clicks on legend
       legend: {
