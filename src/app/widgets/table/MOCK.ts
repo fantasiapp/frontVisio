@@ -20,14 +20,14 @@ export abstract class MOCK_DATA {
   
     static getInitialColumnDefs() {
         return [
-            { field: 'brand', hide: true, rowGroup: true},
-            { field: 'clientOrProspect', hide: true},
-            { field: 'markSeg', hide: true},
-            { field: 'portSeg', hide: true},
+            { field: 'enseigne', hide: true, rowGroup: true},
+            { field: 'available', hide: true},
+            { field: 'segmentMarketing', hide: true},
+            { field: 'segmentCommercial', hide: true},
             { field: 'ensemble', hide: true},
             { field: 'name' },
-            { field: 'siniatSells' },
-            { field: 'totalSells'}
+            { field: 'dep' },
+            { field: 'bassin'}
         ];
     }
 
@@ -48,7 +48,7 @@ export abstract class MOCK_DATA {
     }
 
     static getVisibleColumns() {
-        return ['name', 'dep', 'bassin']
+        return ['name', 'enseigne', 'ensemble']
     }
     
 }

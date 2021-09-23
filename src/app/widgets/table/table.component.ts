@@ -6,6 +6,7 @@ import { BasicWidget } from '../BasicWidget';
 
 import { MOCK_DATA } from './MOCK';
 import 'ag-grid-enterprise';
+import { ICellRendererParams } from 'ag-grid-community';
 
 @Component({
   selector: 'app-table',
@@ -16,7 +17,8 @@ import 'ag-grid-enterprise';
 export class TableComponent extends BasicWidget {
 
   private content!: ElementRef;
-  
+  titleData: number[] = [0,0,0];
+
   //Navigation menu
   navOpts: any;
   
@@ -35,10 +37,10 @@ export class TableComponent extends BasicWidget {
   gridApi: any;
   columnApi: any;
   onGridReady = (params: any) => {
-    console.log("Ready once")
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
   }
+
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
     super(ref, filtersService, sliceDice);
@@ -63,6 +65,7 @@ export class TableComponent extends BasicWidget {
     this.columnDefs = data[0];
     this.rowData = data[1];
     this.navOpts = data[2];
+    this.titleData = data[3];
   }
 
   updateGraph(data: any[]): void {
@@ -73,7 +76,7 @@ export class TableComponent extends BasicWidget {
     var columnDefs = this.gridApi.getColumnDefs();
     let navIds = MOCK_DATA.getNavIds();
 
-    columnDefs.forEach((colDef: any) => {
+    for(let colDef of columnDefs) {
       if(navIds.includes(colDef.field)) {
         colDef.rowGroup = false;
       }
@@ -81,10 +84,33 @@ export class TableComponent extends BasicWidget {
         colDef.rowGroup = true;
       }
 
-    })
+    }
     this.columnDefs = columnDefs;
   }
 
 }
 
+@Component({
+  selector: 'total-value-component',
+  template: `
+        <span>
+            {{cellValue}}
+        </span>
+            `
+})
+class CellRendererComponent {
+  params?: ICellRendererParams;
+  cellValue: string = 'Group Renderer';
 
+
+  // gets called once before the renderer is used
+  agInit(params: any) {
+      this.params = params;
+  }
+
+  // gets called whenever the cell refreshes
+  refresh(params: ICellRendererParams) {
+      this.cellValue = "Refreshed"
+  }
+
+}
