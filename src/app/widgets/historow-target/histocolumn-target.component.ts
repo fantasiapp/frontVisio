@@ -73,7 +73,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     bars.nodes().forEach((elm: HTMLElement, idx: number) => {
       let rect = elm.getBoundingClientRect();
       this.barHeights[idx % barsNumber] += rect.height;
-      console.log('>', rect.width);
       if ( !width && rect.width )
         width = rect.width;
     });
@@ -97,7 +96,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       }).attr('x2', function(d, i) {
         return (2*i + 1)*offsetX + width*(i + 1);
       }).attr('y1', (d, i) => {
-        console.log()
         return offsetY + maxHeight - d*this.barHeights[i];
       }).attr('y2', (d, i) => {
         return offsetY + maxHeight - d*this.barHeights[i];
