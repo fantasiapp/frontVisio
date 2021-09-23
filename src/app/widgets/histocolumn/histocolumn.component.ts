@@ -16,9 +16,7 @@ import { SequentialSchedule } from '../Schedule';
 })
 export class HistoColumnComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
-  private content!: ElementRef;
-
-  private schedule: SequentialSchedule = new SequentialSchedule;
+  protected content!: ElementRef;
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -63,6 +61,13 @@ export class HistoColumnComponent extends BasicWidget {
           type: 'category',
           max: {
             fit: true,
+          },
+          tick: {
+            format(index: number, category: string) {
+              if ( index < this.categories().length )
+                return category;
+              return '';
+            }
           }
         }
       },
@@ -84,17 +89,19 @@ export class HistoColumnComponent extends BasicWidget {
     });
   }
 
-  //wait on delays
   updateGraph(data: any[]) {
     this.schedule.queue(() => {
-      this.chart!.categories(data[0].slice(1));
+      let currentCategories = this.chart!.categories(),
+        newCategories = data[0].slice(1);
+      
+      this.chart!.categories(newCategories);
       this.chart!.load({
         columns: data,
-        unload: true,
+        unload: currentCategories.filter(x => !newCategories.includes(x)),
         done: () => {
           this.schedule.emit();
         }
-      })
+      });
     });
   }   
 }

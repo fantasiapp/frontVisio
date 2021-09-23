@@ -30,8 +30,6 @@ const clientProspect = {
   3: "Non documenté"
 }
 
-<<<<<<< Updated upstream
-=======
 const clientProspectTarget = {
   1: "Client",
   2: "Prospect",
@@ -66,7 +64,6 @@ const colTableP2cd = {
   7: "totalSells"
 }
 
->>>>>>> Stashed changes
 //Will have to make this non static one day
 class DataExtractionHelper{  
   static data: any;
@@ -204,8 +201,6 @@ class DataExtractionHelper{
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
     if (field == 'paramsCompute') return paramsCompute;
     if (field == 'clientProspect') return clientProspect;
-<<<<<<< Updated upstream
-=======
     if (field == 'clientProspectTarget') return clientProspectTarget;
     if (field == 'segmentDnEnduitTarget') return segmentDnEnduitTarget;
     if (field == 'enduitIndustrieTarget') return enduitIndustrieTarget;
@@ -215,7 +210,6 @@ class DataExtractionHelper{
       industries.set('0', 'Potentiel');
       return industries
     }    
->>>>>>> Stashed changes
     return this.data[field];
   }
 

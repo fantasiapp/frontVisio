@@ -4,7 +4,6 @@ export class SequentialSchedule {
   private subject: Subject<unknown>;
   private q: any[];
   private queueReady: boolean;
-  private time: any;
 
   constructor() {
     this.subject = new Subject();
@@ -13,9 +12,8 @@ export class SequentialSchedule {
   }
 
   private callback(f: any, mutate: any = (q: any[]) => q.shift()) {
+    this.once((_: any) => this.queueNext(mutate));
     f();
-    this.time = new Date;
-    this.once((_: any) => this.queueNext(mutate))
   }
 
   private queueNext(mutate: any) {
@@ -35,7 +33,6 @@ export class SequentialSchedule {
   }
 
   queue(f: any, mutate: any = ($q: any[]) => $q.shift()) {
-
     if ( this.queueReady ) {
       this.queueReady = false;
       this.callback(f, mutate);

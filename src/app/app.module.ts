@@ -33,12 +33,8 @@ import { HistoRowComponent } from './widgets/historow/historow.component';
 import { GaugeComponent } from './widgets/gauge/gauge.component';
 import { httpInterceptorProviders } from './http-interceptors/index';
 import { SliceDice } from './middle/Slice&Dice';
-<<<<<<< Updated upstream
-=======
 import { SliceTable } from './middle/SliceTable';
 import { PieTargetComponent } from './widgets/pie-target/pie-target.component';
-
->>>>>>> Stashed changes
 
 import { AgGridModule } from 'ag-grid-angular';
 import { TableComponent } from './widgets/table/table.component';
@@ -67,6 +63,7 @@ import { TableComponent } from './widgets/table/table.component';
     HistoRowComponent,
     TableComponent,
     GaugeComponent,
+    PieTargetComponent
   ],
   imports: [
     BrowserModule,
