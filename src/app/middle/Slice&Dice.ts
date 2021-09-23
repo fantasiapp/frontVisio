@@ -437,11 +437,18 @@ export class PDV{
     let idToI:any = {}, idToJ:any = {};    
     Object.keys(dataAxe1).forEach((id, index) => idToI[parseInt(id)] = index);
     Object.keys(dataAxe2).forEach((id, index) => idToJ[parseInt(id)] = index);
+    let pdvs = PDV.slice(slice, axe1, axe2, rowsTitles, idToI, idToJ);
+    let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
+    this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
+    return dataWidget;
+  }
+
+  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}){
     let pdvs: PDV[] = [], childrenOfSlice: any;
-    if (slice) {
+    if (sliceDict) {
       //!!OPTIMIZE
       //!! We are calling sliceTree once per widget, even if it is the same slice
-      [pdvs, childrenOfSlice] = this.sliceTree(slice);
+      [pdvs, childrenOfSlice] = this.sliceTree(sliceDict);
       if (childrenOfSlice.hasOwnProperty(axe1)){
         rowsTitles = childrenOfSlice[axe1].map((node: any) => node.name);
         childrenOfSlice[axe1].forEach((id: number, index: number) => idToI[id] = index);
@@ -453,9 +460,7 @@ export class PDV{
     } else{
       pdvs = [...this.instances.values()];
     }
-    let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
-    this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
-    return dataWidget;
+    return pdvs;
   }
 
   static hasNodeChildren(node: any): boolean{
