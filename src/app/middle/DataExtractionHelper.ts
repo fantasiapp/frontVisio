@@ -194,8 +194,8 @@ class DataExtractionHelper{
     if (field == 'segmentDnEnduitTarget') return segmentDnEnduitTarget;
     if (field == 'enduitIndustrieTarget') return enduitIndustrieTarget;
     if (field == 'industrieTarget'){
-      let industries = this.data[field];
-      industries.set('0', 'Potentiel');
+      let industries = this.data['industrie'];
+      industries['0'] = 'Potentiel';
       return industries
     }    
     return this.data[field];

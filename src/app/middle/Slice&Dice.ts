@@ -334,11 +334,20 @@ export class PDV{
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
     let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd');
     if (byIndustries){
-      let keys = Object.keys(DataExtractionHelper.get('industrie'));
+      let keys = target ? Object.keys(DataExtractionHelper.get('industrieTarget')): Object.keys(DataExtractionHelper.get('industrie'));
       let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
       keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
       for (let sale of relevantSales)
-        diced[idIndustries[sale.industryId]] += sale.volume;      
+        diced[idIndustries[sale.industryId]] += sale.volume;    
+      if (target && this.targetP2cd > 0){
+        let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+          sumExceptSiniat = 0;
+        for (let i = 0; i < diced.length; i++)
+          if (i !== idIndustries[siniatId]) sumExceptSiniat += diced[i];
+        diced[idIndustries[0]] = this.targetP2cd; // j'ai fait comme si target p2cd était ce que l'on compte vendre en plus, si c'est ce que l'on compte vendre au total il faudra enlever ce que l'on vend déjà
+        for (let i = 0; i < diced.length; i++)
+          if ((i !== idIndustries[siniatId]) && (i !== idIndustries[0])) diced[i] *= 1 - this.targetP2cd / sumExceptSiniat;
+      }  
       return diced;
     }
     let total = p2cdSales.reduce((acc, sale) => acc + sale.volume, 0);
@@ -394,10 +403,10 @@ export class PDV{
           dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, true, false, true) as number[]);
         else if (axe2 == 'segmentDnEnduitTarget' || axe2 == 'enduitIndustrieTarget')
           dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, true, false, true) as number[]);        
-        // else if (axe1 == 'industrieTarget')
-        //   dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, true, false, false, true) as number[]);
-        // else if (axe2 == 'industrieTarget')
-        //   dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, true, false, false, true) as number[]);
+        else if (axe1 == 'industrieTarget')
+          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, true, false, false, true) as number[]);
+        else if (axe2 == 'industrieTarget')
+          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, true, false, false, true) as number[]);
         else
           dataWidget.addOnCase(pdv.attribute(axe1), pdv.attribute(axe2), pdv.getValue(indicator, false) as number);
       }
@@ -535,8 +544,8 @@ class SliceDice{
     // if (axis2 == 'clientProspectTarget') axis2 = 'clientProspect';
     // if (axis1 == "segmentDnEnduitTarget") axis1 = "segmentDnEnduit";
     // if (axis2 == "segmentDnEnduitTarget") axis2 = "segmentDnEnduit";
-    if (axis1 == "industrieTarget") axis1 = "industrie";
-    if (axis2 == "industrieTarget") axis2 = "industrie";
+    // if (axis1 == "industrieTarget") axis1 = "industrie";
+    // if (axis2 == "industrieTarget") axis2 = "industrie";
     // if (axis1 == "enduitIndustrieTarget") axis1 = "enduitIndustrie";
     // if (axis2 == "enduitIndustrieTarget") axis2 = "enduitIndustrie";
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
