@@ -362,6 +362,7 @@ export class PDV{
         sumExceptSiniat = 0;
       for (let i = 0; i < diced.length; i++)
         if (i !== idIndustries[siniatId]) sumExceptSiniat += diced[i];
+      // peut-être que ça mériterait d'être plus générique car ici on suppose que 'Potentiel' a été rajouté avec l'id 0
       diced[idIndustries[0]] = this.targetP2cd; // j'ai fait comme si target p2cd était ce que l'on compte vendre en plus, si c'est ce que l'on compte vendre au total il faudra enlever ce que l'on vend déjà
       for (let i = 0; i < diced.length; i++)
         if ((i !== idIndustries[siniatId]) && (i !== idIndustries[0])) diced[i] *= 1 - this.targetP2cd / sumExceptSiniat;
@@ -371,23 +372,29 @@ export class PDV{
 
   private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
     // pour le moment ce n'est pas très générique, les places de chaque élément des axes sont en dur
+    let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
+      associatedIndex :{[key: string]: number}= {};
+    for (let i = 0; i < axe.length; i++)
+      associatedIndex[axe[i]] = i;
+
     let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
       totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
     let growthConquestLimit = DataExtractionHelper.get('paramsCompute')['growthConquestLimit'] * totalEnduit;
     for (let sale of relevantSales){
-      if (sale.industryId == pregyId) diced[0] += sale.volume;
-      else if (sale.industryId == salsiId) diced[1] += sale.volume;    
+      if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+      else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
     }
-    let other = Math.max(totalEnduit - diced[0] - diced[1], 0)
-    if (diced[0] + diced[1] > growthConquestLimit){
-      if (target && this.targetFinition) diced[4] = other;
-      else diced[2] = other; 
+    let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+    let other = Math.max(totalEnduit - salsiPlusPregy, 0)
+    if (salsiPlusPregy > growthConquestLimit){
+      if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = other;
+      else diced[associatedIndex["Croissance"]] = other; 
     }
     else{
-      if (target && this.targetFinition) diced[5] = other;
-      else diced[3] = other;
+      if (target && this.targetFinition) diced[associatedIndex["Cible Conquête"]] = other;
+      else diced[associatedIndex["Conquête"]] = other;
     }
     return diced;
   }
