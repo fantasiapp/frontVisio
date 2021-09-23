@@ -29,30 +29,28 @@ export class PieTargetComponent extends SimplePieComponent {
     super.createGraph(data, {
       data: {
         columns: data,
-        type: pie(),
-        onover: () => {
-          //check if needle is over the slice 
-          let rads = this.needleRotate * Math.PI / 180;
-          let g = this.needle?.select(function() { return this.parentNode; });
-            g!
-            .style('transform-origin', (Math.sin(rads) >= 0 ? '0' : '100%') + ' ' + (Math.cos(rads) >= 0 ? 0 : '100%'))
-            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
-        },
-        onout: () => {
-          let g = this.needle?.select(function() { return this.parentNode; });
-            g!
-            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1)`);
-        }
+        type: pie()
+      },
+      onover: () => {
+        let rads = (this.needleRotate) * Math.PI / 180;
+        console.log(this.needleRotate, rads, Math.cos(rads), Math.sin(rads))
+        let g = this.needle?.select(function() { return this.parentNode; });
+          g!
+          .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
+      },
+      onout: () => {
+        let g = this.needle?.select(function() { return this.parentNode; });
+          g!
+          .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1)`);
+      },
+      onrendered: () => {
+        console.log('rendered');
+        this.createNeedle(data!);
+        this.chart!.config('onrendered', null);
+      },
+      onresized: () => {
+        this.createNeedle(null)
       }
-    });
-
-    this.chart!.config('onrendered', () => {
-      this.createNeedle(data!);
-      this.chart!.config('onrendered', null);
-    });
-
-    this.chart!.config('onresized', () => {
-      this.createNeedle(null)
     });
 
     (<any>window).chart = this.chart;
@@ -83,21 +81,20 @@ export class PieTargetComponent extends SimplePieComponent {
       .classed('simple-needle', true)
       .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px)`)
       .append('line')
-      .style('transform', `rotate(${this.needleRotate}deg)`)
+      .style('transform', `rotate(${this.needleRotate }deg)`)
       .style('stroke', 'yellow')
       .style('stroke-width', 3)
       .style('stroke-linecap', 'round')
       .attr('x1', 0)
-      .attr('y1', 0)
+      .attr('y1', 2 - radius)
       .attr('x2', 0)
-      .attr('y2', radius - 2);
+      .attr('y2', 0);
   }
 
   // 🛑 this is the mission of the middle 🛑
   computeNeedlePosition(data: any) {
-    //Data is ordered so that the greatest two elements come first
     let ratio = Math.random();
-    return 360*ratio - 180;
+    return 360*ratio;
   }
 
   updateGraph(data: any[]) {

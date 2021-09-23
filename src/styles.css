@@ -187,6 +187,7 @@ app-historow .bb-xgrid {
 
 g.simple-needle {
     pointer-events: none;
+    transform-origin: 0 0;
     transition: transform 40ms ease-in-out 0s;
 }
 
