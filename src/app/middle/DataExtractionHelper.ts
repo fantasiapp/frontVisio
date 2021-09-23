@@ -31,28 +31,22 @@ const clientProspect = {
 }
 
 const clientProspectTarget = {
-  1: "Client",
-  2: "Prospect",
-  3: "Non documenté",
   4: "Potentiel ciblé"
 }
 
 const segmentDnEnduitTarget = {
-  1: "Pur prospect",
-  2: "P2CD + Enduit",
-  3: "Enduit hors P2CD",
   4: "Cible Pur Prospect",
   5: "Cible P2CD"
 }
 
 const enduitIndustrieTarget = {
-  1: "Salsi", 
-  2: "Pregy", 
-  3: "Croissance", 
-  4: "Conquête",
   5: "Cible Croissance",
   6: "Cible Conquête"
 };
+
+const industrieTarget = {
+  0: 'Potentiel'
+}
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -190,14 +184,14 @@ class DataExtractionHelper{
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
     if (field == 'paramsCompute') return paramsCompute;
     if (field == 'clientProspect') return clientProspect;
-    if (field == 'clientProspectTarget') return clientProspectTarget;
-    if (field == 'segmentDnEnduitTarget') return segmentDnEnduitTarget;
-    if (field == 'enduitIndustrieTarget') return enduitIndustrieTarget;
-    if (field == 'industrieTarget'){
-      let industries = this.data[field];
-      industries.set('0', 'Potentiel');
-      return industries
-    }    
+    if (field == 'clientProspectTarget')
+      return Object.assign({}, clientProspect, clientProspectTarget);
+    if (field == 'segmentDnEnduitTarget') 
+      return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget);
+    if (field == 'enduitIndustrieTarget') 
+      return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
+    if (field == 'industrieTarget')
+      return Object.assign({}, this.data['industrie'], industrieTarget); 
     return this.data[field];
   }
 

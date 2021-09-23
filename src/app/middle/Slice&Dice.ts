@@ -84,25 +84,26 @@ class DataWidget{
   }
 
   percent(onCols=false){
-    if (this.dim == 0) this.data = 99.999;
+    let almost100 = 99.999;
+    if (this.dim == 0) this.data = almost100;
     else if (this.dim == 1){
       let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
       for (let i=0; i < this.data.length; i++)
-        this.data[i] = 99.999 * this.data[i] / sum;
+        this.data[i] = almost100 * this.data[i] / sum;
     }
     else{
       if (!onCols){
         for (let i = 0; i < this.rowsTitles.length; i++){
           let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
           for (let j = 0; j < this.columnsTitles.length; j++)
-            this.data[i][j] = 99.999 * this.data[i][j] / sumRow;
+            this.data[i][j] = almost100 * this.data[i][j] / sumRow;
         }
       }
       else{
         for (let j = 0; j < this.columnsTitles.length; j++){
           let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
           for (let i = 0; i < this.rowsTitles.length; i++)
-            this.data[i][j] = 99.999 * this.data[i][j] / sumCol;
+            this.data[i][j] = almost100 * this.data[i][j] / sumCol;
         }
       }
     }
@@ -194,6 +195,7 @@ class DataWidget{
       this.data.reduce((acc:number, list:number[]) => acc + list.reduce((acc:number, value:number) => acc + value, 0), 0));
   }
 
+  // juste pour le debug
   getData(){
     return this.data;
   }
@@ -245,7 +247,6 @@ export class PDV{
       let pdv = this.instances.get(pdvId) as PDV;
       let targetP2cd: number = data[indexTargetP2cd] as number;
       let targetFinition:boolean = data[indexTargetFinition] as boolean;
-      console.log(targetP2cd);
       pdv.targetP2cd = targetP2cd;
       pdv.targetFinition = targetFinition;
     }
@@ -280,126 +281,148 @@ export class PDV{
   };
 
   private getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, target=false): (number | number[]){
-    if (indicator == 'dn'){
-      if (enduit){
-        let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
-          salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-          siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-          dnEnduit = (target) ? new Array(5).fill(0): new Array(3).fill(0),
-          saleP2cd = false,
-          saleEnduit = false;
-        for (let sale of this.sales){
-          if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
-          else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
-        }        
-        // Les 0, 1, 2 c'est pas propre qu'ils soient en dur
-        if (saleP2cd && saleEnduit) dnEnduit[1] = 1;
-        else if (saleEnduit){
-          if (target && this.targetFinition)
-            dnEnduit[4] = 1;
-          else
-            dnEnduit[2] = 1;
-        }
-        else{
-          if (target && this.targetFinition)
-            dnEnduit[3] = 1;
-          else
-            dnEnduit[0] = 1;
-        }
-        return dnEnduit
-      } else if (clientProspect){
-        // pareil, ce n'est pas très générique
-        if (target && this.targetP2cd > 0) return [0, 0, 0, 1]; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
-        let nonDocumentedResult = (target)? [0, 0, 1, 0]: [0, 0, 1];
-        if (this.sales.length === 0) return nonDocumentedResult;
-        let totalP2cd = 0,
-          siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-          clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
-          siniatP2cd = 0;
-        for (let sale of this.sales){
-          if (sale.type == 'p2cd'){
-            totalP2cd += sale.volume;
-            if (sale.industryId == siniatId) siniatP2cd += sale.volume;
-          }
-        }
-        if (siniatP2cd > clientProspectLimit * totalP2cd){
-          if (target) return [1, 0, 0, 0];
-          return [1, 0, 0];
-        }
-        if (target) return [0, 1, 0, 0];
-        return [0, 1, 0];
-      } else return 1;
-    }
+    if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target);
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
     let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd');
-    if (byIndustries){
-      let keys = Object.keys(DataExtractionHelper.get('industrie'));
-      let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
-      keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
-      for (let sale of relevantSales)
-        diced[idIndustries[sale.industryId]] += sale.volume;      
-      return diced;
-    }
+    if (byIndustries) return this.computeIndustries(target, relevantSales);      
     let total = p2cdSales.reduce((acc, sale) => acc + sale.volume, 0);
-    if (enduit){
-      // pour le moment ce n'est pas très générique, les places de chaque élément des axes sont en dur
-      let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
-       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-       totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
-       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
-      let growthConquestLimit = DataExtractionHelper.get('paramsCompute')['growthConquestLimit'] * totalEnduit;
-      for (let sale of relevantSales){
-        if (sale.industryId == pregyId) diced[0] += sale.volume;
-        else if (sale.industryId == salsiId) diced[1] += sale.volume;    
-      }
-      let other = Math.max(totalEnduit - diced[0] - diced[1], 0)
-      if (diced[0] + diced[1] > growthConquestLimit){
-        if (target && this.targetFinition) diced[4] = other;
-        else diced[2] = other; 
-      }
-      else{
-        if (target && this.targetFinition) diced[5] = other;
-        else diced[3] = other;
-      }
-      return diced;
-    }
+    if (enduit) return this.computeEnduit(target, relevantSales, total);
     return total;
+  }
+
+  private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
+    if (enduit){
+      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('segmentDnEnduitTarget'))): Object.values(DataExtractionHelper.get(('segmentDnEnduitTarget'))),
+        associatedIndex :{[key: string]: number}= {};
+      for (let i = 0; i < axe.length; i++)
+        associatedIndex[axe[i]] = i;
+      let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+        salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+        siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+        dnEnduit = (target) ? new Array(5).fill(0): new Array(3).fill(0),
+        saleP2cd = false,
+        saleEnduit = false;
+      for (let sale of this.sales){
+        if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
+        else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
+      }
+      if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
+      else if (saleEnduit){
+        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
+        else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
+      } else{
+        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
+        else dnEnduit[associatedIndex["Pur prospect"]] = 1;
+      }
+      return dnEnduit
+    } else if (clientProspect){
+      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('clientProspectTarget'))): Object.values(DataExtractionHelper.get(('clientProspect'))),
+        associatedIndex :{[key: string]: number}= {};
+      for (let i = 0; i < axe.length; i++)
+        associatedIndex[axe[i]] = i;
+      let resultTemplate = new Array(axe.length).fill(0);
+
+      if (target && this.targetP2cd > 0){
+        resultTemplate[associatedIndex["Potentiel ciblé"]] = 1;
+        return resultTemplate; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
+      }
+      if (this.sales.length === 0){
+        resultTemplate[associatedIndex["Non documenté"]] = 1;
+        return resultTemplate;
+      }
+      let totalP2cd = 0,
+        siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+        clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
+        siniatP2cd = 0;
+      for (let sale of this.sales){
+        if (sale.type == 'p2cd'){
+          totalP2cd += sale.volume;
+          if (sale.industryId == siniatId) siniatP2cd += sale.volume;
+        }
+      }
+      if (siniatP2cd > clientProspectLimit * totalP2cd){
+        resultTemplate[associatedIndex["Client"]] = 1;
+        return resultTemplate;
+      }
+      resultTemplate[associatedIndex["Prospect"]] = 1;
+      return resultTemplate;
+    } else return 1;
+  }
+
+  private computeIndustries(target:boolean, relevantSales:Sale[]){
+    let keys = target ? Object.keys(DataExtractionHelper.get('industrieTarget')): Object.keys(DataExtractionHelper.get('industrie'));
+    let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
+    keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
+    for (let sale of relevantSales)
+      diced[idIndustries[sale.industryId]] += sale.volume;    
+    if (target && this.targetP2cd > 0){
+      let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+        sumExceptSiniat = 0;
+      for (let i = 0; i < diced.length; i++)
+        if (i !== idIndustries[siniatId]) sumExceptSiniat += diced[i];
+      // peut-être que ça mériterait d'être plus générique car ici on suppose que 'Potentiel' a été rajouté avec l'id 0
+      diced[idIndustries[0]] = this.targetP2cd; // j'ai fait comme si target p2cd était ce que l'on compte vendre en plus, si c'est ce que l'on compte vendre au total il faudra enlever ce que l'on vend déjà
+      for (let i = 0; i < diced.length; i++)
+        if ((i !== idIndustries[siniatId]) && (i !== idIndustries[0])) diced[i] *= 1 - this.targetP2cd / sumExceptSiniat;
+    }  
+    return diced;
+  }
+
+  private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
+    // pour le moment ce n'est pas très générique, les places de chaque élément des axes sont en dur
+    let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
+      associatedIndex :{[key: string]: number}= {};
+    for (let i = 0; i < axe.length; i++)
+      associatedIndex[axe[i]] = i;
+
+    let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+      salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+      totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+      diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
+    let growthConquestLimit = DataExtractionHelper.get('paramsCompute')['growthConquestLimit'] * totalEnduit;
+    for (let sale of relevantSales){
+      if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+      else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
+    }
+    let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+    let other = Math.max(totalEnduit - salsiPlusPregy, 0)
+    if (salsiPlusPregy > growthConquestLimit){
+      if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = other;
+      else diced[associatedIndex["Croissance"]] = other; 
+    }
+    else{
+      if (target && this.targetFinition) diced[associatedIndex["Cible Conquête"]] = other;
+      else diced[associatedIndex["Conquête"]] = other;
+    }
+    return diced;
   }
 
   static findById(id: number): PDV | undefined {
     return this.instances.get(id);
   }
 
-  static fillUpTable(dataWidget: DataWidget, axe1:string, axe2:string, indicator:string, pdvs: PDV[]){
+  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[]){
+    // peut-être à mettre dans un fichier de config
+    let nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
+      targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
+      enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
+      industrieAxis = ['industrie', 'industrieTarget'],
+      clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
+      irregular: string = 'no';
+    if (nonRegularAxis.includes(axis1)) irregular = 'line';
+    else if (nonRegularAxis.includes(axis2)) irregular = 'col';
+    let byIndustries, enduit, clientProspect, target;
+    if (irregular == 'line' || irregular == 'col')
+        byIndustries = industrieAxis.includes(axis1) || industrieAxis.includes(axis2),
+        enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
+        clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
+        target = targetAxis.includes(axis1) || targetAxis.includes(axis2);
     for (let pdv of pdvs){
       if (pdv.attribute('available') && pdv.attribute('sale')){
-        if (axe1 == 'industrie')
-          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, true) as number[]);
-        else if (axe2 == 'industrie')
-          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, true) as number[]);
-        else if (axe1 == 'enduitIndustrie' || axe1 == 'segmentDnEnduit')
-          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, true) as number[]);
-        else if (axe2 == 'enduitIndustrie' || axe2 == 'segmentDnEnduit')
-          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, true) as number[]);
-        else if (axe1 == 'clientProspect')
-          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, false, true) as number[]);
-        else if (axe2 == 'clientProspect')
-          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, false, true) as number[]);
-        else if (axe1 == 'clientProspectTarget')
-          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, false, true, true) as number[]);
-        else if (axe2 == 'clientProspectTarget')
-          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, false, true, true) as number[]);
-        else if (axe1 == 'segmentDnEnduitTarget' || axe1 == 'enduitIndustrieTarget')
-          dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, false, true, false, true) as number[]);
-        else if (axe2 == 'segmentDnEnduitTarget' || axe2 == 'enduitIndustrieTarget')
-          dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, false, true, false, true) as number[]);        
-        // else if (axe1 == 'industrieTarget')
-        //   dataWidget.addOnColumn(pdv.attribute(axe2), pdv.getValue(indicator, true, false, false, true) as number[]);
-        // else if (axe2 == 'industrieTarget')
-        //   dataWidget.addOnRow(pdv.attribute(axe1), pdv.getValue(indicator, true, false, false, true) as number[]);
-        else
-          dataWidget.addOnCase(pdv.attribute(axe1), pdv.attribute(axe2), pdv.getValue(indicator, false) as number);
+        if (irregular == 'no') dataWidget.addOnCase(pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
+        else if (irregular == 'line') dataWidget.addOnColumn(pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
+        else if (irregular == 'col') dataWidget.addOnRow(pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
       }
     }
   }
@@ -410,12 +433,7 @@ export class PDV{
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string) {
     if (axe2 == 'lg-1') {
-      let labelsToLevelName: {[key: string]: string}= {
-        Région: 'drv', 
-        Secteur: 'agent',
-        Département: 'dep', 
-        Bassin: 'bassin'
-      };
+      let labelsToLevelName: {[key: string]: string}= {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
       let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
@@ -428,11 +446,18 @@ export class PDV{
     let idToI:any = {}, idToJ:any = {};    
     Object.keys(dataAxe1).forEach((id, index) => idToI[parseInt(id)] = index);
     Object.keys(dataAxe2).forEach((id, index) => idToJ[parseInt(id)] = index);
+    let pdvs = PDV.slice(slice, axe1, axe2, rowsTitles, idToI, idToJ);
+    let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
+    this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
+    return dataWidget;
+  }
+
+  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}){
     let pdvs: PDV[] = [], childrenOfSlice: any;
-    if (slice) {
+    if (sliceDict) {
       //!!OPTIMIZE
       //!! We are calling sliceTree once per widget, even if it is the same slice
-      [pdvs, childrenOfSlice] = this.sliceTree(slice);
+      [pdvs, childrenOfSlice] = this.sliceTree(sliceDict);
       if (childrenOfSlice.hasOwnProperty(axe1)){
         rowsTitles = childrenOfSlice[axe1].map((node: any) => node.name);
         childrenOfSlice[axe1].forEach((id: number, index: number) => idToI[id] = index);
@@ -444,9 +469,7 @@ export class PDV{
     } else{
       pdvs = [...this.instances.values()];
     }
-    let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
-    this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
-    return dataWidget;
+    return pdvs;
   }
 
   static hasNodeChildren(node: any): boolean{
@@ -485,7 +508,6 @@ export class PDV{
     else
       return [this.instances.get(node.id)!];
   }
-
 
   static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}){
     //verify if slice is correct
@@ -530,15 +552,6 @@ class SliceDice{
   constructor(){ console.log('[SliceDice]: on'); }
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose = false){
-    // A enlever au fur et à mesure de l'avancée
-    // if (axis1 == 'clientProspectTarget') axis1 = 'clientProspect';
-    // if (axis2 == 'clientProspectTarget') axis2 = 'clientProspect';
-    // if (axis1 == "segmentDnEnduitTarget") axis1 = "segmentDnEnduit";
-    // if (axis2 == "segmentDnEnduitTarget") axis2 = "segmentDnEnduit";
-    if (axis1 == "industrieTarget") axis1 = "industrie";
-    if (axis2 == "industrieTarget") axis2 = "industrie";
-    // if (axis1 == "enduitIndustrieTarget") axis1 = "enduitIndustrie";
-    // if (axis2 == "enduitIndustrieTarget") axis2 = "enduitIndustrie";
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
