@@ -80,14 +80,16 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     
     //n * width + 2*(n-1)*offset = mainRect.width
     offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
-    offsetY = (gridRect.height - mainRect.height);
+    offsetY = (gridRect.height - mainRect.height) + 1.5;
 
     this.needles = main.append('g')
       .classed('simple-needle', true);
 
+    let maxHeight = Math.max.apply(null, this.barHeights);
+
     this.needles
       .selectAll('line')
-      .data([1, 0.8, 0.6, 0.4].slice(0, barsNumber))
+      .data([1, 0.8, 0.6, 0.4, 0.2, 0.5, 0.76].slice(0, barsNumber))
       .enter()
       .append('line')
       .attr('x1', function(d, i) {
@@ -95,15 +97,11 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       }).attr('x2', function(d, i) {
         return (2*i + 1)*offsetX + width*(i + 1);
       }).attr('y1', (d, i) => {
-        return offsetY + (1-d)*this.barHeights[i];
+        console.log()
+        return offsetY + maxHeight - d*this.barHeights[i];
       }).attr('y2', (d, i) => {
-        return offsetY + (1-d)*this.barHeights[i];
+        return offsetY + maxHeight - d*this.barHeights[i];
       });
-  }
-
-  computeNeedlesPosition(data: any) {
-    let ratio = Math.random();
-    return ratio;
   }
 
   private getNeedleGroup() {
