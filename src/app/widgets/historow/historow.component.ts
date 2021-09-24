@@ -96,6 +96,9 @@ export class HistoRowComponent extends BasicWidget {
 
   //wait on delays
   updateGraph(data: any[]) {
+    if ( data[0][0] != 'x' )
+    console.log('[HistoColumn]: Rendering inaccurate format because `x` axis is unspecified.')
+    
     this.schedule.queue(() => {
       let currentCategories = this.chart!.categories(),
         newCategories = data[0].slice(1);
