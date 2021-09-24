@@ -21,30 +21,24 @@ export class SliceTable {
         'enduit': []
     }
     private visibleColumns: {[type: string]: string[]} = {
-        'p2cd': ['name', 'siniatSells', 'totalSells'],
+        'p2cd': ['name', 'siniatSales', 'totalSales'],
         'enduit':  []
     }
     private specificColumns: {[type: string]: string[]} = {
-        'p2cd': ['siniatSells', 'totalSells'],
+        'p2cd': ['siniatSales', 'totalSales'],
         'enduit':  []
     }
 
     private customField: {[name: string]: (pdv: any) => {}} = {
-        'siniatSells': (pdv: any) => {
-            let value: number = 0;
-            for(let sale of pdv[21]) {
-                if([1,2,3].includes(sale[0]) && sale[1] === 1)
-                    value+=sale[2];
-            }
-            return value;
+        'siniatSales': (pdv: any) => {
+            return pdv[21].filter((sale: number[]) => ([1,2,3]
+                .includes(sale[0]) && sale[1] === 1))
+                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
-        'totalSells': (pdv: any) => {
-            let value: number = 0;
-            for(let sale of pdv[21]) {
-                if([1,2,3].includes(sale[0]))
-                value+=sale[2]
-            }
-            return value;
+        'totalSales': (pdv: any) => {
+            return pdv[21].filter((sale: number[]) => ([1,2,3]
+                .includes(sale[0])))
+                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
     }
 
