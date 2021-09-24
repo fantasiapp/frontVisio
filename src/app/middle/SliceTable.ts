@@ -38,26 +38,50 @@ export class SliceTable {
         for (let pdv of this.pdvs){
             var newPdv: {[key:string]:any} = {};
             for(let iter = 0; iter < this.pdvFields.length; iter ++){
-                if(this.columnData[this.pdvFields[iter]]) {
-                    newPdv[this.pdvFields[iter]] = this.columnData[this.pdvFields[iter]][pdv[iter]]
+                
+                //!!!!!! hardcode for P2CDtable
+                if(this.pdvFields[iter] === 'sales') {
+                    newPdv['siniatSells'] = 0;
+                    newPdv['totalSells'] = 0;
+                    let siniatSells = 0;
+                    let totalSells = 0;
+                    for(let sale of pdv[iter]){
+                        if(sale[0] === 1 || sale[0] === 2 || sale[0] === 3){ //check P2CD product id
+                            if(sale[1] === 1 ) { //check Siniat industry id
+                                siniatSells += sale[2]
+                                newPdv['siniatSells'] += sale[2]
+                            } else {
+                                totalSells += sale[2]
+                                newPdv['totalSells'] += sale[2]
+                            }
+                        }
+                    }
+                    this.titleData[1] = siniatSells;
+                    this.titleData[2] = totalSells;
                 } else {
-                    newPdv[this.pdvFields[iter]] = pdv[iter];
+                
+                    if(this.columnData[this.pdvFields[iter]]) {
+                        newPdv[this.pdvFields[iter]] = this.columnData[this.pdvFields[iter]][pdv[iter]]
+                    } else {
+                        newPdv[this.pdvFields[iter]] = pdv[iter];
+                    }
                 }
             }
 
             pdvsAsList.push(newPdv)
         }
-        console.log(pdvsAsList[0])
+        this.titleData[0] = Object.keys(this.pdvs).length;
+        console.log("Ex : ", pdvsAsList[2])
         return pdvsAsList;
     }
 
-    getColumnDefs(): {}[]{
+    getColumnDefs(): {}[]{ // !!! A bit hardcoded : specific to p2CDtable
+        let visibleColumns = MOCK_DATA.getP2cdVisibleColumns();
+        let allColumns = this.pdvFields.concat(MOCK_DATA.getP2cdSpecificColumns());
         let columnDefs: {[key:string]: any}[] = [];
-        let visibleColumns = MOCK_DATA.getVisibleColumns();
 
-        for (let field of this.pdvFields) {
-            let column = {field: '', hide: true};
-            column.field = field;
+        for(let field of allColumns) {
+            let column = {field: field, hide: true}
             if(visibleColumns.includes(field)){
                 column.hide = false;
             }
@@ -72,9 +96,6 @@ export class SliceTable {
     }
 
     getTitleData() { // calculs are done in getPdvs, to browse only once the table
-        this.titleData[0] = Object.keys(this.pdvs).length;
-        this.titleData[1] = 2006;
-        this.titleData[2] = 6316;
         return this.titleData;
     }
 

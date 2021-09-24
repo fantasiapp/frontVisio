@@ -47,14 +47,18 @@ export abstract class MOCK_DATA {
         return array;
     }
 
-    static getVisibleColumns() {
-        return ['name', 'enseigne', 'ensemble']
+    static getP2cdSpecificColumns(){
+        return ['siniatSells', 'totalSells']
+    }
+
+    static getP2cdVisibleColumns() {
+        return ['name', 'siniatSells', 'totalSells']
     }
     
 }
 
 
-interface P2CDRow {
+export interface P2CDRow { //important to use
     name: string;
     siniatSells: number;
     totalSells: number;
