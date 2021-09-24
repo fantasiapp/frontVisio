@@ -123,4 +123,8 @@ export class Navigation{
       console.warn('[Navigation.ts -- setCurrent]: nothing to do.');
     }
   }
+
+  getCurrentYear(){
+    return DataExtractionHelper.get('params')["currentYear"];
+  }
 }
