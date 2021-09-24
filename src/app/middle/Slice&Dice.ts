@@ -3,7 +3,15 @@ import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
+import { REPL_MODE_SLOPPY } from 'repl';
 
+
+// peut-être à mettre dans un fichier de config
+const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
+  targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
+  enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
+  industrieAxis = ['industrie', 'industrieTarget'],
+  clientProspectAxis = ['clientProspect', 'clientProspectTarget'];
 
 class DataWidget{
   private data: any;
@@ -265,8 +273,8 @@ export class PDV{
   }
   
   private static loadTrees(){
-    this.geoTree = new Tree(DataExtractionHelper.getGeoTree(), navigationNodeConstructor);
-    this.tradeTree = new Tree(DataExtractionHelper.getTradeTree(), tradeNodeConstructor);
+    this.geoTree = new Tree(DataExtractionHelper.get('geoTree'), navigationNodeConstructor);
+    this.tradeTree = new Tree(DataExtractionHelper.get('tradeTree'), tradeNodeConstructor);
   }
   
   readonly sales: Sale[];
@@ -403,13 +411,7 @@ export class PDV{
   }
 
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[]){
-    // peut-être à mettre dans un fichier de config
-    let nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
-      targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
-      enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
-      industrieAxis = ['industrie', 'industrieTarget'],
-      clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
-      irregular: string = 'no';
+    let irregular: string = 'no';
     if (nonRegularAxis.includes(axis1)) irregular = 'line';
     else if (nonRegularAxis.includes(axis2)) irregular = 'col';
     let byIndustries, enduit, clientProspect, target;
@@ -551,13 +553,32 @@ export class PDV{
 class SliceDice{
   constructor(){ console.log('[SliceDice]: on'); }
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose = false){
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose=false, target=false){
+    console.log(slice);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1, groupsAxis2, true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
-    return {data: dataWidget.formatWidget(transpose), sum: dataWidget.getSum()};
+    let rodPosition = 0;
+    let sum = dataWidget.getSum()
+    if (target){
+      let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
+      let targetName:string;
+      if (indicator == 'dn' && finition) targetName = "dnFinition";
+      else if (indicator == 'dn') targetName = "dnP2CD";
+      else if (finition) targetName = "volFinition";
+      else targetName = "volP2CD";
+      let target:number;      
+      if (Object.keys(slice).length == 0) target = DataExtractionHelper.getTarget("", 0, targetName);
+      else{
+        let listSlice = Object.entries(slice) as [string, number][];
+        let relevantLevel: [string, number] = listSlice[listSlice.length - 1]; //On considère que le dernier niveau est en dernier
+        target = DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], targetName);
+      }
+      rodPosition = 2 * Math.PI * target / sum;
+    }
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition};
   }
 };
 

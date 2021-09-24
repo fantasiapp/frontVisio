@@ -63,10 +63,10 @@ function navigationNodeConstructor(tree: Tree){
     private static loadDashboards(){
       tree.attributes['dashboards'] = [];
 
-      let dashboards = DataExtractionHelper.getDashboards();
+      let dashboards = DataExtractionHelper.get('dashboards');
       let layoutIndex = DataExtractionHelper.DASHBOARD_LAYOUT_INDEX;
       let templateIndex = DataExtractionHelper.LAYOUT_TEMPLATE_INDEX;
-      let layouts = DataExtractionHelper.getLayouts();
+      let layouts = DataExtractionHelper.get('layout');
       for (let height = 0; height < DataExtractionHelper.geoHeight; height++)
         tree.attributes['dashboards'].push(
           DataExtractionHelper.getDashboardsAt(height).map(

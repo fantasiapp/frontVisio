@@ -15,7 +15,7 @@ export class Navigation{
     if (t)
       this.root = t.root;
     else
-      this.root = new Tree(DataExtractionHelper.getGeoTree(), navigationNodeConstructor).root;    
+      this.root = new Tree(DataExtractionHelper.get('geoTree'), navigationNodeConstructor).root;    
     this.currentLevel = this.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
