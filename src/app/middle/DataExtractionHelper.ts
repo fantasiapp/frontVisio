@@ -221,7 +221,7 @@ class DataExtractionHelper{
       let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
       return target[targetId];
     }
-    let drvTargets = DataExtractionHelper.get("targetLevelDrv");
+    let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
     let target = 0;
     for (let drvTarget of drvTargets)
       target += drvTarget[targetId];
