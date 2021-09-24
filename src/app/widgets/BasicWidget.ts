@@ -70,7 +70,8 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     this.chart?.tooltip.hide();
     let args: any[] = this.properties.arguments;
     let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, this.properties.target !== undefined);
-    this.properties.target = data.target;
+    if ( data.target !== undefined )
+      this.properties.target = data.target;
   
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
     if ( this.dynamicDescription || this.properties.description == '@sum' ) {

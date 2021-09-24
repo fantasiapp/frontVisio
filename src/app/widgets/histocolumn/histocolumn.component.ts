@@ -92,8 +92,10 @@ export class HistoColumnComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]) {
-    if ( data[0][0] != 'x' )
+    if ( data[0][0] != 'x' ) {
       console.log('[HistoColumn]: Rendering inaccurate format because `x` axis is unspecified.')
+      data = [['x', ...data.map((d: any[]) => d[0])], ...data];
+    };
 
     this.schedule.queue(() => {
       let currentCategories = this.chart!.categories(),
