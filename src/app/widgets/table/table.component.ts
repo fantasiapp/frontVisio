@@ -1,10 +1,12 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
+import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { MOCK_DATA } from './MOCK';
 import 'ag-grid-enterprise';
+import { ICellRendererParams } from 'ag-grid-community';
 
 @Component({
   selector: 'app-table',
@@ -15,7 +17,8 @@ import 'ag-grid-enterprise';
 export class TableComponent extends BasicWidget {
 
   private content!: ElementRef;
-  
+  titleData: number[] = [0,0,0];
+
   //Navigation menu
   navOpts: any;
   
@@ -24,7 +27,7 @@ export class TableComponent extends BasicWidget {
   columnDefs: any;
 
   //Rows
-  rowData;
+  rowData: any;
 
   //Groups
   groupDisplayType: any;
@@ -37,12 +40,11 @@ export class TableComponent extends BasicWidget {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
   }
+
   
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
     super(ref, filtersService, sliceDice);
-    this.navOpts = MOCK_DATA.getNavOpts();
-    this.columnDefs = MOCK_DATA.getInitialColumnDefs();
-    this.rowData = MOCK_DATA.getRowData();
+
     this.defaultColDef = {
       flex: 1,
       editable: false,
@@ -53,20 +55,32 @@ export class TableComponent extends BasicWidget {
     this.groupDefaultExpanded = -1;
   }
 
+  updateData(): any[] {
+    console.log("[TableComponent] updateData()");
+    console.log("Slice : ", PDV.sliceTree(this.path))
+    let args: any[] = this.properties.arguments;
+    return this.sliceTable.getData();
+  }
 
-  createGraph(data: any[]): void {
-    throw new Error('Method not implemented.');
+  createGraph(data: any[]): void { //abstract in BasicWidgets
+    this.columnDefs = data[0];
+    this.rowData = data[1];
+    this.navOpts = data[2];
+    this.titleData = data[3];
   }
 
   updateGraph(data: any[]): void {
-    return this.noData(this.content);
+    this.schedule.queue(() => {
+      console.log("[TableComponent] updateGraph() with the schedule queue");
+    })
+    // this.schedule.emit();
   }
 
   updateGroups(id: string) {
     var columnDefs = this.gridApi.getColumnDefs();
     let navIds = MOCK_DATA.getNavIds();
 
-    columnDefs.forEach((colDef: any) => {
+    for(let colDef of columnDefs) {
       if(navIds.includes(colDef.field)) {
         colDef.rowGroup = false;
       }
@@ -74,10 +88,33 @@ export class TableComponent extends BasicWidget {
         colDef.rowGroup = true;
       }
 
-    })
+    }
     this.columnDefs = columnDefs;
   }
 
 }
 
+@Component({
+  selector: 'total-value-component',
+  template: `
+        <span>
+            {{cellValue}}
+        </span>
+            `
+})
+class CellRendererComponent {
+  params?: ICellRendererParams;
+  cellValue: string = 'Group Renderer';
 
+
+  // gets called once before the renderer is used
+  agInit(params: any) {
+      this.params = params;
+  }
+
+  // gets called whenever the cell refreshes
+  refresh(params: ICellRendererParams) {
+      this.cellValue = "Refreshed"
+  }
+
+}

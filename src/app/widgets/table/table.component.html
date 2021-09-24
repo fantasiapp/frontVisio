@@ -1,8 +1,8 @@
-<h2>PdV : ??? Siniat : ??? sur un total identifié de : ??? en Km²</h2>
+<h2>PdV : {{titleData[0]}} Siniat : {{titleData[1]}} sur un total identifié de : {{titleData[2]}} en Km²</h2>
 <div class="tableNavivation">
     <form>
         <label *ngFor="let navOpt of navOpts" class="radio-inline">
-            <input type="radio" name="optradio" (click)="updateGroups(navOpt.id)" > {{ navOpt.name }}
+            <input type="radio" name="optradio" (click)="updateGroups(navOpt.id)" [attr.checked]="navOpt===navOpts[0] ? '' : null"> {{ navOpt.name }}
         </label>
     </form>
   </div>
@@ -19,5 +19,6 @@
     [groupDisplayType]="groupDisplayType"
     [groupDefaultExpanded]="groupDefaultExpanded"
     [headerHeight]="0"
+
 >
 </ag-grid-angular>

@@ -20,8 +20,8 @@ export class SimpleDonutComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[]) {
-    let sum = data.reduce((acc, d) => acc + d[1], 0);
+  createGraph({data}: any, opt: {} = {}) {
+    let sum = data.reduce((acc: number, d: any[]) => acc + d[1], 0);
     //temporary code to print no data⚠️
     if ( !data.length || !sum )
       return this.noData(this.content);
@@ -63,7 +63,8 @@ export class SimpleDonutComponent extends BasicWidget {
       },
       transition: {
         duration: 250
-      }
+      },
+      ...opt
     });
   }
 }

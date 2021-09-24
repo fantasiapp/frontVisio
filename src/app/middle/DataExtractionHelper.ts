@@ -49,6 +49,15 @@ const enduitIndustrieTarget = {
 const industrieTarget = {
   0: 'Potentiel'
 }
+const colTableP2cd = {
+  1: "brand",
+  2: "clientOrProspect",
+  3: "markSeg",
+  4: "ensemble",
+  5: "name",
+  6: "siniatSells",
+  7: "totalSells"
+}
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -79,6 +88,7 @@ class DataExtractionHelper{
   
   static setData(d: any){
     this.data = d;
+    console.log("[DataExtractionHelper] this.data : ", this.data)
     let structure = this.data['structureLevel'];
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');

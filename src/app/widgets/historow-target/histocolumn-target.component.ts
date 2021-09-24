@@ -25,7 +25,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any) {
     let self = this;
     super.createGraph(data, {
       onresized: () => {
@@ -57,7 +57,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     });
   }
 
-  private createNeedles(data: any) {
+  private createNeedles({data}: any) {
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 
