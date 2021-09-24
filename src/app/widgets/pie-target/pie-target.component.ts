@@ -31,7 +31,6 @@ export class PieTargetComponent extends SimplePieComponent {
         type: pie(),
         onover: () => {
           //check if needle is over the slice 
-          let rads = (this.needleRotate) * Math.PI / 180;
           this.getNeedleGroup()
             .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
         },
@@ -41,7 +40,7 @@ export class PieTargetComponent extends SimplePieComponent {
         }
       },
       onresized: () => {
-        this.createNeedle(null)
+        this.createNeedle({data: null, target: this.needleRotate})
       },
       onrendered(this: Chart) {
         self.createNeedle(data);
@@ -85,7 +84,7 @@ export class PieTargetComponent extends SimplePieComponent {
 
   // 🛑 this is the mission of the middle 🛑
   computeNeedlePosition(data: any): number {
-    return data.target;
+    return data ? data.target : this.needleRotate;
   }
 
   updateGraph(data: any[]) {

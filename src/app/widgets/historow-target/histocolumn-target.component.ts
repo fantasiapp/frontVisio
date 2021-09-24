@@ -17,8 +17,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private transitionDuration = 250;
   private needles?: d3Selection;
   private barHeights: number[] = [];
-  private needlesGroupTranslate: [number, number] = [0, 0];
-  private needleTranslate: [number, number][] = [];
+  private barTargets: number[] = [];
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -29,7 +28,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let self = this;
     super.createGraph(data, {
       onresized: () => {
-        this.createNeedles(null)
+        this.createNeedles({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
         self.chart = this;
@@ -58,6 +57,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   private createNeedles({data, target}: any) {
+    this.barTargets = target;
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 
