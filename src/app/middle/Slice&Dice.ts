@@ -3,7 +3,6 @@ import DataExtractionHelper from './DataExtractionHelper';
 import navigationNodeConstructor from './NavigationNode';
 import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
-import { REPL_MODE_SLOPPY } from 'repl';
 
 
 // peut-être à mettre dans un fichier de config
