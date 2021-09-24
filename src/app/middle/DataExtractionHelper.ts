@@ -217,6 +217,10 @@ class DataExtractionHelper{
       target += drvTarget[targetId];
     return target;
   }
+
+  static getListTarget(ids: number[], targetName:string){
+    return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
+  }
 }
 
 export default DataExtractionHelper;
