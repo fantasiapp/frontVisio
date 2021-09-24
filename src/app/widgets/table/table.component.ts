@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
@@ -55,8 +55,9 @@ export class TableComponent extends BasicWidget {
     this.groupDefaultExpanded = -1;
   }
 
-  //@override
   updateData(): any[] {
+    console.log("[TableComponent] updateData()");
+    console.log("Slice : ", PDV.sliceTree(this.path))
     let args: any[] = this.properties.arguments;
     return this.sliceTable.getData();
   }
@@ -69,7 +70,10 @@ export class TableComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]): void {
-    return this.noData(this.content);
+    this.schedule.queue(() => {
+      console.log("[TableComponent] updateGraph() with the schedule queue");
+    })
+    // this.schedule.emit();
   }
 
   updateGroups(id: string) {

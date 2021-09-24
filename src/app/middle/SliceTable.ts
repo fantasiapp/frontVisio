@@ -51,7 +51,6 @@ export class SliceTable {
             columnDefs.push(column);
         }
         this.columnDefs = columnDefs;
-        console.log("ColumnDefs : ", this.columnDefs)
         return this.columnDefs;
     }
 
