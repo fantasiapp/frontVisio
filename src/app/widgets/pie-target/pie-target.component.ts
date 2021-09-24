@@ -21,6 +21,7 @@ export class PieTargetComponent extends SimplePieComponent {
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
+    this.properties.target = 0;
   }
 
   createGraph(data: any[]) {
@@ -85,8 +86,8 @@ export class PieTargetComponent extends SimplePieComponent {
 
   // 🛑 this is the mission of the middle 🛑
   computeNeedlePosition(data: any) {
-    let ratio = Math.random();
-    return 360*ratio;
+    console.log('target:', this.properties.target)
+    return this.properties.target;
   }
 
   updateGraph(data: any[]) {
