@@ -198,7 +198,7 @@ class DataWidget{
   getSum(){
     if (this.dim === 0) return Math.round(this.data);
     if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
-    return this.data.array.forEach(function (element:number[]){Math.round(element.reduce((acc:number, value:number) => acc + value, 0))});
+    return this.data.map((line:number[]) => Math.round(line.reduce((acc:number, value:number) => acc + value, 0)));
   }
 
   // juste pour le debug
