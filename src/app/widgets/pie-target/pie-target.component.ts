@@ -24,11 +24,11 @@ export class PieTargetComponent extends SimplePieComponent {
     this.properties.target = 0;
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any) {
     let self = this;
     super.createGraph(data, {
       data: {
-        columns: data,
+        columns: data.data, //extract the actual data
         type: pie(),
         onover: () => {
           //check if needle is over the slice 
@@ -51,7 +51,7 @@ export class PieTargetComponent extends SimplePieComponent {
     });
   }
 
-  private updateNeedle(data: any[]) {
+  private updateNeedle(data: any) {
     if ( !this.needle )
       return this.createNeedle(data);
     
@@ -85,13 +85,11 @@ export class PieTargetComponent extends SimplePieComponent {
   }
 
   // 🛑 this is the mission of the middle 🛑
-  computeNeedlePosition(data: any) {
-    console.log('target:', this.properties.target)
-    return this.properties.target;
+  computeNeedlePosition(data: any): number {
+    return data.target;
   }
 
   updateGraph(data: any[]) {
-//    this.data = data;
     super.updateGraph(data);
     this.updateNeedle(data);
   }

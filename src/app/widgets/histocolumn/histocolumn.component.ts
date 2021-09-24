@@ -22,7 +22,7 @@ export class HistoColumnComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[], opt: {} = {}) {
+  createGraph({data}: any, opt: {} = {}) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
@@ -37,7 +37,7 @@ export class HistoColumnComponent extends BasicWidget {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
         columns: data,
         type: bar(),
-        groups: [data.slice(1).map(x => x[0])],
+        groups: [data.slice(1).map((x: any[]) => x[0])],
         order: null
       },
       tooltip: {
@@ -91,20 +91,20 @@ export class HistoColumnComponent extends BasicWidget {
     });
   }
 
-  updateGraph(data: any[]) {
+  updateGraph({data}: any) {
     if ( data[0][0] != 'x' ) {
       console.log('[HistoColumn]: Rendering inaccurate format because `x` axis is unspecified.')
       data = [['x', ...data.map((d: any[]) => d[0])], ...data];
     };
 
+    let currentItems = Object.keys(this.chart!.xs()),
+    newItems = data.slice(1).map((d: any[]) => d[0]),
+    newCategories = data[0].slice(1);
     this.schedule.queue(() => {
-      let currentCategories = this.chart!.categories(),
-        newCategories = data[0].slice(1);
-      
-      this.chart!.categories(newCategories);
       this.chart!.load({
-        columns: data,
-        unload: currentCategories.filter(x => !newCategories.includes(x)),
+        columns: data.slice(1),
+        categories: newCategories,
+        unload: currentItems.filter(x => !newItems.includes(x)),
         done: () => {
           this.schedule.emit();
         }

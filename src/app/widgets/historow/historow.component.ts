@@ -21,7 +21,8 @@ export class HistoRowComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[], opt: {} = {}) {
+  createGraph({data}: any, opt: {} = {}) {
+    console.log(data);
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
@@ -39,7 +40,7 @@ export class HistoRowComponent extends BasicWidget {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
         columns: data,
         type: bar(),
-        groups: [data.slice(1).map(x => x[0])],
+        groups: [data.slice(1).map((x: any[]) => x[0])],
         order: null
       },
       tooltip: {
@@ -95,20 +96,21 @@ export class HistoRowComponent extends BasicWidget {
   }
 
   //wait on delays
-  updateGraph(data: any[]) {
+  updateGraph({data}: any) {
     if ( data[0][0] != 'x' ) {
-      console.log('[HistoColumn]: Rendering inaccurate format because `x` axis is unspecified.')
+      console.log('[HistoRow]: Rendering inaccurate format because `x` axis is unspecified.')
       data = [['x', ...data.map((d: any[]) => d[0])], ...data];
     };
+
+    let currentItems = Object.keys(this.chart!.xs()),
+        newItems = data.slice(1).map((d: any[]) => d[0]),
+        newCategories = data[0].slice(1);
     
     this.schedule.queue(() => {
-      let currentCategories = this.chart!.categories(),
-        newCategories = data[0].slice(1);
-      
-      this.chart!.categories(newCategories);
       this.chart!.load({
         columns: data.slice(1),
-        unload: currentCategories.filter(x => !newCategories.includes(x)),
+        categories: newCategories,
+        unload: currentItems.filter(x => !newItems.includes(x)),
         done: () => {
           this.schedule.emit();
         }
@@ -116,7 +118,7 @@ export class HistoRowComponent extends BasicWidget {
     });
   } 
 
-  updateData(): any[] {
+  updateData(): any {
     this.chart?.tooltip.hide();
 
     let args: any[] = this.properties.arguments;
@@ -127,6 +129,6 @@ export class HistoRowComponent extends BasicWidget {
       this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
       d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
     }
-    return data.data;
+    return data;
   }
 }

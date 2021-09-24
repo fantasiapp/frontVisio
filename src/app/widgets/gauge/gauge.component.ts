@@ -23,7 +23,7 @@ export class GaugeComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[], opt: {} = {}) {
+  createGraph({data}: any, opt: {} = {}) {
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
