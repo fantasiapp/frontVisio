@@ -12,6 +12,7 @@ export class SubUpperBarComponent implements OnInit {
   filtersVisibles : boolean = false
   currentDashboard: string = '';
   currentLevel: string =''
+  currentYear: string = '';
   path:  string = ''
   years:{ value: (string|number); label: string }[] = [{value : 2020, label:'Année 2020'}, {value : 2021, label:'Année 2021'}]
   ngOnInit(): void {
@@ -19,12 +20,15 @@ export class SubUpperBarComponent implements OnInit {
       (currentState) => {
         this.currentDashboard = currentState.States.dashboard.name;
         this.currentLevel = currentState.States.level.name
-        this.path = currentState.States.path[currentState.States.path.length-1]
+        this.path = (<string>currentState.States.path[currentState.States.path.length-1])
+        console.log('>', this.path, '<');
       }
     );
     this.filtersStates.filtersVisible.subscribe((val) => 
       this.filtersVisibles = val
-    )
+    );
+
+    this.currentYear = this.filtersStates.getYear();
   }
   private destroy$: Subject<void> = new Subject<void>();
 

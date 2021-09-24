@@ -79,6 +79,10 @@ export class FiltersStatesService {
     },
   });
 
+  public getYear() {
+    return this.navigation.getCurrentYear();
+  };
+
   public updateState(
     levelId?: number,
     dashboardId?: number,
