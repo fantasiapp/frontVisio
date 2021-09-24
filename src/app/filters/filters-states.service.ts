@@ -27,12 +27,10 @@ export class FiltersStatesService {
         const currentState = {
           States: this.navigation.getCurrent(),
         };
-
         this.stateSubject.next(currentState);
         this.arraySubject.next(currentArrays);}
         this.$path.next({});
     });
-
   }
 
 
@@ -51,6 +49,7 @@ export class FiltersStatesService {
         grid: ["1", "1"] as [string, string],
         areas: {x: null},
         template: 'x',
+        description: ''
       },
       path: []
     },
@@ -77,6 +76,10 @@ export class FiltersStatesService {
       name: [],      
     },
   });
+
+  public getYear() {
+    return this.navigation.getCurrentYear();
+  };
 
   public updateState(
     levelId?: number,
@@ -106,5 +109,9 @@ export class FiltersStatesService {
       if ( emit )
         this.$path.next(path);
     }
+  }
+
+  canSub() {
+    return this.arraySubject.value.levelArray.subLevel.id.length && this.navigation.childrenHaveSameDashboard();
   }
 }

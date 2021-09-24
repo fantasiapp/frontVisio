@@ -64,11 +64,10 @@
       <br />
       {{ superLevel.label }}
     </div>
-    <div class="box-nav2" [ngClass]="{ disabled: subLevels == viewList }">
+    <div class="box-nav2" [style.display]="canSub() ? 'initial' : 'none'" [ngClass]="{ disabled: subLevels == viewList }">
       <img
         src="assets/sub.svg"
         class="navigate-button2"
-        [style.display]="subLevels.id.length ? 'initial' : 'none'"
         (click)="showSub(subLevels)"
       /><br />
       {{ subLevels.label[0] }}

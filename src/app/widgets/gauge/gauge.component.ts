@@ -23,7 +23,7 @@ export class GaugeComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[], opt: {} = {}) {
+  createGraph({data}: any, opt: {} = {}) {
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
@@ -31,7 +31,7 @@ export class GaugeComponent extends BasicWidget {
         left: this.padding, top: this.padding, bottom: this.padding, right: this.padding
       },
       data: {
-        columns: [['x', 10]],
+        columns: [['Généralistes', Math.floor(100*Math.random())]],
         type: gauge(),
       },
       gauge: {
@@ -54,9 +54,9 @@ export class GaugeComponent extends BasicWidget {
       },
       color: {
         pattern: [
-          '#4AA763',
+          '#D00000',
           '#FED137',
-          '#D00000'
+          '#4AA763'
         ],
         threshold: {
           values: [
@@ -76,14 +76,21 @@ export class GaugeComponent extends BasicWidget {
       },
       ...opt
     });
-    
   }
 
-  updateGraph(data: any) {
+  updateGraph(data: any[]) {
     let names = ['Généralistes', 'Multi Spécialistes', 'Purs Spécialistes', 'Autres'];
-    this.chart?.load({
-      columns: [[names[(Math.random()*4) | 0], (Math.random()*100) | 0]],
-    })
+    this.schedule.queue(() => {
+      let newId = names[4*Math.random() | 0];
+      let oldId = this.chart!.data()[0].id;
+      this.chart?.load({
+        columns: [[newId, Math.random()*100 | 0]],
+        unload: newId == oldId ? false : [oldId],
+        done: () => {
+          this.schedule.emit();
+        }
+      });
+    });
   }
 
 }

@@ -41,7 +41,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     });
   }
 
-  private start(): void {
+  protected start(): void {
     let data = this.updateData();
     //used to wait for css to render components correctly <--> needs investigation   v
     requestAnimationFrame((_: any) => {
@@ -49,13 +49,12 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     });
   }
 
-  abstract createGraph(data: any[], opt?: {}): void;
+  abstract createGraph(data: any, opt?: {}): void;
 
-  updateGraph(data: any[]): void {
-    //unload and synchronize ?
+  updateGraph({data}: any): void {
+    let newIds = data.map((d: any[]) => d[0]);
+    let oldIds = Object.keys(this.chart!.xs());
     this.schedule.queue(() => {
-      let newIds = data.map(d => d[0]);
-      let oldIds = this.chart!.data().map((d: any) => d.id);
       this.chart?.load({
         columns: data,
         unload: oldIds.filter(x => !newIds.includes(x)),
@@ -66,18 +65,21 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     });
   }
 
-  updateData(): any[] {
-    this.chart?.tooltip.hide();
+  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
     let args: any[] = this.properties.arguments;
-    let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false);
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, false];
+  }
 
+  updateData(): {} {
+    this.chart?.tooltip.hide();
+    let data = this.sliceDice.getWidgetData(...this.getDataArguments());
+  
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
     if ( this.dynamicDescription || this.properties.description == '@sum' ) {
       this.dynamicDescription = true;
       this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
       d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
-    }
-    return data.data;
+    }; return data;
   }
 
   ngOnDestroy() {

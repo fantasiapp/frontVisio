@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
-import bb, {pie} from 'billboard.js';
+import bb, {pie, selection} from 'billboard.js';
 
 @Component({
   selector: 'app-simple-pie',
@@ -21,8 +21,8 @@ export class SimplePieComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[], opt: {} = {}) {
-    let sum = data.reduce((acc, d) => acc + d[1], 0);
+  createGraph({data, colors}: {data: any[], colors?: string[]}, opt: {} = {}) {
+    let sum = data.reduce((acc: number, d: any[]) => acc + d[1], 0);
       //temporary code to print no data⚠️
       if ( !data.length || !sum )
       return this.noData(this.content);
@@ -48,8 +48,10 @@ export class SimplePieComponent extends BasicWidget {
       },
       //remove labels on slices
       pie: {
-        label: {format(v: number, ratio: number, id: string) { return '' }},
-        padding: 0,
+        label: {format(v: number, ratio: number, id: string) { return ''; }}
+      },
+      color: {
+        pattern: colors
       },
       //disable clicks on legend
       legend: {

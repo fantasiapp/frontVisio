@@ -5,14 +5,21 @@ import tradeNodeConstructor from './TradeNode';
 import {Injectable} from '@angular/core';
 
 
+// peut-être à mettre dans un fichier de config
+const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
+  targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
+  enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
+  industrieAxis = ['industrie', 'industrieTarget'],
+  clientProspectAxis = ['clientProspect', 'clientProspectTarget'];
+
 class DataWidget{
   private data: any;
   private dim: number;
   constructor(
     public rowsTitles: string[],
     public columnsTitles: string[],
-    public idToI: {[key:number]: number},
-    public idToJ: {[key:number]: number}
+    public idToI: {[key:number]: number|undefined},
+    public idToJ: {[key:number]: number|undefined}
   ){
     let n = rowsTitles.length, m = columnsTitles.length;
     this.data = DataWidget.zeros(n, m);
@@ -20,41 +27,46 @@ class DataWidget{
   }
 
   addOnCase(x: number, y: number, value: number){
-    this.data[this.idToI[x]][this.idToJ[y]] += value;
+    this.data[this.idToI[x] as number][this.idToJ[y] as number] += value;
   }
 
   addOnRow(x: number, vect: number[]){
     let m = this.columnsTitles.length;
     for (let j = 0; j < m; j++)
-      this.data[this.idToI[x]][j] += vect[j];
+      this.data[this.idToI[x] as number][j] += vect[j];
   }
 
   addOnColumn(y: number, vect: number[]){
     let n = this.rowsTitles.length;
     for (let i = 0; i < n; i++)
-      this.data[i][this.idToJ[y]] += vect[i];
+      this.data[i][this.idToJ[y] as number] += vect[i];
   }
 
   get(fieldId1: number, fieldId2: number){
-    return this.data[this.idToI[fieldId1]][this.idToJ[fieldId2]];
+    return this.data[this.idToI[fieldId1] as number][this.idToJ[fieldId2] as number];
   }
 
-  // Pour le moment on ne change pas les dict iToI et iToJ, donc une fois la fonction utilisée le datawidget ne peut plus être modifié
   groupData(groupsAxe1: string[], groupsAxe2: string[], simpleFormat=false){
     groupsAxe1 = (groupsAxe1.length === 0) ? this.rowsTitles : groupsAxe1;
     groupsAxe2 = (groupsAxe2.length === 0) ? this.columnsTitles : groupsAxe2;
-    let newData: number[][] = DataWidget.zeros(groupsAxe1.length, groupsAxe2.length);
+    let newData: number[][] = DataWidget.zeros(groupsAxe1.length, groupsAxe2.length),
+      newIdToI = new Array(this.rowsTitles.length).fill(0),
+      newIdToJ = new Array(this.columnsTitles.length).fill(0);
     for (let i = 0; i < this.rowsTitles.length; i++){
       let titleRow = this.rowsTitles[i];
       for (let j = 0; j < this.columnsTitles.length; j++){
         let titleColumn = this.columnsTitles[j];
         let newI = groupsAxe1.indexOf(titleRow),
             newJ = groupsAxe2.indexOf(titleColumn);
+        newIdToI[i] = newI;
+        newIdToJ[j] = newJ;
         if (newI < 0) newI = groupsAxe1.length - 1;
         if (newJ < 0) newJ = groupsAxe2.length - 1;
         newData[newI][newJ] += this.data[i][j];
       }
     }
+    for (let [id, i] of Object.entries(this.idToI)) this.idToI[+id] = newIdToI[i as number];
+    for (let [id, j] of Object.entries(this.idToJ)) this.idToJ[+id] = newIdToJ[j as number];
     if (simpleFormat && groupsAxe1.length == 1 && groupsAxe2.length == 1){
       this.dim = 0;
       this.data = newData[0][0];
@@ -143,6 +155,7 @@ class DataWidget{
     return widgetParts;    
   }
 
+  // ça ne change pas le idToJ (pour le moment on s'en fout mais l'info peut être utile plus tard)
   private sortLines(sortFunct = ((line: number[]) => line.reduce((acc: number, value: number) => acc + value, 0))){
     let coupleList: [string, number[]][] = [];
     for (let i = 0; i < this.rowsTitles.length; i ++)
@@ -155,20 +168,19 @@ class DataWidget{
   
   private removeZeros(){
     let n = this.rowsTitles.length,
-      m = this.columnsTitles.length;
-    let newData: number[][] = [];
-    let realLinesIndexes: number[] = [];
-    let realColumnsIndexes: number[] = [];
-    let i = 0;
+      m = this.columnsTitles.length,
+      newData: number[][] = [],
+      realLinesIndexes: number[] = [],
+      realColumnsIndexes: number[] = [];
     for (let i = 0; i < n; i++){
       let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
+      if (lineNull) this.idToI[i] = undefined;
       if (!lineNull) realLinesIndexes.push(i);        
     }
-    for (let _ in realLinesIndexes){
-      newData.push([]);
-    }
+    for (let _ in realLinesIndexes) newData.push([]);
     for (let j = 0; j < m; j++){
-      let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] === 0), true)
+      let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] === 0), true);
+      if (colNull) this.idToJ[j] = undefined;
       if (!colNull){
         realColumnsIndexes.push(j)
         for (let i = 0; i < realLinesIndexes.length; i++){
@@ -176,6 +188,8 @@ class DataWidget{
         }
       }
     }
+    for (let [id, i] of Object.entries(this.idToI)) if (i != undefined) this.idToI[+id] = realLinesIndexes.indexOf(i);
+    for (let [id, j] of Object.entries(this.idToJ)) if (j != undefined) this.idToJ[+id] = realColumnsIndexes.indexOf(j);
     this.data = newData;
     this.rowsTitles = realLinesIndexes.map(index => this.rowsTitles[index]);
     this.columnsTitles = realColumnsIndexes.map(index => this.columnsTitles[index]);
@@ -191,11 +205,12 @@ class DataWidget{
   getSum(){
     if (this.dim === 0) return Math.round(this.data);
     if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
-    return Math.round(
-      this.data.reduce((acc:number, list:number[]) => acc + list.reduce((acc:number, value:number) => acc + value, 0), 0));
+    let sumCols = new Array(this.columnsTitles.length).fill(0);
+    for(let j = 0; j < this.columnsTitles.length; j++) 
+      sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
+    return sumCols
   }
 
-  // juste pour le debug
   getData(){
     return this.data;
   }
@@ -229,6 +244,7 @@ export class PDV{
     return this.instances;
   }
 
+  // Il faudra penser à delete la requête de la ram après l'avoir utilisée
   static load(loadTrees = true){
     this.createIndexMapping();
     for (let [id, data] of Object.entries(DataExtractionHelper.get('pdvs'))){
@@ -265,8 +281,8 @@ export class PDV{
   }
   
   private static loadTrees(){
-    this.geoTree = new Tree(DataExtractionHelper.getGeoTree(), navigationNodeConstructor);
-    this.tradeTree = new Tree(DataExtractionHelper.getTradeTree(), tradeNodeConstructor);
+    this.geoTree = new Tree(DataExtractionHelper.get('geoTree'), navigationNodeConstructor);
+    this.tradeTree = new Tree(DataExtractionHelper.get('tradeTree'), tradeNodeConstructor);
   }
   
   readonly sales: Sale[];
@@ -293,7 +309,7 @@ export class PDV{
 
   private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
     if (enduit){
-      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('segmentDnEnduitTarget'))): Object.values(DataExtractionHelper.get(('segmentDnEnduitTarget'))),
+      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')): Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')),
         associatedIndex :{[key: string]: number}= {};
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
@@ -403,13 +419,7 @@ export class PDV{
   }
 
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[]){
-    // peut-être à mettre dans un fichier de config
-    let nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
-      targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
-      enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
-      industrieAxis = ['industrie', 'industrieTarget'],
-      clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
-      irregular: string = 'no';
+    let irregular: string = 'no';
     if (nonRegularAxis.includes(axis1)) irregular = 'line';
     else if (nonRegularAxis.includes(axis2)) irregular = 'col';
     let byIndustries, enduit, clientProspect, target;
@@ -551,13 +561,54 @@ export class PDV{
 class SliceDice{
   constructor(){ console.log('[SliceDice]: on'); }
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose = false){
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), percent:string, transpose=false, target=false){
+    let colors: undefined;
+    console.log('--->', groupsAxis1, groupsAxis2);
+    if (typeof(groupsAxis1) === 'number'){
+      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
+       groupsAxis1 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
+       colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+    }
+    if (typeof(groupsAxis2) === 'number'){
+      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis2][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
+       groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
+       colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+    }
+    console.log('--->', groupsAxis1, groupsAxis2);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
+    console.log(dataWidget.rowsTitles, dataWidget.columnsTitles);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
-    dataWidget.groupData(groupsAxis1, groupsAxis2, true);
+    dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
-    return {data: dataWidget.formatWidget(transpose), sum: dataWidget.getSum()};
+    let rodPosition = undefined;
+    let sum = dataWidget.getSum();
+    if (target){
+      let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
+      let targetName:string;
+      if (indicator == 'dn' && finition) targetName = "dnFinition";
+      else if (indicator == 'dn') targetName = "dnP2CD";
+      else if (finition) targetName = "volFinition";
+      else targetName = "volP2CD";
+      if(typeof(sum) == 'number'){
+        let targetValue:number;      
+        if (Object.keys(slice).length == 0) targetValue = DataExtractionHelper.getTarget("", 0, targetName);
+        else{
+          let listSlice = Object.entries(slice) as [string, number][];
+          let relevantLevel: [string, number] = listSlice[listSlice.length - 1]; //On considère que le dernier niveau est en dernier
+          targetValue = DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], targetName);
+        }
+        rodPosition = 2 * Math.PI * targetValue / sum;
+      } else{
+        rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
+        let agentIds = new Array(dataWidget.columnsTitles.length).fill(0);
+        for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) agentIds[j] = id;
+        let targetValues = DataExtractionHelper.getListTarget(agentIds, targetName);
+        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = targetValues[i] / sum[i];
+      }
+    }
+    if (typeof(sum) !== 'number') sum = 0;
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors};
   }
 };
 
