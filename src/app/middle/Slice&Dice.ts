@@ -198,8 +198,7 @@ class DataWidget{
   getSum(){
     if (this.dim === 0) return Math.round(this.data);
     if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
-    return Math.round(
-      this.data.reduce((acc:number, list:number[]) => acc + list.reduce((acc:number, value:number) => acc + value, 0), 0));
+    return this.data.array.forEach(function (element:number[]){Math.round(element.reduce((acc:number, value:number) => acc + value, 0))});
   }
 
   // juste pour le debug
@@ -568,14 +567,14 @@ class SliceDice{
       else if (indicator == 'dn') targetName = "dnP2CD";
       else if (finition) targetName = "volFinition";
       else targetName = "volP2CD";
-      let target:number;      
-      if (Object.keys(slice).length == 0) target = DataExtractionHelper.getTarget("", 0, targetName);
+      let targetValue:number;      
+      if (Object.keys(slice).length == 0) targetValue = DataExtractionHelper.getTarget("", 0, targetName);
       else{
         let listSlice = Object.entries(slice) as [string, number][];
         let relevantLevel: [string, number] = listSlice[listSlice.length - 1]; //On considère que le dernier niveau est en dernier
-        target = DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], targetName);
+        targetValue = DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], targetName);
       }
-      rodPosition = 2 * Math.PI * target / sum;
+      rodPosition = 2 * Math.PI * targetValue / sum;
     }
     return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition};
   }
