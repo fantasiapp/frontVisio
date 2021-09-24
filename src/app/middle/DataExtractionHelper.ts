@@ -77,6 +77,8 @@ class DataExtractionHelper{
   static INDUSTRIE_SALSI_ID: any;
   static INDUSTRIE_PREGY_ID: any;
   static INDUSTRIE_SINIAT_ID: any;
+  static AXISFORGRAHP_LABELS_ID: number;
+  static LABELFORGRAPH_LABEL_ID: number;
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -105,6 +107,8 @@ class DataExtractionHelper{
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
     this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
     this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
+    this.AXISFORGRAHP_LABELS_ID = this.data["structureAxislForGraph"].indexOf("labels");
+    this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelForGraph"].indexOf('label');
 
     
     //trades have less info that geo
