@@ -83,6 +83,15 @@ export class Navigation{
     return this.currentLevel?.parent;
   }
 
+  childrenHaveSameDashboard(): boolean {
+    let dashboardId = this.currentDashboard!.id;
+    let child = this.currentLevel!.children[0];
+    let nextDashboard = child.dashboards.find(
+      (dashboard) => dashboard.id == dashboardId
+    );
+    return nextDashboard ? true : false;
+  }
+
   setCurrent(
     levelId?: number,
     dashboardId?: number,

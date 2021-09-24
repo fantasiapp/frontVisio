@@ -76,17 +76,16 @@ export class GaugeComponent extends BasicWidget {
       },
       ...opt
     });
-    
   }
 
   updateGraph(data: any[]) {
     let names = ['Généralistes', 'Multi Spécialistes', 'Purs Spécialistes', 'Autres'];
     this.schedule.queue(() => {
-      let newIds = [names[4*Math.random() | 0]];
-      let oldIds = this.chart!.data().map((d: any) => d.id);
+      let newId = names[4*Math.random() | 0];
+      let oldId = this.chart!.data()[0].id;
       this.chart?.load({
-        columns: [[newIds[0], Math.random()*100 | 0]],
-        unload: oldIds.filter(x => !newIds.includes(x)),
+        columns: [[newId, Math.random()*100 | 0]],
+        unload: newId == oldId ? false : [oldId],
         done: () => {
           this.schedule.emit();
         }
