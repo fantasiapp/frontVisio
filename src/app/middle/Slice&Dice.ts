@@ -558,7 +558,7 @@ class SliceDice{
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1, groupsAxis2, true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
-    let rodPosition = 0;
+    let rodPosition = undefined;
     let sum = dataWidget.getSum()
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
