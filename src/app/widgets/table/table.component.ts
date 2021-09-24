@@ -7,6 +7,7 @@ import { BasicWidget } from '../BasicWidget';
 import { MOCK_DATA } from './MOCK';
 import 'ag-grid-enterprise';
 import { ICellRendererParams } from 'ag-grid-community';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-table',
@@ -21,7 +22,8 @@ export class TableComponent extends BasicWidget {
 
   //Navigation menu
   navOpts: any;
-  
+  currentOpt: any;
+
   //Columns
   defaultColDef: any;
   columnDefs: any;
@@ -39,12 +41,17 @@ export class TableComponent extends BasicWidget {
   onGridReady = (params: any) => {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
+    this.gridObservable.subscribe(() => {
+      this.updateGraph(this.updateData());
+      })
   }
+  gridObservable = new Observable();
+  gridObserver = {next: ()=>{}};
+  gridReady = false;
 
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
     super(ref, filtersService, sliceDice);
-
     this.defaultColDef = {
       flex: 1,
       editable: false,
@@ -53,13 +60,19 @@ export class TableComponent extends BasicWidget {
     };
     this.groupDisplayType = 'groupRows';
     this.groupDefaultExpanded = -1;
+    this.currentOpt = 'enseigne';
+  }
+
+  
+  protected start(): void {
+    this.gridObservable = new Observable((observer) => {
+      observer.next()
+    })
   }
 
   updateData(): any[] {
-    console.log("[TableComponent] updateData()");
-    console.log("Slice : ", PDV.sliceTree(this.path))
     let args: any[] = this.properties.arguments;
-    return this.sliceTable.getData();
+    return this.sliceTable.getData(this.path);
   }
 
   createGraph(data: any[]): void { //abstract in BasicWidgets
@@ -70,51 +83,16 @@ export class TableComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]): void {
-    this.schedule.queue(() => {
-      console.log("[TableComponent] updateGraph() with the schedule queue");
-    })
-    // this.schedule.emit();
+    this.gridApi.setColumnDefs(data[0]);
+    this.gridApi.setRowData(data[1]);
+    this.navOpts = data[2];
+    this.titleData = data[3];
+    this.updateGroups(this.currentOpt);
   }
 
   updateGroups(id: string) {
-    var columnDefs = this.gridApi.getColumnDefs();
-    let navIds = MOCK_DATA.getNavIds();
-
-    for(let colDef of columnDefs) {
-      if(navIds.includes(colDef.field)) {
-        colDef.rowGroup = false;
-      }
-      if(colDef.field === id) {
-        colDef.rowGroup = true;
-      }
-
-    }
-    this.columnDefs = columnDefs;
-  }
-
-}
-
-@Component({
-  selector: 'total-value-component',
-  template: `
-        <span>
-            {{cellValue}}
-        </span>
-            `
-})
-class CellRendererComponent {
-  params?: ICellRendererParams;
-  cellValue: string = 'Group Renderer';
-
-
-  // gets called once before the renderer is used
-  agInit(params: any) {
-      this.params = params;
-  }
-
-  // gets called whenever the cell refreshes
-  refresh(params: ICellRendererParams) {
-      this.cellValue = "Refreshed"
+    this.currentOpt = id;
+    this.columnDefs = this.sliceTable.getGroupsData(id);
   }
 
 }

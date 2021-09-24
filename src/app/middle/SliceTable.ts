@@ -1,40 +1,53 @@
 import { Injectable } from "@angular/core";
 import DataExtractionHelper from "./DataExtractionHelper";
 import { MOCK_DATA } from "../widgets/table/MOCK";
+import { PDV } from "./Slice&Dice";
 
 @Injectable()
 export class SliceTable {
     private pdvs: any;
     private pdvFields: string[];
+    private columnData: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
+    private navigationIds;
     private navigationOptions: {id: any, name: any}[] = [];
-    private enseigne: {[key: number]: string} = {};
-    private segmentMarketing: {[key: number]: string} = {};
     private titleData: number[] = [0,0,0];
 
     constructor(){
         this.pdvs = DataExtractionHelper.get('pdvs')
-        this.pdvFields = DataExtractionHelper.getPDVFields();
+        this.pdvFields = DataExtractionHelper.get('structurePdv');
+        this.navigationIds = MOCK_DATA.getNavIds();
         this.navigationOptions = MOCK_DATA.getNavOpts();
-        this.enseigne = DataExtractionHelper.get('enseigne')
-        this.segmentMarketing = DataExtractionHelper.get('segmentMarketing')
+    
+        //Get columnData, to match id values in pdv to string values
+        for(let field of this.pdvFields) {
+            this.columnData[field] = DataExtractionHelper.get(field);
+        }
     }
 
     getPdvs(slice: any = {}): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
+        if (slice !== {}){
+            this.pdvs = []
+            let allPdvs = DataExtractionHelper.get('pdvs');
+            let selectedPdvs = PDV.sliceTree(slice)[0]
+            for(let pdvInfo of selectedPdvs) {
+                this.pdvs.push(allPdvs[pdvInfo.id]);
+            }
+        }
         let pdvsAsList =  [];
-        for (let key of Object.keys(this.pdvs)) {
-            var pdv: {[key:string]:any} = {};
-            for( let iter = 0; iter < this.pdvFields.length; iter++) {
-                if(this.pdvFields[iter] === 'enseigne') {
-                    pdv['enseigne'] = this.enseigne[this.pdvs[key][iter]];
-                } else if(this.pdvFields[iter] === 'segmentMarketing') {
-                    pdv['segmentMarketing'] = this.segmentMarketing[this.pdvs[key][iter]];
+        for (let pdv of this.pdvs){
+            var newPdv: {[key:string]:any} = {};
+            for(let iter = 0; iter < this.pdvFields.length; iter ++){
+                if(this.columnData[this.pdvFields[iter]]) {
+                    newPdv[this.pdvFields[iter]] = this.columnData[this.pdvFields[iter]][pdv[iter]]
                 } else {
-                    pdv[this.pdvFields[iter]] = this.pdvs[key][iter]; 
+                    newPdv[this.pdvFields[iter]] = pdv[iter];
                 }
             }
-            pdvsAsList.push(pdv)
+
+            pdvsAsList.push(newPdv)
         }
+        console.log(pdvsAsList[0])
         return pdvsAsList;
     }
 
@@ -50,7 +63,6 @@ export class SliceTable {
             }
             columnDefs.push(column);
         }
-        columnDefs[11].rowGroup = true; //ça c'est moche
         this.columnDefs = columnDefs;
         return this.columnDefs;
     }
@@ -62,26 +74,32 @@ export class SliceTable {
     getTitleData() { // calculs are done in getPdvs, to browse only once the table
         this.titleData[0] = Object.keys(this.pdvs).length;
         this.titleData[1] = 2006;
-        this.titleData[3] = 6316;
+        this.titleData[2] = 6316;
         return this.titleData;
     }
 
     getData(slice: any = {}): {}[][]{
-        // let data: {
-        //     columnDefs: {}[];
-        //     rowData: {[key:string]:any}[];
-        // } = {columnDefs: [], rowData: []};
-        // data.rowData = this.getPdvs();
         let data: {}[][] = [];
         data.push(this.getColumnDefs());
-        data.push(this.getPdvs());
+        data.push(this.getPdvs(slice));
         data.push(this.getNavOpts());
         data.push(this.getTitleData());
         return data;
     }
 
-    getGroupsData() {
-
+    getGroupsData(id: string) {
+        let newColumnDefs = []
+        for(let colDef of this.columnDefs) {
+            if(this.navigationIds.includes(colDef.field)) {
+                colDef.rowGroup = false;
+            }
+            if(colDef.field === id) {
+                colDef.rowGroup = true;
+            }
+            newColumnDefs.push(colDef);
+        }
+        this.columnDefs = newColumnDefs;
+        return newColumnDefs;
     }
     
 }
