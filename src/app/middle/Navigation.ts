@@ -65,6 +65,7 @@ export class Navigation{
       dashboard: {
         id: currentDashboard.id,
         name: currentDashboard.name,
+        description: currentDashboard.description,
         grid: currentDashboard.grid,
         template: currentDashboard.template,
         areas: currentDashboard.areas
@@ -121,5 +122,9 @@ export class Navigation{
     } else{
       console.warn('[Navigation.ts -- setCurrent]: nothing to do.');
     }
+  }
+
+  getCurrentYear(){
+    return DataExtractionHelper.get('params')["currentYear"];
   }
 }

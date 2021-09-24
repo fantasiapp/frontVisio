@@ -44,7 +44,7 @@ export class HistoColumnComponent extends BasicWidget {
         grouped: false,
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           return `
-            <div class="historow-tooltip tooltip">
+            <div class="histocolumn-tooltip tooltip">
               ${d.map((data: any) => `
                 <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               `).join('<br/>')}

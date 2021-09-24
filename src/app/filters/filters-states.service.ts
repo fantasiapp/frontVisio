@@ -51,6 +51,7 @@ export class FiltersStatesService {
         grid: ["1", "1"] as [string, string],
         areas: {x: null},
         template: 'x',
+        description: ''
       },
       path: []
     },
@@ -77,6 +78,10 @@ export class FiltersStatesService {
       name: [],      
     },
   });
+
+  public getYear() {
+    return this.navigation.getCurrentYear();
+  };
 
   public updateState(
     levelId?: number,
