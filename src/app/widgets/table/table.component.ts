@@ -4,7 +4,6 @@ import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
-import { MOCK_DATA } from './MOCK';
 import 'ag-grid-enterprise';
 import { ICellRendererParams } from 'ag-grid-community';
 import { Observable, of } from 'rxjs';
@@ -19,6 +18,9 @@ export class TableComponent extends BasicWidget {
 
   private content!: ElementRef;
   titleData: number[] = [0,0,0];
+
+  //p2cd or enduit
+  type: string = '';
 
   //Navigation menu
   navOpts: any;
@@ -42,13 +44,11 @@ export class TableComponent extends BasicWidget {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
+      this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
       })
   }
   gridObservable = new Observable();
-  gridObserver = {next: ()=>{}};
-  gridReady = false;
-
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
     super(ref, filtersService, sliceDice);
@@ -60,7 +60,7 @@ export class TableComponent extends BasicWidget {
     };
     this.groupDisplayType = 'groupRows';
     this.groupDefaultExpanded = -1;
-    this.currentOpt = 'enseigne';
+    this.type = 'p2cd' //FIX IT ASAP
   }
 
   
@@ -71,15 +71,7 @@ export class TableComponent extends BasicWidget {
   }
 
   updateData(): any[] {
-    let args: any[] = this.properties.arguments;
-    return this.sliceTable.getData(this.path, this.currentOpt);
-  }
-
-  createGraph(data: any[]): void { //abstract in BasicWidgets
-    this.columnDefs = data[0];
-    this.rowData = data[1];
-    this.navOpts = data[2];
-    this.titleData = data[3];
+    return this.sliceTable.getData(this.path, this.currentOpt, this.type);
   }
 
   updateGraph(data: any[]): void {
@@ -91,7 +83,12 @@ export class TableComponent extends BasicWidget {
 
   updateGroups(id: string) {
     this.currentOpt = id;
-    this.gridApi.setColumnDefs(this.sliceTable.getColumnDefs(id));
+    this.gridApi.setColumnDefs(this.sliceTable.getColumnDefs(this.type, id));
   }
+
+  createGraph(data: any[], opt?: {}): void {
+    throw new Error('Method not implemented.');
+  }
+
 
 }

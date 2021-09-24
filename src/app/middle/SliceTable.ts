@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import DataExtractionHelper from "./DataExtractionHelper";
-import { MOCK_DATA } from "../widgets/table/MOCK";
 import { PDV } from "./Slice&Dice";
 
 @Injectable()
@@ -9,15 +8,30 @@ export class SliceTable {
     private pdvFields: string[];
     private columnData: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
-    private navigationIds;
     private navigationOptions: {id: any, name: any}[] = [];
     private titleData: number[] = [0,0,0];
 
+    //type : 'p2cd' or 'enduit'
+    private navIds: {[type: string]: string[]} = {
+        'p2cd': ['enseigne', 'available', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
+        'enduit': []
+    }
+    private navNames: {[type: string]: string[]} = {
+        'p2cd': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
+        'enduit': []
+    }
+    private visibleColumns: {[type: string]: string[]} = {
+        'p2cd': ['name', 'siniatSells', 'totalSells'],
+        'enduit':  []
+    }
+    private specificColumns: {[type: string]: string[]} = {
+        'p2cd': ['siniatSells', 'totalSells'],
+        'enduit':  []
+    }
+    
     constructor(){
         this.pdvs = DataExtractionHelper.get('pdvs')
         this.pdvFields = DataExtractionHelper.get('structurePdv');
-        this.navigationIds = MOCK_DATA.getNavIds();
-        this.navigationOptions = MOCK_DATA.getNavOpts();
     
         //Get columnData, to match id values in pdv to string values
         for(let field of this.pdvFields) {
@@ -71,13 +85,12 @@ export class SliceTable {
             pdvsAsList.push(newPdv)
         }
         this.titleData[0] = Object.keys(this.pdvs).length;
-        console.log("Ex : ", pdvsAsList[2])
         return pdvsAsList;
     }
 
-    getColumnDefs(rowGroupId?: string): {}[]{ // !!! A bit hardcoded : specific to p2CDtable
-        let visibleColumns = MOCK_DATA.getP2cdVisibleColumns();
-        let allColumns = this.pdvFields.concat(MOCK_DATA.getP2cdSpecificColumns());
+    getColumnDefs(type: string, rowGroupId?: string): {}[]{ // !!! A bit hardcoded : specific to p2CDtable
+        let visibleColumns = this.visibleColumns[type];
+        let allColumns = this.pdvFields.concat(this.specificColumns[type]);
         let columnDefs: {[key:string]: any}[] = [];
 
         for(let field of allColumns) {
@@ -95,25 +108,35 @@ export class SliceTable {
         return this.columnDefs;
     }
 
-    getNavOpts() {
-        return this.navigationOptions;
+    getNavIds(type: string): string[] {
+        return this.navIds[type];
+    }
+
+    getNavOpts(type: string): {id: any, name: any}[] {
+        let array: {id: any, name: any}[] = []
+        let navIds = this.navIds[type];
+        let navNames = this.navNames[type];
+        for(let i=0; i<navIds.length; i++) {
+            array.push({id: navIds[i], name: navNames[i]})
+        }
+        return array;
     }
 
     getTitleData() { // calculs are done in getPdvs, to browse only once the table
         return this.titleData;
     }
 
-    getData(slice: any = {}, rowGroupId: string): {}[][]{
+    getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];
-        data.push(this.getColumnDefs(rowGroupId));
+        data.push(this.getColumnDefs(type, rowGroupId));
         data.push(this.getPdvs(slice));
-        data.push(this.getNavOpts());
+        data.push(this.getNavOpts(type));
         data.push(this.getTitleData());
         return data;
     }
 
-    getGroupsData(id: string) {
-        return this.getColumnDefs(id);
+    getGroupsData(type: string, id: string) {
+        return this.getColumnDefs(type, id);
     }
     
 }
