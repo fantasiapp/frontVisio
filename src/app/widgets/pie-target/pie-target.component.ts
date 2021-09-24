@@ -21,7 +21,6 @@ export class PieTargetComponent extends SimplePieComponent {
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
-    this.properties.target = 0;
   }
 
   createGraph(data: any) {
@@ -92,6 +91,11 @@ export class PieTargetComponent extends SimplePieComponent {
   updateGraph(data: any[]) {
     super.updateGraph(data);
     this.updateNeedle(data);
+  }
+
+  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+    let args: any[] = this.properties.arguments;
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private getNeedleGroup() {

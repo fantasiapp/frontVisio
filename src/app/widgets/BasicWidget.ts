@@ -65,19 +65,21 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     });
   }
 
+  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+    let args: any[] = this.properties.arguments;
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, false];
+  }
+
   updateData(): {} {
     this.chart?.tooltip.hide();
-    let args: any[] = this.properties.arguments;
-    let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, this.properties.target !== undefined);
+    let data = this.sliceDice.getWidgetData(...this.getDataArguments());
   
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
     if ( this.dynamicDescription || this.properties.description == '@sum' ) {
       this.dynamicDescription = true;
       this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
       d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
-    };
-
-    return data;
+    }; return data;
   }
 
   ngOnDestroy() {

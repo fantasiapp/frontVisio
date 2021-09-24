@@ -22,7 +22,6 @@ export class HistoRowComponent extends BasicWidget {
   }
 
   createGraph({data}: any, opt: {} = {}) {
-    console.log(data);
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
@@ -118,17 +117,8 @@ export class HistoRowComponent extends BasicWidget {
     });
   } 
 
-  updateData(): any {
-    this.chart?.tooltip.hide();
-
+  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
     let args: any[] = this.properties.arguments;
-    let data = this.sliceDice.getWidgetData(this.path, args[0], args[1], args[2], args[3], args[4], args[5], true);
-    // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
-    if ( this.dynamicDescription || this.properties.description == '@sum' ) {
-      this.dynamicDescription = true;
-      this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
-      d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
-    }
-    return data;
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], true, false];
   }
 }
