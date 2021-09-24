@@ -211,7 +211,6 @@ class DataWidget{
     return sumCols
   }
 
-  // juste pour le debug
   getData(){
     return this.data;
   }
@@ -245,6 +244,7 @@ export class PDV{
     return this.instances;
   }
 
+  // Il faudra penser à delete la requête de la ram après l'avoir utilisée
   static load(loadTrees = true){
     this.createIndexMapping();
     for (let [id, data] of Object.entries(DataExtractionHelper.get('pdvs'))){
@@ -561,12 +561,25 @@ export class PDV{
 class SliceDice{
   constructor(){ console.log('[SliceDice]: on'); }
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:string[], groupsAxis2:string[], percent:string, transpose=false, target=false){
-    console.log(slice);
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), percent:string, transpose=false, target=false){
+    let colors: undefined;
+    console.log('--->', groupsAxis1, groupsAxis2);
+    if (typeof(groupsAxis1) === 'number'){
+      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
+       groupsAxis1 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
+       colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+    }
+    if (typeof(groupsAxis2) === 'number'){
+      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis2][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
+       groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
+       colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+    }
+    console.log('--->', groupsAxis1, groupsAxis2);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
+    console.log(dataWidget.rowsTitles, dataWidget.columnsTitles);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
-    dataWidget.groupData(groupsAxis1, groupsAxis2, true);
+    dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined;
     let sum = dataWidget.getSum();
@@ -595,7 +608,7 @@ class SliceDice{
       }
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition};
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors};
   }
 };
 
