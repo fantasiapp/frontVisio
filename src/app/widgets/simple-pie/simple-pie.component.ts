@@ -21,7 +21,7 @@ export class SimplePieComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph({data}: {data: any[]}, opt: {} = {}) {
+  createGraph({data, colors}: {data: any[], colors?: string[]}, opt: {} = {}) {
     let sum = data.reduce((acc: number, d: any[]) => acc + d[1], 0);
       //temporary code to print no data⚠️
       if ( !data.length || !sum )
@@ -49,6 +49,9 @@ export class SimplePieComponent extends BasicWidget {
       //remove labels on slices
       pie: {
         label: {format(v: number, ratio: number, id: string) { return ''; }}
+      },
+      color: {
+        pattern: colors
       },
       //disable clicks on legend
       legend: {

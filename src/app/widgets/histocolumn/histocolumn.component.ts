@@ -22,7 +22,7 @@ export class HistoColumnComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph({data}: any, opt: {} = {}) {
+  createGraph({data, colors}: any, opt: {} = {}) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
@@ -55,6 +55,9 @@ export class HistoColumnComponent extends BasicWidget {
       },
       bar: {
         sensitivity: 10
+      },
+      color: {
+        pattern: colors
       },
       axis: {
         x: {

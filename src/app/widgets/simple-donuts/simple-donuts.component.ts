@@ -20,7 +20,7 @@ export class SimpleDonutComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph({data}: any, opt: {} = {}) {
+  createGraph({data, colors}: any, opt: {} = {}) {
     let sum = data.reduce((acc: number, d: any[]) => acc + d[1], 0);
     //temporary code to print no data⚠️
     if ( !data.length || !sum )
@@ -48,6 +48,9 @@ export class SimpleDonutComponent extends BasicWidget {
       //remove labels on slices
       donut: {
         label: {format(v: number, ratio: number, id: string) { return '' }}
+      },
+      color: {
+        pattern: colors
       },
       //disable clicks on legend
       legend: {
