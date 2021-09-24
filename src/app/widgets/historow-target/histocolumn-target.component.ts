@@ -79,7 +79,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     
     //n * width + 2*(n-1)*offset = mainRect.width
     offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
-    offsetY = (gridRect.height - mainRect.height) + 1.5;
+    offsetY = (gridRect.height - mainRect.height) + 2;
 
     this.needles = main.append('g')
       .classed('simple-needle', true);
