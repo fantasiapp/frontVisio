@@ -65,6 +65,7 @@ export class Navigation{
       dashboard: {
         id: currentDashboard.id,
         name: currentDashboard.name,
+        description: currentDashboard.description,
         grid: currentDashboard.grid,
         template: currentDashboard.template,
         areas: currentDashboard.areas
