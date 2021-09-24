@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
-import bb, {pie} from 'billboard.js';
+import bb, {pie, selection} from 'billboard.js';
 
 @Component({
   selector: 'app-simple-pie',
@@ -48,8 +48,7 @@ export class SimplePieComponent extends BasicWidget {
       },
       //remove labels on slices
       pie: {
-        label: {format(v: number, ratio: number, id: string) { return '' }},
-        padding: 0,
+        label: {format(v: number, ratio: number, id: string) { return ''; }}
       },
       //disable clicks on legend
       legend: {
