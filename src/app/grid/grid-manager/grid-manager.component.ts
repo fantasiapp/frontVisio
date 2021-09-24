@@ -5,7 +5,8 @@ import { WidgetManagerService } from '../widget-manager.service';
 type WidgetParams = [string, string, string, string[], string[], boolean];
 export type Widget= [string, string, string, string, WidgetParams];
 export interface Layout {
-  grid: [string, string],
+  grid: [string, string];
+  description: string;
   template: string;
   areas: {[key:string]: Widget | null}
 };
@@ -103,6 +104,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
 const defaultLayout: Layout = {
   grid: ['1', '1'],
+  description: 'default dashboard',
   template: `x`,
   areas: {'x': ['<title>', '<description>', 'm','default', [
     "segmentMarketing", "segmentCommercial", "dn",

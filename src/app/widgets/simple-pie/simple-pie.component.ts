@@ -21,7 +21,7 @@ export class SimplePieComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any[], opt: {} = {}) {
     let sum = data.reduce((acc, d) => acc + d[1], 0);
       //temporary code to print no data⚠️
       if ( !data.length || !sum )
@@ -50,7 +50,6 @@ export class SimplePieComponent extends BasicWidget {
       pie: {
         label: {format(v: number, ratio: number, id: string) { return '' }},
         padding: 0,
-        startingAngle: 0
       },
       //disable clicks on legend
       legend: {
@@ -66,7 +65,9 @@ export class SimplePieComponent extends BasicWidget {
       },
       transition: {
         duration: 250
-      }
+      },
+      // add opt
+      ...opt
     });
   }
 }

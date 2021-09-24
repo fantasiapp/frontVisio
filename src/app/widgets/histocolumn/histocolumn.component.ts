@@ -22,7 +22,7 @@ export class HistoColumnComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any[], opt: {} = {}) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
       return this.noData(this.content);
@@ -44,7 +44,7 @@ export class HistoColumnComponent extends BasicWidget {
         grouped: false,
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           return `
-            <div class="historow-tooltip tooltip">
+            <div class="histocolumn-tooltip tooltip">
               ${d.map((data: any) => `
                 <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               `).join('<br/>')}
@@ -63,6 +63,7 @@ export class HistoColumnComponent extends BasicWidget {
             fit: true,
           },
           tick: {
+            autorotate: true,
             format(index: number, category: string) {
               if ( index < this.categories().length )
                 return category;
@@ -85,7 +86,8 @@ export class HistoColumnComponent extends BasicWidget {
       },
       transition: {
         duration: 250
-      }
+      },
+      ...opt
     });
   }
 

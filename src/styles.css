@@ -118,7 +118,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 /* histograms automatically lower the tooltip */
 .historow-tooltip {
-    transform: translate(-10px, 0);
+    transform: translate(10px, 0);
 }
 
 /* histograms automatically lower the tooltip */
@@ -183,7 +183,17 @@ app-historow .bb-xgrid {
 .ag-theme-alpine .ag-row.ag-row-level-0 {
     background-color: #F06D0C;
     color: white;
-  }
+}
+
+g.simple-needle {
+    pointer-events: none;
+    transform-origin: 0 0;
+    transition: transform 30ms ease-in-out 0s;
+}
+
 g.simple-needle line {
     transition: transform 250ms ease-out 0s;
+    stroke: yellow;
+    stroke-width: 3px;
+    stroke-linecap: round;
 }

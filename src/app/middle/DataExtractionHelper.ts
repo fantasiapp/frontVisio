@@ -31,29 +31,22 @@ const clientProspect = {
 }
 
 const clientProspectTarget = {
-  1: "Client",
-  2: "Prospect",
-  3: "Non documenté",
   4: "Potentiel ciblé"
 }
 
 const segmentDnEnduitTarget = {
-  1: "Pur prospect",
-  2: "P2CD + Enduit",
-  3: "Enduit hors P2CD",
   4: "Cible Pur Prospect",
   5: "Cible P2CD"
 }
 
 const enduitIndustrieTarget = {
-  1: "Salsi", 
-  2: "Pregy", 
-  3: "Croissance", 
-  4: "Conquête",
   5: "Cible Croissance",
   6: "Cible Conquête"
 };
 
+const industrieTarget = {
+  0: 'Potentiel'
+}
 const colTableP2cd = {
   1: "brand",
   2: "clientOrProspect",
@@ -76,6 +69,7 @@ class DataExtractionHelper{
   static DASHBOARD_LAYOUT_INDEX: number;
   static DASHBOARD_WIDGET_INDEX: number;
   static DASHBOARD_NAME_INDEX: number;
+  static DASHBOARD_COMMENT_INDEX: number;
   static WIDGETPARAMS_WIDGET_INDEX: number;
   static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
   static INDUSTRIE_SALSI_ID: any;
@@ -103,6 +97,7 @@ class DataExtractionHelper{
     this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
     this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
     this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
+    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboard'].indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetParam'].indexOf('widgetCompute');
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
@@ -201,15 +196,14 @@ class DataExtractionHelper{
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
     if (field == 'paramsCompute') return paramsCompute;
     if (field == 'clientProspect') return clientProspect;
-    if (field == 'clientProspectTarget') return clientProspectTarget;
-    if (field == 'segmentDnEnduitTarget') return segmentDnEnduitTarget;
-    if (field == 'enduitIndustrieTarget') return enduitIndustrieTarget;
-    if (field == 'colTableP2cd') return colTableP2cd;
-    if (field == 'industrieTarget'){
-      let industries = this.data[field];
-      industries.set('0', 'Potentiel');
-      return industries
-    }    
+    if (field == 'clientProspectTarget')
+      return Object.assign({}, clientProspect, clientProspectTarget);
+    if (field == 'segmentDnEnduitTarget') 
+      return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget);
+    if (field == 'enduitIndustrieTarget') 
+      return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
+    if (field == 'industrieTarget')
+      return Object.assign({}, this.data['industrie'], industrieTarget); 
     return this.data[field];
   }
 
