@@ -57,14 +57,6 @@ const colTableP2cd = {
   7: "totalSells"
 }
 
-const segmentMarketing = {
-  "4": "Autres",
-  "5": "Ferm\u00e9",
-  "3": "G\u00e9n\u00e9raliste",
-  "2": "Multi sp\u00e9cialistes",
-  "1": "Purs sp\u00e9cialistes"
-}
-
 //Will have to make this non static one day
 class DataExtractionHelper{  
   static data: any;
@@ -190,7 +182,6 @@ class DataExtractionHelper{
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
     if (field == 'paramsCompute') return paramsCompute;
     if (field == 'clientProspect') return clientProspect;
-    if (field == 'segmentMarketing') return segmentMarketing;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 
