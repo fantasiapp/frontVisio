@@ -41,7 +41,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     });
   }
 
-  private start(): void {
+  protected start(): void {
     let data = this.updateData();
     //used to wait for css to render components correctly <--> needs investigation   v
     requestAnimationFrame((_: any) => {

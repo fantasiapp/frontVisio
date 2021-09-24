@@ -39,7 +39,7 @@ export class SliceTable {
     }
 
     getColumnDefs(): {}[]{
-        let columnDefs: {}[] = [];
+        let columnDefs: {[key:string]: any}[] = [];
         let visibleColumns = MOCK_DATA.getVisibleColumns();
 
         for (let field of this.pdvFields) {
@@ -50,8 +50,8 @@ export class SliceTable {
             }
             columnDefs.push(column);
         }
+        columnDefs[11].rowGroup = true; //ça c'est moche
         this.columnDefs = columnDefs;
-        console.log("ColumnDefs : ", this.columnDefs)
         return this.columnDefs;
     }
 
