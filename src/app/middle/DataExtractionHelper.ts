@@ -60,6 +60,7 @@ class DataExtractionHelper{
   static DASHBOARD_LAYOUT_INDEX: number;
   static DASHBOARD_WIDGET_INDEX: number;
   static DASHBOARD_NAME_INDEX: number;
+  static DASHBOARD_COMMENT_INDEX: number;
   static WIDGETPARAMS_WIDGET_INDEX: number;
   static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
   static INDUSTRIE_SALSI_ID: any;
@@ -86,6 +87,7 @@ class DataExtractionHelper{
     this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
     this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
     this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
+    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboard'].indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetParam'].indexOf('widgetCompute');
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
