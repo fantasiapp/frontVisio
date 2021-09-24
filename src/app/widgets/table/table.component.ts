@@ -72,7 +72,7 @@ export class TableComponent extends BasicWidget {
 
   updateData(): any[] {
     let args: any[] = this.properties.arguments;
-    return this.sliceTable.getData(this.path);
+    return this.sliceTable.getData(this.path, this.currentOpt);
   }
 
   createGraph(data: any[]): void { //abstract in BasicWidgets
@@ -87,12 +87,11 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
     this.titleData = data[3];
-    this.updateGroups(this.currentOpt);
   }
 
   updateGroups(id: string) {
     this.currentOpt = id;
-    this.columnDefs = this.sliceTable.getGroupsData(id);
+    this.gridApi.setColumnDefs(this.sliceTable.getColumnDefs(id));
   }
 
 }

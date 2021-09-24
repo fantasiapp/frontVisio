@@ -75,18 +75,22 @@ export class SliceTable {
         return pdvsAsList;
     }
 
-    getColumnDefs(): {}[]{ // !!! A bit hardcoded : specific to p2CDtable
+    getColumnDefs(rowGroupId?: string): {}[]{ // !!! A bit hardcoded : specific to p2CDtable
         let visibleColumns = MOCK_DATA.getP2cdVisibleColumns();
         let allColumns = this.pdvFields.concat(MOCK_DATA.getP2cdSpecificColumns());
         let columnDefs: {[key:string]: any}[] = [];
 
         for(let field of allColumns) {
-            let column = {field: field, hide: true}
+            let column = {field: field, hide: true, rowGroup: false}
             if(visibleColumns.includes(field)){
                 column.hide = false;
             }
+            if(field === rowGroupId) {
+                column.rowGroup = true;
+            }
             columnDefs.push(column);
         }
+
         this.columnDefs = columnDefs;
         return this.columnDefs;
     }
@@ -99,9 +103,9 @@ export class SliceTable {
         return this.titleData;
     }
 
-    getData(slice: any = {}): {}[][]{
+    getData(slice: any = {}, rowGroupId: string): {}[][]{
         let data: {}[][] = [];
-        data.push(this.getColumnDefs());
+        data.push(this.getColumnDefs(rowGroupId));
         data.push(this.getPdvs(slice));
         data.push(this.getNavOpts());
         data.push(this.getTitleData());
@@ -109,18 +113,7 @@ export class SliceTable {
     }
 
     getGroupsData(id: string) {
-        let newColumnDefs = []
-        for(let colDef of this.columnDefs) {
-            if(this.navigationIds.includes(colDef.field)) {
-                colDef.rowGroup = false;
-            }
-            if(colDef.field === id) {
-                colDef.rowGroup = true;
-            }
-            newColumnDefs.push(colDef);
-        }
-        this.columnDefs = newColumnDefs;
-        return newColumnDefs;
+        return this.getColumnDefs(id);
     }
     
 }
