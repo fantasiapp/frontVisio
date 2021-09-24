@@ -51,6 +51,7 @@ export class FiltersStatesService {
         grid: ["1", "1"] as [string, string],
         areas: {x: null},
         template: 'x',
+        description: ''
       },
       path: []
     },
