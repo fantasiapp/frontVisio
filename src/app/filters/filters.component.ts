@@ -120,4 +120,6 @@ export class FiltersComponent implements OnInit , OnDestroy{
     this.updateState(indexLev, indexDash, superLev);
     this.close();
   }
+
+  canSub() { return this.filtersState.canSub(); }
 }

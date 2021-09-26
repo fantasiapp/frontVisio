@@ -15,7 +15,7 @@ export class Navigation{
     if (t)
       this.root = t.root;
     else
-      this.root = new Tree(DataExtractionHelper.getGeoTree(), navigationNodeConstructor).root;    
+      this.root = new Tree(DataExtractionHelper.get('geoTree'), navigationNodeConstructor).root;    
     this.currentLevel = this.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
@@ -81,6 +81,15 @@ export class Navigation{
 
   isTopLevel(){
     return this.currentLevel?.parent;
+  }
+
+  childrenHaveSameDashboard(): boolean {
+    let dashboardId = this.currentDashboard!.id;
+    let child = this.currentLevel!.children[0];
+    let nextDashboard = child.dashboards.find(
+      (dashboard) => dashboard.id == dashboardId
+    );
+    return nextDashboard ? true : false;
   }
 
   setCurrent(

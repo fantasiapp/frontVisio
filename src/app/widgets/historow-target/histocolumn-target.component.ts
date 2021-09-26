@@ -17,19 +17,18 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private transitionDuration = 250;
   private needles?: d3Selection;
   private barHeights: number[] = [];
-  private needlesGroupTranslate: [number, number] = [0, 0];
-  private needleTranslate: [number, number][] = [];
+  private barTargets: number[] = [];
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
     
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any) {
     let self = this;
     super.createGraph(data, {
       onresized: () => {
-        this.createNeedles(null)
+        this.createNeedles({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
         self.chart = this;
@@ -57,7 +56,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     });
   }
 
-  private createNeedles(data: any) {
+  private createNeedles({data, target}: any) {
+    this.barTargets = target;
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 
@@ -88,18 +88,23 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
     this.needles
       .selectAll('line')
-      .data([1, 0.8, 0.6, 0.4, 0.2, 0.5, 0.76].slice(0, barsNumber))
+      .data(<number[]>target.slice(0, barsNumber))
       .enter()
       .append('line')
       .attr('x1', function(d, i) {
         return (2*i + 1)*offsetX + width*i;  
       }).attr('x2', function(d, i) {
         return (2*i + 1)*offsetX + width*(i + 1);
-      }).attr('y1', (d, i) => {
+      }).attr('y1', (d: number, i: number) => {
         return offsetY + maxHeight - d*this.barHeights[i];
-      }).attr('y2', (d, i) => {
+      }).attr('y2', (d: number, i: number) => {
         return offsetY + maxHeight - d*this.barHeights[i];
       });
+  }
+
+  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+    let args: any[] = this.properties.arguments;
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private getNeedleGroup() {

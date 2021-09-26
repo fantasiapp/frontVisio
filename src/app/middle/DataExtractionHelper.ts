@@ -75,6 +75,9 @@ class DataExtractionHelper{
   static INDUSTRIE_SALSI_ID: any;
   static INDUSTRIE_PREGY_ID: any;
   static INDUSTRIE_SINIAT_ID: any;
+  static AXISFORGRAHP_LABELS_ID: number;
+  static LABELFORGRAPH_LABEL_ID: number;
+  static LABELFORGRAPH_COLOR_ID: number;
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -103,6 +106,9 @@ class DataExtractionHelper{
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
     this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
     this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
+    this.AXISFORGRAHP_LABELS_ID = this.data["structureAxislForGraph"].indexOf("labels");
+    this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelForGraph"].indexOf('label');
+    this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelForGraph"].indexOf('color');
 
     
     //trades have less info that geo
@@ -126,16 +132,6 @@ class DataExtractionHelper{
     return this.geoLevels[height];
   }
 
-  // a enlever, normalement on peut utiliser le get pour ça
-  static getGeoTree(): {}{
-    return this.data['geoTree'];
-  }
-
-  // a enlever, normalement on peut utiliser le get pour ça
-  static getTradeTree(): {}{
-    return this.data['tradeTree'];
-  }
-
   static getGeoLevelLabel(height: number): string{
     return this.getGeoLevel(height)[this.PRETTY_INDEX];
   }
@@ -156,16 +152,6 @@ class DataExtractionHelper{
     let name = this.data[this.getTradeLevelLabel(height)][id];
     if (name === undefined) throw `No level with id=${id}`;
     return name;
-  }
-
-  // a enlever, normalement on peut utiliser le get pour ça
-  static getDashboards(): any{
-    return this.data['dashboards'];
-  }
-
-  // a enlever, normalement on peut utiliser le get pour ça
-  static getLayouts(): any{
-    return this.data['layout']
   }
 
   static getCompleteWidgetParams(id: number){
@@ -209,6 +195,45 @@ class DataExtractionHelper{
 
   static getKeyByValue(object:any, value:any) {
     return Object.keys(object).find(key => object[key] === value);
+  }
+
+  // à terme il vaudrait mieux restructurer ce que renvoie le back
+  static findGoodTarget(level:string, id:number){
+    if (level = "Région"){
+      let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
+      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
+      for (let target of Object.values(targets))
+        if (target[indexIdDrv] == id) return target;
+    };
+    if (level = "Secteur"){
+      let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
+      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
+      for (let target of Object.values(targets))
+        if (target[indexIdAgent] == id) return target;
+    };
+    return
+  }
+
+  static getTarget(level='national', id:number, targetName:string){
+    if (level == 'Secteur'){
+      let targetId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetName);
+      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      return target[targetId];
+    }
+    let targetId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetName);
+    if (level == 'Région'){
+      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      return target[targetId];
+    }
+    let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
+    let target = 0;
+    for (let drvTarget of drvTargets)
+      target += drvTarget[targetId];
+    return target;
+  }
+
+  static getListTarget(ids: number[], targetName:string){
+    return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
   }
 }
 

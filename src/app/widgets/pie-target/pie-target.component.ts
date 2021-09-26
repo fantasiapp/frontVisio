@@ -23,15 +23,14 @@ export class PieTargetComponent extends SimplePieComponent {
     super(ref, filtersService, sliceDice);
   }
 
-  createGraph(data: any[]) {
+  createGraph(data: any) {
     let self = this;
     super.createGraph(data, {
       data: {
-        columns: data,
+        columns: data.data, //extract the actual data
         type: pie(),
         onover: () => {
           //check if needle is over the slice 
-          let rads = (this.needleRotate) * Math.PI / 180;
           this.getNeedleGroup()
             .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
         },
@@ -41,7 +40,7 @@ export class PieTargetComponent extends SimplePieComponent {
         }
       },
       onresized: () => {
-        this.createNeedle(null)
+        this.createNeedle({data: null, target: this.needleRotate})
       },
       onrendered(this: Chart) {
         self.createNeedle(data);
@@ -50,7 +49,7 @@ export class PieTargetComponent extends SimplePieComponent {
     });
   }
 
-  private updateNeedle(data: any[]) {
+  private updateNeedle(data: any) {
     if ( !this.needle )
       return this.createNeedle(data);
     
@@ -84,15 +83,18 @@ export class PieTargetComponent extends SimplePieComponent {
   }
 
   // 🛑 this is the mission of the middle 🛑
-  computeNeedlePosition(data: any) {
-    let ratio = Math.random();
-    return 360*ratio;
+  computeNeedlePosition(data: any): number {
+    return data ? data.target : this.needleRotate;
   }
 
   updateGraph(data: any[]) {
-//    this.data = data;
     super.updateGraph(data);
     this.updateNeedle(data);
+  }
+
+  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+    let args: any[] = this.properties.arguments;
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private getNeedleGroup() {
