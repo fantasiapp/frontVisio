@@ -7,7 +7,7 @@ export class SliceTable {
     private pdvs: any;
     private sortedPdvsList: {}[] = [];
     private pdvFields: string[];
-    private segmentDnEnduit: {} = {};
+    private segmentDnEnduit: {[id: number]: string} = {};
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
     private navigationOptions: {id: any, name: any}[] = [];
@@ -52,7 +52,11 @@ export class SliceTable {
             return 1;
         },
         'typologie': (pdv :any) => {
-            return PDV.getInstances().get(pdv[0])!.getValue('dn');
+            let list = PDV.getInstances().get(pdv[0])!.getValue('dn', false, true);
+            if ((<number[]>list)[0] === 1) return this.segmentDnEnduit[1];
+            else if ((<number[]>list)[1] === 1) return this.segmentDnEnduit[2];
+            else return this.segmentDnEnduit[3];
+
         }
     }
     
