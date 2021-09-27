@@ -446,7 +446,7 @@ export class PDV{
     return this.values[PDV.index(name)];
   }
 
-  static getData(slice: any, axe1: string, axe2: string, indicator: string) {
+  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean) {
     if (axe2 == 'lg-1') {
       let labelsToLevelName: {[key: string]: string}= {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
@@ -461,18 +461,18 @@ export class PDV{
     let idToI:any = {}, idToJ:any = {};    
     Object.keys(dataAxe1).forEach((id, index) => idToI[parseInt(id)] = index);
     Object.keys(dataAxe2).forEach((id, index) => idToJ[parseInt(id)] = index);
-    let pdvs = PDV.slice(slice, axe1, axe2, rowsTitles, idToI, idToJ);
+    let pdvs = PDV.slice(slice, axe1, axe2, rowsTitles, idToI, idToJ, geoTree);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
     this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
     return dataWidget;
   }
 
-  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}){
+  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean){
     let pdvs: PDV[] = [], childrenOfSlice: any;
     if (sliceDict) {
       //!!OPTIMIZE
       //!! We are calling sliceTree once per widget, even if it is the same slice
-      [pdvs, childrenOfSlice] = this.sliceTree(sliceDict);
+      [pdvs, childrenOfSlice] = this.sliceTree(sliceDict, geoTree);
       if (childrenOfSlice.hasOwnProperty(axe1)){
         rowsTitles = childrenOfSlice[axe1].map((node: any) => node.name);
         childrenOfSlice[axe1].forEach((id: number, index: number) => idToI[id] = index);
@@ -491,17 +491,9 @@ export class PDV{
     return (node.children.length != 0) && !(node.children[0] instanceof Sale);
   }
 
-  static sliceTree(slice: {[key:string]:number}): [PDV[], {[key:string]:any[]}]{
-    let relevantDepth: number,
-      geoTree: boolean = true;    
-    
-    relevantDepth = Math.max.apply(null, Object.keys(slice).map(key => this.geoTree.attributes['labels'].indexOf(key)));
-    if (relevantDepth < 0) {
-      relevantDepth = Math.max.apply(null, Object.keys(slice).map(key => this.tradeTree.attributes['labels'].indexOf(key)));
-      geoTree = false;
-    }
-
-    let tree = geoTree ? this.geoTree : this.tradeTree;
+  static sliceTree(slice: {[key:string]:number}, geoTree:boolean=true): [PDV[], {[key:string]:any[]}]{
+    let tree = geoTree ? this.geoTree : this.tradeTree;    
+    let relevantDepth = Math.max.apply(null, Object.keys(slice).map(key => tree.attributes['labels'].indexOf(key)));
     let structure = tree.attributes['labels'];
     let dictChildren: {[key:string]: any} = {};
     structure.slice(relevantDepth).forEach(h =>
@@ -563,6 +555,7 @@ export class PDV{
 
 @Injectable()
 class SliceDice{
+  static geoTree: boolean = true;
   constructor(){ console.log('[SliceDice]: on'); }
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), percent:string, transpose=false, target=false){
@@ -577,7 +570,7 @@ class SliceDice{
        groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
     }
-    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
+    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), SliceDice.geoTree);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
