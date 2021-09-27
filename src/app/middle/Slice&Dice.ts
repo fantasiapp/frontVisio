@@ -608,11 +608,18 @@ class SliceDice{
 
 function loadAll(){
   PDV.load(true);
-  return {
-    'PDV': PDV.getInstances(),
-    'geoTree': PDV.geoTree,
-    'tradeTree': PDV.tradeTree
-  }
 }
 
-export {SliceDice, loadAll};
+function getGeoTree() {
+  if ( !PDV.geoTree )
+    PDV.load(true);
+  return PDV.geoTree;
+};
+
+function getTradeTree() {
+  if ( !PDV.tradeTree )
+    PDV.load(true);
+  return PDV.tradeTree;
+};
+
+export {SliceDice, loadAll, getGeoTree, getTradeTree};

@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { loadAll } from '../middle/Slice&Dice';
+import { loadAll, getGeoTree } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 
 @Injectable({
@@ -12,12 +12,12 @@ import { Tree } from '../middle/Node';
 export class FiltersStatesService {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
-  
   constructor(private navigation: Navigation, private dataservice : DataService) {
     this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
-        let defaultTree = loadAll().geoTree;
+        loadAll();
+        let defaultTree = getGeoTree();
         this.reset(defaultTree);
       }
     });

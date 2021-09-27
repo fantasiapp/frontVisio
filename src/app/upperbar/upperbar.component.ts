@@ -1,9 +1,8 @@
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { range } from 'rxjs';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { getGeoTree, getTradeTree } from '../middle/Slice&Dice';
 
 import {
   trigger,
@@ -45,7 +44,6 @@ export class UpperbarComponent implements OnInit {
 
   isSearchOpen = new BehaviorSubject(false);
   constructor(
-    private router: Router,
     private filtersState: FiltersStatesService,
     private authService: AuthService,
     private sliceDice: SliceDice
@@ -72,5 +70,9 @@ export class UpperbarComponent implements OnInit {
   }
   toggle() {
     this.sldValue = 1 - this.sldValue;
+    this.sliceDice.geoTree = this.sldValue ? true : false;
+    this.filtersState.reset(
+      this.sldValue ? getGeoTree() : getTradeTree()
+    );
   }
 }
