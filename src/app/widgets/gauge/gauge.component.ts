@@ -17,7 +17,7 @@ export class GaugeComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
-  private padding: number = 15;
+  private padding: number = 30;
   
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -47,7 +47,7 @@ export class GaugeComponent extends BasicWidget {
           const data = d[0];
           return `
             <div class="tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              Résultat: <span style="color:${color(data)}">${BasicWidget.format(data.value, 3)} %</span>
               <div class="tooltip-tail"></div>
             </div>
           `;
@@ -68,9 +68,7 @@ export class GaugeComponent extends BasicWidget {
         }
       },
       legend: {
-        item: {
-          onclick() {}
-        }
+        show: false
       },
       transition: {
         duration: 250
