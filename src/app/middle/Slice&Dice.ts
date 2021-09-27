@@ -555,7 +555,7 @@ export class PDV{
 
 @Injectable()
 class SliceDice{
-  static geoTree: boolean = true;
+  geoTree: boolean = true;
   constructor(){ console.log('[SliceDice]: on'); }
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), percent:string, transpose=false, target=false){
@@ -570,7 +570,7 @@ class SliceDice{
        groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
     }
-    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), SliceDice.geoTree);
+    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
