@@ -317,12 +317,19 @@ export class PDV{
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
         dnEnduit = (target) ? new Array(5).fill(0): new Array(3).fill(0),
-        saleP2cd = false,
+        // saleP2cd = false,
+        totalP2cd = 0,
+        totalSiniatP2cd = 0,
         saleEnduit = false;
       for (let sale of this.sales){
         if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
-        else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
+        // else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
+        else if (sale.type == 'p2cd'){
+          totalP2cd += sale.volume;
+          if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
+        }
       }
+      let saleP2cd = totalSiniatP2cd > 0.1 * totalP2cd;
       if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
       else if (saleEnduit){
         if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
