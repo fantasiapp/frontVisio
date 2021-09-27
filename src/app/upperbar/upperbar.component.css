@@ -62,7 +62,8 @@ label{
     display: flex;
     height: 100%;
 }
-.input[type ="range"]::-webkit-slider-runnable-track{
+
+.input-range::-webkit-slider-runnable-track{
     -moz-appearance: none;
     -ms-appearance: none;
     -webkit-appearance: none;
@@ -76,9 +77,10 @@ label{
     background: #FFFFFF 0% 0% no-repeat padding-box;
     box-shadow: 0px 1px 3px #0000001A;
     border: 0.4000000059604645px solid #1E1F23;
-    border-radius: 11px;
+    border-radius: 50%;
     opacity: 1;
 }
+
 .button-img {
     position: relative;
     width: 100%;
@@ -120,15 +122,12 @@ label{
 .overAll{
     z-index: 2;
 }
-.light{
-    text-align: left;
-    font: normal normal 300 16px/19px Roboto;
-    letter-spacing: 0px;
-    color: #151D21;
-    opacity: 0.5;text-align: left;
-    font: normal normal 300 16px/19px Roboto;
-    letter-spacing: 0px;
-    color: #151D21;
+
+#ens, #org {
+    transition: opacity 100ms ease-out 0s;
+}
+
+.light {
     opacity: 0.5;
 }
 .arrow-box{

@@ -8,7 +8,7 @@ import * as d3 from 'd3';
 //unmock & present
 @Component({
   selector: 'app-gauge',
-  templateUrl: './gauge.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./gauge.component.css'],
   providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -42,6 +42,7 @@ export class GaugeComponent extends BasicWidget {
         }
       },
       tooltip: {
+        grouped: false,
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           const data = d[0];
           return `
@@ -78,7 +79,7 @@ export class GaugeComponent extends BasicWidget {
     });
   }
 
-  updateGraph(data: any[]) {
+  updateGraph({data}: any) {
     let names = ['Généralistes', 'Multi Spécialistes', 'Purs Spécialistes', 'Autres'];
     this.schedule.queue(() => {
       let newId = names[4*Math.random() | 0];

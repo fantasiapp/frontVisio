@@ -10,7 +10,7 @@ import { SequentialSchedule } from '../Schedule';
 
 @Component({
   selector: 'app-histocolumn',
-  templateUrl: './histocolumn.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./histocolumn.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
