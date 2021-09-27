@@ -197,3 +197,7 @@ g.simple-needle line {
     stroke-width: 3px;
     stroke-linecap: round;
 }
+
+.bb-target.bb-defocused, .bb-circles.bb-defocused {
+    opacity: 0.75 !important;
+}

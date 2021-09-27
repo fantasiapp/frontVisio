@@ -48,7 +48,11 @@ export class SimplePieComponent extends BasicWidget {
       },
       //remove labels on slices
       pie: {
-        label: {format(v: number, ratio: number, id: string) { return ''; }}
+        label: {format(v: number, ratio: number, id: string) { return ''; }},
+        expand: {
+          duration: 50,
+          rate: 0.99
+        }
       },
       color: {
         pattern: colors

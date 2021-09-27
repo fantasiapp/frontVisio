@@ -1,8 +1,6 @@
-import Tree from './Tree';
-import DataExtractionHelper from './DataExtractionHelper';
-import navigationNodeConstructor from './NavigationNode';
-import tradeNodeConstructor from './TradeNode';
+import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
+import {Tree, Node} from './Node';
 
 
 // peut-être à mettre dans un fichier de config
@@ -216,7 +214,7 @@ class DataWidget{
   }
 }
 
-class Sale{
+class Sale {
   static INDUSTRY_ID_INDEX = 0;
   static PRODUCT_ID_INDEX = 1;
   static VOLUME_INDEX = 2;
@@ -281,8 +279,8 @@ export class PDV{
   }
   
   private static loadTrees(){
-    this.geoTree = new Tree(DataExtractionHelper.get('geoTree'), navigationNodeConstructor);
-    this.tradeTree = new Tree(DataExtractionHelper.get('tradeTree'), tradeNodeConstructor);
+    this.geoTree = new Tree(NavigationExtractionHelper);
+    this.tradeTree = new Tree(TradeExtrationHelper);
   }
   
   readonly sales: Sale[];
@@ -488,13 +486,14 @@ export class PDV{
 
   static sliceTree(slice: {[key:string]:number}): [PDV[], {[key:string]:any[]}]{
     let relevantDepth: number,
-      searchedId: number,
       geoTree: boolean = true;    
+    
     relevantDepth = Math.max.apply(null, Object.keys(slice).map(key => this.geoTree.attributes['labels'].indexOf(key)));
-    if (!relevantDepth){
+    if (relevantDepth < 0) {
       relevantDepth = Math.max.apply(null, Object.keys(slice).map(key => this.tradeTree.attributes['labels'].indexOf(key)));
       geoTree = false;
     }
+
     let tree = geoTree ? this.geoTree : this.tradeTree;
     let structure = tree.attributes['labels'];
     let dictChildren: {[key:string]: any} = {};
@@ -510,13 +509,12 @@ export class PDV{
     return tree.attributes['labels'].indexOf(label);
   }
 
-  static getLeaves(tree: Tree, node: any, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
+  static getLeaves(tree: Tree, node: Node | PDV, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
+    if ( node instanceof PDV ) return [node];
+
     let structure = tree.attributes['labels'];
-    dictChildren[structure[height]].push([node.id, node.name]);    
-    if ( node.children.length )
-      return node.children.map((child: any) => this.getLeaves(tree, child, height+1, dictChildren)).reduce((a: PDV[], b: PDV[]) => a.concat(b), []);
-    else
-      return [this.instances.get(node.id)!];
+    dictChildren[structure[height]].push([node.id, node.name]);
+    return node.children.map((child: any) => this.getLeaves(tree, child, height+1, dictChildren)).reduce((a: PDV[], b: PDV[]) => a.concat(b), []);
   }
 
   static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}){
@@ -528,7 +526,6 @@ export class PDV{
       lastNodes = tree.getNodesAtHeight(this.heightOf(tree, keys[0]));
       connectedNodes = lastNodes.filter(node => node.id == slice[keys[0]]);
     }
-
     for (let i = 1; connectedNodes.length && (i < keys.length); i++ ){
       let currentHeight = this.heightOf(tree, keys[i]),
           previousHeight = this.heightOf(tree, keys[i-1]),
@@ -612,9 +609,13 @@ class SliceDice{
   }
 };
 
-function load(){
+function loadAll(){
   PDV.load(true);
-  return PDV.geoTree;
+  return {
+    'PDV': PDV.getInstances(),
+    'geoTree': PDV.geoTree,
+    'tradeTree': PDV.tradeTree
+  }
 }
 
-export {SliceDice, load};
+export {SliceDice, loadAll};
