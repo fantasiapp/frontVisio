@@ -68,4 +68,7 @@ export class UpperbarComponent implements OnInit {
   logOut() {
     this.authService.logoutFromServer();
   }
+  toggle() {
+    this.sldValue = 1 - this.sldValue;
+  }
 }
