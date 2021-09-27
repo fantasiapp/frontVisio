@@ -4,7 +4,6 @@ import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
-import 'ag-grid-enterprise';
 import { ICellRendererParams } from 'ag-grid-community';
 import { Observable, of } from 'rxjs';
 
@@ -49,7 +48,11 @@ export class TableComponent extends BasicWidget {
       })
   }
   gridObservable = new Observable();
-  
+
+  rowClassRules = {
+    'group-row': 'data.groupRow === true'
+  }
+
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
     super(ref, filtersService, sliceDice);
     this.defaultColDef = {
@@ -60,6 +63,8 @@ export class TableComponent extends BasicWidget {
     };
     this.groupDisplayType = 'groupRows';
     this.groupDefaultExpanded = -1;
+
+
     this.type = 'p2cd' //FIX IT ASAP
   }
 
@@ -83,7 +88,7 @@ export class TableComponent extends BasicWidget {
 
   updateGroups(id: string) {
     this.currentOpt = id;
-    this.gridApi.setColumnDefs(this.sliceTable.getColumnDefs(this.type, id));
+    this.gridApi.setRowData(this.sliceTable.buildGroups(id))
   }
 
   createGraph(data: any[], opt?: {}): void {

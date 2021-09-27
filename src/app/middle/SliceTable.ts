@@ -5,6 +5,7 @@ import { PDV } from "./Slice&Dice";
 @Injectable()
 export class SliceTable {
     private pdvs: any;
+    private sortedPdvsList: {}[] = [];
     private pdvFields: string[];
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
@@ -32,17 +33,22 @@ export class SliceTable {
     private customField: {[name: string]: (pdv: any) => {}} = {
         'siniatSales': (pdv: any) => {
             return pdv[21].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[0]) && sale[1] === 1))
+                .includes(sale[1]) && sale[0] === 1))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
         'totalSales': (pdv: any) => {
             return pdv[21].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[0])))
+                .includes(sale[1])))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
     }
-
     
+    private customSort: {[name: string]: (a: any, b: any) => number} = {
+        'p2cd': (a: any, b: any) => {return b.totalSales - a.totalSales},
+        'enduit': (a: any, b: any) => {return -1},
+    }
+
+
     constructor(){
         this.pdvs = DataExtractionHelper.get('pdvs')
         this.pdvFields = DataExtractionHelper.get('structurePdv');
@@ -53,7 +59,7 @@ export class SliceTable {
         }
     }
 
-    getPdvs(slice: any = {}, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
+    getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
         if (slice !== {}){
             this.pdvs = []
             let allPdvs = DataExtractionHelper.get('pdvs');
@@ -77,8 +83,13 @@ export class SliceTable {
             }
             pdvsAsList.push(newPdv);
         }
+        
         this.titleData[0] = Object.keys(this.pdvs).length;
-        return pdvsAsList;
+        pdvsAsList.sort(this.customSort['p2cd'])
+        this.sortedPdvsList = pdvsAsList;
+        // this.buildGroups('enseigne')
+        return this.buildGroups(groupField)
+;
     }
 
     getAllColumns(type: string) {
@@ -87,7 +98,7 @@ export class SliceTable {
         return allColumns;
     }
 
-    getColumnDefs(type: string, rowGroupId?: string): {}[]{ // !!! A bit hardcoded : specific to p2CDtable
+    getColumnDefs(type: string, rowGroupId?: string): {}[]{
         let allColumns = this.getAllColumns(type);
         let columnDefs: {[key:string]: any}[] = [];
 
@@ -96,9 +107,9 @@ export class SliceTable {
             if(this.visibleColumns[type].includes(field)){
                 column.hide = false;
             }
-            if(field === rowGroupId) {
-                column.rowGroup = true;
-            }
+            // if(field === rowGroupId) { // old way of building groups
+            //     column.rowGroup = true;
+            // }
             columnDefs.push(column);
         }
 
@@ -127,7 +138,7 @@ export class SliceTable {
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];
         data.push(this.getColumnDefs(type, rowGroupId));
-        data.push(this.getPdvs(slice, type));
+        data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
         data.push(this.getTitleData());
         return data;
@@ -136,5 +147,32 @@ export class SliceTable {
     getGroupsData(type: string, id: string) {
         return this.getColumnDefs(type, id);
     }
+
+    buildGroups(groupField: string) {
+        let pdvsByGroup = new Map<string, {}[]>();
+        for(let pdv of this.sortedPdvsList){
+            if(pdvsByGroup.get((pdv as any)[groupField]) === undefined) {
+                pdvsByGroup.set((pdv as any)[groupField], [pdv]);
+            } else {
+                pdvsByGroup.get((pdv as any)[groupField])!.push(pdv);
+            }
+        }
+        let ret: {}[] = [];
+        for(let entry of pdvsByGroup.entries()){
+            /*** P2CD hard-coded ***/
+            ret = ret.concat({
+                'name': entry[0],
+                'siniatSales': entry[1].reduce((totalSiniatSales: number, pdv: {}) => totalSiniatSales + (pdv as any).siniatSales, 0),
+                'totalSales': entry[1].reduce((totalTotalSales: number, pdv: {}) => totalTotalSales + (pdv as any).totalSales, 0),
+                'groupRow': true
+                })
+
+            ret = ret.concat(entry[1]);
+        }
+        return ret;
+    }
+
+
+
     
 }
