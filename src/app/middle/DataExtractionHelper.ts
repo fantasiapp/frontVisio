@@ -45,7 +45,7 @@ const enduitIndustrieTarget = {
 };
 
 const industrieTarget = {
-  0: 'Potentiel'
+  0: "Potentiel ciblé"
 }
 const colTableP2cd = {
   1: "brand",

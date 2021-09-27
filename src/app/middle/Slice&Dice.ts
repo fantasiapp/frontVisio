@@ -46,46 +46,46 @@ class DataWidget{
     return this.data[this.idToI[fieldId1] as number][this.idToJ[fieldId2] as number];
   }
 
-  groupData(groupsAxe1: string[], groupsAxe2: string[], simpleFormat=false){
-    groupsAxe1 = (groupsAxe1.length === 0) ? this.rowsTitles : groupsAxe1;
-    groupsAxe2 = (groupsAxe2.length === 0) ? this.columnsTitles : groupsAxe2;
-    let newData: number[][] = DataWidget.zeros(groupsAxe1.length, groupsAxe2.length),
+  groupData(groupsAxis1: string[], groupsAxis2: string[], simpleFormat=false){
+    groupsAxis1 = (groupsAxis1.length === 0) ? this.rowsTitles : groupsAxis1;
+    groupsAxis2 = (groupsAxis2.length === 0) ? this.columnsTitles : groupsAxis2;
+    let newData: number[][] = DataWidget.zeros(groupsAxis1.length, groupsAxis2.length),
       newIdToI = new Array(this.rowsTitles.length).fill(0),
       newIdToJ = new Array(this.columnsTitles.length).fill(0);
     for (let i = 0; i < this.rowsTitles.length; i++){
       let titleRow = this.rowsTitles[i];
       for (let j = 0; j < this.columnsTitles.length; j++){
         let titleColumn = this.columnsTitles[j];
-        let newI = groupsAxe1.indexOf(titleRow),
-            newJ = groupsAxe2.indexOf(titleColumn);
+        let newI = groupsAxis1.indexOf(titleRow),
+            newJ = groupsAxis2.indexOf(titleColumn);
         newIdToI[i] = newI;
         newIdToJ[j] = newJ;
-        if (newI < 0) newI = groupsAxe1.length - 1;
-        if (newJ < 0) newJ = groupsAxe2.length - 1;
+        if (newI < 0) newI = groupsAxis1.length - 1;
+        if (newJ < 0) newJ = groupsAxis2.length - 1;
         newData[newI][newJ] += this.data[i][j];
       }
     }
     for (let [id, i] of Object.entries(this.idToI)) this.idToI[+id] = newIdToI[i as number];
     for (let [id, j] of Object.entries(this.idToJ)) this.idToJ[+id] = newIdToJ[j as number];
-    if (simpleFormat && groupsAxe1.length == 1 && groupsAxe2.length == 1){
+    if (simpleFormat && groupsAxis1.length == 1 && groupsAxis2.length == 1){
       this.dim = 0;
       this.data = newData[0][0];
       if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
       this.columnsTitles = ['all'];
-    } else if (simpleFormat && groupsAxe1.length == 1){
+    } else if (simpleFormat && groupsAxis1.length == 1){
       this.dim = 1;
       this.data = newData[0];
       this.rowsTitles = ['all'];  
-      this.columnsTitles = groupsAxe2; 
-    } else if (simpleFormat && groupsAxe2.length == 1){
+      this.columnsTitles = groupsAxis2; 
+    } else if (simpleFormat && groupsAxis2.length == 1){
       this.dim = 1;
       this.data = newData.map(x => x[0]);
-      this.rowsTitles = groupsAxe1;
+      this.rowsTitles = groupsAxis1;
       this.columnsTitles = ['all'];
     } else{
       this.data = newData;
-      this.rowsTitles = groupsAxe1;
-      this.columnsTitles = groupsAxe2;
+      this.rowsTitles = groupsAxis1;
+      this.columnsTitles = groupsAxis2;
     }
   }
   
@@ -570,7 +570,6 @@ class SliceDice{
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), percent:string, transpose=false, target=false){
     let colors: undefined;
-    console.log('--->', groupsAxis1, groupsAxis2);
     if (typeof(groupsAxis1) === 'number'){
       let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
        groupsAxis1 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
@@ -581,9 +580,7 @@ class SliceDice{
        groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
     }
-    console.log('--->', groupsAxis1, groupsAxis2);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase());
-    console.log(dataWidget.rowsTitles, dataWidget.columnsTitles);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
