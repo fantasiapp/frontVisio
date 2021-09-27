@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { loadAll } from '../middle/Slice&Dice';
+import { Tree } from '../middle/Node';
 
 @Injectable({
   providedIn: 'root',
@@ -14,19 +15,11 @@ export class FiltersStatesService {
   
   constructor(private navigation: Navigation, private dataservice : DataService) {
     this.dataservice.response.subscribe((data) => {
-      if (data){
+      if (data) {
         DataExtractionHelper.setData(data);
-        this.navigation.setTree(loadAll().geoTree);
-        const currentArrays = {
-          levelArray: this.navigation.getArray('level'),
-          dashboardArray: this.navigation.getArray('dashboard'),
-        };
-        const currentState = {
-          States: this.navigation.getCurrent(),
-        };
-        this.stateSubject.next(currentState);
-        this.arraySubject.next(currentArrays);}
-        this.$path.next({});
+        let defaultTree = loadAll().geoTree;
+        this.reset(defaultTree);
+      }
     });
   }
 
@@ -92,6 +85,7 @@ export class FiltersStatesService {
     const currentState = {
       States: this.navigation.getCurrent(),
     };
+
     if ( emit )
       this.stateSubject.next(currentState);
       this.arraySubject.next(currentArrays);
@@ -106,6 +100,20 @@ export class FiltersStatesService {
       if ( emit )
         this.$path.next(path);
     }
+  }
+
+  public reset(t: Tree) {
+    this.navigation.setTree(t);
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    const currentState = {
+      States: this.navigation.getCurrent(),
+    };
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+    this.$path.next({});
   }
 
   canSub() {

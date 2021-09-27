@@ -13,6 +13,7 @@ import {
   transition,
   animate
 } from '@angular/animations';
+import { SliceDice } from '../middle/Slice&Dice';
 
 
 @Component({
@@ -47,6 +48,7 @@ export class UpperbarComponent implements OnInit {
     private router: Router,
     private filtersState: FiltersStatesService,
     private authService: AuthService,
+    private sliceDice: SliceDice
   ) {}
   shouldShowButtons = false;
   ngOnInit(): void {
