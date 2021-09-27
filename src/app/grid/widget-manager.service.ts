@@ -62,7 +62,8 @@ export class WidgetManagerService {
     'gauge': GaugeComponent,
     'table': TableComponent,
     'pieTarget': PieTargetComponent,
-    'histoColumnTarget': HistoColumnTargetComponent
+    'histoColumnTarget': HistoColumnTargetComponent,
+    'histoCurve': HistocurveComponent
   };
 
   constructor() {
