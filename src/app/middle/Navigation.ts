@@ -13,7 +13,6 @@ export class Navigation{
   setTree(t: Tree){
     //!HACK
     this.tree = t ? t : new Tree(NavigationExtractionHelper);
-    console.log('>tree:', this.tree);
     this.currentLevel = this.tree.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }

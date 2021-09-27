@@ -26,7 +26,8 @@
   font-size: 18px;
   font-weight: 500;
   padding: 0 25px;
-  border-bottom: 2px solid #aaa;
+  border-bottom: 1px solid #707070;
+  color: #DC6206;
 }
 
 :host::ng-deep * .props p {
@@ -35,6 +36,7 @@
   margin-bottom: 5px;
   font-size: 14px;
   font-weight: 500;
+  color: #070707;
 }
 
 :host::ng-deep * .props {

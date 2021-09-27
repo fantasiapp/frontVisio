@@ -9,7 +9,7 @@ import bb, {bar, Chart} from 'billboard.js';
 
 @Component({
   selector: 'app-historow',
-  templateUrl: './historow.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./historow.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

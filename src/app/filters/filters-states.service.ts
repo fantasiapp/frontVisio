@@ -16,7 +16,7 @@ export class FiltersStatesService {
     this.dataservice.response.subscribe((data) => {
       if (data){
         DataExtractionHelper.setData(data);
-        this.navigation.setTree(loadAll().tradeTree);
+        this.navigation.setTree(loadAll().geoTree);
         const currentArrays = {
           levelArray: this.navigation.getArray('level'),
           dashboardArray: this.navigation.getArray('dashboard'),

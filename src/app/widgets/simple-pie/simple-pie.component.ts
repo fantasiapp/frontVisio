@@ -8,7 +8,7 @@ import bb, {pie, selection} from 'billboard.js';
 
 @Component({
   selector: 'app-simple-pie',
-  templateUrl: './simple-pie.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./simple-pie.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
