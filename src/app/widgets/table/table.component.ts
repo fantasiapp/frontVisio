@@ -20,7 +20,7 @@ export class TableComponent extends BasicWidget {
   titleData: number[] = [0,0,0];
 
   //p2cd or enduit
-  type: string = '';
+  type: string = 'p2cd';
 
   //Navigation menu
   navOpts: any;
@@ -70,8 +70,6 @@ export class TableComponent extends BasicWidget {
       suppressMovable: true,
     };
     this.rowHeight = 45;
-    this.type = 'enduit' //FIX IT ASAP
-    // console.log("Args : ", (this).getDataArguments())
   }
 
   
