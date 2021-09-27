@@ -7,7 +7,7 @@ import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
 @Component({
   selector: 'app-historow-target',
-  templateUrl: './histocolumn-target.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./histocolumn-target.component.css']
 })
 export class HistoColumnTargetComponent extends HistoColumnComponent {

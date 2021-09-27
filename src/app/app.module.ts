@@ -39,6 +39,7 @@ import { PieTargetComponent } from './widgets/pie-target/pie-target.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { TableComponent } from './widgets/table/table.component';
 import { HistoColumnTargetComponent } from './widgets/historow-target/histocolumn-target.component';
+import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 
 @NgModule({
   declarations: [
@@ -65,7 +66,8 @@ import { HistoColumnTargetComponent } from './widgets/historow-target/histocolum
     TableComponent,
     GaugeComponent,
     PieTargetComponent,
-    HistoColumnTargetComponent
+    HistoColumnTargetComponent,
+    HistocurveComponent
   ],
   imports: [
     BrowserModule,

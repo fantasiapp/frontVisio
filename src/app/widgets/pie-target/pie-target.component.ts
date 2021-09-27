@@ -7,7 +7,7 @@ import { SimplePieComponent } from '../simple-pie/simple-pie.component';
 
 @Component({
   selector: 'app-pie-target',
-  templateUrl: './pie-target.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./pie-target.component.css']
 })
 export class PieTargetComponent extends SimplePieComponent {

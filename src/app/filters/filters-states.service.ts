@@ -2,9 +2,8 @@ import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
-import {Navigation} from '../middle/Navigation';
-//!!!HACK
-import { load } from '../middle/Slice&Dice';
+import { Navigation } from '../middle/Navigation';
+import { loadAll } from '../middle/Slice&Dice';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +15,8 @@ export class FiltersStatesService {
   constructor(private navigation: Navigation, private dataservice : DataService) {
     this.dataservice.response.subscribe((data) => {
       if (data){
-        console.debug('les datas ', data);
         DataExtractionHelper.setData(data);
-        //HACK!!
-        this.navigation.load(load());
+        this.navigation.setTree(loadAll().geoTree);
         const currentArrays = {
           levelArray: this.navigation.getArray('level'),
           dashboardArray: this.navigation.getArray('dashboard'),
