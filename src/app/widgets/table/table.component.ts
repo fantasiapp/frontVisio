@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer } from './renderers';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -61,6 +61,7 @@ export class TableComponent extends BasicWidget {
     editCellRenderer: EditCellRenderer,
     checkboxCellRenderer: CheckboxCellRenderer,
     pointFeuCellRenderer: PointFeuCellRenderer,
+    noCellRenderer: NoCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -133,6 +134,7 @@ export class TableComponent extends BasicWidget {
             case 'edit':
               cd.cellRendererSelector = function (params: any) {
                 const editDetails = {component : 'editCellRenderer'};
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return editDetails;
               }
               break;
@@ -140,6 +142,7 @@ export class TableComponent extends BasicWidget {
             case 'checkbox':
               cd.cellRendererSelector = function (params: any) {
                 const checkboxDetails = {component : 'checkboxCellRenderer'};
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return checkboxDetails;
               }
               break;
@@ -147,6 +150,7 @@ export class TableComponent extends BasicWidget {
             case 'pointFeu':
               cd.cellRendererSelector = function (params: any) {
                 const pointFeuDetails = {component : 'pointFeuCellRenderer'};
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return pointFeuDetails;
               }
               break;
