@@ -1,0 +1,7 @@
+<div [style.display]="properties.title? 'flex' : 'none'" class="props">
+    <h2>{{properties.title}}</h2>
+    <p>{{properties.description}}</p>
+</div>
+<button class="open-target-control" (click)="toggleTargetControl()" #openTargetControl>✏️</button>
+<div class="container" #content></div>
+<div class="target-control"></div>

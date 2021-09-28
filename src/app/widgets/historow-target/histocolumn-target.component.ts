@@ -5,14 +5,18 @@ import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
+//❌
 @Component({
   selector: 'app-historow-target',
-  templateUrl: '../widget-template.html',
+  templateUrl: './histocolumn-target.component.html',
   styleUrls: ['./histocolumn-target.component.css']
 })
 export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
+
+  @ViewChild('openTargetControl', {read: ElementRef})
+  protected openTargetControl!: ElementRef;
 
   private transitionDuration = 250;
   private needles?: d3Selection;
@@ -22,50 +26,56 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private offsetY: number = 0;
   private marginX: number = 0;
   private barWidth: number = 0;
+  private inputIsOpen: boolean = true;
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
-    
   }
 
-  private createTargetControl() {    
-    d3.select(this.ref.nativeElement)
-      .insert('div', 'div.container')
-      .classed('target-control', true);
+  private createTargetControl() { 
+    let ref = d3.select(this.ref.nativeElement);
+    let container =  ref.select('div.target-control');
+    if ( container.empty() ) {
+      ref.insert('div', 'div.container')
+        .classed('target-control', true);
+    } else {
+      container.selectAll('*').remove();
+    };
+    return container;
+  };
+
+  private renderTargetContainer(data: any) {
+    this.createNeedles(data);
+    this.createTargetControl(); //whether rendered or not, empty it
+    if ( this.inputIsOpen )
+      this.renderTargetControl();
   };
 
   private renderTargetControl() {
     let barsNumber = this.barHeights.length;
-    console.log(this);
-
-    console.log(d3.select(this.ref.nativeElement)
-    .select('div.target-control'))
-
     d3.select(this.ref.nativeElement)
       .select('div.target-control')
-      .style('margin-left', -5/4*this.marginX + 'px')
+      .style('margin-left', (10 + this.marginX) + 'px')
       .selectAll('input')
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
         .classed('target-input', true)
-        .style('width', (this.barWidth|0) + 'px')
-        .style('margin', '10px ' + (this.offsetX|0) + 'px')
+        .style('width', (this.barWidth.toFixed(1)) + 'px')
+        .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px')
   }
 
   createGraph(data: any) {
-    this.createTargetControl();  
     let self = this;
     super.createGraph(data, {
       onresized: () => {
-        this.createNeedles({data: null, target: this.barTargets});
+        this.renderTargetContainer({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
         this.config('onrendered', null);
         self.chart = this;
         (<any>window).chart = this;
-        self.createNeedles(data);
-        self.renderTargetControl();
+        self.renderTargetContainer(data);
       },
       transition: {
         duration: this.transitionDuration
@@ -112,7 +122,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     this.barWidth = width;
     this.offsetX = offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
     this.offsetY = offsetY = (gridRect.height - mainRect.height) + 2;
-    this.marginX = this.chart!.$.svg.node().getBoundingClientRect().left - (this.chart!.$.grid as any).main.node().getBoundingClientRect().left;
+    this.marginX = (this.chart!.$.grid as any).main.node().getBoundingClientRect().left - this.chart!.$.svg.node().getBoundingClientRect().left;
 
     console.log(this.marginX)
 
@@ -144,5 +154,27 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   private getNeedleGroup() {
     return this.needles;
+  }
+
+  toggleTargetControl() {
+    this.inputIsOpen = !this.inputIsOpen;
+    this.openTargetControl!.nativeElement.innerText = 
+      this.inputIsOpen ? '❌' : '✏️';
+    
+    let self = this;
+    let container = d3.select(this.content.nativeElement)
+      .classed('target-control-opened', this.inputIsOpen);
+    
+    let targetContainer = this.createTargetControl()
+      .classed('target-control-opened', this.inputIsOpen);
+    
+    
+    let listener = container
+      .on('transitionend', (e) => {
+        console.log('transition_end')
+        if ( this.inputIsOpen )
+          self.renderTargetControl();
+      });
+
   }
 }
