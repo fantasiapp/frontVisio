@@ -47,7 +47,12 @@ export class SimpleDonutComponent extends BasicWidget {
       },
       //remove labels on slices
       donut: {
-        label: {format(v: number, ratio: number, id: string) { return '' }}
+        label: {format(v: number, ratio: number, id: string) { return '' }},
+        expand: {
+          duration: 50,
+          rate: 0.99
+        },
+        startingAngle: Math.PI/2
       },
       color: {
         pattern: colors

@@ -52,7 +52,8 @@ export class SimplePieComponent extends BasicWidget {
         expand: {
           duration: 50,
           rate: 0.99
-        }
+        },
+        startingAngle: Math.PI/2
       },
       color: {
         pattern: colors
