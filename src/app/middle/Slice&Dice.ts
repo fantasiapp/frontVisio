@@ -464,8 +464,8 @@ export class PDV{
       axe2 = subLevelLabel;
     }
     if (axe1 == 'lt-1'){
-      let labelsToLevelName: {[key: string]: string} = {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", Site: 'site'};
-      let labels = this.tradeTree.attributes['labels'].concat(['Site']);      
+      let labelsToLevelName: {[key: string]: string} = {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", PDV: 'site'}; //le PDV: 'site' c'est un fix le temps que jlw rajoute ça dans le back
+      let labels = this.tradeTree.attributes['labels'];
       let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe1 = subLevelLabel;
@@ -589,7 +589,6 @@ class SliceDice{
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
-    console.log('-->', groupsAxis1);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined;
