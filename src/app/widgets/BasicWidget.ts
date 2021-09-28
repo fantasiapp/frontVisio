@@ -1,4 +1,4 @@
-import { Directive, ElementRef, OnDestroy } from "@angular/core";
+import { Directive, ElementRef, Injectable, OnDestroy } from "@angular/core";
 import { Chart } from "billboard.js";
 import * as d3 from "d3";
 import { combineLatest, Subscription } from "rxjs";
@@ -137,3 +137,28 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
     return str;
   }
 };
+
+/* Experimental feature */
+/* Eventually use it to put tooltips correctly */
+export class MouseLogger {
+  static window: Window = window;
+  static mouseMoveEvent: MouseEvent | null = null;
+  static mouseDownEvent: MouseEvent | null = null;
+  
+  static start() {
+    this.window.addEventListener('mousemove', (e) => {
+      this.mouseMoveEvent = e;
+    });
+
+    this.window.addEventListener('mousedown', (e) => {
+      this.mouseDownEvent = e;
+    });
+  }
+
+  static findCoordinatesOn(element: Element) {
+    return this.mouseMoveEvent ?
+      d3.pointer(this.mouseMoveEvent, element) : [0, 0];
+  } 
+};
+
+MouseLogger.start();

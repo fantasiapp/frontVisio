@@ -8,7 +8,7 @@ import * as d3 from 'd3';
 //unmock & present
 @Component({
   selector: 'app-gauge',
-  templateUrl: '../widget-template.html',
+  templateUrl: './gauge.component.html',
   styleUrls: ['./gauge.component.css'],
   providers: [SliceDice],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -17,7 +17,7 @@ export class GaugeComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
-  private padding: number = 30;
+  private padding: number = 10;
   
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
