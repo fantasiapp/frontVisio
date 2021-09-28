@@ -179,12 +179,12 @@ app-historow .bb-xgrid {
 
 /* Ag-grid css*/
 .ag-theme-alpine {
-    font-weight: 300;
+    font-weight: 500;
 }
 .group-row {
     background-color: #F06D0C !important;
     color: white !important;
-    font-weight: 600 !important;
+    font-weight: 300 !important;
 }
 /**************/
 g.simple-needle {

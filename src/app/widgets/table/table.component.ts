@@ -5,8 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { AgRendererComponent } from 'ag-grid-angular';
-import { ICellRendererParams } from 'ag-grid-community';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -59,6 +58,9 @@ export class TableComponent extends BasicWidget {
   frameworkComponents = {
     rowSalesCellRenderer: RowSalesCellRenderer,
     groupSalesCellRenderer: GroupSalesCellRenderer,
+    editCellRenderer: EditCellRenderer,
+    checkboxCellRenderer: CheckboxCellRenderer,
+    pointFeuCellRenderer: PointFeuCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -85,27 +87,7 @@ export class TableComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]): void {
-    /* Manage here costum row rendering */
-    for(let cd of data[0]){
-      if(cd.field === 'siniatSales') {
-        cd.cellRendererSelector = function (params: any) {
-          const rowSalesDetails = {component: 'rowSalesCellRenderer'};
-          const groupSalesDetails = {component: 'groupSalesCellRenderer', params: {text: "Siniat: "}}
-          
-          if(params.data.groupRow === true) return groupSalesDetails;
-          else return rowSalesDetails;
-        }
-      } else if(cd.field === 'totalSales') {
-        cd.cellRendererSelector = function (params: any) {
-          const rowSalesDetails = {component: 'rowSalesCellRenderer'};
-          const groupSalesDetails = {component: 'groupSalesCellRenderer', params : {text: "Identifie: "}}
-          
-          if(params.data.groupRow === true) return groupSalesDetails;
-          else return rowSalesDetails;
-        }
-      }
-    }
-
+    data[0] = this.updateCellRenderer(data[0]);
     this.gridApi.setColumnDefs(data[0]);
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
@@ -123,37 +105,57 @@ export class TableComponent extends BasicWidget {
     throw new Error('Method not implemented.');
   }
 
-}
 
+  updateCellRenderer(data: any[]): any[] {
+        for(let cd of data){
+          switch (cd.field) {
 
-@Component({
-  selector: 'sales-component',
-  template: `<span>{{ this.displayValue }}</span>`,
-})
-export class RowSalesCellRenderer implements AgRendererComponent {
-  
-  refresh(params: ICellRendererParams): boolean {
-    throw new Error('Method not implemented.');
+            case 'siniatSales':
+              cd.cellRendererSelector = function (params: any) {
+                const rowSalesDetails = {component: 'rowSalesCellRenderer'};
+                const groupSalesDetails = {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}}
+                
+                if(params.data.groupRow === true) return groupSalesDetails;
+                else return rowSalesDetails;
+              }
+              break;
+
+            case 'totalSales':
+              cd.cellRendererSelector = function (params: any) {
+                const rowSalesDetails = {component: 'rowSalesCellRenderer'};
+                const groupSalesDetails = {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}}
+                
+                if(params.data.groupRow === true) return groupSalesDetails;
+                else return rowSalesDetails;
+              }
+              break;
+
+            case 'edit':
+              cd.cellRendererSelector = function (params: any) {
+                const editDetails = {component : 'editCellRenderer'};
+                return editDetails;
+              }
+              break;
+            
+            case 'checkbox':
+              cd.cellRendererSelector = function (params: any) {
+                const checkboxDetails = {component : 'checkboxCellRenderer'};
+                return checkboxDetails;
+              }
+              break;
+            
+            case 'pointFeu':
+              cd.cellRendererSelector = function (params: any) {
+                const pointFeuDetails = {component : 'pointFeuCellRenderer'};
+                return pointFeuDetails;
+              }
+              break;
+
+            default:
+              break;
+          }
+        }
+    return data;
   }
-  displayValue: string = "";
 
-  agInit(params: ICellRendererParams): void {
-    this.displayValue = Math.floor(params.value) + " m²";
-  }
-}
-
-@Component({
-  selector: 'total-sales-component',
-  template: `<span>{{ this.displayValue }}</span>`,
-})
-export class GroupSalesCellRenderer implements AgRendererComponent {
-  
-  refresh(params: ICellRendererParams): boolean {
-    throw new Error('Method not implemented.');
-  }
-  displayValue: string = "";
-
-  agInit(params: ICellRendererParams): void {
-    this.displayValue = (<any>params).text as string + Math.floor(params.value/1000) as string + " km²";
-  }
 }

@@ -22,16 +22,16 @@ export class SliceTable {
         'p2cd': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
         'enduit': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble']
     }
-    private visibleColumns: {[type: string]: string[]} = {
-        'p2cd': ['name', 'siniatSales', 'totalSales'],
-        'enduit': ['name', 'visits', 'target', 'potential']
+    private visibleColumns: {[type: string]: {field: string, flex: number}[]} = {
+        'p2cd': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkbox', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
+        'enduit': [{field: 'name', flex: 1},{field: 'visits', flex: 1},{field: 'target', flex: 1},{field: 'potential', flex: 1}]
     }
-    private specificColumns: {[type: string]: string[]} = {
-        'p2cd': ['siniatSales', 'totalSales'],
+    private specificColumns: {[type: string]: string[]} = { //newly calculated columns
+        'p2cd': ['siniatSales', 'totalSales', 'edit', 'checkbox'],
         'enduit':  ['visits', 'target', 'potential', 'typologie']
     }
 
-    private customField: {[name: string]: (pdv: any) => {}} = {
+    private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
         'siniatSales': (pdv: any) => {
             return pdv[21].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1]) && sale[0] === 1))
@@ -57,6 +57,12 @@ export class SliceTable {
             else if ((<number[]>list)[1] === 1) return this.segmentDnEnduit[2];
             else return this.segmentDnEnduit[3];
 
+        },
+        'edit': () => {
+            return true; //should return what is inside the new div ?
+        },
+        'checkbox': () => {
+            return false; //Could be check by default ?
         }
     }
     
@@ -115,7 +121,6 @@ export class SliceTable {
     }
 
     getAllColumns(type: string) {
-        let visibleColumns = this.visibleColumns[type];
         let allColumns = this.pdvFields.concat(this.specificColumns[type]);
         return allColumns;
     }
@@ -123,12 +128,16 @@ export class SliceTable {
     getColumnDefs(type: string, rowGroupId?: string): {}[]{
         let allColumns = this.getAllColumns(type);
         let columnDefs: {[key:string]: any}[] = [];
+        let visibleFields = this.visibleColumns[type].map(({field}) => field);
 
-        for(let field of allColumns) {
-            let column = {field: field, hide: true, rowGroup: false}
-            if(this.visibleColumns[type].includes(field)){
-                column.hide = false;
+        for(let field of allColumns) { //first all fields except visible
+            if(!visibleFields.includes(field)) {
+                let column = {'field': field, 'hide': true, 'rowGroup': false}
+                columnDefs.push(column);
             }
+        }
+        for(let visibleColumn of this.visibleColumns[type]) { //then visible, to ensure order
+            let column = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'rowGroup': false}
             columnDefs.push(column);
         }
 
