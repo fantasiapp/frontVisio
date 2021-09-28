@@ -29,20 +29,21 @@ export class HistocurveComponent extends BasicWidget {
       this.chart!.load({
         columns: d,
         done: () => {
-          this.schedule.emit();
+          this.schedule.next();
         }
       });
     });
   }
 
   createGraph({data, colors}: any, opt: {} = {}) {
+    let n = 4 + (Math.random()*6 | 0);
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
         columns: [
-          ['$1', 30, 20, 50, 40, 60, 50],
-          ['$2', 175, 200, 200, 200, 200, 200]
+          ['$1', ...(new Array(n).fill(0).map(_ => 10*Math.random() + 1))],
+          ['$2', ...(new Array(n).fill(0).map(_ => 10*Math.random() + 1))]
         ],
         types: {
           '$1': bar(),

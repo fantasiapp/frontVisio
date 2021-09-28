@@ -45,6 +45,8 @@ class DataWidget{
   }
 
   groupData(groupsAxis1: string[], groupsAxis2: string[], simpleFormat=false){
+    let isOne1 = groupsAxis1.length == 1,
+      isOne2 = groupsAxis2.length == 1;
     groupsAxis1 = (groupsAxis1.length === 0) ? this.rowsTitles : groupsAxis1;
     groupsAxis2 = (groupsAxis2.length === 0) ? this.columnsTitles : groupsAxis2;
     let newData: number[][] = DataWidget.zeros(groupsAxis1.length, groupsAxis2.length),
@@ -65,26 +67,28 @@ class DataWidget{
     }
     for (let [id, i] of Object.entries(this.idToI)) this.idToI[+id] = newIdToI[i as number];
     for (let [id, j] of Object.entries(this.idToJ)) this.idToJ[+id] = newIdToJ[j as number];
-    if (simpleFormat && groupsAxis1.length == 1 && groupsAxis2.length == 1){
+    if (simpleFormat && isOne1 && isOne2){
       this.dim = 0;
       this.data = newData[0][0];
-      if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
-      this.columnsTitles = ['all'];
-    } else if (simpleFormat && groupsAxis1.length == 1){
+      // if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
+      // this.columnsTitles = ['all'];
+    } else if (simpleFormat && isOne1){
       this.dim = 1;
       this.data = newData[0];
-      this.rowsTitles = ['all'];  
-      this.columnsTitles = groupsAxis2; 
-    } else if (simpleFormat && groupsAxis2.length == 1){
+      // this.rowsTitles = ['all'];  
+      // this.columnsTitles = groupsAxis2; 
+    } else if (simpleFormat && isOne2){
       this.dim = 1;
       this.data = newData.map(x => x[0]);
-      this.rowsTitles = groupsAxis1;
-      this.columnsTitles = ['all'];
+      // this.rowsTitles = groupsAxis1;
+      // this.columnsTitles = ['all'];
     } else{
       this.data = newData;
-      this.rowsTitles = groupsAxis1;
-      this.columnsTitles = groupsAxis2;
+      // this.rowsTitles = groupsAxis1;
+      // this.columnsTitles = groupsAxis2;
     }
+    this.rowsTitles = groupsAxis1;
+    this.columnsTitles = groupsAxis2;
   }
   
   private m2ToKm2(){
@@ -464,8 +468,8 @@ export class PDV{
       axe2 = subLevelLabel;
     }
     if (axe1 == 'lt-1'){
-      let labelsToLevelName: {[key: string]: string} = {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", Site: 'site'};
-      let labels = this.tradeTree.attributes['labels'].concat(['Site']);      
+      let labelsToLevelName: {[key: string]: string} = {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", PDV: 'site'}; //le PDV: 'site' c'est un fix le temps que jlw rajoute ça dans le back
+      let labels = this.tradeTree.attributes['labels'];
       let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe1 = subLevelLabel;
@@ -481,6 +485,13 @@ export class PDV{
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
     this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
     return dataWidget;
+  }
+
+  static reSlice(pdvs:PDV[], conditions: [string, number][]){
+    let newPdvs: PDV[] = [];
+    for (let pdv of pdvs)
+      if (conditions.map(condition => pdv.attribute(condition[0]) === condition[1]).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
+    return newPdvs;
   }
 
   static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean){
@@ -589,7 +600,6 @@ class SliceDice{
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
-    console.log('-->', groupsAxis1);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined;
