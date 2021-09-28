@@ -18,6 +18,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
+  @ViewChild('validateTargetControl', {read: ElementRef})
+  protected validateTargetControl!: ElementRef;
+
   private transitionDuration = 250;
   private needles?: d3Selection;
   private barHeights: number[] = [];
@@ -26,13 +29,13 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private offsetY: number = 0;
   private marginX: number = 0;
   private barWidth: number = 0;
-  private inputIsOpen: boolean = true;
+  private inputIsOpen: boolean = false;
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
 
-  private createTargetControl() { 
+  private newTargetControl() { 
     let ref = d3.select(this.ref.nativeElement);
     let container =  ref.select('div.target-control');
     if ( container.empty() ) {
@@ -46,21 +49,19 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   private renderTargetContainer(data: any) {
     this.createNeedles(data);
-    this.createTargetControl(); //whether rendered or not, empty it
     if ( this.inputIsOpen )
       this.renderTargetControl();
   };
 
   private renderTargetControl() {
     let barsNumber = this.barHeights.length;
-    d3.select(this.ref.nativeElement)
-      .select('div.target-control')
+    this.newTargetControl()
       .style('margin-left', (10 + this.marginX) + 'px')
       .selectAll('input')
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .classed('target-input', true)
+        .attr('value', 0)
         .style('width', (this.barWidth.toFixed(1)) + 'px')
         .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px')
   }
@@ -72,7 +73,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         this.renderTargetContainer({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
-        this.config('onrendered', null);
         self.chart = this;
         (<any>window).chart = this;
         self.renderTargetContainer(data);
@@ -124,8 +124,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     this.offsetY = offsetY = (gridRect.height - mainRect.height) + 2;
     this.marginX = (this.chart!.$.grid as any).main.node().getBoundingClientRect().left - this.chart!.$.svg.node().getBoundingClientRect().left;
 
-    console.log(this.marginX)
-
     this.needles = main.append('g')
       .classed('simple-needle', true);
 
@@ -165,16 +163,24 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let container = d3.select(this.content.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);
     
-    let targetContainer = this.createTargetControl()
+    //make target control just in case
+    this.newTargetControl()
+      .classed('target-control-opened', this.inputIsOpen);
+    
+    d3.select(this.validateTargetControl!.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);
     
     
     let listener = container
       .on('transitionend', (e) => {
-        console.log('transition_end')
         if ( this.inputIsOpen )
           self.renderTargetControl();
       });
+  }
 
+  doTargetControl() {
+    console.log('Target control validated: Respect+');
+    //close
+    this.toggleTargetControl();
   }
 }
