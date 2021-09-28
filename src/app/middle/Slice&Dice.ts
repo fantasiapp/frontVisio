@@ -68,23 +68,25 @@ class DataWidget{
     if (simpleFormat && groupsAxis1.length == 1 && groupsAxis2.length == 1){
       this.dim = 0;
       this.data = newData[0][0];
-      if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
-      this.columnsTitles = ['all'];
+      // if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
+      // this.columnsTitles = ['all'];
     } else if (simpleFormat && groupsAxis1.length == 1){
       this.dim = 1;
       this.data = newData[0];
-      this.rowsTitles = ['all'];  
-      this.columnsTitles = groupsAxis2; 
+      // this.rowsTitles = ['all'];  
+      // this.columnsTitles = groupsAxis2; 
     } else if (simpleFormat && groupsAxis2.length == 1){
       this.dim = 1;
       this.data = newData.map(x => x[0]);
-      this.rowsTitles = groupsAxis1;
-      this.columnsTitles = ['all'];
+      // this.rowsTitles = groupsAxis1;
+      // this.columnsTitles = ['all'];
     } else{
       this.data = newData;
-      this.rowsTitles = groupsAxis1;
-      this.columnsTitles = groupsAxis2;
+      // this.rowsTitles = groupsAxis1;
+      // this.columnsTitles = groupsAxis2;
     }
+    this.rowsTitles = groupsAxis1;
+    this.columnsTitles = groupsAxis2;
   }
   
   private m2ToKm2(){
