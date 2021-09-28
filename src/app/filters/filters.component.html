@@ -24,7 +24,7 @@
     </select>
   <img (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
-    <div class="list-button">
+    <div class="list-button" [style.column-count]="viewList.name.length > 12? '3' : '2'">
       <ng-container *ngFor="let levName of viewList.name; let idLev = index">
         <button
           class="list-elmt left-aligned"
@@ -37,7 +37,7 @@
       </div>
   </div>
   <ng-container *ngIf="!showselect">
-    <div class="list">
+    <div class="list" [style.grid-template-columns]="'repeat(' + (viewList.name.length > 12 ? 3 : 2) + ', 1fr)'" [style.grid-template-rows]="'repeat(' + (viewList.name.length > 12 ? 7 : 6) + ', 25px)'">
       <button
         class="list-elmt left-aligned"
         *ngFor="let dashboardName of viewList.name; let idPos = index"
