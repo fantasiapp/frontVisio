@@ -36,12 +36,12 @@ export class SliceTable {
 
     private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
         'siniatSales': (pdv: any) => {
-            return pdv[21].filter((sale: number[]) => ([1,2,3]
+            return pdv[22].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1]) && sale[0] === 1))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
         'totalSales': (pdv: any) => {
-            return pdv[21].filter((sale: number[]) => ([1,2,3]
+            return pdv[22].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1])))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
