@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer } from './renderers';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -62,6 +62,7 @@ export class TableComponent extends BasicWidget {
     checkboxCellRenderer: CheckboxCellRenderer,
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
+    targetCellRenderer: TargetCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -152,6 +153,14 @@ export class TableComponent extends BasicWidget {
                 const pointFeuDetails = {component : 'pointFeuCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return pointFeuDetails;
+              }
+              break;
+            
+            case 'target':
+              cd.cellRendererSelector = function (params: any) {
+                const targetDetails = {component: 'targetCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                return targetDetails;
               }
               break;
 

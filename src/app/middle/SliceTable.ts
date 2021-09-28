@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { NumberValueAccessor } from "@angular/forms";
 import DataExtractionHelper from "./DataExtractionHelper";
 import { PDV } from "./Slice&Dice";
 
@@ -12,6 +13,8 @@ export class SliceTable {
     private columnDefs: {[k: string]: any}[] = [];
     private navigationOptions: {id: any, name: any}[] = [];
     private titleData: number[] = [0,0,0];
+
+    private idIndustries: {[key: string]: number} = {};
 
     //type : 'p2cd' or 'enduit'
     private navIds: {[type: string]: string[]} = {
@@ -46,13 +49,25 @@ export class SliceTable {
             return 1;
         },
         'target': (pdv: any) => {
-            return [1,2,3];
+            let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
+            let enduitSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('enduit', false, true) as number[];
+
+            let p2cdSales: {}[] = [];
+            let enduitSales: {}[] = [];
+            p2cdSales.push({'enseigne': 'Siniat', 'value': p2cdSalesRaw[this.idIndustries['Siniat']], color: 'purple'})
+            p2cdSales.push({'enseigne': 'Placo', 'value': p2cdSalesRaw[this.idIndustries['Placo']], color: 'darkblue'})
+            p2cdSales.push({'enseigne': 'Knauf', 'value': p2cdSalesRaw[this.idIndustries['Knauf']], color: 'lightblue'})
+            p2cdSales.push({'enseigne': 'Autres', 'value': p2cdSalesRaw
+                                .filter((value, index) => {![this.idIndustries['Siniat'], this.idIndustries['Placo'], this.idIndustries['Knauf']].includes(index)})
+                                .reduce((total: number, value: number) => total + value, 0)
+                            ,color: 'grey'})
+            return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {
             return 1;
         },
         'typologie': (pdv :any) => {
-            let list = PDV.getInstances().get(pdv[0])!.getValue('dn', false, true);
+            let list = this.getPdvInstance(pdv)!.getValue('dn', false, true);
             if ((<number[]>list)[0] === 1) return this.segmentDnEnduit[1];
             else if ((<number[]>list)[1] === 1) return this.segmentDnEnduit[2];
             else return this.segmentDnEnduit[3];
@@ -82,6 +97,10 @@ export class SliceTable {
         for(let field of this.pdvFields) {
             this.idsToFields[field] = DataExtractionHelper.get(field);
         }
+
+                    // ⚠️⚠️⚠️ Début à 0 ? Ou à 1 ? ⚠️⚠️⚠️
+
+        this.idIndustries = {'Siniat': 0, 'Placo': 2, 'Knauf': 5}
 
     }
 
@@ -201,5 +220,9 @@ export class SliceTable {
         }
         groupList.sort((a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales });
         return groupList.flat()
+    }
+
+    getPdvInstance(pdv: any) {
+        return PDV.getInstances().get(pdv[0]);
     }
 }

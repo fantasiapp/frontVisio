@@ -93,6 +93,32 @@ import { ICellRendererParams } from "ag-grid-community";
       this.show = params.value;
     }
   }
+
+  @Component({
+    selector: 'target-component',
+    template: `<div [ngStyle]="{'display': 'flex',
+                'flex-direction': 'row'}">
+                <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value }">
+                    .
+                </div>
+               </div>`,
+  })
+  export class TargetCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    p2cd?: {[name: string]: number}[];
+
+    agInit(params: ICellRendererParams): void {
+        this.p2cd = params.value['p2cd'];
+        console.log("value : ", params.value)
+
+    }
+  }
+
+
+
   @Component({
     selector: 'no-component',
     template: ``,
