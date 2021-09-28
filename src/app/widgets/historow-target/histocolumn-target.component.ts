@@ -55,7 +55,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   private renderTargetControl() {
     let barsNumber = this.barHeights.length;
-    this.newTargetControl()
+    let container = this.newTargetControl();
+    container
       .style('margin-left', (10 + this.marginX) + 'px')
       .selectAll('input')
       .data(d3.range(barsNumber))
@@ -63,7 +64,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         .append('input')
         .attr('value', 0)
         .style('width', (this.barWidth.toFixed(1)) + 'px')
-        .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px')
+        .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px');
+      return container;
   }
 
   createGraph(data: any) {
@@ -164,18 +166,12 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .classed('target-control-opened', this.inputIsOpen);
     
     //make target control just in case
-    this.newTargetControl()
+    this.renderTargetControl()
       .classed('target-control-opened', this.inputIsOpen);
     
     d3.select(this.validateTargetControl!.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);
-    
-    
-    let listener = container
-      .on('transitionend', (e) => {
-        if ( this.inputIsOpen )
-          self.renderTargetControl();
-      });
+
   }
 
   doTargetControl() {
