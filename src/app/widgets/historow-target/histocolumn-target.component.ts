@@ -81,7 +81,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       this.getNeedleGroup()!.remove();
       setTimeout(() => {
         this.createNeedles(data);
-        this.schedule.emit();
+        this.schedule.next();
       }, this.transitionDuration);
       
     });

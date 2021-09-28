@@ -29,7 +29,7 @@ export class HistocurveComponent extends BasicWidget {
       this.chart!.load({
         columns: d,
         done: () => {
-          this.schedule.emit();
+          this.schedule.next();
         }
       });
     });

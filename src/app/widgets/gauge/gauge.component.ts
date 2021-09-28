@@ -86,7 +86,7 @@ export class GaugeComponent extends BasicWidget {
         columns: [[newId, Math.random()*100 | 0]],
         unload: newId == oldId ? false : [oldId],
         done: () => {
-          this.schedule.emit();
+          this.schedule.next();
         }
       });
     });

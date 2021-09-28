@@ -59,7 +59,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
         columns: data,
         unload: oldIds.filter(x => !newIds.includes(x)),
         done: () => {
-          this.schedule.emit();
+          this.schedule.next();
         }
       });
     });

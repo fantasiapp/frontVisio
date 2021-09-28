@@ -114,7 +114,7 @@ export class HistoRowComponent extends BasicWidget {
         categories: newCategories,
         unload: currentItems.filter(x => !newItems.includes(x)),
         done: () => {
-          this.schedule.emit();
+          this.schedule.next();
         }
       });
     });
