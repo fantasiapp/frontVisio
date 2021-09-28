@@ -21,6 +21,9 @@ export class HistoRowComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
+  private axisPadding: number = 120;
+  private rectWidth: number = 0;
+
   createGraph({data, colors}: any, opt: {} = {}) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
@@ -29,11 +32,12 @@ export class HistoRowComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoColumnComponent]: Rendering inaccurate format because `x` axis is unspecified.')
 
-      d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-      (window as any).chart = this.chart = bb.generate({
+    let self = this;
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
+    (window as any).chart = this.chart = bb.generate({
       bindto: this.content.nativeElement,
       padding: {
-        left: 120
+        left: this.axisPadding
       },
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
@@ -54,12 +58,15 @@ export class HistoRowComponent extends BasicWidget {
             </div>
           `;
         },
-        // position(data, width, height, element, pos) {
-        //   return {
-        //     left: Math.min(element.getBoundingClientRect().width, pos.x + width / 2),
-        //     top: (pos.xAxis || pos.y) + 18
-        //   };
-        // }
+        position: (data, width, height, element, pos) => {
+          let maxRight = this.rectWidth - 30; //30 css padding
+          
+          //pos.x = Math.min(pos.x, maxRight - this.axisPadding + width/2);
+          return {
+            left: Math.max(this.axisPadding, Math.min(maxRight, pos.x - width/2 + this.axisPadding)),
+            top: (pos.xAxis || pos.y) + 20
+          };
+        }
       },
       bar: {
         sensitivity: 10
@@ -98,6 +105,9 @@ export class HistoRowComponent extends BasicWidget {
       },
       transition: {
         duration: 250
+      },
+      onrendered() {
+        self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
       },
       ...opt
     });

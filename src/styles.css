@@ -116,10 +116,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     transform: translate(-50%, 15px);
 }
 
-/* histograms automatically lower the tooltip */
-.historow-tooltip {
-    transform: none;
+@supports(width: fit-content) {
+    /* histograms automatically lower the tooltip */
+    .historow-tooltip {
+        transform: none;
+    }
+    
+    .bb-tooltip-container {
+        width: fit-content;
+    }
 }
+
 
 /* histograms automatically lower the tooltip */
 .histocolumn-tooltip {
