@@ -79,10 +79,11 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
       tree.attributes['dashboards'] = [];
 
       let dashboards = DataExtractionHelper.get('dashboards');
+      console.log(dashboards);
       let layouts = DataExtractionHelper.get('layout');
       for (let height = 0; height < extractor.height; height++)
-        tree.attributes['dashboards'].push(
-          DataExtractionHelper.getDashboardsAt(height).map(
+        console.log(extractor.getDashboardsAt(height)) as undefined|| tree.attributes['dashboards'].push(
+          extractor.getDashboardsAt(height).map(
             (id: number) => new Dashboard(
               id, 
               dashboards[id], 

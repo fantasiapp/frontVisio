@@ -212,6 +212,12 @@ class DataWidget{
   getData(){
     return this.data;
   }
+
+  fillWithRandomValues(){
+    for(let i = 0; i < this.rowsTitles.length; i++)
+      for(let j = 0; j < this.columnsTitles.length; j++)
+        this.data[i][j] = Math.random() * 100;
+  }
 }
 
 class Sale {
@@ -424,20 +430,23 @@ export class PDV{
   }
 
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[]){
-    let irregular: string = 'no';
-    if (nonRegularAxis.includes(axis1)) irregular = 'line';
-    else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-    let byIndustries, enduit, clientProspect, target;
-    if (irregular == 'line' || irregular == 'col')
-        byIndustries = industrieAxis.includes(axis1) || industrieAxis.includes(axis2),
-        enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
-        clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
-        target = targetAxis.includes(axis1) || targetAxis.includes(axis2);
-    for (let pdv of pdvs){
-      if (pdv.attribute('available') && pdv.attribute('sale')){
-        if (irregular == 'no') dataWidget.addOnCase(pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
-        else if (irregular == 'line') dataWidget.addOnColumn(pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
-        else if (irregular == 'col') dataWidget.addOnRow(pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
+    if (axis1 == 'suiviAD' || axis2 == 'suiviAD') dataWidget.fillWithRandomValues();
+    else {
+      let irregular: string = 'no';
+      if (nonRegularAxis.includes(axis1)) irregular = 'line';
+      else if (nonRegularAxis.includes(axis2)) irregular = 'col';
+      let byIndustries, enduit, clientProspect, target;
+      if (irregular == 'line' || irregular == 'col')
+          byIndustries = industrieAxis.includes(axis1) || industrieAxis.includes(axis2),
+          enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
+          clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
+          target = targetAxis.includes(axis1) || targetAxis.includes(axis2);
+      for (let pdv of pdvs){
+        if (pdv.attribute('available') && pdv.attribute('sale')){
+          if (irregular == 'no') dataWidget.addOnCase(pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
+          else if (irregular == 'line') dataWidget.addOnColumn(pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
+          else if (irregular == 'col') dataWidget.addOnRow(pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
+        }
       }
     }
   }
@@ -573,6 +582,7 @@ class SliceDice{
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
+    console.log('-->', groupsAxis1);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined;
