@@ -294,7 +294,7 @@ export class PDV{
       this.sales.push(new Sale(d));
   };
 
-  private getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, target=false): (number | number[]){
+  public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, target=false): (number | number[]){
     if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target);
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd

@@ -5,7 +5,9 @@ import { PDV } from "./Slice&Dice";
 @Injectable()
 export class SliceTable {
     private pdvs: any;
+    private sortedPdvsList: {}[] = [];
     private pdvFields: string[];
+    private segmentDnEnduit: {} = {};
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
     private navigationOptions: {id: any, name: any}[] = [];
@@ -14,52 +16,73 @@ export class SliceTable {
     //type : 'p2cd' or 'enduit'
     private navIds: {[type: string]: string[]} = {
         'p2cd': ['enseigne', 'available', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
-        'enduit': []
+        'enduit': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble']
     }
     private navNames: {[type: string]: string[]} = {
         'p2cd': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
-        'enduit': []
+        'enduit': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble']
     }
     private visibleColumns: {[type: string]: string[]} = {
         'p2cd': ['name', 'siniatSales', 'totalSales'],
-        'enduit':  []
+        'enduit': ['name', 'visits', 'target', 'potential']
     }
     private specificColumns: {[type: string]: string[]} = {
         'p2cd': ['siniatSales', 'totalSales'],
-        'enduit':  []
+        'enduit':  ['visits', 'target', 'potential', 'typologie']
     }
 
     private customField: {[name: string]: (pdv: any) => {}} = {
         'siniatSales': (pdv: any) => {
             return pdv[21].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[0]) && sale[1] === 1))
+                .includes(sale[1]) && sale[0] === 1))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
         'totalSales': (pdv: any) => {
             return pdv[21].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[0])))
+                .includes(sale[1])))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
         },
+        'visits': (pdv: any) => {
+            return 1;
+        },
+        'target': (pdv: any) => {
+            return [1,2,3];
+        },
+        'potential': (pdv: any) => {
+            return 1;
+        },
+        'typologie': (pdv :any) => {
+            return PDV.getInstances().get(pdv[0])!.getValue('dn');
+        }
+    }
+    
+    private customSort: {[name: string]: (a: any, b: any) => number} = {
+        'p2cd': (a: any, b: any) => {return b.totalSales - a.totalSales},
+        'enduit': (a: any, b: any) => {return 1},
     }
 
-    
+
     constructor(){
+        PDV.load(false);
         this.pdvs = DataExtractionHelper.get('pdvs')
         this.pdvFields = DataExtractionHelper.get('structurePdv');
-    
+        this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
+
         //Get idsToFields, to match id values in pdv to string values
         for(let field of this.pdvFields) {
             this.idsToFields[field] = DataExtractionHelper.get(field);
         }
+
     }
 
-    getPdvs(slice: any = {}, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
+    getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
         if (slice !== {}){
             this.pdvs = []
             let allPdvs = DataExtractionHelper.get('pdvs');
-            let selectedPdvs = PDV.sliceTree(slice)[0]
-            for(let pdvInfo of selectedPdvs) {
-                this.pdvs.push(allPdvs[pdvInfo.id]);
+            for(let pdvInfo of PDV.sliceTree(slice)[0]) {
+                let newPdv = allPdvs[pdvInfo.id];
+                newPdv[0] = pdvInfo.id; //rewriting pdv code (as we never use it)
+                this.pdvs.push(newPdv);
             }
         }
         let pdvsAsList =  [];
@@ -77,8 +100,14 @@ export class SliceTable {
             }
             pdvsAsList.push(newPdv);
         }
+        console.log("Pdvs : ", pdvsAsList)
+        
         this.titleData[0] = Object.keys(this.pdvs).length;
-        return pdvsAsList;
+        pdvsAsList.sort(this.customSort[type])
+        this.sortedPdvsList = pdvsAsList;
+        // this.buildGroups('enseigne')
+        return this.buildGroups(groupField)
+;
     }
 
     getAllColumns(type: string) {
@@ -87,7 +116,7 @@ export class SliceTable {
         return allColumns;
     }
 
-    getColumnDefs(type: string, rowGroupId?: string): {}[]{ // !!! A bit hardcoded : specific to p2CDtable
+    getColumnDefs(type: string, rowGroupId?: string): {}[]{
         let allColumns = this.getAllColumns(type);
         let columnDefs: {[key:string]: any}[] = [];
 
@@ -95,9 +124,6 @@ export class SliceTable {
             let column = {field: field, hide: true, rowGroup: false}
             if(this.visibleColumns[type].includes(field)){
                 column.hide = false;
-            }
-            if(field === rowGroupId) {
-                column.rowGroup = true;
             }
             columnDefs.push(column);
         }
@@ -127,7 +153,7 @@ export class SliceTable {
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];
         data.push(this.getColumnDefs(type, rowGroupId));
-        data.push(this.getPdvs(slice, type));
+        data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
         data.push(this.getTitleData());
         return data;
@@ -136,5 +162,31 @@ export class SliceTable {
     getGroupsData(type: string, id: string) {
         return this.getColumnDefs(type, id);
     }
-    
+
+    buildGroups(groupField: string) {
+        let pdvsByGroup = new Map<string, {}[]>();
+        for(let pdv of this.sortedPdvsList){
+            if(pdvsByGroup.get((pdv as any)[groupField]) === undefined) {
+                pdvsByGroup.set((pdv as any)[groupField], [pdv]);
+            } else {
+                pdvsByGroup.get((pdv as any)[groupField])!.push(pdv);
+            }
+        }
+        let groupList: {}[][] = [];
+        for(let entry of pdvsByGroup.entries()){
+            let group: {}[] = [];
+            /*** P2CD hard-coded ***/
+            group = group.concat({
+                'name': entry[0],
+                'siniatSales': entry[1].reduce((totalSiniatSales: number, pdv: {}) => totalSiniatSales + (pdv as any).siniatSales, 0),
+                'totalSales': entry[1].reduce((totalTotalSales: number, pdv: {}) => totalTotalSales + (pdv as any).totalSales, 0),
+                'groupRow': true
+                })
+
+                group = group.concat(entry[1]);
+                groupList.push(group)
+        }
+        groupList.sort((a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales });
+        return groupList.flat()
+    }
 }

@@ -177,14 +177,16 @@ app-historow .bb-xgrid {
     stroke-width: 0;
 }
 
+/* Ag-grid css*/
 .ag-theme-alpine {
     font-weight: 300;
 }
-.ag-theme-alpine .ag-row.ag-row-level-0 {
-    background-color: #F06D0C;
-    color: white;
+.group-row {
+    background-color: #F06D0C !important;
+    color: white !important;
+    font-weight: 600 !important;
 }
-
+/**************/
 g.simple-needle {
     pointer-events: none;
     transform-origin: 0 0;
