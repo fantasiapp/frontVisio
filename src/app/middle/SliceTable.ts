@@ -61,6 +61,12 @@ export class SliceTable {
                                 .filter((value, index) => {![this.idIndustries['Siniat'], this.idIndustries['Placo'], this.idIndustries['Knauf']].includes(index)})
                                 .reduce((total: number, value: number) => total + value, 0)
                             ,color: 'grey'})
+
+            enduitSales.push({'enseigne': 'Pregy', 'value': enduitSalesRaw[0], color: 'darkmagenta'})
+            enduitSales.push({'enseigne': 'Pregy', 'value': enduitSalesRaw[1], color: 'red'})
+            enduitSales.push({'enseigne': 'Pregy', 'value': enduitSalesRaw[2]+enduitSalesRaw[3], color: 'darkgrey'})
+
+
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {

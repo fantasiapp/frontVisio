@@ -96,12 +96,20 @@ import { ICellRendererParams } from "ag-grid-community";
 
   @Component({
     selector: 'target-component',
-    template: `<div [ngStyle]="{'display': 'flex',
-                'flex-direction': 'row'}">
+    template: `
+        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'height': 'auto'}">
+            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
                 <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value }">
                     .
                 </div>
-               </div>`,
+            </div>
+
+            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
+                <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value }">
+                    .
+                </div>
+            </div>
+        </div>`,
   })
   export class TargetCellRenderer implements AgRendererComponent {
     
@@ -109,10 +117,11 @@ import { ICellRendererParams } from "ag-grid-community";
       return true;
     }
     p2cd?: {[name: string]: number}[];
+    enduit?: {[name: string]: number}[];
 
     agInit(params: ICellRendererParams): void {
         this.p2cd = params.value['p2cd'];
-        console.log("value : ", params.value)
+        this.enduit = params.value['enduit'];
 
     }
   }
