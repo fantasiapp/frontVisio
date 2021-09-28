@@ -45,6 +45,8 @@ class DataWidget{
   }
 
   groupData(groupsAxis1: string[], groupsAxis2: string[], simpleFormat=false){
+    let isOne1 = groupsAxis1.length == 1,
+      isOne2 = groupsAxis2.length == 1;
     groupsAxis1 = (groupsAxis1.length === 0) ? this.rowsTitles : groupsAxis1;
     groupsAxis2 = (groupsAxis2.length === 0) ? this.columnsTitles : groupsAxis2;
     let newData: number[][] = DataWidget.zeros(groupsAxis1.length, groupsAxis2.length),
@@ -65,17 +67,17 @@ class DataWidget{
     }
     for (let [id, i] of Object.entries(this.idToI)) this.idToI[+id] = newIdToI[i as number];
     for (let [id, j] of Object.entries(this.idToJ)) this.idToJ[+id] = newIdToJ[j as number];
-    if (simpleFormat && groupsAxis1.length == 1 && groupsAxis2.length == 1){
+    if (simpleFormat && isOne1 && isOne2){
       this.dim = 0;
       this.data = newData[0][0];
       // if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
       // this.columnsTitles = ['all'];
-    } else if (simpleFormat && groupsAxis1.length == 1){
+    } else if (simpleFormat && isOne1){
       this.dim = 1;
       this.data = newData[0];
       // this.rowsTitles = ['all'];  
       // this.columnsTitles = groupsAxis2; 
-    } else if (simpleFormat && groupsAxis2.length == 1){
+    } else if (simpleFormat && isOne2){
       this.dim = 1;
       this.data = newData.map(x => x[0]);
       // this.rowsTitles = groupsAxis1;
@@ -483,6 +485,13 @@ export class PDV{
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
     this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
     return dataWidget;
+  }
+
+  static reSlice(pdvs:PDV[], conditions: [string, number][]){
+    let newPdvs: PDV[] = [];
+    for (let pdv of pdvs)
+      if (conditions.map(condition => pdv.attribute(condition[0]) === condition[1]).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
+    return newPdvs;
   }
 
   static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean){
