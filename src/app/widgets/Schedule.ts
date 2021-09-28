@@ -41,7 +41,7 @@ export class SequentialSchedule {
     }
   }
 
-  emit() {
+  next() {
     this.subject.next();
   }
 };
