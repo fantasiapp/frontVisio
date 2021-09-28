@@ -457,11 +457,18 @@ export class PDV{
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean) {
     if (axe2 == 'lg-1') {
-      let labelsToLevelName: {[key: string]: string}= {Région: 'drv', Secteur: 'agent'};
+      let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
       let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe2 = subLevelLabel;
+    }
+    if (axe1 == 'lt-1'){
+      let labelsToLevelName: {[key: string]: string} = {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", Site: 'site'};
+      let labels = this.tradeTree.attributes['labels'].concat(['Site']);      
+      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
+      let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
+      axe1 = subLevelLabel;
     }
     let dataAxe1 = DataExtractionHelper.get(axe1);
     let dataAxe2 = DataExtractionHelper.get(axe2);
