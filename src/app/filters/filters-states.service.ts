@@ -2,9 +2,9 @@ import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
-import {Navigation} from '../middle/Navigation';
-//!!!HACK
-import { load } from '../middle/Slice&Dice';
+import { Navigation } from '../middle/Navigation';
+import { loadAll, getGeoTree } from '../middle/Slice&Dice';
+import { Tree } from '../middle/Node';
 
 @Injectable({
   providedIn: 'root',
@@ -12,24 +12,14 @@ import { load } from '../middle/Slice&Dice';
 export class FiltersStatesService {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
-  
   constructor(private navigation: Navigation, private dataservice : DataService) {
     this.dataservice.response.subscribe((data) => {
-      if (data){
-        console.debug('les datas ', data);
+      if (data) {
         DataExtractionHelper.setData(data);
-        //HACK!!
-        this.navigation.load(load());
-        const currentArrays = {
-          levelArray: this.navigation.getArray('level'),
-          dashboardArray: this.navigation.getArray('dashboard'),
-        };
-        const currentState = {
-          States: this.navigation.getCurrent(),
-        };
-        this.stateSubject.next(currentState);
-        this.arraySubject.next(currentArrays);}
-        this.$path.next({});
+        loadAll();
+        let defaultTree = getGeoTree();
+        this.reset(defaultTree);
+      }
     });
   }
 
@@ -95,6 +85,7 @@ export class FiltersStatesService {
     const currentState = {
       States: this.navigation.getCurrent(),
     };
+
     if ( emit )
       this.stateSubject.next(currentState);
       this.arraySubject.next(currentArrays);
@@ -109,6 +100,20 @@ export class FiltersStatesService {
       if ( emit )
         this.$path.next(path);
     }
+  }
+
+  public reset(t: Tree) {
+    this.navigation.setTree(t);
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    const currentState = {
+      States: this.navigation.getCurrent(),
+    };
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+    this.$path.next({});
   }
 
   canSub() {

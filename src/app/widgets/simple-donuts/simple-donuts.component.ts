@@ -8,7 +8,7 @@ import bb, {donut} from 'billboard.js';
 
 @Component({
   selector: 'app-simple-donut',
-  templateUrl: './simple-donut.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./simple-donut.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

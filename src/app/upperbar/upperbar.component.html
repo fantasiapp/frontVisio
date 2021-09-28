@@ -12,13 +12,13 @@
       ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
     >
     <input
-      [(ngModel)]="sldValue"
       type="range"
       min="0"
       max="1"
       step="1"
       class="input-range"
       [value]="sldValue"
+      (click)="toggle();"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">

@@ -83,6 +83,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   }
 
   ngOnDestroy() {
+    d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     this.subscription.unsubscribe();
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();

@@ -1,9 +1,4 @@
-// mocks
-const tradeStructure = [
-  "enseigne",
-  "ensemble",
-  "sousEnsemble"
-];
+import Dashboard from "./Dashboard";
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -45,7 +40,7 @@ const enduitIndustrieTarget = {
 };
 
 const industrieTarget = {
-  0: 'Potentiel'
+  0: "Potentiel ciblé"
 }
 const colTableP2cd = {
   1: "brand",
@@ -55,6 +50,12 @@ const colTableP2cd = {
   5: "name",
   6: "siniatSells",
   7: "totalSells"
+};
+
+const suiviAD = {
+  1: "Terminées",
+  2: "Non renseignées",
+  3: "Non mises à jour"
 }
 
 //Will have to make this non static one day
@@ -106,15 +107,15 @@ class DataExtractionHelper{
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
     this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
     this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
-    this.AXISFORGRAHP_LABELS_ID = this.data["structureAxislForGraph"].indexOf("labels");
-    this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelForGraph"].indexOf('label');
-    this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelForGraph"].indexOf('color');
+    this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
+    this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
+    this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
 
     
     //trades have less info that geo
     
     this.geoLevels = [];
-    this.tradeLevels = tradeStructure;
+    this.tradeLevels = [];
     //compute geoLevels
     let geolevel = this.data['levelGeo'];
     while (true){
@@ -122,8 +123,20 @@ class DataExtractionHelper{
       if (!(geolevel = geolevel[this.SUBLEVEL_INDEX])) break;
     }
 
+    let tradeLevel = this.data['levelTrade'];
+    while (true){
+      this.tradeLevels.push(tradeLevel.slice(0, structure.length-1));
+      if (!(tradeLevel = tradeLevel[this.SUBLEVEL_INDEX])) break;
+    }
+
     this.geoHeight = this.geoLevels.length;
     this.tradeHeight = this.tradeLevels.length;
+
+    //initialize other helpers
+    NavigationExtractionHelper.data = this.get('geoTree');
+    NavigationExtractionHelper.height = this.geoHeight;
+    TradeExtrationHelper.data = this.get('tradeTree');
+    TradeExtrationHelper.height = this.tradeHeight;
   }
 
   static getGeoLevel(height: number){
@@ -143,13 +156,20 @@ class DataExtractionHelper{
     return name;
   }
 
-  static getTradeLevelLabel(height: number): string{
+  static getTradeLevel(height: number){
+    if (height >= this.tradeLevels.length || height < 0)
+      throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
     return this.tradeLevels[height];
   }
 
-  static getTradeLevelName(height: number, id: number): string{
-    if (height == 0) return 'Général';
-    let name = this.data[this.getTradeLevelLabel(height)][id];
+  static getTradeLevelLabel(height: number): string{
+    return this.getTradeLevel(height)[this.PRETTY_INDEX];
+  }
+
+  static getTradeLevelName(height: number, id: number): string {
+    // HARDCODE
+    if ( height == 0 ) return '';
+    let name = this.data[this.getTradeLevel(height)[this.LABEL_INDEX]][id];
     if (name === undefined) throw `No level with id=${id}`;
     return name;
   }
@@ -165,10 +185,16 @@ class DataExtractionHelper{
     return widgetParams;
   }
   
-  static getDashboardsAt(height: number): number[]{
+  static getGeoDashboardsAt(height: number): number[]{
     if (height >= this.geoLevels.length || height < 0)
       throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
     return this.getGeoLevel(height)[this.DASHBOARD_INDEX];
+  }
+
+  static getTradeDashboardsAt(height: number): number[]{
+    if (height >= this.tradeLevels.length || height < 0)
+      throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
+    return this.getTradeLevel(height)[this.DASHBOARD_INDEX];
   }
 
   // a enlever, normalement on peut utiliser le get pour ça
@@ -182,6 +208,7 @@ class DataExtractionHelper{
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
     if (field == 'paramsCompute') return paramsCompute;
     if (field == 'clientProspect') return clientProspect;
+    if (field == "suiviAD") return suiviAD;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 
@@ -235,6 +262,45 @@ class DataExtractionHelper{
   static getListTarget(ids: number[], targetName:string){
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
   }
-}
+};
+
+export type DataTree = [number, [DataTree]] | number;
+
+export interface TreeExtractionHelper {
+  data: DataTree;
+  height: number;
+  getName: (height: number, id: number) => string;
+  getLevelLabel: (height: number) => string;
+  getDashboardsAt: (height: number) => number[];
+};
+
+export const NavigationExtractionHelper: TreeExtractionHelper = {
+  data: 0,
+  height: DataExtractionHelper.geoHeight,
+  getName(height: number, id: number) {
+    return DataExtractionHelper.getGeoLevelName(height, id);
+  },
+  getLevelLabel(height: number) {
+    return DataExtractionHelper.getGeoLevelLabel(height)
+  },
+  getDashboardsAt(height: number){
+    return DataExtractionHelper.getGeoDashboardsAt(height)
+  }
+};
+
+export const TradeExtrationHelper: TreeExtractionHelper = {
+  data: 0,
+  height: DataExtractionHelper.tradeHeight,
+  getName(height: number, id: number) {
+    return DataExtractionHelper.getTradeLevelName(height, id);
+  },
+  getLevelLabel(height: number) {
+    return DataExtractionHelper.getTradeLevelLabel(height);
+  },
+  getDashboardsAt(height: number){
+    return DataExtractionHelper.getTradeDashboardsAt(height)
+  }
+};
 
 export default DataExtractionHelper;
+

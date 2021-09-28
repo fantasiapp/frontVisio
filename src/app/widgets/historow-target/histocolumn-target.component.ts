@@ -7,7 +7,7 @@ import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
 @Component({
   selector: 'app-historow-target',
-  templateUrl: './histocolumn-target.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./histocolumn-target.component.css']
 })
 export class HistoColumnTargetComponent extends HistoColumnComponent {
@@ -18,23 +18,54 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private needles?: d3Selection;
   private barHeights: number[] = [];
   private barTargets: number[] = [];
+  private offsetX: number = 0;
+  private offsetY: number = 0;
+  private marginX: number = 0;
+  private barWidth: number = 0;
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
     
   }
 
+  private createTargetControl() {    
+    d3.select(this.ref.nativeElement)
+      .insert('div', 'div.container')
+      .classed('target-control', true);
+  };
+
+  private renderTargetControl() {
+    let barsNumber = this.barHeights.length;
+    console.log(this);
+
+    console.log(d3.select(this.ref.nativeElement)
+    .select('div.target-control'))
+
+    d3.select(this.ref.nativeElement)
+      .select('div.target-control')
+      .style('margin-left', -5/4*this.marginX + 'px')
+      .selectAll('input')
+      .data(d3.range(barsNumber))
+      .enter()
+        .append('input')
+        .classed('target-input', true)
+        .style('width', (this.barWidth|0) + 'px')
+        .style('margin', '10px ' + (this.offsetX|0) + 'px')
+  }
+
   createGraph(data: any) {
+    this.createTargetControl();  
     let self = this;
     super.createGraph(data, {
       onresized: () => {
         this.createNeedles({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
+        this.config('onrendered', null);
         self.chart = this;
         (<any>window).chart = this;
-        self.createNeedles(data);       
-        this.config('onrendered', null);
+        self.createNeedles(data);
+        self.renderTargetControl();
       },
       transition: {
         duration: this.transitionDuration
@@ -78,8 +109,12 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     });
     
     //n * width + 2*(n-1)*offset = mainRect.width
-    offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
-    offsetY = (gridRect.height - mainRect.height) + 2;
+    this.barWidth = width;
+    this.offsetX = offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
+    this.offsetY = offsetY = (gridRect.height - mainRect.height) + 2;
+    this.marginX = this.chart!.$.svg.node().getBoundingClientRect().left - (this.chart!.$.grid as any).main.node().getBoundingClientRect().left;
+
+    console.log(this.marginX)
 
     this.needles = main.append('g')
       .classed('simple-needle', true);
