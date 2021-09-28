@@ -53,7 +53,13 @@ export class HistoRowComponent extends BasicWidget {
               <div class="tooltip-tail"></div>
             </div>
           `;
-        }
+        },
+        // position(data, width, height, element, pos) {
+        //   return {
+        //     left: Math.min(element.getBoundingClientRect().width, pos.x + width / 2),
+        //     top: (pos.xAxis || pos.y) + 18
+        //   };
+        // }
       },
       bar: {
         sensitivity: 10

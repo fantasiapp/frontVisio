@@ -118,7 +118,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 /* histograms automatically lower the tooltip */
 .historow-tooltip {
-    transform: translate(calc(-50% + 20px), -6px);
+    transform: none;
 }
 
 /* histograms automatically lower the tooltip */
