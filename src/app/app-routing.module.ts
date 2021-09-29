@@ -29,10 +29,6 @@ const routes: Routes = [
     path: 'filters',
     component: FiltersComponent,
     canActivate:[AuthGuard],
-  },
-  {
-    path: 'map',
-    component: MapComponent
   }
 ];
 
