@@ -1,11 +1,11 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer } from './renderers';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer, GroupTargetCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -14,10 +14,12 @@ import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, Checkbo
   providers: [SliceDice],
 })
 export class TableComponent extends BasicWidget {
+  @ViewChild('title', {static: false, read: ElementRef})
+  private titleContainer?: ElementRef;
 
   private content!: ElementRef;
-  titleData: number[] = [0,0,0];
-
+  title: string = "";
+  
   //p2cd or enduit
   type: string = 'p2cd';
 
@@ -63,10 +65,12 @@ export class TableComponent extends BasicWidget {
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
+    groupTargetCellRenderer: GroupTargetCellRenderer,
     groupNameCellRenderer: GroupNameCellRenderer,
     infoCellRenderer: InfoCellRenderer,
     potentialCellRenderer: PotentialCellRenderer,
     groupPotentialCellRenderer: GroupPotentialCellRenderer,
+    visitsCellRenderer: VisitsCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -97,9 +101,10 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setColumnDefs(data[0]);
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
-    this.titleData = data[3];
-
+    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1]} sur un total identifié de ${data[3][2]} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1]} Tonnes, sur un potentiel de ${data[3][2]} en Tonnes`
     this.pinnedRow = data[1][0]; //Hardest part
+    this.titleContainer!.nativeElement.innerText = this.title;
   }
 
   updateGroups(id: string) {
@@ -124,72 +129,65 @@ export class TableComponent extends BasicWidget {
               break;
             case 'siniatSales':
               cd.cellRendererSelector = function (params: any) {
-                const rowSalesDetails = {component: 'rowSalesCellRenderer'};
-                const groupSalesDetails = {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}}
-                
-                if(params.data.groupRow === true) return groupSalesDetails;
-                else return rowSalesDetails;
+                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}};
+                else return {component: 'rowSalesCellRenderer'};
               }
               break;
 
             case 'totalSales':
               cd.cellRendererSelector = function (params: any) {
-                const rowSalesDetails = {component: 'rowSalesCellRenderer'};
-                const groupSalesDetails = {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}}
-                
-                if(params.data.groupRow === true) return groupSalesDetails;
-                else return rowSalesDetails;
+                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}};
+                else return {component: 'rowSalesCellRenderer'};
               }
               break;
 
             case 'edit':
               cd.cellRendererSelector = function (params: any) {
-                const editDetails = {component : 'editCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return editDetails;
+                return {component : 'editCellRenderer'};;
               }
               break;
             
             case 'checkbox':
               cd.cellRendererSelector = function (params: any) {
-                const checkboxDetails = {component : 'checkboxCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return checkboxDetails;
+                return {component : 'checkboxCellRenderer'};;
               }
               break;
             
             case 'pointFeu':
               cd.cellRendererSelector = function (params: any) {
-                const pointFeuDetails = {component : 'pointFeuCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return pointFeuDetails;
+                return {component : 'pointFeuCellRenderer'};
               }
               break;
             
             case 'target':
               cd.cellRendererSelector = function (params: any) {
-                const targetDetails = {component: 'targetCellRenderer'}
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return targetDetails;
+                if(params.data.groupRow === true) return {component: 'groupTargetCellRenderer'}
+                return {component: 'targetCellRenderer'};
               }
               break;
             
             case 'info':
               cd.cellRendererSelector = function (params: any) {
-                const infoDetails = {component : 'infoCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return infoDetails;
+                return {component : 'infoCellRenderer'};
               }
               break;
             
             case 'potential':
               cd.cellRendererSelector = function (params: any) {
-                const potentialDetails = {component : 'potentialCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'groupPotentialCellRenderer'}
-                return potentialDetails
+                return {component : 'potentialCellRenderer'};
               }
               break;
-
+            case 'nbVisits':
+              cd.cellRendererSelector = function (params: any) {
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                return {component : 'visitsCellRenderer'};
+              }
+              break;
 
             default:
               break;
