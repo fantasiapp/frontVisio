@@ -8,17 +8,17 @@
     </ul>
 </div>
 
+<h2>Référentiel {{pdv!.attribute('name')}}</h2>
 <div class="content">
-    <h1>Référentiel {{pdv!.attribute('name')}}</h1>
     <div class="definition">
         <ul>
-            <li>Point de vente: {{pdv!.attribute('name')}}</li>
-            <li>Agent: {{pdv!.attribute('agent')}}</li>
-            <li>Segment: {{pdv!.attribute('segmentMarketing')}}</li>
-            <li>Enseigne: {{pdv!.attribute('enseigne')}}</li>
-            <li>Département: {{pdv!.attribute('dep')}}</li>
-            <li>Ville: {{pdv!.attribute('ville')}}</li>
-            <li>Bassin: {{pdv!.attribute('bassin')}}</li>
+            <li><span>Point de vente</span>: {{pdv!.attribute('name')}}</li>
+            <li><span>Agent</span>: {{getName('agent', pdv!.attribute('agent'))}}</li>
+            <li><span>Segment</span>: {{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
+            <li><span>Enseigne</span>: {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
+            <li><span>Département</span>: {{getName('dep', pdv!.attribute('dep'))}}</li>
+            <li><span>Ville</span>: {{getName('ville', pdv!.attribute('ville'))}}</li>
+            <li><span>Bassin</span>: {{getName('bassin', pdv!.attribute('bassin'))}}</li>
         </ul>
     </div>
     <div class="props">
@@ -30,5 +30,6 @@
 </div>
 
 <div class="comments">
+    Commentaires:<br/>
     <textarea></textarea>
 </div>

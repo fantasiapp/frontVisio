@@ -1,7 +1,7 @@
 :host {
     position: absolute;
     width: 600px;
-    height: 100%;
+    height: calc(100% - 190px);
     top: 0;
     right: 0;
     background: white;
@@ -9,7 +9,14 @@
     font-size: 16px;
     z-index: 9999;
     margin-top: 70px;
-    padding-top: 50px;
+    padding-top: 100px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+}
+
+.host * {
+    margin: 0;
 }
 
 .nav ul {
@@ -48,7 +55,7 @@
     height: 2px;
     border: none;
     background: black;
-    top: 43.5px;
+    top: 93px;
 }
 
 .close {
@@ -69,6 +76,30 @@
     background: black;
 }
 
+.content {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
 .nav ul {
     list-style-type: none;
+}
+
+.definition ul, .props ul {
+    list-style-type: none;
+}
+
+.definition ul li span {
+    font-weight: 500;
+}
+
+.props {
+    color: #F38839;
+}
+
+.comments textarea {
+    display: block;
+    height: 200px;
+    width: 100%;
+    box-sizing: border-box;
 }
