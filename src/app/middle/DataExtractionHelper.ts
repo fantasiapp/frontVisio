@@ -58,6 +58,23 @@ const suiviAD = {
   3: "Non mises à jour"
 }
 
+const weeks = {
+  1: "avant",
+  2: "s-6",
+  3: "s-5",
+  4: "s-4",
+  5: "s-3",
+  6: "s-2",
+  7: "s-1",
+  8: "s-0",
+}
+
+const histoCurve = {
+  1: "Curve",
+  2: "Histo"
+}
+
+
 //Will have to make this non static one day
 class DataExtractionHelper{  
   static data: any;
@@ -197,6 +214,10 @@ class DataExtractionHelper{
     return this.getTradeLevel(height)[this.DASHBOARD_INDEX];
   }
 
+  static getNameOfRegularObject(field:string, id:number){
+    return DataExtractionHelper.get(field)[id];
+  }
+
   // a enlever, normalement on peut utiliser le get pour ça
   static getPDVFields(){
     return this.data['structurePdv'];
@@ -209,6 +230,8 @@ class DataExtractionHelper{
     if (field == 'paramsCompute') return paramsCompute;
     if (field == 'clientProspect') return clientProspect;
     if (field == "suiviAD") return suiviAD;
+    if (field == "weeks") return weeks;
+    if (field == "histo&curve") return histoCurve;    
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 

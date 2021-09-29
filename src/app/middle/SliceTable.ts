@@ -1,6 +1,4 @@
 import { Injectable } from "@angular/core";
-import { NumberValueAccessor } from "@angular/forms";
-import { treemapBinary } from "d3-hierarchy";
 import DataExtractionHelper from "./DataExtractionHelper";
 import { PDV } from "./Slice&Dice";
 
@@ -165,13 +163,9 @@ export class SliceTable {
             var newPdv: {[key:string]:any} = {}; //concrete row of the table
             for(let index = 0; index < Object.keys(this.getAllColumns(type)).length; index ++) {
                 let field = this.getAllColumns(type)[index]
-                if(this.idsToFields[field]) {
-                    newPdv[field] = this.idsToFields[field][pdv[index]]
-                } else if(this.tableConfig[type]['specificColumns'].includes(field)) {
-                    newPdv[field] = this.customField[field](pdv);
-                } else {
-                    newPdv[field] = pdv[index]
-                }
+                if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
+                else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
+                else newPdv[field] = pdv[index]
             }
             pdvsAsList.push(newPdv);
         }
@@ -200,9 +194,7 @@ export class SliceTable {
         }
         for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
             let column = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': (params: any) => 1}
-            if(column.field === 'potential') {
-                column.colSpan = (params : any) => {return params.data.groupRow === true ? 3 : 1; };
-            }
+            if(column.field === 'potential') column.colSpan = (params : any) => {return params.data.groupRow === true ? 3 : 1; };
             columnDefs.push(column);
         }
 
@@ -218,13 +210,11 @@ export class SliceTable {
         let array: {id: any, name: any}[] = []
         let navIds = this.tableConfig[type]['navIds'];
         let navNames = this.tableConfig[type]['navNames'];
-        for(let i=0; i<navIds.length; i++) {
-            array.push({id: navIds[i], name: navNames[i]})
-        }
+        for(let i=0; i<navIds.length; i++) array.push({id: navIds[i], name: navNames[i]})
         return array;
     }
 
-    getTitleData(type: string){ // calculs are done in getPdvs, to browse only once the table
+    getTitleData(type: string){
         return this.tableConfig[type]['computeTitle']();
     }
 
@@ -244,16 +234,11 @@ export class SliceTable {
     buildGroups(groupField: string, type: string) {
         let pdvsByGroup = new Map<string, {}[]>();
         for(let pdv of this.sortedPdvsList){
-            if(pdvsByGroup.get((pdv as any)[groupField]) === undefined) {
-                pdvsByGroup.set((pdv as any)[groupField], [pdv]);
-            } else {
-                pdvsByGroup.get((pdv as any)[groupField])!.push(pdv);
-            }
+            if(pdvsByGroup.get((pdv as any)[groupField]) === undefined) pdvsByGroup.set((pdv as any)[groupField], [pdv]);
+            else pdvsByGroup.get((pdv as any)[groupField])!.push(pdv);
         }
         let groupList: {}[][] = [];
-        for(let entry of pdvsByGroup.entries()){
-            groupList.push(this.tableConfig[type]['groupRowConfig'](entry))
-        }
+        for(let entry of pdvsByGroup.entries()) groupList.push(this.tableConfig[type]['groupRowConfig'](entry))
         groupList.sort(this.tableConfig[type]['customGroupSort']);
         return groupList.flat()
     }
