@@ -101,8 +101,8 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setColumnDefs(data[0]);
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
-    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1]} sur un total identifié de ${data[3][2]} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1]} Tonnes, sur un potentiel de ${data[3][2]} en Tonnes`
+    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
     this.pinnedRow = data[1][0]; //Hardest part
     this.titleContainer!.nativeElement.innerText = this.title;
   }

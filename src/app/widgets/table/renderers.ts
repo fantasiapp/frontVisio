@@ -81,14 +81,14 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
 
   @Component({
     template: `
-        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-items': 'stretch'}">
+        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%'}">
             <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
                 <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0'}">
                     <span *ngIf="sale.value"></span>
                 </div>
             </div>
 
-            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
+            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px', 'width': 100+overflow+'%'}">
                 <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
                 <span *ngIf="sale.value"></span>
                 </div>
@@ -98,6 +98,7 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   export class TargetCellRenderer extends DefaultCellRenderer {
     p2cd?: {[name: string]: number}[];
     enduit?: {[name: string]: number}[];
+    overflow: number = 10;
     agInit(params: ICellRendererParams): void {
         this.p2cd = params.value['p2cd'];
         this.enduit = params.value['enduit'];
