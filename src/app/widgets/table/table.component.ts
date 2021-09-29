@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
@@ -14,6 +14,8 @@ import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, Checkbo
   providers: [SliceDice],
 })
 export class TableComponent extends BasicWidget {
+  @ViewChild('title', {static: false, read: ElementRef})
+  private titleContainer?: ElementRef;
 
   private content!: ElementRef;
   title: string = "";
@@ -102,6 +104,7 @@ export class TableComponent extends BasicWidget {
     if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1]} sur un total identifié de ${data[3][2]} en Km²`;
     if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1]} Tonnes, sur un potentiel de ${data[3][2]} en Tonnes`
     this.pinnedRow = data[1][0]; //Hardest part
+    this.titleContainer!.nativeElement.innerText = this.title;
   }
 
   updateGroups(id: string) {
