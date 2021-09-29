@@ -54,7 +54,7 @@
       </button>
     </div>
     <div class="search-div">
-      <button class="button">
+      <button class="button" (click)="showMap()">
         <img class="button-img" src="assets/map.svg" alt="actualiser" />
       </button>
     </div>
@@ -74,3 +74,5 @@
   <app-filters></app-filters>
 </div>
 <div [hidden]="!isFilterVisible" class="click-area" (click)="showFilters()"></div>
+
+<app-map #map></app-map>

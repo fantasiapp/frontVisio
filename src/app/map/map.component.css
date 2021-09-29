@@ -1,7 +1,22 @@
-/* Set the size of the div element that contains the map */
-#map {
-    height: 400px;
-    /* The height is 400 pixels */
-    width: 100%;
-    /* The width is the width of the web page */
-  }
+:host {
+  box-sizing: border-box;
+  width: 100vw;
+  height: calc(100vh - 60px);
+  padding: 20px;
+  display: flex;
+  flex-flow: column nowrap;
+  z-index: 999;
+  background: white;
+  position: absolute;
+  top: 60px;
+}
+
+h1 {
+  padding: 0 0 20px 20px;
+  margin: 0;
+}
+
+.map-container {
+  width: 100%;
+  flex: 1;
+}
