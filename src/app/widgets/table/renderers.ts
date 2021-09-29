@@ -88,7 +88,7 @@ export class GroupNameCellRenderer implements AgRendererComponent {
   
   @Component({
     selector: 'point-feu-component',
-    template: `<img *ngIf="show" src="/assets/feu.svg">`,
+    template: `<img *ngIf="show" src="assets/feu.svg">`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -141,7 +141,7 @@ export class GroupNameCellRenderer implements AgRendererComponent {
 
   @Component({
     selector: 'info-component',
-    template: `<img src="/assets/! icon.svg"/>`,
+    template: `<img src="assets/! icon.svg"/>`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
