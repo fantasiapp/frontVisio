@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer } from './renderers';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer, GroupTargetCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -16,8 +16,8 @@ import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, Checkbo
 export class TableComponent extends BasicWidget {
 
   private content!: ElementRef;
-  titleData: number[] = [0,0,0];
-
+  title: string = "";
+  
   //p2cd or enduit
   type: string = 'p2cd';
 
@@ -63,6 +63,7 @@ export class TableComponent extends BasicWidget {
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
+    groupTargetCellRenderer: GroupTargetCellRenderer,
     groupNameCellRenderer: GroupNameCellRenderer,
     infoCellRenderer: InfoCellRenderer,
     potentialCellRenderer: PotentialCellRenderer,
@@ -98,8 +99,8 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setColumnDefs(data[0]);
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
-    this.titleData = data[3];
-
+    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1]} sur un total identifié de ${data[3][2]} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1]} Tonnes, sur un potentiel de ${data[3][2]} en Tonnes`
     this.pinnedRow = data[1][0]; //Hardest part
   }
 
@@ -160,7 +161,7 @@ export class TableComponent extends BasicWidget {
             
             case 'target':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'groupTargetCellRenderer'}
                 return {component: 'targetCellRenderer'};
               }
               break;

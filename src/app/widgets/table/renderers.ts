@@ -140,6 +140,26 @@ export class GroupNameCellRenderer implements AgRendererComponent {
   }
 
   @Component({
+    selector: 'group-target-component',
+    template: `<div>{{ displayValue }}</div>`,
+    styles:  [`:host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }`]
+  })
+  export class GroupTargetCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    displayValue: string = ''
+    agInit(params: ICellRendererParams): void {
+      this.displayValue = "Cible : " + Math.floor(params.value) + " T"
+    }
+  }
+
+  @Component({
     selector: 'info-component',
     template: `<img src="assets/! icon.svg"/>`,
     styles:  [`:host {
