@@ -64,7 +64,6 @@ export class GroupNameCellRenderer implements AgRendererComponent {
     refresh(params: ICellRendererParams): boolean {
       return true;
     }
-    show: boolean = false;
     agInit(params: ICellRendererParams): void {}
   }
   
@@ -140,7 +139,53 @@ export class GroupNameCellRenderer implements AgRendererComponent {
     }
   }
 
+  @Component({
+    selector: 'info-component',
+    template: `<img src="/assets/! icon.svg"/>`,
+    styles:  [`:host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }`]
+  })
+  export class InfoCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    agInit(params: ICellRendererParams): void {}
+  }
 
+  @Component({
+    selector: 'potential-component',
+    template: `<div>{{ potential }}</div>`,
+
+  })
+  export class PotentialCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    potential: string  = "";
+    agInit(params: ICellRendererParams): void {
+      this.potential = Math.floor(params.value / 1000) + ' T'
+    }
+  }
+  @Component({
+    selector: 'group-potential-component',
+    template: `<div>{{ potential }}</div>`,
+
+  })
+  export class GroupPotentialCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    potential: string  = "";
+    agInit(params: ICellRendererParams): void {
+      this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000) + ' T'
+    }
+  }
 
   @Component({
     selector: 'no-component',
