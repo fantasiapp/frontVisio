@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer } from './renderers';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -63,6 +63,7 @@ export class TableComponent extends BasicWidget {
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
+    groupNameCellRenderer: GroupNameCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -111,7 +112,13 @@ export class TableComponent extends BasicWidget {
   updateCellRenderer(data: any[]): any[] {
         for(let cd of data){
           switch (cd.field) {
-
+            case 'name':
+              cd.cellRendererSelector = function (params: any) {
+                const groupNameDetails = {component : 'groupNameCellRenderer'};
+                if(params.data.groupRow === true) return groupNameDetails;
+                return;
+              }
+              break;
             case 'siniatSales':
               cd.cellRendererSelector = function (params: any) {
                 const rowSalesDetails = {component: 'rowSalesCellRenderer'};
@@ -169,6 +176,18 @@ export class TableComponent extends BasicWidget {
           }
         }
     return data;
+  }
+
+  onCellClicked(event: any) {
+    if(event['column']['colId'] === 'edit') this.showEdit(event['data']);
+  }
+
+  show: boolean = false;
+  editData: {} = {}
+  showEdit(data: {} = {}) {
+    if(this.show) {this.show = false; return}
+    this.show = true;
+    this.editData = data;
   }
 
 }

@@ -20,5 +20,8 @@
     [headerHeight]="0"
     [rowClassRules]="rowClassRules"
     [frameworkComponents]="frameworkComponents"
+    (cellClicked)="onCellClicked($event)"
 >
 </ag-grid-angular>
+
+<div *ngIf="show" (click)="showEdit()" class="edit-div">{{ editData }}</div>
