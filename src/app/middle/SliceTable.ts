@@ -18,21 +18,46 @@ export class SliceTable {
     private idIndustries: {[key: string]: number} = {};
 
     //type : 'p2cd' or 'enduit'
-    private navIds: {[type: string]: string[]} = {
-        'p2cd': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
-        'enduit': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble']
-    }
-    private navNames: {[type: string]: string[]} = {
-        'p2cd': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
-        'enduit': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble']
-    }
-    private visibleColumns: {[type: string]: {field: string, flex: number}[]} = {
-        'p2cd': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkbox', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
-        'enduit': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'target', flex: 1},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}]
-    }
-    private specificColumns: {[type: string]: string[]} = { //newly calculated columns
-        'p2cd': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkbox'],
-        'enduit':  ['target', 'potential', 'typologie', 'info', 'checkbox']
+    private tableConfig : {[type: string]: {[property: string]: any}} = {
+        'p2cd': {
+            'navIds': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
+            'navNames': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
+            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkbox', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
+            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkbox'],
+            'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
+            'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
+            'groupRowConfig': (entry: any) => {
+                let group: {}[] = [];
+                group = group.concat({
+                    'name': {'name': entry[0], 'number': entry[1].length},
+                    'siniatSales': entry[1].reduce((totalSiniatSales: number, pdv: {}) => totalSiniatSales + (pdv as any).siniatSales, 0),
+                    'totalSales': entry[1].reduce((totalTotalSales: number, pdv: {}) => totalTotalSales + (pdv as any).totalSales, 0),
+                    'groupRow': true
+                    })
+                group = group.concat(entry[1]);
+                return group;
+            },
+        },
+
+        'enduit': {
+            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
+            'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
+            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'target', flex: 1},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
+            'specificColumns': ['target', 'potential', 'typologie', 'info', 'checkbox'],
+            'customSort': (a: any, b: any) => {return b.potential - a.potential},
+            'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
+            'groupRowConfig': (entry: any) => {
+                let group: {}[] = [];
+                group = group.concat({
+                    'name': {'name': entry[0], 'number': entry[1].length},
+                    'target': 1,
+                    'potential': entry[1].reduce((totalPotential: number, pdv: {}) => totalPotential + ((pdv as any).potential > 0 ? (pdv as any).potential : 0), 0),
+                    'groupRow': true
+                    })
+                group = group.concat(entry[1]);
+                return group;
+            },
+        }
     }
 
     private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
@@ -101,40 +126,6 @@ export class SliceTable {
             return true;
         }
     }
-    
-    private customSort: {[name: string]: (a: any, b: any) => number} = {
-        'p2cd': (a: any, b: any) => {return b.totalSales - a.totalSales},
-        'enduit': (a: any, b: any) => {return b.potential - a.potential},
-    }
-    private customGroupSort: {[name: string]: (a: any, b: any) => number} = {
-        'p2cd': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
-        'enduit': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
-    }
-    private groupRowConfig: {[type: string]: (entry: any) => {}[]} = {
-        'p2cd': (entry: any) => {
-            let group: {}[] = [];
-            group = group.concat({
-                'name': {'name': entry[0], 'number': entry[1].length},
-                'siniatSales': entry[1].reduce((totalSiniatSales: number, pdv: {}) => totalSiniatSales + (pdv as any).siniatSales, 0),
-                'totalSales': entry[1].reduce((totalTotalSales: number, pdv: {}) => totalTotalSales + (pdv as any).totalSales, 0),
-                'groupRow': true
-                })
-            group = group.concat(entry[1]);
-            return group;
-        },
-        'enduit': (entry: any) => {
-            let group: {}[] = [];
-            group = group.concat({
-                'name': {'name': entry[0], 'number': entry[1].length},
-                'target': 1,
-                'potential': entry[1].reduce((totalPotential: number, pdv: {}) => totalPotential + ((pdv as any).potential > 0 ? (pdv as any).potential : 0), 0),
-                'groupRow': true
-                })
-            group = group.concat(entry[1]);
-            return group;
-        },
-    }
-
 
     constructor(){
         PDV.load(false);
@@ -159,7 +150,7 @@ export class SliceTable {
             let allPdvs = DataExtractionHelper.get('pdvs');
             for(let pdvInfo of PDV.sliceTree(slice)[0]) {
                 let newPdv = allPdvs[pdvInfo.id];
-                newPdv[0] = pdvInfo.id; //rewriting pdv code (as we never use it)
+                newPdv.instanceId = pdvInfo.id; //rewriting pdv code (as we never use it)
                 this.pdvs.push(newPdv);
             }
         }
@@ -170,7 +161,7 @@ export class SliceTable {
                 let field = this.getAllColumns(type)[index]
                 if(this.idsToFields[field]) {
                     newPdv[field] = this.idsToFields[field][pdv[index]]
-                } else if(this.specificColumns[type].includes(field)) {
+                } else if(this.tableConfig[type]['specificColumns'].includes(field)) {
                     newPdv[field] = this.customField[field](pdv);
                 } else {
                     newPdv[field] = pdv[index]
@@ -179,7 +170,7 @@ export class SliceTable {
             pdvsAsList.push(newPdv);
         }
         
-        pdvsAsList.sort(this.customSort[type])
+        pdvsAsList.sort(this.tableConfig[type]['customSort'])
         this.sortedPdvsList = pdvsAsList;
         // this.buildGroups('enseigne')
         return this.buildGroups(groupField, type)
@@ -187,14 +178,14 @@ export class SliceTable {
     }
 
     getAllColumns(type: string) {
-        let allColumns = this.pdvFields.concat(this.specificColumns[type]);
+        let allColumns = this.pdvFields.concat(this.tableConfig[type]['specificColumns']);
         return allColumns;
     }
 
     getColumnDefs(type: string, rowGroupId?: string): {}[]{
         let allColumns = this.getAllColumns(type);
         let columnDefs: {[key:string]: any}[] = [];
-        let visibleFields = this.visibleColumns[type].map(({field}) => field);
+        let visibleFields = this.tableConfig[type]['visibleColumns'].map((val: {'field': string}) => val.field);
 
         for(let field of allColumns) { //first all fields except visible
             if(!visibleFields.includes(field)) {
@@ -202,7 +193,7 @@ export class SliceTable {
                 columnDefs.push(column);
             }
         }
-        for(let visibleColumn of this.visibleColumns[type]) { //then visible, to ensure order
+        for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
             let column = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': (params: any) => 1}
             if(column.field === 'potential') {
                 column.colSpan = (params : any) => {return params.data.groupRow === true ? 3 : 1; };
@@ -215,13 +206,13 @@ export class SliceTable {
     }
 
     getNavIds(type: string): string[] {
-        return this.navIds[type];
+        return this.tableConfig[type]['navIds'];
     }
 
     getNavOpts(type: string): {id: any, name: any}[] {
         let array: {id: any, name: any}[] = []
-        let navIds = this.navIds[type];
-        let navNames = this.navNames[type];
+        let navIds = this.tableConfig[type]['navIds'];
+        let navNames = this.tableConfig[type]['navNames'];
         for(let i=0; i<navIds.length; i++) {
             array.push({id: navIds[i], name: navNames[i]})
         }
@@ -256,14 +247,14 @@ export class SliceTable {
         }
         let groupList: {}[][] = [];
         for(let entry of pdvsByGroup.entries()){
-            groupList.push(this.groupRowConfig[type](entry))
+            groupList.push(this.tableConfig[type]['groupRowConfig'](entry))
         }
-        groupList.sort(this.customGroupSort[type]);
+        groupList.sort(this.tableConfig[type]['customGroupSort']);
         return groupList.flat()
     }
 
     getPdvInstance(pdv: any) {
-        return PDV.getInstances().get(pdv[0]);
+        return PDV.getInstances().get(pdv.instanceId);
     }
 
     getColor(axis: string, enseigne: string): string {
