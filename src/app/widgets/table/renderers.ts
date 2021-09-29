@@ -52,7 +52,7 @@ export class GroupNameCellRenderer implements AgRendererComponent {
    
   @Component({
     selector: 'edit-component',
-    template: `<img src="/assets/edit.svg"/>`,
+    template: `<img src="assets/edit.svg"/>`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -184,6 +184,22 @@ export class GroupNameCellRenderer implements AgRendererComponent {
     potential: string  = "";
     agInit(params: ICellRendererParams): void {
       this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000) + ' T'
+    }
+  }
+
+  @Component({
+    selector: 'visits-component',
+    template: `<div>{{ visits }}</div>`,
+
+  })
+  export class VisitsCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    visits: string  = "";
+    agInit(params: ICellRendererParams): void {
+      this.visits = params.value + ' V'
     }
   }
 

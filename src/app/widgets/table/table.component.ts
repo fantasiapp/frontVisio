@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer } from './renderers';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -67,6 +67,7 @@ export class TableComponent extends BasicWidget {
     infoCellRenderer: InfoCellRenderer,
     potentialCellRenderer: PotentialCellRenderer,
     groupPotentialCellRenderer: GroupPotentialCellRenderer,
+    visitsCellRenderer: VisitsCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -124,72 +125,65 @@ export class TableComponent extends BasicWidget {
               break;
             case 'siniatSales':
               cd.cellRendererSelector = function (params: any) {
-                const rowSalesDetails = {component: 'rowSalesCellRenderer'};
-                const groupSalesDetails = {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}}
-                
-                if(params.data.groupRow === true) return groupSalesDetails;
-                else return rowSalesDetails;
+                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}};
+                else return {component: 'rowSalesCellRenderer'};
               }
               break;
 
             case 'totalSales':
               cd.cellRendererSelector = function (params: any) {
-                const rowSalesDetails = {component: 'rowSalesCellRenderer'};
-                const groupSalesDetails = {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}}
-                
-                if(params.data.groupRow === true) return groupSalesDetails;
-                else return rowSalesDetails;
+                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}};
+                else return {component: 'rowSalesCellRenderer'};
               }
               break;
 
             case 'edit':
               cd.cellRendererSelector = function (params: any) {
-                const editDetails = {component : 'editCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return editDetails;
+                return {component : 'editCellRenderer'};;
               }
               break;
             
             case 'checkbox':
               cd.cellRendererSelector = function (params: any) {
-                const checkboxDetails = {component : 'checkboxCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return checkboxDetails;
+                return {component : 'checkboxCellRenderer'};;
               }
               break;
             
             case 'pointFeu':
               cd.cellRendererSelector = function (params: any) {
-                const pointFeuDetails = {component : 'pointFeuCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return pointFeuDetails;
+                return {component : 'pointFeuCellRenderer'};
               }
               break;
             
             case 'target':
               cd.cellRendererSelector = function (params: any) {
-                const targetDetails = {component: 'targetCellRenderer'}
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return targetDetails;
+                return {component: 'targetCellRenderer'};
               }
               break;
             
             case 'info':
               cd.cellRendererSelector = function (params: any) {
-                const infoDetails = {component : 'infoCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return infoDetails;
+                return {component : 'infoCellRenderer'};
               }
               break;
             
             case 'potential':
               cd.cellRendererSelector = function (params: any) {
-                const potentialDetails = {component : 'potentialCellRenderer'};
                 if(params.data.groupRow === true) return {component: 'groupPotentialCellRenderer'}
-                return potentialDetails
+                return {component : 'potentialCellRenderer'};
               }
               break;
-
+            case 'nbVisits':
+              cd.cellRendererSelector = function (params: any) {
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                return {component : 'visitsCellRenderer'};
+              }
+              break;
 
             default:
               break;

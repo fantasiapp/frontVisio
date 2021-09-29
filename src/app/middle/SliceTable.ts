@@ -28,11 +28,11 @@ export class SliceTable {
     }
     private visibleColumns: {[type: string]: {field: string, flex: number}[]} = {
         'p2cd': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkbox', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
-        'enduit': [{field: 'name', flex: 1},{field: 'visits', flex: 0.4},{field: 'target', flex: 1},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}]
+        'enduit': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'target', flex: 1},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}]
     }
     private specificColumns: {[type: string]: string[]} = { //newly calculated columns
         'p2cd': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkbox'],
-        'enduit':  ['visits', 'target', 'potential', 'typologie', 'info', 'checkbox']
+        'enduit':  ['target', 'potential', 'typologie', 'info', 'checkbox']
     }
 
     private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
@@ -45,9 +45,6 @@ export class SliceTable {
             return pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structurePdv'), 'sales') as any].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1])))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
-        },
-        'visits': (pdv: any) => {
-            return Math.floor(Math.random()*100) + ' V';
         },
         'target': (pdv: any) => {
             let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
