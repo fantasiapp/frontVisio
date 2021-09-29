@@ -30,8 +30,9 @@ export class HistoRowComponent extends BasicWidget {
       return this.noData(this.content);
     /****************⚠️ ***************/
     if ( data[0][0] != 'x' )
-      console.log('[HistoColumnComponent]: Rendering inaccurate format because `x` axis is unspecified.')
+      console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
 
+    console.log(this.properties);
     let self = this;
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     (window as any).chart = this.chart = bb.generate({
@@ -60,8 +61,6 @@ export class HistoRowComponent extends BasicWidget {
         },
         position: (data, width, height, element, pos) => {
           let maxRight = this.rectWidth - 30; //30 css padding
-          
-          //pos.x = Math.min(pos.x, maxRight - this.axisPadding + width/2);
           return {
             left: Math.max(this.axisPadding, Math.min(maxRight, pos.x - width/2 + this.axisPadding)),
             top: (pos.xAxis || pos.y) + 20

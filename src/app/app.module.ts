@@ -42,6 +42,7 @@ import { HistoColumnTargetComponent } from './widgets/historow-target/histocolum
 import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, TargetCellRenderer, GroupNameCellRenderer } from './widgets/table/renderers';
 
 import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
+import { InfoBarComponent } from './map/info-bar/info-bar.component';
 
 @NgModule({
   declarations: [
@@ -76,7 +77,8 @@ import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
     GaugeComponent,
     PieTargetComponent,
     HistoColumnTargetComponent,
-    HistocurveComponent
+    HistocurveComponent,
+    InfoBarComponent
   ],
   imports: [
     BrowserModule,
