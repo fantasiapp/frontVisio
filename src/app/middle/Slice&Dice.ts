@@ -433,8 +433,9 @@ export class PDV{
     return this.instances.get(id);
   }
 
-  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[]){
-    if (axis1 == 'suiviAD' || axis2 == 'suiviAD') dataWidget.fillWithRandomValues();
+  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number][]){
+    let newPdvs = PDV.reSlice(pdvs, addConditions);
+    if (axis1 == 'suiviAD' || axis2 == 'suiviAD') dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock des visites
     else {
       let irregular: string = 'no';
       if (nonRegularAxis.includes(axis1)) irregular = 'line';
@@ -445,7 +446,7 @@ export class PDV{
           enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
           clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
           target = targetAxis.includes(axis1) || targetAxis.includes(axis2);
-      for (let pdv of pdvs){
+      for (let pdv of newPdvs){
         if (pdv.attribute('available') && pdv.attribute('sale')){
           if (irregular == 'no') dataWidget.addOnCase(pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
           else if (irregular == 'line') dataWidget.addOnColumn(pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
@@ -459,7 +460,7 @@ export class PDV{
     return this.values[PDV.index(name)];
   }
 
-  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean) {
+  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number][]) {
     if (axe2 == 'lg-1') {
       let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
@@ -483,11 +484,12 @@ export class PDV{
     Object.keys(dataAxe2).forEach((id, index) => idToJ[parseInt(id)] = index);
     let pdvs = PDV.slice(slice, axe1, axe2, rowsTitles, idToI, idToJ, geoTree);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
-    this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs);
+    this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs, addConditions);
     return dataWidget;
   }
 
   static reSlice(pdvs:PDV[], conditions: [string, number][]){
+    if (conditions.length === 0) return pdvs;
     let newPdvs: PDV[] = [];
     for (let pdv of pdvs)
       if (conditions.map(condition => pdv.attribute(condition[0]) === condition[1]).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
@@ -583,9 +585,10 @@ export class PDV{
 @Injectable()
 class SliceDice{
   geoTree: boolean = true;
-  constructor(){ console.log('[SliceDice]: on'); }
+  constructor(){console.log('[SliceDice]: on');}
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), percent:string, transpose=false, target=false){
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), 
+      percent:string, transpose=false, target=false, addConditions:[string, number][] = []){
     let colors: undefined;
     if (typeof(groupsAxis1) === 'number'){
       let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
@@ -597,7 +600,7 @@ class SliceDice{
        groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
     }
-    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree);
+    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);

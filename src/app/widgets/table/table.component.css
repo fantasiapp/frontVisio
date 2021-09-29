@@ -1,0 +1,8 @@
+.edit-div {
+    position: absolute;
+    height: 60%;
+    width: 60%;
+    top: 20%;
+    left: 20%;
+    background-color: grey;
+}

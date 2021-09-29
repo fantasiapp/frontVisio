@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer } from './renderers';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -63,6 +63,10 @@ export class TableComponent extends BasicWidget {
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
+    groupNameCellRenderer: GroupNameCellRenderer,
+    infoCellRenderer: InfoCellRenderer,
+    potentialCellRenderer: PotentialCellRenderer,
+    groupPotentialCellRenderer: GroupPotentialCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -100,7 +104,7 @@ export class TableComponent extends BasicWidget {
 
   updateGroups(id: string) {
     this.currentOpt = id;
-    this.gridApi.setRowData(this.sliceTable.buildGroups(id))
+    this.gridApi.setRowData(this.sliceTable.buildGroups(id, this.type))
   }
 
   createGraph(data: any[], opt?: {}): void {
@@ -111,7 +115,13 @@ export class TableComponent extends BasicWidget {
   updateCellRenderer(data: any[]): any[] {
         for(let cd of data){
           switch (cd.field) {
-
+            case 'name':
+              cd.cellRendererSelector = function (params: any) {
+                const groupNameDetails = {component : 'groupNameCellRenderer'};
+                if(params.data.groupRow === true) return groupNameDetails;
+                return;
+              }
+              break;
             case 'siniatSales':
               cd.cellRendererSelector = function (params: any) {
                 const rowSalesDetails = {component: 'rowSalesCellRenderer'};
@@ -163,12 +173,43 @@ export class TableComponent extends BasicWidget {
                 return targetDetails;
               }
               break;
+            
+            case 'info':
+              cd.cellRendererSelector = function (params: any) {
+                const infoDetails = {component : 'infoCellRenderer'};
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                return infoDetails;
+              }
+              break;
+            
+            case 'potential':
+              cd.cellRendererSelector = function (params: any) {
+                const potentialDetails = {component : 'potentialCellRenderer'};
+                if(params.data.groupRow === true) return {component: 'groupPotentialCellRenderer'}
+                return potentialDetails
+              }
+              break;
+
 
             default:
               break;
+
           }
         }
     return data;
+  }
+
+  onCellClicked(event: any) {
+    if(event['column']['colId'] === 'edit') this.showEdit(event['data']);
+    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'])
+  }
+
+  show: boolean = false;
+  editData: {} = {}
+  showEdit(data: {} = {}) {
+    if(this.show) {this.show = false; return}
+    this.show = true;
+    this.editData = data;
   }
 
 }

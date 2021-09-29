@@ -3,6 +3,22 @@ import { AgRendererComponent } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
 
 @Component({
+  selector: 'group-name-component',
+  template: `<span>{{ this.displayValue }}</span>`,
+})
+export class GroupNameCellRenderer implements AgRendererComponent {
+  
+  refresh(params: ICellRendererParams): boolean {
+    return true;
+  }
+  displayValue: string = "";
+
+  agInit(params: ICellRendererParams): void {
+    this.displayValue = params.value['name'] + ' PdV : ' + params.value['number']
+  }
+}
+
+@Component({
     selector: 'sales-component',
     template: `<span>{{ this.displayValue }}</span>`,
   })
@@ -36,7 +52,7 @@ import { ICellRendererParams } from "ag-grid-community";
    
   @Component({
     selector: 'edit-component',
-    template: `<img src="/assets/edit.svg" (click)="showEdit()"/>`,
+    template: `<img src="/assets/edit.svg"/>`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -48,10 +64,7 @@ import { ICellRendererParams } from "ag-grid-community";
     refresh(params: ICellRendererParams): boolean {
       return true;
     }
-    show: boolean = true;
     agInit(params: ICellRendererParams): void {}
-
-    showEdit(){this.show = !this.show; console.log("Toggle edit")}
   }
   
   @Component({
@@ -75,7 +88,7 @@ import { ICellRendererParams } from "ag-grid-community";
   
   @Component({
     selector: 'point-feu-component',
-    template: `<img *ngIf="show" src="/assets/feu.svg">`,
+    template: `<img *ngIf="show" src="assets/feu.svg">`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -97,16 +110,16 @@ import { ICellRendererParams } from "ag-grid-community";
   @Component({
     selector: 'target-component',
     template: `
-        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'height': 'auto'}">
+        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-items': 'stretch'}">
             <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
-                <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value }">
-                    .
+                <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0'}">
+                    <span *ngIf="sale.value"></span>
                 </div>
             </div>
 
             <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
-                <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value }">
-                    .
+                <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
+                <span *ngIf="sale.value"></span>
                 </div>
             </div>
         </div>`,
@@ -126,7 +139,53 @@ import { ICellRendererParams } from "ag-grid-community";
     }
   }
 
+  @Component({
+    selector: 'info-component',
+    template: `<img src="assets/! icon.svg"/>`,
+    styles:  [`:host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }`]
+  })
+  export class InfoCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    agInit(params: ICellRendererParams): void {}
+  }
 
+  @Component({
+    selector: 'potential-component',
+    template: `<div>{{ potential }}</div>`,
+
+  })
+  export class PotentialCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    potential: string  = "";
+    agInit(params: ICellRendererParams): void {
+      this.potential = Math.floor(params.value / 1000) + ' T'
+    }
+  }
+  @Component({
+    selector: 'group-potential-component',
+    template: `<div>{{ potential }}</div>`,
+
+  })
+  export class GroupPotentialCellRenderer implements AgRendererComponent {
+    
+    refresh(params: ICellRendererParams): boolean {
+      return true;
+    }
+    potential: string  = "";
+    agInit(params: ICellRendererParams): void {
+      this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000) + ' T'
+    }
+  }
 
   @Component({
     selector: 'no-component',
