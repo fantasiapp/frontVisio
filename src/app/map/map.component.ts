@@ -2,6 +2,7 @@ import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding } f
 import { AsyncSubject } from 'rxjs';
 import { PDV } from '../middle/Slice&Dice';
 type MarkerType = {
+  pdv: PDV;
   position: google.maps.LatLng;
   icon?: google.maps.ReadonlyIcon;
   map?: google.maps.Map;
@@ -33,14 +34,9 @@ export class MapComponent implements AfterViewInit {
   show() { this.hidden = false; }
 
   map?: google.maps.Map;
-  lat = 40.730610;
-  lng = -73.935242;
-  coordinates: google.maps.LatLng;
   ready: AsyncSubject<never> = new AsyncSubject<never>();
 
-  constructor() {
-    this.coordinates = new google.maps.LatLng(this.lat, this.lng);
-  }
+  constructor() {}
 
   ngAfterViewInit() {
     this.ready.next(0 as never);
@@ -49,12 +45,98 @@ export class MapComponent implements AfterViewInit {
   
   setPDVs(pdvs: PDV[]) {
     this.pdvs = pdvs;
-    this.map = new google.maps.Map(this.mapContainer!.nativeElement, {
-      center: { lat: -34.397, lng: 150.644 },
-      zoom: 8,
-    });
-    this.fromPDVs();
+    if ( !this.map ) {
+      this.createMap();
+      this.fromPDVs();
+    }
   };
+
+  private createMap() {
+    let zoom = 7;
+    this.map = new google.maps.Map(this.mapContainer!.nativeElement, {
+      center: { lat: 48.52, lng: 2.19 },
+      zoom,
+      minZoom: zoom - 1,
+      maxZoom: zoom + 6,
+      gestureHandling: 'auto',
+      restriction: {
+        latLngBounds: {
+          north: 52,
+          south: 40,
+          east: 15,
+          west: -10,
+        }
+      },
+
+      disableDefaultUI: true,
+      zoomControl: true,
+      rotateControl: true,
+      styles: [{
+        featureType: 'poi.attraction',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'poi.school',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'poi.sports_complex',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'poi.place_of_worship',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: "poi.park",
+        elementType: "geometry.fill",
+        stylers: [{ color: "#81D4A0" }],
+      }, {
+        featureType: 'transit',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'road.highway',
+        elementType: 'labels.icon',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: "landscape.natural",
+        elementType: "geometry",
+        stylers: [{color: "#9ADCB2"}],
+      }, {
+        featureType: "landscape.natural.terrain",
+        elementType: "geometry",
+        stylers: [{color: "#EEECE4"}],
+      }, {
+        featureType: 'water',
+        elementType: 'geometry.fill',
+        stylers: [{color: '#79A8ED'}],
+      }, {
+        featureType: 'water',
+        elementType: 'labels.text.fill',
+        stylers: [{visibility: 'off'}],
+      }, {
+        featureType: 'road.highway',
+        elementType: 'geometry.fill',
+        stylers: [{color: "#FFE395"}],
+      }, {
+        featureType: 'road.arterial',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}],
+      }, {
+        featureType: 'road.highway',
+        elementType: 'geometry.stroke',
+        stylers: [{color: '#F2B508'}],
+      }, {
+        featureType: 'administrative.country',
+        elementType: 'geometry',
+        stylers: [{color: '#e25a63', weight: 10}],
+      }]
+    });
+  }
+
+  handleClick(pdv: PDV) {
+    console.log(pdv, 'got clicked!');
+  }
 
   private addMarker(markerData: MarkerType): google.maps.Marker {
     let marker = new google.maps.Marker({
@@ -63,14 +145,32 @@ export class MapComponent implements AfterViewInit {
       optimized: true
     });
 
-    let title = markerData.title;
-    if ( title )
+    let name = markerData.title;
+    if ( name ) {
+      let content = document.createElement('div'),
+        title = document.createElement('span'),
+        button = document.createElement('button');
+      
+      content.classList.add('infowindow');
+      title.classList.add('infowindow-title');
+      button.classList.add('infowindow-button');
+      
+      title.innerText = name;
+      button.innerText = '❓';
+      button.addEventListener('click', () => {
+        this.handleClick(markerData.pdv);
+      });
+
+      content.appendChild(title);
+      content.appendChild(button);
+
       marker.addListener('click', () => {
         const info = new google.maps.InfoWindow({
-          content: title as any
+          content      
         })
         info.open(this.map, marker);
       });
+    }
     
     return marker;
   }
@@ -82,7 +182,8 @@ export class MapComponent implements AfterViewInit {
         icon: this.createSVGIcon({
           fill: randomColor(),
         }),
-        title: pdv.attribute('name')
+        title: pdv.attribute('name'),
+        pdv
       }
     });
 
@@ -95,7 +196,7 @@ export class MapComponent implements AfterViewInit {
       width = 30,
       height = 30,
       strokeWidth = 1,
-      fill="red",
+      fill='red',
       circleStroke='black',
       lineStroke='black'
     } = keys;
