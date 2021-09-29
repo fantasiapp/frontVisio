@@ -140,7 +140,6 @@ export class GroupNameCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    selector: 'group-target-component',
     template: `<div>{{ displayValue }}</div>`,
     styles:  [`:host {
         display: flex;
@@ -148,11 +147,7 @@ export class GroupNameCellRenderer implements AgRendererComponent {
         align-items: center;
       }`]
   })
-  export class GroupTargetCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class GroupTargetCellRenderer extends DefaultCellRenderer {
     displayValue: string = ''
     agInit(params: ICellRendererParams): void {
       this.displayValue = "Cible : " + Math.floor(params.value) + " T"
@@ -160,7 +155,6 @@ export class GroupNameCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    selector: 'info-component',
     template: `<img src="assets/! icon.svg"/>`,
     styles:  [`:host {
         display: flex;
@@ -168,39 +162,24 @@ export class GroupNameCellRenderer implements AgRendererComponent {
         align-items: center;
       }`]
   })
-  export class InfoCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class InfoCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {}
   }
 
   @Component({
-    selector: 'potential-component',
     template: `<div>{{ potential }}</div>`,
-
   })
-  export class PotentialCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class PotentialCellRenderer extends DefaultCellRenderer {
     potential: string  = "";
     agInit(params: ICellRendererParams): void {
       this.potential = Math.floor(params.value / 1000) + ' T'
     }
   }
-  @Component({
-    selector: 'group-potential-component',
-    template: `<div>{{ potential }}</div>`,
 
+  @Component({
+    template: `<div>{{ potential }}</div>`,
   })
-  export class GroupPotentialCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class GroupPotentialCellRenderer extends DefaultCellRenderer {
     potential: string  = "";
     agInit(params: ICellRendererParams): void {
       this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000) + ' T'
@@ -208,15 +187,10 @@ export class GroupNameCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    selector: 'visits-component',
     template: `<div>{{ visits }}</div>`,
 
   })
-  export class VisitsCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class VisitsCellRenderer extends DefaultCellRenderer {
     visits: string  = "";
     agInit(params: ICellRendererParams): void {
       this.visits = params.value + ' V'
@@ -224,15 +198,9 @@ export class GroupNameCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    selector: 'no-component',
     template: ``,
   })
-  export class NoCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
-  
+  export class NoCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {
     }
   }
