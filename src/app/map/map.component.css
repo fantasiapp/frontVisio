@@ -26,7 +26,6 @@ h1 {
   font-weight: 400;
   font-size: 14px;
   line-height: 100%;
-  z-index: 9999;
 }
 
 .map-container::ng-deep .infowindow-button {
