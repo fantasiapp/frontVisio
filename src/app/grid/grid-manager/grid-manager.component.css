@@ -5,6 +5,26 @@
   /* tune this */
   margin: 150px 5% 0;
   height: calc(100% - 200px);
+  font-size: 20px;
+}
+
+@media (max-width: 1366px) {
+  :host {
+      font-size: 16px;
+  }
+}
+
+
+@media (max-width: 1920px) {
+  :host {
+      font-size: 18px;
+  }
+}
+
+@media (min-width: 1920px) {
+  :host {
+      font-size: 22px;
+  }
 }
 
 :host::ng-deep > * {
@@ -18,13 +38,14 @@
   min-height: 0;
   overflow: hidden;
   position: relative;
+  font-size: inherit;
 }
 
 :host::ng-deep * .props h2 {
   padding: 0;
   margin: 0;
   margin-bottom: 3px;
-  font-size: 18px;
+  font-size: 0.9em;
   font-weight: 500;
   padding: 0 25px;
   border-bottom: 1px solid #707070;
@@ -35,7 +56,7 @@
   padding: 0;
   margin: 0;
   margin-bottom: 5px;
-  font-size: 14px;
+  font-size: 0.7em;
   font-weight: 500;
   color: #070707;
 }
