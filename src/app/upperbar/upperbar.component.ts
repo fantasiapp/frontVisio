@@ -1,8 +1,8 @@
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { getGeoTree, getTradeTree } from '../middle/Slice&Dice';
+import { getGeoTree, getTradeTree, PDV } from '../middle/Slice&Dice';
 
 import {
   trigger,
@@ -13,6 +13,7 @@ import {
   animate
 } from '@angular/animations';
 import { SliceDice } from '../middle/Slice&Dice';
+import { MapComponent } from '../map/map.component';
 
 
 @Component({
@@ -41,6 +42,9 @@ export class UpperbarComponent implements OnInit {
   searchModel: string = '';
   searchDebounceId!: number;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
+
+  @ViewChild('map', {read: MapComponent, static: false})
+  private mapComponent?: MapComponent;
 
   isSearchOpen = new BehaviorSubject(false);
   constructor(
@@ -74,5 +78,14 @@ export class UpperbarComponent implements OnInit {
     this.filtersState.reset(
       this.sldValue ? getGeoTree() : getTradeTree()
     );
+  }
+
+  showMap() {
+    this.mapComponent?.show();
+    this.mapComponent?.ready.subscribe(() => {
+      this.mapComponent!.setPDVs(
+        [...PDV.getInstances().values()]
+      )
+    });
   }
 }

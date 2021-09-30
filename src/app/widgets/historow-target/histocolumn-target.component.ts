@@ -175,7 +175,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   doTargetControl() {
-    console.log('Target control validated: Respect+');
+    console.log('[HistoRowTargetComponent]: Target control validated:\nRespect+.');
     //close
     this.toggleTargetControl();
   }
