@@ -123,12 +123,12 @@ ul, hr {
     background: none !important;
     font-size: 1.25em;
     position: absolute;
-
+    top: 2em;
     right: 25px;
     transform: translate(0, 0);
     transition: transform 100ms ease-out 0s;
     cursor: pointer;
-    box-shadow: 0 0 5px 1px #333;
+    box-shadow: 0 0 5px 0 #333;
 }
   
 .close:hover {
