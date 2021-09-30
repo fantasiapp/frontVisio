@@ -2,7 +2,9 @@ import { Injectable } from "@angular/core";
 import DataExtractionHelper from "./DataExtractionHelper";
 import { PDV } from "./Slice&Dice";
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+  })
 export class SliceTable {
     private sortedPdvsList: {}[] = [];
     private pdvsWithGroupslist: {}[] = [];
@@ -42,7 +44,7 @@ export class SliceTable {
         'enduit': {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
-                Math.floor(this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow === true ? pdv.target : 0),0)),
+                Math.floor(this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow === true ? pdv.target : 0),0)/1000),
                 Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
@@ -54,7 +56,7 @@ export class SliceTable {
                 let group: {}[] = [];
                 group = group.concat({
                     'name': {'name': entry[0], 'number': entry[1].length},
-                    'target': 10.2,
+                    'target': entry[1].reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.checkbox ? pdv.potential : 0), 0),
                     'potential': entry[1].reduce((totalPotential: number, pdv: {}) => totalPotential + ((pdv as any).potential > 0 ? (pdv as any).potential : 0), 0),
                     'groupRow': true
                     })
@@ -118,7 +120,7 @@ export class SliceTable {
             return true; //should return what is inside the new div ?
         },
         'checkbox': () => {
-            return false; //Could be check by default ?
+            return Math.random() > 0.5; //Could be check by default ?
         },
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
@@ -252,4 +254,5 @@ export class SliceTable {
         }
         return 'black'
     }
+
 }

@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { AgRendererComponent } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
+import { SliceTable } from "src/app/middle/SliceTable";
 
 abstract class DefaultCellRenderer implements AgRendererComponent {
   refresh(params: ICellRendererParams): boolean {
@@ -74,14 +75,20 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   })
   export class CheckboxCellRenderer extends DefaultCellRenderer {
     params: any;
+    constructor(private sliceTable: SliceTable) {
+      super();
+    }
     agInit(params: ICellRendererParams): void {
       this.params = params;
     }
     checkedHandler(event: any) {
       let checked = event.target.checked;
       let colId = this.params.column.colId;
-      this.params.node.setDataValue(colId, checked);
-  }
+      this.params.node.setDataValue(colId, checked); 
+
+      this.sliceTable
+      // this.params.api.refreshCells();
+    }
   }
   
   @Component({
@@ -105,19 +112,24 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
 
   @Component({
     template: `
-        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%'}">
-            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
+        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%', 'height': '100%', 'padding': '2% 0 2% 0'}">
+            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1'}">
                 <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0'}">
                     <span *ngIf="sale.value"></span>
                 </div>
             </div>
 
-            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px', 'width': 100+overflow+'%'}">
+            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1', 'width': 100+overflow+'%'}">
                 <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
                 <span *ngIf="sale.value"></span>
                 </div>
             </div>
         </div>`,
+    styles:  [`:host {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }`]
   })
   export class TargetCellRenderer extends DefaultCellRenderer {
     p2cd?: {[name: string]: number}[];
@@ -141,7 +153,7 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   export class GroupTargetCellRenderer extends DefaultCellRenderer {
     displayValue: string = ''
     agInit(params: ICellRendererParams): void {
-      this.displayValue = "Cible : " + Math.floor(params.value) + " T"
+      this.displayValue = "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
     }
   }
 
@@ -166,7 +178,7 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   export class PotentialCellRenderer extends DefaultCellRenderer {
     potential: string  = "";
     agInit(params: ICellRendererParams): void {
-      this.potential = Math.floor(params.value / 1000) + ' T'
+      this.potential = Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
     }
   }
 
@@ -176,7 +188,7 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   export class GroupPotentialCellRenderer extends DefaultCellRenderer {
     potential: string  = "";
     agInit(params: ICellRendererParams): void {
-      this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000) + ' T'
+      this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
     }
   }
 
