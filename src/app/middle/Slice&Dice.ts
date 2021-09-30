@@ -330,7 +330,7 @@ export class PDV{
         totalSiniatP2cd = 0,
         saleEnduit = false;
       for (let sale of this.sales){
-        if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') saleEnduit = true;
+        if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) saleEnduit = true;
         // else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
         else if (sale.type == 'p2cd'){
           totalP2cd += sale.volume;
@@ -342,6 +342,7 @@ export class PDV{
       else if (saleEnduit){
         if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
         else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
+        console.log(this.id)
       } else{
         if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
         else dnEnduit[associatedIndex["Pur prospect"]] = 1;
