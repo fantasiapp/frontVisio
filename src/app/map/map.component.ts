@@ -31,20 +31,6 @@ export class MapComponent implements AfterViewInit {
   private pdvs: PDV[] = [];
   private hidden: boolean = true;
 
-  private _showInfobar: boolean = false;
-
-  get showInfobar() {
-    return this._showInfobar;
-  }
-
-  set showInfobar(value: boolean) {
-    if ( value === this._showInfobar )
-      return;
-    
-    /* processing */
-    this._showInfobar = value;
-  }
-
   hide() { this.hidden = true; }
   show() { this.hidden = false; }
 
@@ -150,9 +136,7 @@ export class MapComponent implements AfterViewInit {
   }
 
   handleClick(pdv: PDV) {
-    console.log('clicked');
     this.selectedPDV = pdv;
-    this._showInfobar = true;
   }
 
   private addMarker(markerData: MarkerType): google.maps.Marker {

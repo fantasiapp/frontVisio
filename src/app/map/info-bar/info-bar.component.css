@@ -1,5 +1,5 @@
 :host {
-    --info-bar-width: 600px;
+    --info-bar-width: 60%;
     --info-bar-padding-y: 50px;
     --info-bar-padding-x: 20px;
     --info-bar-margin-y: 70px;
@@ -12,7 +12,7 @@
     height: calc(100% - var(--info-bar-margin-y) - var(--navigation-height));
     padding: var(--info-bar-padding-y) var(--info-bar-padding-x);
     top: 0;
-    right: var(--info-bar-padding-y);
+    right: calc(-1*var(--info-bar-width));
     background: white;
     font-family: 'Roboto';
     font-size: 16px;
@@ -21,11 +21,23 @@
     display: flex;
     flex-flow: column nowrap;
     justify-content: space-between;
+    transition: right 150ms ease-out 0s;
+}
+
+:host(.opened) {
+    right: 0;
 }
 
 ul, hr {
-    margin: 0 !important;
+    margin: 0;
     padding: 0;
+}
+
+.cover {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .host * {
@@ -35,7 +47,9 @@ ul, hr {
 .nav ul {
     display: flex;
     flex-flow: row nowrap;
-    justify-content: space-around;
+    justify-content: space-between;
+    position: relative;
+    margin: 0 12.5%
 }
 
 .nav ul li {
@@ -64,11 +78,13 @@ ul, hr {
 
 .nav hr {
     position: absolute;
-    width: calc(100% - 2*var(--info-bar-padding-x));
+    width: calc(100% - 100px);
     height: 2px;
     border: none;
     background: black;
-    top: calc(var(--info-bar-padding-x) + var(--navigation-ball-size)/2)
+    top: calc(var(--navigation-ball-size) * -0.5);
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .close {
