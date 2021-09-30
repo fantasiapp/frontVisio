@@ -153,7 +153,7 @@ export class TableComponent extends BasicWidget {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return {component : 'checkboxCellRenderer'};;
               }
-              
+
               break;
             
             case 'pointFeu':
@@ -201,7 +201,7 @@ export class TableComponent extends BasicWidget {
   onCellClicked(event: any) {
     if(event['column']['colId'] === 'edit') this.showEditOnClick(event['data']);
     if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
-    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'])
+    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
   }
 
   showEdit: boolean = false;

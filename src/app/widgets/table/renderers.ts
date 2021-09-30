@@ -47,6 +47,9 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
         display: flex;
         justify-content: center;
         align-items: center;
+        top: 25%;
+        left: 25%;
+        position: relative;
       }`]
   })
   export class EditCellRenderer extends DefaultCellRenderer {
@@ -54,19 +57,31 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   }
   
   @Component({
-    template: `<input type="checkbox">`,
+    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkbox">`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
         align-items: center;
+        top: 25%;
+        left: 25%;
+        position: relative;
       }
       input {
-        border: 3px 3px 3px 3px;
+        transform: scale(1.3);
       }
       
       `]
   })
   export class CheckboxCellRenderer extends DefaultCellRenderer {
+    params: any;
+    agInit(params: ICellRendererParams): void {
+      this.params = params;
+    }
+    checkedHandler(event: any) {
+      let checked = event.target.checked;
+      let colId = this.params.column.colId;
+      this.params.node.setDataValue(colId, checked);
+  }
   }
   
   @Component({
@@ -75,6 +90,9 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
       display: flex;
       justify-content: center;
       align-items: center;
+      top: 25%;
+      left: 25%;
+      position: relative;
     }`]
 
   })
@@ -133,6 +151,9 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
         display: flex;
         justify-content: center;
         align-items: center;
+        top: 25%;
+        left: 25%;
+        position: relative;
       }`]
   })
   export class InfoCellRenderer extends DefaultCellRenderer {
