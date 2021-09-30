@@ -188,6 +188,11 @@ app-historow .bb-xgrid {
 .ag-theme-alpine {
     font-weight: 500;
 }
+.ag-theme-alpine .ag-cell {
+    display: flex !important;
+    align-items: center !important;
+    border: none !important;
+}
 .group-row {
     background-color: #F06D0C !important;
     color: white !important;

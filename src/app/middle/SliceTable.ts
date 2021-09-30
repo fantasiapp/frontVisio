@@ -10,9 +10,9 @@ export class SliceTable {
     private segmentDnEnduit: {[id: number]: string} = {};
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
-
     private idIndustries: {[key: string]: number} = {};
-
+    private preProcessedData: {} = {};
+    
     //type : 'p2cd' or 'enduit'
     private tableConfig : {[type: string]: {[property: string]: any}} = {
         'p2cd': {
@@ -23,7 +23,7 @@ export class SliceTable {
                 ],
             'navIds': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkbox', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
+            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0}, {field: 'checkbox', flex: 0}, {field: 'pointFeu', flex: 0}],
             'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkbox'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
@@ -38,6 +38,35 @@ export class SliceTable {
                 group = group.concat(entry[1]);
                 return group;
             },
+            // 'preProcess': (pdv: any) => {
+            //     let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
+            //     let enduitSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('enduit', false, true) as number[];
+            //     let siniatP2cdSale = p2cdSalesRaw[this.idIndustries['Siniat']]; let placoP2cdSale = p2cdSalesRaw[this.idIndustries['Placo']]; let knaufP2cdSale = p2cdSalesRaw[this.idIndustries['Knauf']];
+            //     let pregyEnduitSale = enduitSalesRaw[0]; let salsiEnduitSale = enduitSalesRaw[1];
+            //     /* Target */
+            //     let p2cdSales: {}[] = []; let enduitSales: {}[] = [];
+            //     p2cdSales.push({'enseigne': 'Siniat', 'value': siniatP2cdSale, color: this.getColor('industry', 'Siniat')})
+            //     p2cdSales.push({'enseigne': 'Placo', 'value': placoP2cdSale, color: this.getColor('industry', 'Placo')})
+            //     p2cdSales.push({'enseigne': 'Knauf', 'value': knaufP2cdSale, color: this.getColor('industry', 'Knauf')})
+            //     p2cdSales.push({'enseigne': 'Autres', 'value': p2cdSalesRaw
+            //                         .filter((value, index) => {![this.idIndustries['Siniat'], this.idIndustries['Placo'], this.idIndustries['Knauf']].includes(index)})
+            //                         .reduce((total: number, value: number) => total + value, 0)
+            //                     ,color: this.getColor('industry', 'Challengers')})
+            //     enduitSales.push({'enseigne': 'Pregy', 'value': pregyEnduitSale, color: this.getColor('indFinition', 'Pregy')})
+            //     enduitSales.push({'enseigne': 'Salsi', 'value': salsiEnduitSale, color: this.getColor('indFinition', 'Salsi')})
+            //     enduitSales.push({'enseigne': 'Autres', 'value': enduitSalesRaw[2]+enduitSalesRaw[3], color: this.getColor('indFinition', 'Croissance')})
+            //     /* Potential */
+            //     let totalP2cdSale = p2cdSalesRaw.filter((value, index) => {![this.idIndustries['Siniat'], this.idIndustries['Placo'], this.idIndustries['Knauf']].includes(index)})
+            //     .reduce((total: number, value: number) => total + value, 0)
+            //     let potential = siniatP2cdSale > 0.1*totalP2cdSale ? (0.36*siniatP2cdSale) - pregyEnduitSale - salsiEnduitSale : (0.36*totalP2cdSale) - pregyEnduitSale - salsiEnduitSale;
+            //     /* Typologie */
+            //     let typologie = ''; let list = this.getPdvInstance(pdv)!.getValue('dn', false, true);
+            //     if ((<number[]>list)[0] === 1) typologie = this.segmentDnEnduit[1];
+            //     else if ((<number[]>list)[1] === 1) typologie = this.segmentDnEnduit[2];
+            //     else typologie = this.segmentDnEnduit[3];
+
+            //     this.preProcessedData = {'typologie': typologie, 'target': {'p2cd': p2cdSales, 'enduit': enduitSales}, 'potential': potential, 'info': {'enseigne': pdv.enseigne, 'dep': pdv.dep, 'typologie': typologie, }};
+            // },
         },
 
         'enduit': {
@@ -80,19 +109,19 @@ export class SliceTable {
             let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
             let enduitSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('enduit', false, true) as number[];
 
-            let p2cdSales: {}[] = [];
-            let enduitSales: {}[] = [];
-            p2cdSales.push({'enseigne': 'Siniat', 'value': p2cdSalesRaw[this.idIndustries['Siniat']], color: this.getColor('industry', 'Siniat')})
-            p2cdSales.push({'enseigne': 'Placo', 'value': p2cdSalesRaw[this.idIndustries['Placo']], color: this.getColor('industry', 'Placo')})
-            p2cdSales.push({'enseigne': 'Knauf', 'value': p2cdSalesRaw[this.idIndustries['Knauf']], color: this.getColor('industry', 'Knauf')})
-            p2cdSales.push({'enseigne': 'Autres', 'value': p2cdSalesRaw
+            let p2cdSales: any =  {};
+            let enduitSales: any =  {};
+            p2cdSales['Siniat'] = {'value': p2cdSalesRaw[this.idIndustries['Siniat']], color: this.getColor('industry', 'Siniat')}
+            p2cdSales['Placo'] = {'value': p2cdSalesRaw[this.idIndustries['Placo']], color: this.getColor('industry', 'Placo')}
+            p2cdSales['Knauf'] = {'value': p2cdSalesRaw[this.idIndustries['Knauf']], color: this.getColor('industry', 'Knauf')}
+            p2cdSales['Autres'] = {'value': p2cdSalesRaw
                                 .filter((value, index) => {![this.idIndustries['Siniat'], this.idIndustries['Placo'], this.idIndustries['Knauf']].includes(index)})
                                 .reduce((total: number, value: number) => total + value, 0)
-                            ,color: this.getColor('industry', 'Challengers')})
+                            ,color: this.getColor('industry', 'Challengers')}
 
-            enduitSales.push({'enseigne': 'Pregy', 'value': enduitSalesRaw[0], color: this.getColor('indFinition', 'Pregy')})
-            enduitSales.push({'enseigne': 'Salsi', 'value': enduitSalesRaw[1], color: this.getColor('indFinition', 'Salsi')})
-            enduitSales.push({'enseigne': 'Autres', 'value': enduitSalesRaw[2]+enduitSalesRaw[3], color: this.getColor('indFinition', 'Croissance')})
+            enduitSales['Pregy'] = {'value': enduitSalesRaw[0], color: this.getColor('indFinition', 'Pregy')}
+            enduitSales['Salsi'] = {'value': enduitSalesRaw[1], color: this.getColor('indFinition', 'Salsi')}
+            enduitSales['Autres'] = {'value': enduitSalesRaw[2]+enduitSalesRaw[3], color: this.getColor('indFinition', 'Croissance')}
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {
@@ -193,8 +222,9 @@ export class SliceTable {
             }
         }
         for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
-            let column = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': (params: any) => 1}
+            let column: any = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': (params: any) => 1}
             if(column.field === 'potential') column.colSpan = (params : any) => {return params.data.groupRow === true ? 3 : 1; };
+            if(column.field === 'edit' || column.field === 'checkbox' || column.field === 'pointFeu') column.width = 50;
             columnDefs.push(column);
         }
 

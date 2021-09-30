@@ -59,7 +59,12 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
         display: flex;
         justify-content: center;
         align-items: center;
-      }`]
+      }
+      input {
+        border: 3px 3px 3px 3px;
+      }
+      
+      `]
   })
   export class CheckboxCellRenderer extends DefaultCellRenderer {
   }
@@ -67,10 +72,11 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   @Component({
     template: `<img *ngIf="show" src="assets/feu.svg">`,
     styles:  [`:host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }`]
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`]
+
   })
   export class PointFeuCellRenderer extends DefaultCellRenderer {
     show: boolean = false;
@@ -98,10 +104,11 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   export class TargetCellRenderer extends DefaultCellRenderer {
     p2cd?: {[name: string]: number}[];
     enduit?: {[name: string]: number}[];
-    overflow: number = 10;
+    overflow: number = 0;
     agInit(params: ICellRendererParams): void {
-        this.p2cd = params.value['p2cd'];
-        this.enduit = params.value['enduit'];
+        this.p2cd = Object.values(params.value['p2cd']);
+        this.enduit = Object.values(params.value['enduit']);
+        if (params.data.potential < 0) this.overflow = 10;
     }
   }
 
