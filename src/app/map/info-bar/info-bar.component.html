@@ -3,29 +3,41 @@
     <ul>
         <li class="selected">Référentiel</li>
         <li>Ciblage</li>
-        <li>Saidie de l'AD</li>
+        <li>Saisie de l'AD</li>
         <hr class="horizontal-line">
     </ul>
 </div>
 
 <ng-container *ngIf="pdv">
-    <h2>Référentiel {{pdv!.attribute('name')}}</h2>
+    <h2>Référentiel : {{pdv!.attribute('name')}}</h2>
     <div class="content">
         <div class="definition">
             <ul>
-                <li><span>Point de vente</span>: {{pdv!.attribute('name')}}</li>
-                <li><span>Agent</span>: {{getName('agent', pdv!.attribute('agent'))}}</li>
-                <li><span>Segment</span>: {{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
-                <li><span>Enseigne</span>: {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
-                <li><span>Département</span>: {{getName('dep', pdv!.attribute('dep'))}}</li>
-                <li><span>Ville</span>: {{getName('ville', pdv!.attribute('ville'))}}</li>
-                <li><span>Bassin</span>: {{getName('bassin', pdv!.attribute('bassin'))}}</li>
+                <li><span>Point de vente :</span> {{pdv!.attribute('name')}}</li>
+                <li><span>Agent :</span> {{getName('agent', pdv!.attribute('agent'))}}</li>
+                <li><span>Segment :</span> {{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
+                <li><span>Enseigne :</span> {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
+                <li><span>Département :</span> {{getName('dep', pdv!.attribute('dep'))}}</li>
+                <li><span>Ville :</span> {{getName('ville', pdv!.attribute('ville'))}}</li>
+                <li><span>Bassin :</span> {{getName('bassin', pdv!.attribute('bassin'))}}</li>
             </ul>
         </div>
         <div class="props">
             <ul>
-                <li>Ne vend pas de plaque <input type="checkbox" disabled/></li>
-                <li>Point de vente redistribue <input type="checkbox" disabled/></li>
+                <li>
+                    <label class="container-checkbox">
+                        Ne vend pas de plaque
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="container-checkbox">
+                        Point de vente redistribue
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
             </ul>
         </div>
     </div>
@@ -33,6 +45,6 @@
 
 
 <div class="comments">
-    Commentaires:<br/>
+    <span>Commentaires :</span>
     <textarea></textarea>
 </div>
