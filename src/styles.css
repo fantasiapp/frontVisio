@@ -175,19 +175,19 @@ app-historow .bb-xgrid {
 }
 
 @media (max-width: 1366px) {
-    :host {
-        --x-axis-font-size: 12px;
+    :root {
+        --x-axis-font-size: 9px;
     }
 }
 
-@media (max-width: 1920px) {
-    :host {
-        --x-axis-font-size: 14px;
+@media (min-width: 1366px) {
+    :root {
+        --x-axis-font-size: 13px;
     }
 }
 
 @media (min-width: 1920px) {
-    :host {
+    :root {
         --x-axis-font-size: 15px;
     }
 }

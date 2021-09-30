@@ -52,12 +52,12 @@
                 <div class="definition">
                     <div class="name">Général</div>
                     <ul>
-                        <li><span>Agent :</span>X </li>
-                        <li><span>Enseigne :</span>X</li>
-                        <li><span>Départements :</span>X</li>
-                        <li><span>Client prospect :</span>X</li>
-                        <li><span>Segmentation marketing :</span>X</li>
-                        <li><span>Segmentation portefeuille :</span>X</li>
+                        <li><span>Agent :</span> {{getName('agent', pdv!.attribute('agent'))}}</li>
+                        <li><span>Enseigne :</span> {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
+                        <li><span>Départements :</span> {{getName('dep', pdv!.attribute('dep'))}}</li>
+                        <li><span>Client prospect :</span> -- </li>
+                        <li><span>Segmentation marketing :</span>{{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
+                        <li><span>Segmentation portefeuille :</span> -- </li>
                     </ul>
                 </div>
 

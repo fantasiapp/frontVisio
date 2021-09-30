@@ -84,7 +84,7 @@ ul, hr {
 .nav ul li {
     margin: 0;
     position: relative;
-    font-weight: 200;
+    font-weight: 300;
     cursor: pointer;
 }
 
@@ -137,7 +137,7 @@ ul, hr {
     top: 2em;
     right: 25px;
     cursor: pointer;
-    transition: box-shadow 150ms ease-out 0;
+    transition: box-shadow 150ms ease-out 0s;
     box-shadow: 0 0 5px 0 #333;
 }
 
@@ -235,9 +235,10 @@ span.bolder {
 
 h2 {
     margin: var(--pdv-title-margin-y) 0;
-    font-size: 1.25em;
+    font-size: 1.20em;
     font-weight: 600;
     align-self: center;
+    text-align: center;
 }
 
 p {
@@ -245,12 +246,12 @@ p {
 }
 
 .definition .name {
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .name {
     font-size: 0.9em;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 .definition {
