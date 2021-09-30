@@ -1,7 +1,6 @@
 import { Component } from "@angular/core";
 import { AgRendererComponent } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
-import { SliceTable } from "src/app/middle/SliceTable";
 
 abstract class DefaultCellRenderer implements AgRendererComponent {
   refresh(params: ICellRendererParams): boolean {
@@ -75,9 +74,6 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   })
   export class CheckboxCellRenderer extends DefaultCellRenderer {
     params: any;
-    constructor(private sliceTable: SliceTable) {
-      super();
-    }
     agInit(params: ICellRendererParams): void {
       this.params = params;
     }
@@ -86,7 +82,6 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
       let colId = this.params.column.colId;
       this.params.node.setDataValue(colId, checked); 
 
-      this.sliceTable
       // this.params.api.refreshCells();
     }
   }

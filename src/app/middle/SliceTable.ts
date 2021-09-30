@@ -6,6 +6,7 @@ import { PDV } from "./Slice&Dice";
     providedIn: 'root'
   })
 export class SliceTable {
+    private pdvs: any[] = []; //Raw pdvs data, as list. Will be usefull to emit data updates to the back
     private sortedPdvsList: {}[] = [];
     private pdvsWithGroupslist: {}[] = [];
     private pdvFields: string[];
@@ -149,7 +150,7 @@ export class SliceTable {
 
     }
 
-    getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
+    loadPdvsFromRaw(slice: any = {}) {
         let pdvs = []
         if (slice !== {}){
             let allPdvs = DataExtractionHelper.get('pdvs');
@@ -159,6 +160,15 @@ export class SliceTable {
                 pdvs.push(newPdv);
             }
         }
+        this.pdvs = pdvs;
+        return pdvs;
+    }
+
+    getPdvs(slice: any = {}, groupField: string, type: string, reload: boolean = true): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
+        let pdvs = []
+        if(reload) pdvs = this.loadPdvsFromRaw(slice);
+        else pdvs = this.pdvs;
+
         let pdvsAsList =  [];
         for(let pdv of pdvs) {
             var newPdv: {[key:string]:any} = {}; //concrete row of the table
