@@ -1,3 +1,19 @@
+.table-title {
+    padding-left: 30px;
+}
+
+.table-navigation {
+    padding-bottom: 20px;
+}
+.table-navigation label {
+    padding-left: 15px;
+}
+input[type="radio"] {
+    width: 15px;
+    height: 15px;
+    /* filter: invert(100%) hue-rotate(18deg) brightness(1.7); */
+}
+
 .edit-div {
     position: absolute;
     height: 60%;

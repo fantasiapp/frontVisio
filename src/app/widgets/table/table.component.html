@@ -1,5 +1,5 @@
-<h2 #title></h2>
-<div class="tableNavivation">
+<h2 #title class="table-title"></h2>
+<div class="table-navigation">
     <form>
         <label *ngFor="let navOpt of navOpts" class="radio-inline">
             <input type="radio" name="optradio" (click)="updateGroups(navOpt.id)" [attr.checked]="navOpt===navOpts[0] ? '' : null"> {{ navOpt.name }}
