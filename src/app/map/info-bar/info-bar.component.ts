@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 
@@ -10,6 +10,9 @@ import { PDV } from 'src/app/middle/Slice&Dice';
 export class InfoBarComponent {
   @HostBinding('class.opened')
   private opened: boolean = false;
+
+  @ViewChild('comments', {static: false, read: ElementRef})
+  private comment?: ElementRef;
   
   @Output()
   close: EventEmitter<boolean> = new EventEmitter();
@@ -19,10 +22,15 @@ export class InfoBarComponent {
     this._pdv = value;
     this.opened = value ? true : false;
     this.pdvChange.emit(value);
+    if ( this.comment )
+      this.comment.nativeElement.value = '';
   }
 
   @Output()
   pdvChange = new EventEmitter<PDV | undefined>();
+
+  pages: string[] = ['Référentiel', 'Ciblage', 'Saisie de l\'AD'];
+  currentIndex: number = 0;
 
   get pdv() {
     return this._pdv;
@@ -45,5 +53,9 @@ export class InfoBarComponent {
       this.ref!.nativeElement.removeEventListener('transitionend', fn);
     });
     this.pdv = undefined;
+  }
+
+  setPage(index: number) {
+    this.currentIndex = index;
   }
 }

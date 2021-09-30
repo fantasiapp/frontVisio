@@ -10,7 +10,7 @@ type MarkerType = {
 };
 
 function randomColor() {
-  return '#'+((Math.random()*255)|0).toString(16)+((Math.random()*255)|0).toString(16)+((Math.random()*255)|0).toString(16);
+  return '#'+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16);
 }
 
 @Component({
@@ -86,6 +86,14 @@ export class MapComponent implements AfterViewInit {
         stylers: [{visibility: 'off'}]
       }, {
         featureType: 'poi.place_of_worship',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'poi.medical',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'poi.government',
         elementType: 'all',
         stylers: [{visibility: 'off'}]
       }, {

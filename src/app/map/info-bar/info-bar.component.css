@@ -6,10 +6,13 @@
     --info-bar-margin-y: 70px;
     --navigation-height: 20px;
     --navigation-ball-size: 30px;
-    --pdv-title-margin-y: 20px;
+    --pdv-title-margin-y: 15px;
     --pdv-fields-margin-y: 10px;
     --pdv-props-margin-y: 20px;
     --pdv-comment-margin-y: 20px;
+    --pdv-section-margin-y: 30px;
+    --eval-circle-size: 30px;
+
 
     box-sizing: border-box;
     position: absolute;
@@ -24,22 +27,28 @@
     margin-top: var(--info-bar-margin-y);
     display: flex;
     flex-flow: column nowrap;
-    justify-content: space-evenly;
     transition: right 150ms ease-out 0s;
     font-family: 'Roboto';
     font-size: 20px;
     box-shadow: -2px 0 3px 0px #8a8a8a;
-}
-
-@media (max-width: 1920px) {
-    :host {
-        font-size: 18px;
-    }
+    overflow: auto;
 }
 
 @media (max-width: 1366px) {
     :host {
         font-size: 16px;
+    }
+}
+
+@media (max-width: 1920px) {
+    :host {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 1920px) {
+    :host {
+        font-size: 22px;
     }
 }
 
@@ -76,6 +85,7 @@ ul, hr {
     margin: 0;
     position: relative;
     font-weight: 200;
+    cursor: pointer;
 }
 
 .nav ul li.selected {
@@ -122,20 +132,20 @@ ul, hr {
     border-radius: 50%;
     background: none !important;
     font-size: 1.25em;
+    font-weight: 700;
     position: absolute;
     top: 2em;
     right: 25px;
-    transform: translate(0, 0);
-    transition: transform 100ms ease-out 0s;
     cursor: pointer;
+    transition: box-shadow 150ms ease-out 0;
     box-shadow: 0 0 5px 0 #333;
 }
-  
+
 .close:hover {
-    transform: translate(10px, 0);
+    box-shadow: 0 0 8px 0 #333;
 }
 
-.content {
+.reference {
     flex: 1;
     max-height: 40%;
     display: flex;
@@ -147,11 +157,22 @@ ul, hr {
     list-style-type: none;
 }
 
+.main {
+    flex: 1;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+}
+
+.main .reference, .main .content {
+    margin: auto 0;
+}
+
 .definition, .props {
     flex: 1;
 }
 
-.definition ul, .props ul {
+.definition ul, .props ul, .eval ul {
     list-style-type: none;
     font-size: 0.8em;
 }
@@ -162,6 +183,11 @@ ul, hr {
 }
 
 .definition ul li span {
+    font-weight: 500;
+}
+
+span.bolder {
+    font-size: 1em;
     font-weight: 500;
 }
 
@@ -214,6 +240,22 @@ h2 {
     align-self: center;
 }
 
+p {
+    font-size: 0.9em;
+}
+
+.definition .name {
+    font-weight: 500;
+}
+
+.name {
+    font-size: 0.9em;
+    font-weight: 400;
+}
+
+.definition {
+    margin-bottom: var(--pdv-section-margin-y);
+}
 
 /* The container */
 .container-checkbox {
@@ -225,14 +267,14 @@ h2 {
 }
 
 /* Hide the browser's default checkbox */
-.container-checkbox input {
+.props .container-checkbox input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
 }
 
 /* Create a custom checkbox */
-.container-checkbox .checkmark {
+.props .container-checkbox .checkmark {
     position: relative;
     display: inline-block;
     vertical-align: middle;
@@ -242,29 +284,29 @@ h2 {
 }
 
 /* On mouse-over, add a grey background color */
-.container-checkbox:hover input ~ .checkmark {
+.props .container-checkbox:hover input ~ .checkmark {
     background-color: #ccc;
 }
 
 /* When the checkbox is checked, add a blue background */
-.container-checkbox input:checked ~ .checkmark {
+.props .container-checkbox input:checked ~ .checkmark {
     background-color: #F38839;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
-.container-checkbox .checkmark:after {
+.props .container-checkbox .checkmark:after {
     content: "";
     position: absolute;
     display: none;
 }
 
 /* Show the checkmark when checked */
-.container-checkbox input:checked ~ .checkmark:after {
+.props .container-checkbox input:checked ~ .checkmark:after {
     display: block;
 }
 
 /* Style the checkmark/indicator */
-.container-checkbox .checkmark:after {
+.props .container-checkbox .checkmark:after {
     left: 9px;
     top: 5px;
     width: 5px;
@@ -272,4 +314,51 @@ h2 {
     border: solid white;
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
+}
+
+.circle {
+    width: var(--eval-circle-size);
+    height: var(--eval-circle-size);
+    border-radius: 50%;
+    background: #aaa;
+    box-shadow: -1px -1px 3px 0 #aaaa;
+    display: inline-block;
+    margin: 0 5px;
+    vertical-align: middle;
+}
+
+.eval {
+    margin-bottom: var(--pdv-section-margin-y);
+}
+
+.eval ul li {
+    margin: var(--pdv-fields-margin-y) 0;
+}
+
+.eval.easy .circle:nth-of-type(1) {
+    background: green;
+}
+
+.eval.mid .circle:nth-of-type(2) {
+    background: yellow;
+}
+
+.eval.hard .circle:nth-of-type(3) {
+    background: red;
+}
+
+.eval input {
+    display: inline-block;
+    min-width: 200px;
+    width: auto;
+    height: 40px;
+    border: none;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: inset 0 0 5px 0 #aaa;
+    padding: 0 10px;
+    font-size: 1em;
+    font-weight: 400;
+    font-style: normal;
 }

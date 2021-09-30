@@ -174,9 +174,26 @@ app-historow .bb-xgrid {
     color: #aaa;
 }
 
+@media (max-width: 1366px) {
+    :host {
+        --x-axis-font-size: 12px;
+    }
+}
+
+@media (max-width: 1920px) {
+    :host {
+        --x-axis-font-size: 14px;
+    }
+}
+
+@media (min-width: 1920px) {
+    :host {
+        --x-axis-font-size: 15px;
+    }
+}
+
 /* font-size on axis */
 .bb-axis.bb-axis-x .tick text {
-    --x-axis-font-size: 14px;
     font-size: var(--x-axis-font-size);
 }
 
