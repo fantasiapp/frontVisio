@@ -325,13 +325,11 @@ export class PDV{
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
         dnEnduit = (target) ? new Array(5).fill(0): new Array(3).fill(0),
-        // saleP2cd = false,
         totalP2cd = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
       for (let sale of this.sales){
         if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) saleEnduit = true;
-        // else if (sale.industryId == siniatId && sale.type == 'p2cd') saleP2cd = true;
         else if (sale.type == 'p2cd'){
           totalP2cd += sale.volume;
           if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
@@ -342,7 +340,6 @@ export class PDV{
       else if (saleEnduit){
         if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
         else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
-        console.log(this.id)
       } else{
         if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
         else dnEnduit[associatedIndex["Pur prospect"]] = 1;
@@ -402,7 +399,6 @@ export class PDV{
   }
 
   private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
-    // pour le moment ce n'est pas très générique, les places de chaque élément des axes sont en dur
     let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)

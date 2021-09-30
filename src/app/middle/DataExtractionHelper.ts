@@ -1,5 +1,3 @@
-import Dashboard from "./Dashboard";
-
 const paramsCompute = {
   growthConquestLimit: 0.1,
   theoricalRatioEnduit: 0.360,
