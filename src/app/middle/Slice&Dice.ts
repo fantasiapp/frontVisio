@@ -547,35 +547,20 @@ export class PDV{
 
   static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}){
     //verify if slice is correct
-    let keys: string[] = Object.keys(slice).sort((u, v) => this.heightOf(tree, u) - this.heightOf(tree, v)), connectedNodes, lastNodes;
-    if (keys.length === 0){
+    let keys: string[] = Object.keys(slice).sort((u, v) => this.heightOf(tree, u) - this.heightOf(tree, v)), connectedNodes;
+    if (keys.length === 0)
       connectedNodes = [tree.root];
-    }else {
-      lastNodes = tree.getNodesAtHeight(this.heightOf(tree, keys[0]));
-      connectedNodes = lastNodes.filter(node => node.id == slice[keys[0]]);
-    }
-    for (let i = 1; connectedNodes.length && (i < keys.length); i++ ){
-      let currentHeight = this.heightOf(tree, keys[i]),
-          previousHeight = this.heightOf(tree, keys[i-1]),
-          heightDiff = currentHeight - previousHeight,
-          nodes = tree.getNodesAtHeight(currentHeight).filter(node => node.id == slice[keys[i]]),
-          parentNodes = nodes.slice(), //copy
-          numberOfNodes = nodes.length;
-      
-      //climb the tree until a parent of same level is found
-      while (heightDiff-- > 0)
-        for (let i = 0; i < numberOfNodes; i++)
-          if (nodes[i]) parentNodes[i] = parentNodes[i].parent;
-      
-      //verify is the slice structure is correct
-      connectedNodes = nodes.filter((_, idx) => parentNodes[idx] && parentNodes[idx].id == slice[keys[i-1]]);
-      //console.log(connectedNodes);
-      lastNodes = nodes;
+    else
+      connectedNodes = tree.getNodesAtHeight(this.heightOf(tree, keys[0])).filter(node => node.id == slice[keys[0]]);
+
+    for ( let i = 1; i < keys.length; i++ )  {
+      connectedNodes = connectedNodes.map((node: Node) =>
+        (node.children as Node[]).filter((child: Node) => child.id == slice[keys[i]])
+      ).flat();
     }
 
     //incorrect slice
     if (!connectedNodes.length) return [];
-    
     let pdvs = connectedNodes.map(node => this.getLeaves(tree, node, node.height, dictChildren)).flat();
     return pdvs;
   }

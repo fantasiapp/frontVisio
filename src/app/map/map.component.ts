@@ -196,9 +196,7 @@ export class MapComponent implements AfterViewInit {
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
       return {
         position: new google.maps.LatLng(pdv.attribute('latitude'), pdv.attribute('longitude')),
-        icon: this.createSVGIcon({
-          fill: randomColor(),
-        }),
+        icon: MapComponent.icons[Math.random()*4|0],
         title: pdv.attribute('name'),
         pdv
       }
@@ -208,7 +206,7 @@ export class MapComponent implements AfterViewInit {
       this.addMarker(marker);
   };
 
-  private createSVGIcon(keys: any = {}) {
+  private static createSVGIcon(keys: any = {}) {
     let {
       width = 30,
       height = 30,
@@ -232,4 +230,8 @@ export class MapComponent implements AfterViewInit {
       scaledSize: new google.maps.Size(width, height)
     };
   };
+
+  static icons = ['#A61F7D', '#0056A6', '#67CFFE', '#888888'].map(color =>
+    MapComponent.createSVGIcon({fill: color})
+  );
 }

@@ -1,18 +1,31 @@
 :host {
+    --info-bar-width: 600px;
+    --info-bar-padding-y: 50px;
+    --info-bar-padding-x: 20px;
+    --info-bar-margin-y: 70px;
+    --navigation-height: 20px;
+    --navigation-ball-size: 30px;
+
+    box-sizing: border-box;
     position: absolute;
-    width: 600px;
-    height: calc(100% - 190px);
+    width: var(--info-bar-width);
+    height: calc(100% - var(--info-bar-margin-y) - var(--navigation-height));
+    padding: var(--info-bar-padding-y) var(--info-bar-padding-x);
     top: 0;
-    right: 0;
+    right: var(--info-bar-padding-y);
     background: white;
     font-family: 'Roboto';
     font-size: 16px;
     z-index: 9999;
-    margin-top: 70px;
-    padding-top: 100px;
+    margin-top: var(--info-bar-margin-y);
     display: flex;
     flex-flow: column nowrap;
     justify-content: space-between;
+}
+
+ul, hr {
+    margin: 0 !important;
+    padding: 0;
 }
 
 .host * {
@@ -33,8 +46,8 @@
 .nav ul li::before {
     content: '';
     display: block;
-    width: 30px;
-    height: 30px;
+    width: var(--navigation-ball-size);
+    height: var(--navigation-ball-size);
     border-radius: 50%;
     border: 1px solid black;
     position: absolute;
@@ -51,11 +64,11 @@
 
 .nav hr {
     position: absolute;
-    width: 100%;
+    width: calc(100% - 2*var(--info-bar-padding-x));
     height: 2px;
     border: none;
     background: black;
-    top: 93px;
+    top: calc(var(--info-bar-padding-x) + var(--navigation-ball-size)/2)
 }
 
 .close {
@@ -65,15 +78,19 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #333;
-    font-size: 16px;
+    background: none !important;
+    font-size: 26px;
     position: absolute;
-    right: 20px;
-    top: 20px;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 100ms ease-out 0s;
+    cursor: pointer;
+    box-shadow: 0 0 5px 1px #333;
 }
   
 .close:hover {
-    background: black;
+    transform: translate(10px, -50%);
 }
 
 .content {
@@ -102,4 +119,6 @@
     height: 200px;
     width: 100%;
     box-sizing: border-box;
+    border: none;
+    box-shadow: inset 0 0 5px 0;
 }
