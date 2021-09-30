@@ -10,7 +10,7 @@ type MarkerType = {
 };
 
 function randomColor() {
-  return '#'+((Math.random()*255)|0).toString(16)+((Math.random()*255)|0).toString(16)+((Math.random()*255)|0).toString(16);
+  return '#'+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16);
 }
 
 @Component({
@@ -30,20 +30,6 @@ export class MapComponent implements AfterViewInit {
   selectedPDV?: PDV;
   private pdvs: PDV[] = [];
   private hidden: boolean = true;
-
-  private _showInfobar: boolean = false;
-
-  get showInfobar() {
-    return this._showInfobar;
-  }
-
-  set showInfobar(value: boolean) {
-    if ( value === this._showInfobar )
-      return;
-    
-    /* processing */
-    this._showInfobar = value;
-  }
 
   hide() { this.hidden = true; }
   show() { this.hidden = false; }
@@ -103,6 +89,14 @@ export class MapComponent implements AfterViewInit {
         elementType: 'all',
         stylers: [{visibility: 'off'}]
       }, {
+        featureType: 'poi.medical',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'poi.government',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
         featureType: "poi.park",
         elementType: "geometry.fill",
         stylers: [{ color: "#81D4A0" }],
@@ -150,9 +144,7 @@ export class MapComponent implements AfterViewInit {
   }
 
   handleClick(pdv: PDV) {
-    console.log('clicked');
     this.selectedPDV = pdv;
-    this._showInfobar = true;
   }
 
   private addMarker(markerData: MarkerType): google.maps.Marker {
@@ -196,9 +188,7 @@ export class MapComponent implements AfterViewInit {
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
       return {
         position: new google.maps.LatLng(pdv.attribute('latitude'), pdv.attribute('longitude')),
-        icon: this.createSVGIcon({
-          fill: randomColor(),
-        }),
+        icon: MapComponent.icons[Math.random()*4|0],
         title: pdv.attribute('name'),
         pdv
       }
@@ -208,7 +198,7 @@ export class MapComponent implements AfterViewInit {
       this.addMarker(marker);
   };
 
-  private createSVGIcon(keys: any = {}) {
+  private static createSVGIcon(keys: any = {}) {
     let {
       width = 30,
       height = 30,
@@ -232,4 +222,8 @@ export class MapComponent implements AfterViewInit {
       scaledSize: new google.maps.Size(width, height)
     };
   };
+
+  static icons = ['#A61F7D', '#0056A6', '#67CFFE', '#888888'].map(color =>
+    MapComponent.createSVGIcon({fill: color})
+  );
 }

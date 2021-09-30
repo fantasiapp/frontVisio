@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
-import bb, {pie, selection} from 'billboard.js';
+import bb, {pie} from 'billboard.js';
 
 @Component({
   selector: 'app-simple-pie',
