@@ -10,7 +10,7 @@ type MarkerType = {
 };
 
 function randomColor() {
-  return '#'+((Math.random()*255)|0).toString(16)+((Math.random()*255)|0).toString(16)+((Math.random()*255)|0).toString(16);
+  return '#'+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16);
 }
 
 @Component({
@@ -30,20 +30,6 @@ export class MapComponent implements AfterViewInit {
   selectedPDV?: PDV;
   private pdvs: PDV[] = [];
   private hidden: boolean = true;
-
-  private _showInfobar: boolean = false;
-
-  get showInfobar() {
-    return this._showInfobar;
-  }
-
-  set showInfobar(value: boolean) {
-    if ( value === this._showInfobar )
-      return;
-    
-    /* processing */
-    this._showInfobar = value;
-  }
 
   hide() { this.hidden = true; }
   show() { this.hidden = false; }
@@ -103,6 +89,14 @@ export class MapComponent implements AfterViewInit {
         elementType: 'all',
         stylers: [{visibility: 'off'}]
       }, {
+        featureType: 'poi.medical',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
+        featureType: 'poi.government',
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
+      }, {
         featureType: "poi.park",
         elementType: "geometry.fill",
         stylers: [{ color: "#81D4A0" }],
@@ -150,9 +144,7 @@ export class MapComponent implements AfterViewInit {
   }
 
   handleClick(pdv: PDV) {
-    console.log('clicked');
     this.selectedPDV = pdv;
-    this._showInfobar = true;
   }
 
   private addMarker(markerData: MarkerType): google.maps.Marker {

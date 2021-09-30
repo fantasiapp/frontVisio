@@ -47,6 +47,9 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
         display: flex;
         justify-content: center;
         align-items: center;
+        top: 25%;
+        left: 25%;
+        position: relative;
       }`]
   })
   export class EditCellRenderer extends DefaultCellRenderer {
@@ -54,23 +57,46 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   }
   
   @Component({
-    template: `<input type="checkbox">`,
+    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkbox">`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
         align-items: center;
-      }`]
+        top: 25%;
+        left: 25%;
+        position: relative;
+      }
+      input {
+        transform: scale(1.3);
+      }
+      
+      `]
   })
   export class CheckboxCellRenderer extends DefaultCellRenderer {
+    params: any;
+    agInit(params: ICellRendererParams): void {
+      this.params = params;
+    }
+    checkedHandler(event: any) {
+      let checked = event.target.checked;
+      let colId = this.params.column.colId;
+      this.params.node.setDataValue(colId, checked); 
+
+      // this.params.api.refreshCells();
+    }
   }
   
   @Component({
     template: `<img *ngIf="show" src="assets/feu.svg">`,
     styles:  [`:host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }`]
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      top: 25%;
+      left: 25%;
+      position: relative;
+    }`]
+
   })
   export class PointFeuCellRenderer extends DefaultCellRenderer {
     show: boolean = false;
@@ -81,31 +107,37 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
 
   @Component({
     template: `
-        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-items': 'stretch'}">
-            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
+        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%', 'height': '100%', 'padding': '2% 0 2% 0'}">
+            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1'}">
                 <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0'}">
                     <span *ngIf="sale.value"></span>
                 </div>
             </div>
 
-            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'height': '25px'}">
+            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1', 'width': 100+overflow+'%'}">
                 <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
                 <span *ngIf="sale.value"></span>
                 </div>
             </div>
         </div>`,
+    styles:  [`:host {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }`]
   })
   export class TargetCellRenderer extends DefaultCellRenderer {
     p2cd?: {[name: string]: number}[];
     enduit?: {[name: string]: number}[];
+    overflow: number = 0;
     agInit(params: ICellRendererParams): void {
-        this.p2cd = params.value['p2cd'];
-        this.enduit = params.value['enduit'];
+        this.p2cd = Object.values(params.value['p2cd']);
+        this.enduit = Object.values(params.value['enduit']);
+        if (params.data.potential < 0) this.overflow = 10;
     }
   }
 
   @Component({
-    selector: 'group-target-component',
     template: `<div>{{ displayValue }}</div>`,
     styles:  [`:host {
         display: flex;
@@ -113,75 +145,53 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
         align-items: center;
       }`]
   })
-  export class GroupTargetCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class GroupTargetCellRenderer extends DefaultCellRenderer {
     displayValue: string = ''
     agInit(params: ICellRendererParams): void {
-      this.displayValue = "Cible : " + Math.floor(params.value) + " T"
+      this.displayValue = "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
     }
   }
 
   @Component({
-    selector: 'info-component',
     template: `<img src="assets/! icon.svg"/>`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
         align-items: center;
+        top: 25%;
+        left: 25%;
+        position: relative;
       }`]
   })
-  export class InfoCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class InfoCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {}
   }
 
   @Component({
-    selector: 'potential-component',
     template: `<div>{{ potential }}</div>`,
-
   })
-  export class PotentialCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class PotentialCellRenderer extends DefaultCellRenderer {
     potential: string  = "";
     agInit(params: ICellRendererParams): void {
-      this.potential = Math.floor(params.value / 1000) + ' T'
-    }
-  }
-  @Component({
-    selector: 'group-potential-component',
-    template: `<div>{{ potential }}</div>`,
-
-  })
-  export class GroupPotentialCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
-    potential: string  = "";
-    agInit(params: ICellRendererParams): void {
-      this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000) + ' T'
+      this.potential = Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
     }
   }
 
   @Component({
-    selector: 'visits-component',
+    template: `<div>{{ potential }}</div>`,
+  })
+  export class GroupPotentialCellRenderer extends DefaultCellRenderer {
+    potential: string  = "";
+    agInit(params: ICellRendererParams): void {
+      this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
+    }
+  }
+
+  @Component({
     template: `<div>{{ visits }}</div>`,
 
   })
-  export class VisitsCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
+  export class VisitsCellRenderer extends DefaultCellRenderer {
     visits: string  = "";
     agInit(params: ICellRendererParams): void {
       this.visits = params.value + ' V'
@@ -189,15 +199,9 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   }
 
   @Component({
-    selector: 'no-component',
     template: ``,
   })
-  export class NoCellRenderer implements AgRendererComponent {
-    
-    refresh(params: ICellRendererParams): boolean {
-      return true;
-    }
-  
+  export class NoCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {
     }
   }

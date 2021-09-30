@@ -6,6 +6,7 @@ import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
 import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer, GroupTargetCellRenderer } from './renderers';
+import { ifStmt } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-table',
@@ -97,12 +98,11 @@ export class TableComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]): void {
-    data[0] = this.updateCellRenderer(data[0]);
-    this.gridApi.setColumnDefs(data[0]);
+    this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
-    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1]} sur un total identifié de ${data[3][2]} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1]} Tonnes, sur un potentiel de ${data[3][2]} en Tonnes`
+    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
     this.pinnedRow = data[1][0]; //Hardest part
     this.titleContainer!.nativeElement.innerText = this.title;
   }
@@ -153,6 +153,7 @@ export class TableComponent extends BasicWidget {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return {component : 'checkboxCellRenderer'};;
               }
+
               break;
             
             case 'pointFeu':
@@ -198,16 +199,50 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') this.showEdit(event['data']);
-    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'])
+    if(event['column']['colId'] === 'edit') this.showEditOnClick(event['data']);
+    if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
+    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
   }
 
-  show: boolean = false;
-  editData: {} = {}
-  showEdit(data: {} = {}) {
-    if(this.show) {this.show = false; return}
-    this.show = true;
-    this.editData = data;
+  showEdit: boolean = false;
+  editData: any = {}
+  showEditOnClick(data: any = {}) {
+    if(this.showEdit) {this.showEdit = false; return}
+    this.showEdit = true;
+    this.editData = {
+      'name': data.name,
+      'agent': data.agent,
+      'segment': data.segmentMarketing,
+      'enseigne': data.enseigne,
+      'ensemble': data.ensemble,
+      'dep': data.dep,
+      'ville': data.ville,
+      'bassin': data.bassin,
+    }
+  }
+
+  showInfo: boolean = false;
+  infoData: any = {}
+  showInfoOnClick(data: any = {}) {
+    if(this.showInfo) {this.showInfo = false; return}
+    this.showInfo = true
+    this.infoData = {
+      'name': data.name,
+      'enseigne': data.enseigne,
+      'dep': data.dep,
+      'typologie': data.typologie,
+      'segmentMarketing': data.segmentMarketing,
+      'segmentCommercial': data.segmentCommercial,
+      'nbVisits': data.nbVisits,
+      'siniatP2cdSales': Math.floor(data.target.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'placoP2cdSales': Math.floor(data.target.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'knaufP2cdSales': Math.floor(data.target.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalP2cdSales': Math.floor(data.target.p2cd['Siniat'].value + data.target.p2cd['Placo'].value + data.target.p2cd['Knauf'].value + data.target.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.floor(data.target.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'salsiEnduitSales': Math.floor(data.target.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'potential': Math.floor(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalEnduitSales': Math.floor(data.target.enduit['Pregy'].value + data.target.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+    };
   }
 
 }
