@@ -1,0 +1,91 @@
+<h2 #title class="table-title"></h2>
+<div class="table-navigation">
+    <form>
+        <label *ngFor="let navOpt of navOpts" class="radio-inline">
+            <input type="radio" name="optradio" (click)="updateGroups(navOpt.id)" [attr.checked]="navOpt===navOpts[0] ? '' : null"> {{ navOpt.name }}
+        </label>
+    </form>
+  </div>
+
+<ag-grid-angular
+    #myGrid
+    [ngClass]="type"
+    id="myGrid"
+    style="width: 100%; height: 100%;"
+    class="ag-theme-alpine"
+    [rowData]="rowData"
+    [rowHeight]="rowHeight"
+    [defaultColDef]="defaultColDef"
+    [columnDefs]="columnDefs"
+    (gridReady)="onGridReady($event)"
+    [headerHeight]="0"
+    [rowClassRules]="rowClassRules"
+    [frameworkComponents]="frameworkComponents"
+    (cellClicked)="onCellClicked($event)"
+>
+</ag-grid-angular>
+
+<div *ngIf="showEdit" class="side-div" id="info-div">
+    <img src="assets/x icon.svg" (click)="showEditOnClick()"/>
+    <div class="navigation">
+        Référentiel  ||   Ciblage  ||   Saisie de l'AD
+    </div>
+    <h2>Référentiel : ?????</h2>
+    <div id="top-div">
+        <div class="values-div">
+            <div>
+                <span><strong>Point de vente : </strong>{{ editData.name }}</span><br>
+                <span><strong>Agent : </strong>{{ editData.agent }}</span><br>
+                <span><strong>Segment : </strong>{{ editData.segment }}</span><br>
+                <span><strong>Enseigne : </strong>{{ editData.enseigne }}</span>
+                <span>Ensemble : {{ editData.ensemble }}</span><br>
+                <span>Département : {{ editData.dep }}</span><br>
+                <span>Ville : {{ editData.ville }}</span><br>
+                <span>Bassin : {{ editData.bassin }}</span>
+            </div>
+            <div class="checkbox-div">
+                <span>Ne vend pas de plaque<input type="checkbox"></span>
+                <span>Point de vente redistribué<input type="checkbox"></span>
+            </div>
+        </div>
+
+    </div>
+    <div id="bottom-div">
+        <h3>Commentaires</h3>
+        <input id="commentary"> 
+    </div>
+</div>
+
+<div *ngIf="showInfo" class="side-div" id="edit-div">
+    <img src="assets/x icon.svg" (click)="showInfoOnClick()"/>
+    <div>
+        <div>
+            <span>
+                <h2>{{ infoData.name }}</h2>
+            </span>
+            <span><strong>Enseigne : </strong> {{ infoData.enseigne }}</span><br>
+            <span><strong>Département : </strong> {{ infoData.dep }}</span><br>
+            <span><strong>Typologie PdV : </strong> {{ infoData.typologie }}</span><br>
+            <span><strong>Segmentation marketing : </strong> {{ infoData.segmentMarketing }}</span><br>
+            <span><strong>Segmentation portefeuille : </strong> {{ infoData.segmentCommercial }}</span><br>
+            <span><strong>Nombre de visites : </strong> {{ infoData.nbVisits }}</span>
+        </div>
+    </div>
+    <div class="checkbox-div"><em>Point de vente redistribue</em><input type="checkbox"></div>
+    <div class="values-div">
+        <div>
+            <h2>P2CD</h2>
+            <span><strong>Siniat : </strong>{{ infoData.siniatP2cdSales }} m²</span><br>
+            <span><strong>Placo : </strong>{{ infoData.placoP2cdSales }} m²</span><br>
+            <span><strong>Knauf : </strong>{{ infoData.knaufP2cdSales }} m²</span><br>
+            <span><strong>Total P2CD estimé : </strong>{{ infoData.totalP2cdSales }} m²</span>
+        </div>
+        <div>
+            <h2>Enduit</h2>
+            <span><strong>Pregy : </strong>{{ infoData.pregyEnduitSales }} KG</span><br>
+            <span><strong>Potentiel : </strong>{{ infoData.salsiEnduitSales }} KG</span><br>
+            <span><strong>Total siniat : </strong>{{ infoData.potential }} KG</span><br>
+            <span><strong>Total estimé : </strong>{{ infoData.totalEnduitSales }} KG</span>
+        </div>
+    </div>
+</div>

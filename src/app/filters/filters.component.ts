@@ -94,7 +94,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
           undefined
         );
       } else if (this.viewList.name[0] === this.listLevel.name[0]) {
-        this.filtersState.updateState(undefined, undefined, true);
+        this.filtersState.updateState(undefined, undefined, true, false);
         this.filtersState.updateState(
           this.viewList.id[indexLev - 1],
           undefined,
@@ -120,4 +120,6 @@ export class FiltersComponent implements OnInit , OnDestroy{
     this.updateState(indexLev, indexDash, superLev);
     this.close();
   }
+
+  canSub() { return this.filtersState.canSub(); }
 }

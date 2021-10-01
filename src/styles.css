@@ -1,5 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+@import '~billboard.js/dist/billboard.css'; 
+
+@import "~ag-grid-community/dist/styles/ag-grid.css";
+@import "~ag-grid-community/dist/styles/ag-theme-alpine.css";
+
+
 .main-container{
     background: #F7F7F7 0% 0% no-repeat padding-box;
 }
@@ -63,7 +69,8 @@ select:-webkit-autofill:hover{
 }
 body{
     margin:0;
-}
+    overflow: hidden
+;}
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
@@ -84,12 +91,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 /* Common styles for charts -- the theme */
 
 :root {
+    --tooltip-height: 20px;
     --tooltip-padding: 5px;
-    --tooltip-border-radius: 5px;
+    --tooltip-border-radius: 4px;
     --tooltip-font-family: inherit;
     --tooltip-font-size: 14px;
     --tooltip-color: white;
-    --tooltip-background-color: rgba(0, 0, 0, 0.5);
+    --tooltip-background-color: rgba(0, 0, 0, 0.8);
+
+    --tooltip-tail-base: 30px;
+    --tooltip-tail-factor: 0.4;
+    --tooltip-tail-border-radius: 2px;
 }
 
 .tooltip {
@@ -99,6 +111,132 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     font-size: var(--tooltip-font-size);
     color: var(--tooltip-color);
     background-color: var(--tooltip-background-color);
+    /* height: var(--tooltip-height); */
 
-    transform: translate(-100%, -100%);
+    position: relative; /*for the tail*/
+    transform: translate(-50%, 15px);
+}
+
+@supports(width: fit-content) {
+    /* histograms automatically lower the tooltip */
+    .historow-tooltip {
+        transform: none;
+    }
+    
+    .bb-tooltip-container {
+        width: fit-content;
+    }
+}
+
+
+/* histograms automatically lower the tooltip */
+.histocolumn-tooltip {
+    transform: translate(calc(-50% - 18px), 20px);
+}
+
+/*tail of the tooltip*/
+/*made through trial and error, should figure out the formulas. ⚠️*/
+.tooltip-tail {
+    position: absolute;
+    height: var(--tooltip-tail-base);
+    width: calc(var(--tooltip-tail-factor)*var(--tooltip-tail-base));
+    overflow: hidden;
+    transform: rotate(-270deg);
+    bottom: calc(100% - 10px);
+    left: calc(50% - 8px);
+}
+
+.tooltip-tail::after {
+    display: block;
+    content: "";
+    position: absolute;
+    width: var(--tooltip-tail-base);
+    height: 100%;
+    left: 10px;
+    background: var(--tooltip-background-color);
+    transform: rotate(45deg);
+    border-radius: var(--tooltip-tail-border-radius);
+}
+
+/*override default styling on historow x-grid lines. ⚠️*/
+app-historow .bb-xgrid {
+    stroke-dasharray: none;
+}
+
+/*temporary code to print no data⚠️*/
+/****************⚠️ ***************/
+.nodata {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    color: #aaa;
+}
+
+@media (max-width: 1366px) {
+    :root {
+        --x-axis-font-size: 9px;
+    }
+}
+
+@media (min-width: 1366px) {
+    :root {
+        --x-axis-font-size: 13px;
+    }
+}
+
+@media (min-width: 1920px) {
+    :root {
+        --x-axis-font-size: 15px;
+    }
+}
+
+/* font-size on axis */
+.bb-axis.bb-axis-x .tick text {
+    font-size: var(--x-axis-font-size);
+}
+
+.bb-legend-background {
+    stroke: none !important;
+    stroke-width: 0;
+}
+
+/* Ag-grid css*/
+.ag-theme-alpine {
+    font-weight: 500;
+}
+.ag-theme-alpine .ag-cell {
+    /* display: flex !important;
+    align-items: center !important; */
+    border: none !important;
+}
+.group-row {
+    background-color: #F06D0C !important;
+    color: white !important;
+    font-weight: 300 !important;
+}
+.enduit .group-row {
+    background-color: #929191 !important;
+}
+/**************/
+g.simple-needle {
+    pointer-events: none;
+    transform-origin: 0 0;
+    transition: transform 30ms ease-in-out 0s;
+}
+
+g.simple-needle line {
+    transition: transform 250ms ease-out 0s;
+    stroke: yellow;
+    stroke-width: 3px;
+    stroke-linecap: round;
+}
+/* 
+.bb-target.bb-defocused, .bb-circles.bb-defocused {
+    opacity: 0.75 !important;
+} */
+
+.bb-shape.bb-shape.bb-line {
+    stroke-width: 3px;
 }

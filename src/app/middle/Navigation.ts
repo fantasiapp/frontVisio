@@ -1,38 +1,37 @@
-import DataExtractionHelper from './DataExtractionHelper';
-import navigationNodeConstructor, {NavigationNode as Node} from './NavigationNode';
+import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
-import Tree from './Tree';
+import {Tree, Node} from './Node';
+import { PDV } from './Slice&Dice';
 
 @Injectable()
 export class Navigation{
-  root?: Node;
+  tree?: Tree;
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
-  load(t: any){
+  setTree(t: Tree){
     //!HACK
-    if (t)
-      this.root = t.root;
-    else
-      this.root = new Tree(DataExtractionHelper.getGeoTree(), navigationNodeConstructor).root;    
-    this.currentLevel = this.root;
+    this.tree = t ? t : new Tree(NavigationExtractionHelper);
+    this.currentLevel = this.tree.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
 
   getArray(dataType: 'level' | 'dashboard'): any{
     let currentLevel = this.currentLevel!
     if (dataType == 'level'){
+      //dont navigate pdv
       let subLevel = (!this.childIsPdv(currentLevel)) ? {
-        name: currentLevel.children.map((child: Node) => child.name),
-        id: currentLevel.children.map((child: Node) => child.id),
-        label: currentLevel.children.map((child: Node) => child.label),
+        name: currentLevel.children.map((child: any) => child.name),
+        id: currentLevel.children.map((child: any) => child.id),
+        label: currentLevel.children.map((child: any) => child.label),
       }: {name: [], id: [], label:[]};
+
       return {
         currentLevel: {
-          name: currentLevel.siblings.map((sibling: Node) => sibling.name),
-          id: currentLevel.siblings.map((sibling: Node) => sibling.id),
-          label: currentLevel.children.map((child: Node) => child.label),
+          name: currentLevel.siblings.map((sibling: any) => sibling.name),
+          id: currentLevel.siblings.map((sibling: any) => sibling.id),
+          label: currentLevel.children.map((child: any) => child.label),
         },
         subLevel,
         superLevel: {
@@ -41,6 +40,7 @@ export class Navigation{
           label: currentLevel.parent?.label,
         },
       };
+    
     } else{
       return{
         id: currentLevel.dashboards.map((dashboard) => dashboard.id),
@@ -50,7 +50,7 @@ export class Navigation{
   }
 
   private childIsPdv(child: Node): boolean{
-    return <boolean>(child.children.length && child.children[0].children.length === 0);
+    return <boolean>(child.children.length && child.children[0] instanceof PDV);
   }
 
   getCurrent(): any{
@@ -65,6 +65,7 @@ export class Navigation{
       dashboard: {
         id: currentDashboard.id,
         name: currentDashboard.name,
+        description: currentDashboard.description,
         grid: currentDashboard.grid,
         template: currentDashboard.template,
         areas: currentDashboard.areas
@@ -80,6 +81,16 @@ export class Navigation{
 
   isTopLevel(){
     return this.currentLevel?.parent;
+  }
+
+  childrenHaveSameDashboard(): boolean {
+    let dashboardId = this.currentDashboard!.id;
+    let child = this.currentLevel!.children[0];
+    if ( child instanceof PDV ) return false;
+    let nextDashboard = child.dashboards.find(
+      (dashboard) => dashboard.id == dashboardId
+    );
+    return nextDashboard ? true : false;
   }
 
   setCurrent(
@@ -121,5 +132,9 @@ export class Navigation{
     } else{
       console.warn('[Navigation.ts -- setCurrent]: nothing to do.');
     }
+  }
+
+  getCurrentYear(){
+    return DataExtractionHelper.get('params')["currentYear"];
   }
 }

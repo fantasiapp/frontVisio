@@ -12,13 +12,13 @@
       ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
     >
     <input
-      [(ngModel)]="sldValue"
       type="range"
       min="0"
       max="1"
       step="1"
       class="input-range"
       [value]="sldValue"
+      (click)="toggle();"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
@@ -54,7 +54,7 @@
       </button>
     </div>
     <div class="search-div">
-      <button class="button">
+      <button class="button" (click)="showMap()">
         <img class="button-img" src="assets/map.svg" alt="actualiser" />
       </button>
     </div>
@@ -65,12 +65,14 @@
     </div>
   </div>
 </div>
-<div>
-  <app-sub-upper-bar></app-sub-upper-bar>
-</div>
+<app-sub-upper-bar></app-sub-upper-bar>
+<ng-content></ng-content>
 <!-- <div> 
   <app-data-stat></app-data-stat>
 </div> -->
 <div *ngIf="isFilterVisible">
   <app-filters></app-filters>
 </div>
+<div [hidden]="!isFilterVisible" class="click-area" (click)="showFilters()"></div>
+
+<app-map #map></app-map>

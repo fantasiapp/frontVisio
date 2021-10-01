@@ -13,8 +13,10 @@ export class ViewComponent implements OnInit {
 
   constructor(private filtersService: FiltersStatesService) {
     filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
-      if ( !this.layout || (this.layout?.id !== dashboard.id) )
+      if ( this.layout?.id !== dashboard.id ) {
+        console.log('[ViewComponent]: Layout(.id) changed.')
         this.layout = dashboard;
+      }
     })
   }
 

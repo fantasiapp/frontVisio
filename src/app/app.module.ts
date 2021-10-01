@@ -28,6 +28,21 @@ import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.component';
 //---------------------------------------------------------------------------------------
 import { GridManager } from './grid/grid-manager/grid-manager.component';
+import { HistoColumnComponent } from './widgets/histocolumn/histocolumn.component';
+import { HistoRowComponent } from './widgets/historow/historow.component';
+import { GaugeComponent } from './widgets/gauge/gauge.component';
+import { httpInterceptorProviders } from './http-interceptors/index';
+import { SliceDice } from './middle/Slice&Dice';
+import { SliceTable } from './middle/SliceTable';
+import { PieTargetComponent } from './widgets/pie-target/pie-target.component';
+
+import { AgGridModule } from 'ag-grid-angular';
+import { TableComponent } from './widgets/table/table.component';
+import { HistoColumnTargetComponent } from './widgets/historow-target/histocolumn-target.component';
+import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, TargetCellRenderer, GroupNameCellRenderer } from './widgets/table/renderers';
+
+import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
+import { InfoBarComponent } from './map/info-bar/info-bar.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +63,22 @@ import { GridManager } from './grid/grid-manager/grid-manager.component';
     SimplePieComponent,
     SimpleDonutComponent,
     //------------------------
-    GridManager
+    GridManager,
+    HistoColumnComponent,
+    HistoRowComponent,
+    TableComponent,
+    RowSalesCellRenderer,
+    GroupSalesCellRenderer,
+    EditCellRenderer,
+    CheckboxCellRenderer,
+    PointFeuCellRenderer,
+    TargetCellRenderer,
+    GroupNameCellRenderer,
+    GaugeComponent,
+    PieTargetComponent,
+    HistoColumnTargetComponent,
+    HistocurveComponent,
+    InfoBarComponent
   ],
   imports: [
     BrowserModule,
@@ -60,12 +90,13 @@ import { GridManager } from './grid/grid-manager/grid-manager.component';
     BrowserAnimationsModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
     // AgmCoreModule.forRoot({
     //   apiKey:''
     // })
+    AgGridModule.withComponents([])
   ],
-  providers: [Navigation],
+  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

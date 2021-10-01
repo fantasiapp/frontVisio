@@ -1,0 +1,65 @@
+.table-title {
+    padding-left: 30px;
+}
+
+.table-navigation {
+    padding-bottom: 20px;
+}
+.table-navigation label {
+    padding-left: 15px;
+}
+input[type="radio"] {
+    width: 15px;
+    height: 15px;
+    /* filter: invert(100%) hue-rotate(18deg) brightness(1.7); */
+}
+
+.edit-div {
+    position: absolute;
+    height: 60%;
+    width: 60%;
+    top: 20%;
+    left: 20%;
+    background-color: grey;
+}
+
+.side-div {
+    display: flex;
+    flex-direction: column;
+    padding: 2em;
+    position: absolute;
+    width: 80%;
+    height: 100%;
+    background-color: white;
+    top: 0;
+    right: 0;
+    box-shadow: -2px 0 4px grey;
+}
+
+.side-div img{
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 10px;
+}
+
+.side-div div {
+    margin-left: 20px;
+    flex-grow: 1;
+}
+
+.side-div .checkbox-div {
+    color: orange;
+}
+
+
+.side-div .values-div {
+    display: flex;
+    flex-direction: row;
+}
+
+#bottom-div input {
+    display: block;
+    width: 100%;
+    height: 4em;
+}

@@ -28,7 +28,10 @@
         <app-checkbox [(value)]="isStayConnected"> </app-checkbox
         ><span class="text"> &nbsp;&nbsp; Rester connecté</span>
       </div>
-      <div class="error-message" *ngIf="showErrorMessage">Le mot de passe ou Pseudo entré est incorrect</div>
+      <div class="error-message" *ngIf="showErrorMessage === 400">Le Mot de passe ou Pseudo entré est incorrect</div>
+      <div class="error-message" *ngIf="showErrorMessage === 404">Le serveur visio n'est pas opérationnel. Veuillez contacter Pascale Doreillac</div>
+      <div class="error-message" *ngIf="showErrorMessage == 500">Le serveur rencontre une difficulté imprévue. Veuillez contacter Pascale Doreillac</div>
+      <div class="error-message" *ngIf="showErrorMessage === 0">Une erreur non traitée est survenue. Veuillez contacter Pascale Doreillac</div>
       <button id="continueButton" type="submit">Se connecter</button>
     </div>
   </form>

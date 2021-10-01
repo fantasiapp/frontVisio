@@ -1,7 +1,14 @@
 import { Component, Injectable, Input } from '@angular/core';
 import { SimplePieComponent } from '../widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from '../widgets/simple-donuts/simple-donuts.component';
+import { HistoColumnComponent } from '../widgets/histocolumn/histocolumn.component';
 import { GridArea } from './grid-area/grid-area';
+import { HistoRowComponent } from '../widgets/historow/historow.component';
+import { GaugeComponent } from '../widgets/gauge/gauge.component';
+import { TableComponent } from '../widgets/table/table.component';
+import { PieTargetComponent } from '../widgets/pie-target/pie-target.component';
+import { HistoColumnTargetComponent } from '../widgets/historow-target/histocolumn-target.component';
+import { HistocurveComponent } from '../widgets/histocurve/histocurve.component';
 
 
 @Component({
@@ -12,11 +19,13 @@ import { GridArea } from './grid-area/grid-area';
   `
 })
 export class DefaultComponent extends GridArea {
-
+  constructor() {
+    super();
+    console.log('[DefaultComponent]: Component not found, rendering default.') 
+  }
 }
 
 function createDefaultComponent(name: string, src: string) {
-
   @Component({
     template: `
       <img [alt]="name" [src]="src"/>
@@ -30,9 +39,12 @@ function createDefaultComponent(name: string, src: string) {
     `]
   })
   class DefaultImage extends GridArea {
-    
     public name: string = name;
     public src: string = src;
+    constructor() {
+      super();
+      console.log('[DefaultImage]: Component found but not initialized, rendering a default image.');
+    }
   };
 
   return DefaultImage;
@@ -45,9 +57,13 @@ export class WidgetManagerService {
     'default': DefaultComponent,
     'pie': SimplePieComponent,
     'donut': SimpleDonutComponent,
-    'histoRow': "assets/for-mock-view/pdm-enseigne.svg",
-    'histoColumn': "assets/for-mock-view/Group%2017725.svg",
-    'table': "assets/for-mock-view/Group%2017871.svg"
+    'histoRow': HistoRowComponent,
+    'histoColumn': HistoColumnComponent,
+    'gauge': GaugeComponent,
+    'table': TableComponent,
+    'pieTarget': PieTargetComponent,
+    'histoColumnTarget': HistoColumnTargetComponent,
+    'histoCurve': HistocurveComponent
   };
 
   constructor() {
@@ -55,7 +71,9 @@ export class WidgetManagerService {
   }
 
   findComponent(name: string): any {
+    console.log(`[WidgetManager]: Resolving "${name}".`);
     let component = this.mapping[name];
+    console.log('[WidgetManager]: Component' + (component ? '' : ' not') + ' found.')
     if ( !component )
       return DefaultComponent;
     if ( typeof component === 'string' )

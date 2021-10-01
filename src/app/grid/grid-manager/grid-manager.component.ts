@@ -1,11 +1,12 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, ComponentRef, HostBinding, Input, OnChanges, SimpleChange, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
 type WidgetParams = [string, string, string, string[], string[], boolean];
-export type Widget= [string, string, string, WidgetParams];
+export type Widget= [string, string, string, string, WidgetParams];
 export interface Layout {
-  grid: [string, string],
+  grid: [string, string];
+  description: string;
   template: string;
   areas: {[key:string]: Widget | null}
 };
@@ -46,7 +47,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   ref!: ViewContainerRef;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-    
+    console.log('[GridManager]: On.')
   }
   
   ngAfterViewInit() {
@@ -64,25 +65,23 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.ref.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
-      if ( !desc ) continue; //unused field
-      console.log(name, desc);
-      let cls = this.widgetManager.findComponent(desc[2]);
+      if ( !desc ) throw '[GridManager -- createComponents]: Unknown component.';
+      let cls = this.widgetManager.findComponent(desc[3]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
       component.instance.gridArea = name;
       
       
       /**** object properties *****/
+      //component.instance.properties.grid = this;
       component.instance.properties.title = desc[0];
       component.instance.properties.description = desc[1];
-      component.instance.properties.arguments = <WidgetParams>desc[3];
+      component.instance.properties.unit = desc[2];
+      component.instance.properties.arguments = <WidgetParams>desc[4];
       /***************************/
 
       this.ref.insert(component.hostView);
     }
-
-    //this is slt 
-    
     this.cd.detectChanges();
   }
 
@@ -105,8 +104,9 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
 const defaultLayout: Layout = {
   grid: ['1', '1'],
+  description: 'default dashboard',
   template: `x`,
-  areas: {'x': ['<title>', '<description>', 'default', [
+  areas: {'x': ['<title>', '<description>', 'm','default', [
     "segmentMarketing", "segmentCommercial", "dn",
     [], ["@other"], true
   ]]}

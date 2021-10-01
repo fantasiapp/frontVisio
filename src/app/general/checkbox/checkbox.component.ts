@@ -1,4 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import { AuthService } from 'src/app/connection/auth.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
   selector: 'app-checkbox',
@@ -12,8 +14,9 @@ export class CheckboxComponent implements OnInit {
 
   changeValue(): void {
     this.valueChange.emit(!this.value);
+    this.authService.setStayConnected(!this.value)
     }
-  constructor() { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
   }
