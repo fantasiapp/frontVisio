@@ -613,6 +613,13 @@ class SliceDice{
     return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors};
   }
 
+  getIndustriesReverseDict(){
+    let industriesReverseDict:{[key:string]:string} = {};
+    for (let [industrieId, industrieName] of Object.entries(DataExtractionHelper.get('industrie')))
+      industriesReverseDict[industrieName as string] = industrieId;
+    return industriesReverseDict;
+  }
+
   // pathId(path: any) {
   //   let structure = (this.geoTree ? PDV.geoTree : PDV.tradeTree).attributes['labels'],
   //     maxHeight = structure.length,
