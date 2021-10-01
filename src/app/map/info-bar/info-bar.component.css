@@ -453,7 +453,6 @@ p {
 
 .row:not(.first) .cell {
     border-right: var(--grid-cells-border);
-    margin-right: 2px;
 }
 
 .row:not(.first) .cell.first {
