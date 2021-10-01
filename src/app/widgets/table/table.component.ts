@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer, GroupTargetCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, VisitsCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -56,18 +56,12 @@ export class TableComponent extends BasicWidget {
     'group-row': 'data.groupRow === true'
   }
   frameworkComponents = {
-    rowSalesCellRenderer: RowSalesCellRenderer,
-    groupSalesCellRenderer: GroupSalesCellRenderer,
     editCellRenderer: EditCellRenderer,
     checkboxCellRenderer: CheckboxCellRenderer,
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
-    groupTargetCellRenderer: GroupTargetCellRenderer,
-    groupNameCellRenderer: GroupNameCellRenderer,
     infoCellRenderer: InfoCellRenderer,
-    potentialCellRenderer: PotentialCellRenderer,
-    groupPotentialCellRenderer: GroupPotentialCellRenderer,
     visitsCellRenderer: VisitsCellRenderer,
   };
 
@@ -125,16 +119,16 @@ export class TableComponent extends BasicWidget {
         for(let cd of data){
           switch (cd.field) {
             case 'name':
-              cd.cellRendererSelector = function (params: any) {
-                const groupNameDetails = {component : 'groupNameCellRenderer'};
-                if(params.data.groupRow === true) return groupNameDetails;
-                return;
+
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow) return params.value['name'] + ' PdV : ' + params.value['number']
+                return params.value;
               }
               break;
             case 'siniatSales':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}};
-                else return {component: 'rowSalesCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Siniat : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
@@ -168,9 +162,13 @@ export class TableComponent extends BasicWidget {
               break;
             
             case 'target':
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow ===  true) return "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
+                return params.value;
+              }
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupTargetCellRenderer'};
-                return {component: 'targetCellRenderer'};
+                if(params.data.groupRow !== true) return {component: 'targetCellRenderer'};
+                return;
               }
               break;
             
@@ -182,15 +180,15 @@ export class TableComponent extends BasicWidget {
               break;
             
             case 'potential':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupPotentialCellRenderer'}
-                return {component : 'potentialCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
+                return Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
               }
               break;
             case 'nbVisits':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return {component : 'visitsCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return;
+                return params.value + ' V'
               }
               break;
 

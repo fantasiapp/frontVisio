@@ -10,36 +10,6 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
 
 }
-
-@Component({
-  template: `<span>{{ this.displayValue }}</span>`,
-})
-export class GroupNameCellRenderer extends DefaultCellRenderer {
-  displayValue: string = "";
-  agInit(params: ICellRendererParams): void {
-    this.displayValue = params.value['name'] + ' PdV : ' + params.value['number']
-  }
-}
-
-@Component({
-    template: `<span>{{ this.displayValue }}</span>`,
-  })
-  export class RowSalesCellRenderer extends DefaultCellRenderer {
-    displayValue: string = "";
-    agInit(params: ICellRendererParams): void {
-      this.displayValue = Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
-    }
-  }
-  
-  @Component({
-    template: `<span>{{ this.displayValue }}</span>`,
-  })
-  export class GroupSalesCellRenderer extends DefaultCellRenderer {
-    displayValue: string = "";
-    agInit(params: ICellRendererParams): void {
-      this.displayValue = (<any>params).text as string + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') as string + " km²";
-    }
-  }
    
   @Component({
     template: `<img src="assets/edit.svg"/>`,
@@ -138,27 +108,6 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   }
 
   @Component({
-    template: `<div>{{ displayValue }}</div>`,
-    styles:  [`:host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }`]
-  })
-  export class GroupTargetCellRenderer extends DefaultCellRenderer {
-    displayValue: string = ''
-    agInit(params: ICellRendererParams): void {
-      console.log("Renderer Params : ", params)
-      this.displayValue = "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
-    }
-
-    refresh(params: ICellRendererParams): boolean {
-      this.displayValue = "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
-      return true;
-    }
-  }
-
-  @Component({
     template: `<img src="assets/! icon.svg"/>`,
     styles:  [`:host {
         display: flex;
@@ -171,26 +120,6 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   })
   export class InfoCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {}
-  }
-
-  @Component({
-    template: `<div>{{ potential }}</div>`,
-  })
-  export class PotentialCellRenderer extends DefaultCellRenderer {
-    potential: string  = "";
-    agInit(params: ICellRendererParams): void {
-      this.potential = Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
-    }
-  }
-
-  @Component({
-    template: `<div>{{ potential }}</div>`,
-  })
-  export class GroupPotentialCellRenderer extends DefaultCellRenderer {
-    potential: string  = "";
-    agInit(params: ICellRendererParams): void {
-      this.potential = 'Sur un potentiel de: ' + Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
-    }
   }
 
   @Component({
