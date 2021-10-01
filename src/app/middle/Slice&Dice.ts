@@ -294,7 +294,7 @@ export class PDV{
   }
   
   readonly sales: Sale[];
-  private targetP2cd: number;
+  public targetP2cd: number;
   private targetFinition: boolean;
   constructor(readonly id: number, private values: any[]){
     this.sales = [];
