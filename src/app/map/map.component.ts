@@ -30,9 +30,11 @@ export class MapComponent implements AfterViewInit {
   selectedPDV?: PDV;
   private pdvs: PDV[] = [];
   private hidden: boolean = true;
+  private markers: google.maps.Marker[] = [];
 
   hide() { this.hidden = true; }
   show() { this.hidden = false; }
+  get shown() { return !this.hidden; }
 
   map?: google.maps.Map;
   ready: AsyncSubject<never> = new AsyncSubject<never>();
@@ -46,10 +48,9 @@ export class MapComponent implements AfterViewInit {
   
   setPDVs(pdvs: PDV[]) {
     this.pdvs = pdvs;
-    if ( !this.map ) {
+    if ( !this.map )
       this.createMap();
-      this.fromPDVs();
-    }
+    this.addMarkersFromPDVs();
   };
 
   private createMap() {
@@ -181,10 +182,18 @@ export class MapComponent implements AfterViewInit {
       });
     }
     
+    this.markers.push(marker);
     return marker;
   }
 
-  private fromPDVs() {
+  removeMarkers() {
+    console.log('markers deleted');
+    for ( let marker of this.markers )
+      marker.setMap(null); 
+    this.markers.length = 0;
+  }
+
+  private addMarkersFromPDVs() {
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
       return {
         position: new google.maps.LatLng(pdv.attribute('latitude'), pdv.attribute('longitude')),

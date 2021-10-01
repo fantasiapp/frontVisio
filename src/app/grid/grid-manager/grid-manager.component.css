@@ -48,7 +48,7 @@
   font-weight: 500;
   padding: 0 25px;
   border-bottom: 1px solid #707070;
-  color: #DC6206;
+  color: #151d21;
 }
 
 :host::ng-deep * .props p {

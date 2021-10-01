@@ -5,7 +5,7 @@
   padding: 20px;
   display: flex;
   flex-flow: column nowrap;
-  z-index: 999;
+  z-index: 9;
   background: #f7f7f7;
   position: absolute;
   top: 60px;
@@ -14,18 +14,6 @@
 h1 {
   padding: 0 0 20px 20px;
   margin: 0;
-}
-
-.cover {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(247, 247, 247, 0.5);
-  display: none;
-}
-
-.cover.active {
-  display: block;
 }
 
 .map-container {
@@ -49,23 +37,4 @@ h1 {
   margin: 0 5px;
   border-radius: 50%;
   cursor: pointer;
-}
-
-.close-map {
-  border: none;
-  outline: none;
-  display: block;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #333;
-  font-size: 16px;
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  cursor: pointer;
-}
-
-.close-map:hover {
-  background: black;
 }
