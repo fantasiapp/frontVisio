@@ -50,7 +50,7 @@ export class SliceTable {
                 Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'target', flex: 1},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
+            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'target', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { return params.data.target} else {return params.data.target}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
             'specificColumns': ['target', 'potential', 'typologie', 'info', 'checkbox', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
@@ -206,8 +206,9 @@ export class SliceTable {
             }
         }
         for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
-            let column = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': (params: any) => 1}
+            let column : any = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': visibleColumn.colSpan ? visibleColumn.colSpan : (params: any) => 1}
             if(column.field === 'potential') column.colSpan = (params : any) => {return params.data.groupRow === true ? 3 : 1; };
+            if(visibleColumn.valueGetter) column.valueGetter = visibleColumn.valueGetter; 
             columnDefs.push(column);
         }
 
