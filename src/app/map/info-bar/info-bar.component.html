@@ -89,18 +89,24 @@
             <div class="content">
                 <div class="grid">
                     <div class="first row">
-                        <div class="empty cell"></div>
-                        <div class="cell" *ngFor="let product of products; let index = index">
-                            
+                        <div class="first empty cell"></div>
+                        <div class="cell" *ngFor="let product of products">
+                            {{product | titlecase}}
                         </div>
                     </div>
                     <div class="total row">
-                        <div class="total cell">Totaux</div>
-                        <div class="cell" *ngFor="let product of products; let index = index">
-                            <input type="text" [value]="getTotalIndustries(index)"/>
+                        <div class="first cell">Totaux</div>
+                        <div class="cell" *ngFor="let product of products; let i = index">
+                            <input type="text" [value]="grid[0][i]" [disabled]="i == 3"/>
                         </div>
                     </div>
-                    
+                    <div class="row" *ngFor="let industry of industries; let j = index">
+                        <div class="first cell">{{industry | titlecase}}</div>
+                        <div class="cell" *ngFor="let product of products; let i = index">
+                            <input *ngIf="i != 3" type="number" [(ngModel)]="grid[j+1][i]" (input)="updateSum(i)"/>
+                            <input *ngIf="i == 3" type="number" [disabled]="i == 3" [value]="grid[j+1][0] + grid[j+1][1] + grid[j+1][2]"/>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -108,7 +114,13 @@
 </ng-container>
 
 
-<div class="comments">
+<div *ngIf="currentIndex < 2" class="comments">
     <span>Commentaires :</span>
     <textarea #comments></textarea>
+</div>
+
+
+<div *ngIf="currentIndex == 2" class="validation">
+    <button>Annuler</button>
+    <button>Validate</button>
 </div>

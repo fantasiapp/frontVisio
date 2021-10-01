@@ -32,8 +32,9 @@ export class InfoBarComponent {
   pages: string[] = ['Référentiel', 'Ciblage', 'Saisie de l\'AD'];
   currentIndex: number = 0;
 
-  industries: string[] = PDV.getIndustries() as string[];
+  industries: string[] = (PDV.getIndustries() as string[]);
   products: string[] = PDV.getProducts() as string[];
+  grid: number[][] = [];
 
   get pdv() {
     return this._pdv;
@@ -47,6 +48,10 @@ export class InfoBarComponent {
 
   constructor(private ref: ElementRef) {
     console.log('[InfobarComponent]: On');
+    this.products.splice(3, 0, 'P2CD')
+    this.grid = new Array(this.industries.length + 1);
+    for ( let i = 0; i < this.grid.length; i++ )
+      this.grid[i] = new Array(this.products.length).fill(0);
   }
 
   exit() {
@@ -62,7 +67,12 @@ export class InfoBarComponent {
     this.currentIndex = index;
   }
 
-  getTotalIndustries(index: number) {
-    return 0
+  updateSum(i: number) {
+    console.log('summing!');
+    let sum = 0;
+    for ( let j = 0; j < this.grid.length-1; j++ ) {
+      sum += this.grid[j+1][i] | 0;
+    }
+    return this.grid[0][i] = sum;
   }
 }
