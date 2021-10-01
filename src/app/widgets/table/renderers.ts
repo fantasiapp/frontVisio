@@ -148,7 +148,13 @@ export class GroupNameCellRenderer extends DefaultCellRenderer {
   export class GroupTargetCellRenderer extends DefaultCellRenderer {
     displayValue: string = ''
     agInit(params: ICellRendererParams): void {
+      console.log("Renderer Params : ", params)
       this.displayValue = "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
+    }
+
+    refresh(params: ICellRendererParams): boolean {
+      this.displayValue = "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
+      return true;
     }
   }
 

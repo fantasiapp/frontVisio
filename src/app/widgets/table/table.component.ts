@@ -104,6 +104,7 @@ export class TableComponent extends BasicWidget {
     this.titleContainer!.nativeElement.innerText = this.title;
 
     groupInfos = data[4][0];
+    displayedGroups = {}
     for(let value of groupInfos.values) displayedGroups[value] = true;
   }
 
@@ -168,7 +169,7 @@ export class TableComponent extends BasicWidget {
             
             case 'target':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupTargetCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'groupTargetCellRenderer'};
                 return {component: 'targetCellRenderer'};
               }
               break;
