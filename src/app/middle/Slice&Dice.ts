@@ -616,6 +616,17 @@ class SliceDice{
     if (typeof(sum) !== 'number') sum = 0;
     return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors};
   }
+
+  // pathId(path: any) {
+  //   let structure = (this.geoTree ? PDV.geoTree : PDV.tradeTree).attributes['labels'],
+  //     maxHeight = structure.length,
+  //     acc = 0;
+  
+  //   for ( let i = 0; i < maxHeight; i++ )
+  //     acc += (path[structure[i]] || 0) * Math.pow(10, 3*i);
+    
+  //   return acc + (this.geoTree ? 0 : 1);
+  // }
 };
 
 function loadAll(){

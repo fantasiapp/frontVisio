@@ -18,6 +18,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
   /* Styling */
   protected tileHeight: number = 16;
   protected dynamicDescription: boolean = false;
+  //protected savedData: {[key:number]: any} = {};
 
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
@@ -72,7 +73,16 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
   updateData(): {} {
     this.chart?.tooltip.hide();
-    let data = this.sliceDice.getWidgetData(...this.getDataArguments());
+    let data;
+    //let pathId = this.sliceDice.pathId(this.path);
+    //if ( this.savedData[pathId] ) {
+    //  console.log('data already here')
+    //  data = this.savedData[pathId]
+    //} else {
+    //  console.log('fetching data');
+      data = this.sliceDice.getWidgetData(...this.getDataArguments());
+    //  this.savedData[this.sliceDice.pathId(this.path)] = data;
+    //}
   
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
     if ( this.dynamicDescription || this.properties.description == '@sum' ) {
