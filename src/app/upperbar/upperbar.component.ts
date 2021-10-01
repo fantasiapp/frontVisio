@@ -14,6 +14,8 @@ import {
 } from '@angular/animations';
 import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
+import { combineLatest } from 'rxjs';
+import { BasicWidget } from '../widgets/BasicWidget';
 
 
 @Component({
@@ -44,7 +46,9 @@ export class UpperbarComponent implements OnInit {
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
 
   @ViewChild('map', {read: MapComponent, static: false})
-  private mapComponent?: MapComponent;
+  mapComponent?: MapComponent;
+
+  private path: any = {};
 
   isSearchOpen = new BehaviorSubject(false);
   constructor(
@@ -53,9 +57,25 @@ export class UpperbarComponent implements OnInit {
     private sliceDice: SliceDice
   ) {}
   shouldShowButtons = false;
+
   ngOnInit(): void {
     this.filtersState.filtersVisible.subscribe(
       (val) => (this.isFilterVisible = val)
+    );
+
+    this.filtersState.$path.subscribe(
+      (path) => {
+        if ( BasicWidget.shallowObjectEquality(this.path, path) )
+          return;
+        
+        this.path = path;
+        if ( this.mapComponent?.shown ) {
+          this.mapComponent!.removeMarkers();
+          this.mapComponent!.setPDVs(
+            PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
+          );
+        }
+      }
     );
   }
   showFilters() {
@@ -80,12 +100,15 @@ export class UpperbarComponent implements OnInit {
     );
   }
 
-  showMap() {
-    this.mapComponent?.show();
-    this.mapComponent?.ready.subscribe(() => {
+  toggleMap() {
+    if ( !this.mapComponent?.shown ) {
+      this.mapComponent!.removeMarkers();
+      this.mapComponent!.show();
       this.mapComponent!.setPDVs(
-        [...PDV.getInstances().values()]
-      )
-    });
+        PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
+      );
+    } else {
+      this.mapComponent?.hide();
+    }
   }
 }

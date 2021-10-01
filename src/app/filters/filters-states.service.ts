@@ -12,6 +12,7 @@ import { Tree } from '../middle/Node';
 export class FiltersStatesService {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
+  tree?: Tree;
   constructor(private navigation: Navigation, private dataservice : DataService) {
     this.dataservice.response.subscribe((data) => {
       if (data) {
@@ -103,6 +104,7 @@ export class FiltersStatesService {
   }
 
   public reset(t: Tree) {
+    this.tree = t;
     this.navigation.setTree(t);
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),

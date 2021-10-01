@@ -37,7 +37,8 @@ export class PieTargetComponent extends SimplePieComponent {
         onout: () => {
           this.getNeedleGroup()
             .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1)`);
-        }
+        },
+        order: null
       },
       onresized: () => {
         this.createNeedle({data: null, target: this.needleRotate})

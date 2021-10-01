@@ -44,23 +44,23 @@
         <img
           class="button-img"
           src="assets/Rechercher.svg"
-          alt="open search button"
+          alt="Chercher"
         />
       </button>
     </div>
     <div class="search-div">
       <button class="button">
-        <img class="button-img" src="assets/Mise a jour.svg" alt="actualiser" />
+        <img class="button-img" src="assets/Mise a jour.svg" alt="Mettre à jour" />
       </button>
     </div>
     <div class="search-div">
-      <button class="button" (click)="showMap()">
-        <img class="button-img" src="assets/map.svg" alt="actualiser" />
+      <button class="button" (click)="toggleMap()">
+        <img class="button-img" [src]="mapComponent?.shown ? 'assets/Log out.svg' : 'assets/map.svg'" alt="Carte" />
       </button>
     </div>
     <div class="search-div">
       <button class="button" (click)="logOut()">
-        <img class="button-img" src="assets/Log out.svg" alt="actualiser" />
+        <img class="button-img" src="assets/Log out.svg" alt="déconnecter" />
       </button>
     </div>
   </div>
