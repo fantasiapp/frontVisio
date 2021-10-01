@@ -33,6 +33,7 @@ export class GaugeComponent extends BasicWidget {
       data: {
         columns: [['Généralistes', Math.floor(100*Math.random())]],
         type: gauge(),
+        order: null
       },
       gauge: {
         label: {

@@ -48,7 +48,8 @@ export class HistocurveComponent extends BasicWidget {
         types: {
           '$1': bar(),
           '$2': line()
-        }
+        },
+        order: null
       },
       point: {
         r: 4

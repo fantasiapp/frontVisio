@@ -32,7 +32,8 @@ export class SimpleDonutComponent extends BasicWidget {
       bindto: this.content.nativeElement,
       data: {
         columns: data,
-        type: donut()
+        type: donut(),
+        order: null
       },
       tooltip: {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {

@@ -1,6 +1,6 @@
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { AfterViewInit, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { getGeoTree, getTradeTree, PDV } from '../middle/Slice&Dice';
 
@@ -15,6 +15,7 @@ import {
 import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
 import { combineLatest } from 'rxjs';
+import { BasicWidget } from '../widgets/BasicWidget';
 
 
 @Component({
@@ -37,7 +38,7 @@ import { combineLatest } from 'rxjs';
     ])
   ]
 })
-export class UpperbarComponent implements OnInit, AfterViewInit {
+export class UpperbarComponent implements OnInit {
   sldValue: number = 1;
   isFilterVisible = false;
   searchModel: string = '';
@@ -46,6 +47,8 @@ export class UpperbarComponent implements OnInit, AfterViewInit {
 
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
+
+  private path: any = {};
 
   isSearchOpen = new BehaviorSubject(false);
   constructor(
@@ -59,19 +62,22 @@ export class UpperbarComponent implements OnInit, AfterViewInit {
     this.filtersState.filtersVisible.subscribe(
       (val) => (this.isFilterVisible = val)
     );
-  }
 
-  ngAfterViewInit() {
-    combineLatest([this.filtersState.$path, this.mapComponent!.ready]).subscribe(
-      ([path, _]: [{}, never]) => {
-        this.mapComponent!.removeMarkers();
-        this.mapComponent!.setPDVs(
-          PDV.sliceTree(path, this.filtersState.tree == getGeoTree())[0]
-        );
+    this.filtersState.$path.subscribe(
+      (path) => {
+        if ( BasicWidget.shallowObjectEquality(this.path, path) )
+          return;
+        
+        this.path = path;
+        if ( this.mapComponent?.shown ) {
+          this.mapComponent!.removeMarkers();
+          this.mapComponent!.setPDVs(
+            PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
+          );
+        }
       }
-    )
+    );
   }
-
   showFilters() {
     this.isFilterVisible = !this.filtersState.filtersVisible.getValue();
     this.filtersState.filtersVisible.next(this.isFilterVisible);
@@ -96,7 +102,11 @@ export class UpperbarComponent implements OnInit, AfterViewInit {
 
   toggleMap() {
     if ( !this.mapComponent?.shown ) {
+      this.mapComponent!.removeMarkers();
       this.mapComponent!.show();
+      this.mapComponent!.setPDVs(
+        PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
+      );
     } else {
       this.mapComponent?.hide();
     }
