@@ -34,6 +34,10 @@
     overflow: auto;
 }
 
+:host(.opened) {
+    right: 0;
+}
+
 @media (max-width: 1366px) {
     :host {
         font-size: 16px;
@@ -52,9 +56,6 @@
     }
 }
 
-:host(.opened) {
-    right: 0;
-}
 
 ul, hr {
     margin: 0;
@@ -68,9 +69,6 @@ ul, hr {
     height: 100%;
 }
 
-.host * {
-    margin: 0;
-}
 
 .nav ul {
     display: flex;
@@ -168,6 +166,19 @@ ul, hr {
     margin: auto 0;
 }
 
+.definition {
+    margin-bottom: var(--pdv-section-margin-y);
+}
+
+.name {
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.definition .name {
+    font-weight: 700;
+}
+
 .definition, .props {
     flex: 1;
 }
@@ -214,6 +225,10 @@ span.bolder {
     margin-bottom: var(--pdv-props-margin-y);
 }
 
+.comments {
+    margin-bottom: var(--pdv-title-margin-y);
+}
+
 .comments textarea {
     display: block;
     height: 100%;
@@ -243,19 +258,6 @@ h2 {
 
 p {
     font-size: 0.9em;
-}
-
-.definition .name {
-    font-weight: 700;
-}
-
-.name {
-    font-size: 0.9em;
-    font-weight: 500;
-}
-
-.definition {
-    margin-bottom: var(--pdv-section-margin-y);
 }
 
 /* The container */

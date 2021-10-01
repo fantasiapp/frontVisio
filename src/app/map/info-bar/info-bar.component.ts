@@ -32,6 +32,9 @@ export class InfoBarComponent {
   pages: string[] = ['Référentiel', 'Ciblage', 'Saisie de l\'AD'];
   currentIndex: number = 0;
 
+  industries: string[] = PDV.getIndustries() as string[];
+  products: string[] = PDV.getProducts() as string[];
+
   get pdv() {
     return this._pdv;
   }
@@ -57,5 +60,9 @@ export class InfoBarComponent {
 
   setPage(index: number) {
     this.currentIndex = index;
+  }
+
+  getTotalIndustries(index: number) {
+    return 0
   }
 }

@@ -284,6 +284,14 @@ export class PDV{
     this.geoTree = new Tree(NavigationExtractionHelper);
     this.tradeTree = new Tree(TradeExtrationHelper);
   }
+
+  static getIndustries() {
+    return Object.values(DataExtractionHelper.get('industrie'));
+  }
+
+  static getProducts() {
+    return Object.values(DataExtractionHelper.get('produit'));
+  }
   
   readonly sales: Sale[];
   private targetP2cd: number;

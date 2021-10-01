@@ -81,6 +81,30 @@
             </div>
         </div>
     </ng-container>
+
+    <ng-container *ngIf="currentIndex == 2">
+        <div class="main">
+            <h2>{{pages[currentIndex]}} : {{pdv!.attribute('name')}}</h2>
+            <!-- <p>information sur la point de vente</p> -->
+            <div class="content">
+                <div class="grid">
+                    <div class="first row">
+                        <div class="empty cell"></div>
+                        <div class="cell" *ngFor="let product of products; let index = index">
+                            
+                        </div>
+                    </div>
+                    <div class="total row">
+                        <div class="total cell">Totaux</div>
+                        <div class="cell" *ngFor="let product of products; let index = index">
+                            <input type="text" [value]="getTotalIndustries(index)"/>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </ng-container>
 </ng-container>
 
 
