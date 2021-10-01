@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { AgRendererComponent } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
+import { SliceTable } from "src/app/middle/SliceTable";
 
 abstract class DefaultCellRenderer implements AgRendererComponent {
   refresh(params: ICellRendererParams): boolean {
@@ -44,15 +45,19 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   })
   export class CheckboxCellRenderer extends DefaultCellRenderer {
     params: any;
+    constructor(private sliceTable: SliceTable) {
+      super();
+    }
     agInit(params: ICellRendererParams): void {
       this.params = params;
     }
     checkedHandler(event: any) {
       let checked = event.target.checked;
       let colId = this.params.column.colId;
-      this.params.node.setDataValue(colId, checked); 
-
-      // this.params.api.refreshCells();
+      this.params.node.setDataValue(colId, checked);
+      
+      if(checked) this.sliceTable.updateTotalTarget(this.params.data.potential)
+      else this.sliceTable.updateTotalTarget(-this.params.data.potential)
     }
   }
   
@@ -121,18 +126,6 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   export class InfoCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {}
   }
-
-  @Component({
-    template: `<div>{{ visits }}</div>`,
-
-  })
-  export class VisitsCellRenderer extends DefaultCellRenderer {
-    visits: string  = "";
-    agInit(params: ICellRendererParams): void {
-      this.visits = params.value + ' V'
-    }
-  }
-
   @Component({
     template: ``,
   })

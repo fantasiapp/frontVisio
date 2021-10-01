@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, VisitsCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -41,6 +41,7 @@ export class TableComponent extends BasicWidget {
   gridApi: any;
   columnApi: any;
   onGridReady = (params: any) => {
+    console.log("ready")
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
@@ -62,7 +63,6 @@ export class TableComponent extends BasicWidget {
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
     infoCellRenderer: InfoCellRenderer,
-    visitsCellRenderer: VisitsCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -92,12 +92,9 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
-    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    this.updateTitle()
     this.pinnedRow = data[1][0]; //Hardest part
-    this.titleContainer!.nativeElement.innerText = this.title;
-
-    groupInfos = data[4][0];
+    groupInfos = data[3][0];
     displayedGroups = {}
     for(let value of groupInfos.values) displayedGroups[value] = true;
   }
@@ -109,6 +106,15 @@ export class TableComponent extends BasicWidget {
     displayedGroups = {}
     for(let value of groupInfos.values) displayedGroups[value] = true;
   }
+
+  updateTitle() {
+    console.log("Title update")
+    let title = this.sliceTable.getTitleData();
+    if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${(title[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.floor(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    this.titleContainer!.nativeElement.innerText = this.title
+  }
+
 
   createGraph(data: any[], opt?: {}): void {
     throw new Error('Method not implemented.');
@@ -133,9 +139,9 @@ export class TableComponent extends BasicWidget {
               break;
 
             case 'totalSales':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}};
-                else return {component: 'rowSalesCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Identifie : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                else return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
@@ -205,9 +211,10 @@ export class TableComponent extends BasicWidget {
     if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
     if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
     if(event['data'].groupRow === true) {
-      console.log("Toggle ", event['data'].name.name)
       this.externalFilterChanged(event['data'].name.name)
     }
+    console.log("Toggle ", event)
+    if(event['column']['colId'] === 'checkbox') this.updateTitle()
   }
 
   showEdit: boolean = false;
