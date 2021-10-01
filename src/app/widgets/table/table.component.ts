@@ -6,7 +6,6 @@ import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
 import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer, GroupTargetCellRenderer } from './renderers';
-import { ifStmt } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-table',
@@ -37,8 +36,6 @@ export class TableComponent extends BasicWidget {
   rowHeight?: number;
 
   //Groups
-  groupDisplayType: any;
-  groupDefaultExpanded?: number;
 
   //Apis
   gridApi: any;
@@ -105,11 +102,17 @@ export class TableComponent extends BasicWidget {
     if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
     this.pinnedRow = data[1][0]; //Hardest part
     this.titleContainer!.nativeElement.innerText = this.title;
+
+    groupInfos = data[4][0];
+    for(let value of groupInfos.values) displayedGroups[value] = true;
   }
 
   updateGroups(id: string) {
     this.currentOpt = id;
     this.gridApi.setRowData(this.sliceTable.buildGroups(id, this.type))
+    groupInfos = this.sliceTable.groupInfos;
+    displayedGroups = {}
+    for(let value of groupInfos.values) displayedGroups[value] = true;
   }
 
   createGraph(data: any[], opt?: {}): void {
@@ -202,6 +205,10 @@ export class TableComponent extends BasicWidget {
     if(event['column']['colId'] === 'edit') this.showEditOnClick(event['data']);
     if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
     if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
+    if(event['data'].groupRow === true) {
+      console.log("Toggle ", event['data'].name.name)
+      this.externalFilterChanged(event['data'].name.name)
+    }
   }
 
   showEdit: boolean = false;
@@ -245,4 +252,26 @@ export class TableComponent extends BasicWidget {
     };
   }
 
+  externalFilterChanged(value: any) {
+    displayedGroups[value] = !displayedGroups[value];
+    this.gridApi.onFilterChanged();
+  }
+
+  isExternalFilterPresent() {
+    return Object.values(displayedGroups).includes(false);
+  }
+
+  doesExternalFilterPass(node: any) {
+    if(node.data.groupRow == true) return true;
+    try {
+      return displayedGroups[node.data[groupInfos.field]] === true;
+    } catch {
+      return true;
+    }
+  }
+
 }
+
+//for an unknown reason, only works if this variables are outside the class (next time, try them as public)
+var displayedGroups: {[field: string]: boolean} = {};
+var groupInfos: {field: string, values: string[]} = {field : '', values: []};
