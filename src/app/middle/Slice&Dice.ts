@@ -70,22 +70,14 @@ class DataWidget{
     if (simpleFormat && isOne1 && isOne2){
       this.dim = 0;
       this.data = newData[0][0];
-      // if(this.rowsTitles.length !== 1) this.rowsTitles = ['all'];
-      // this.columnsTitles = ['all'];
     } else if (simpleFormat && isOne1){
       this.dim = 1;
-      this.data = newData[0];
-      // this.rowsTitles = ['all'];  
-      // this.columnsTitles = groupsAxis2; 
+      this.data = newData[0]; 
     } else if (simpleFormat && isOne2){
       this.dim = 1;
       this.data = newData.map(x => x[0]);
-      // this.rowsTitles = groupsAxis1;
-      // this.columnsTitles = ['all'];
     } else{
       this.data = newData;
-      // this.rowsTitles = groupsAxis1;
-      // this.columnsTitles = groupsAxis2;
     }
     this.rowsTitles = groupsAxis1;
     this.columnsTitles = groupsAxis2;
@@ -430,7 +422,7 @@ export class PDV{
     return this.instances.get(id);
   }
 
-  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number][]){
+  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
     if (axis1 == 'suiviAD' || axis2 == 'suiviAD' || axis1 == 'histo&curve') dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock des visites
     else {
@@ -457,7 +449,7 @@ export class PDV{
     return this.values[PDV.index(name)];
   }
 
-  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number][]) {
+  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number][]): DataWidget{
     if (axe2 == 'lg-1') {
       let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
@@ -485,7 +477,7 @@ export class PDV{
     return dataWidget;
   }
 
-  static reSlice(pdvs:PDV[], conditions: [string, number][]){
+  static reSlice(pdvs:PDV[], conditions: [string, number][]): PDV[]{
     if (conditions.length === 0) return pdvs;
     let newPdvs: PDV[] = [];
     for (let pdv of pdvs)
@@ -493,11 +485,10 @@ export class PDV{
     return newPdvs;
   }
 
-  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean){
+  //La fonction est appelée une fois par widget, ça pourrait peut-être être optimisé tous les widgets d'un dashboard ont le même slice
+  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean): PDV[]{
     let pdvs: PDV[] = [], childrenOfSlice: any;
     if (sliceDict) {
-      //!!OPTIMIZE
-      //!! We are calling sliceTree once per widget, even if it is the same slice
       [pdvs, childrenOfSlice] = this.sliceTree(sliceDict, geoTree);
       if (childrenOfSlice.hasOwnProperty(axe1)){
         rowsTitles = childrenOfSlice[axe1].map((node: any) => node.name);
@@ -536,26 +527,23 @@ export class PDV{
 
   static getLeaves(tree: Tree, node: Node | PDV, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
     if ( node instanceof PDV ) return [node];
-
     let structure = tree.attributes['labels'];
     dictChildren[structure[height]].push([node.id, node.name]);
     return node.children.map((child: any) => this.getLeaves(tree, child, height+1, dictChildren)).reduce((a: PDV[], b: PDV[]) => a.concat(b), []);
   }
 
-  static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}){
+  static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}): PDV[]{
     //verify if slice is correct
     let keys: string[] = Object.keys(slice).sort((u, v) => this.heightOf(tree, u) - this.heightOf(tree, v)), connectedNodes;
     if (keys.length === 0)
       connectedNodes = [tree.root];
     else
       connectedNodes = tree.getNodesAtHeight(this.heightOf(tree, keys[0])).filter(node => node.id == slice[keys[0]]);
-
     for ( let i = 1; i < keys.length; i++ )  {
       connectedNodes = connectedNodes.map((node: Node) =>
         (node.children as Node[]).filter((child: Node) => child.id == slice[keys[i]])
       ).flat();
     }
-
     //incorrect slice
     if (!connectedNodes.length) return [];
     let pdvs = connectedNodes.map(node => this.getLeaves(tree, node, node.height, dictChildren)).flat();
