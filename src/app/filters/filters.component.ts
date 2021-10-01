@@ -78,7 +78,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
   showSuper(level?: lev, levels?: listLev) {
     this.filtersState.updateState(undefined, undefined, true);
     this.viewList =
-    this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
+      this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
 
   updateState(

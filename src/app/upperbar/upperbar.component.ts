@@ -49,6 +49,7 @@ export class UpperbarComponent implements OnInit {
   mapComponent?: MapComponent;
 
   private path: any = {};
+  private shouldUpdateMap: boolean = true;
 
   isSearchOpen = new BehaviorSubject(false);
   constructor(
@@ -67,13 +68,15 @@ export class UpperbarComponent implements OnInit {
       (path) => {
         if ( BasicWidget.shallowObjectEquality(this.path, path) )
           return;
-        
         this.path = path;
         if ( this.mapComponent?.shown ) {
           this.mapComponent!.removeMarkers();
           this.mapComponent!.setPDVs(
             PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
           );
+          this.shouldUpdateMap = false;
+        } else {
+          this.shouldUpdateMap = true;
         }
       }
     );
@@ -102,11 +105,15 @@ export class UpperbarComponent implements OnInit {
 
   toggleMap() {
     if ( !this.mapComponent?.shown ) {
-      this.mapComponent!.removeMarkers();
+      if ( this.shouldUpdateMap ) {
+        this.mapComponent!.removeMarkers();
+        this.mapComponent!.setPDVs(
+          PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
+        );
+        this.shouldUpdateMap = false;
+      }
+
       this.mapComponent!.show();
-      this.mapComponent!.setPDVs(
-        PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
-      );
     } else {
       this.mapComponent?.hide();
     }

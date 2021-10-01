@@ -187,7 +187,6 @@ export class MapComponent implements AfterViewInit {
   }
 
   removeMarkers() {
-    console.log('markers deleted');
     for ( let marker of this.markers )
       marker.setMap(null); 
     this.markers.length = 0;
