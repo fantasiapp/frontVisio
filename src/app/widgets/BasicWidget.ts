@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Injectable, OnDestroy } from "@angular/core";
+import { Directive, ElementRef, Injectable, OnDestroy, OnInit } from "@angular/core";
 import { Chart } from "billboard.js";
 import * as d3 from "d3";
 import { combineLatest, Subscription } from "rxjs";
@@ -8,7 +8,7 @@ import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
 
 @Directive()
-export abstract class BasicWidget extends GridArea implements OnDestroy {
+export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy {
   protected subscription: Subscription;
   protected path = {};
   protected ref: ElementRef;
@@ -25,8 +25,7 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
 
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
-    super();
-
+    super();    
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
     this.subscription = combineLatest([filtersService.$path, this.ready!]).subscribe(([path, _]) => {
       this.subscription.unsubscribe();
@@ -35,11 +34,16 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       this.subscription = filtersService.$path.subscribe(path => {
         if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
           this.path = path;
-          this.updateGraph(this.updateData());
+          this.update();
         }
       });
       this.start();
     });
+  }
+  
+  ngOnInit() {
+    if ( this.properties.description == '@sum' )
+      this.dynamicDescription = true;
   }
 
   protected start(): void {
@@ -83,13 +87,20 @@ export abstract class BasicWidget extends GridArea implements OnDestroy {
       data = this.sliceDice.getWidgetData(...this.getDataArguments());
     //  this.savedData[this.sliceDice.pathId(this.path)] = data;
     //}
-  
+    
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
-    if ( this.dynamicDescription || this.properties.description == '@sum' ) {
-      this.dynamicDescription = true;
+    if ( this.dynamicDescription ) {
       this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
-      d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(this.properties.description);
+      this.setSubtitle(this.properties.description);
     }; return data;
+  }
+
+  setSubtitle(subtitle: string) {
+    d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
+  }
+
+  update() {
+    this.updateGraph(this.updateData());
   }
 
   ngOnDestroy() {

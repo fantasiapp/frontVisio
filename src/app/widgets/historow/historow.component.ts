@@ -3,13 +3,12 @@ import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { SequentialSchedule } from '../Schedule';
 import bb, {bar, Chart} from 'billboard.js';
 
 
 @Component({
   selector: 'app-historow',
-  templateUrl: '../widget-template.html',
+  templateUrl: './historow.component.html',
   styleUrls: ['./historow.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -17,8 +16,41 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
+  private rubix: boolean = true;
+  private rubixIndex: number = 0;
+  private rubixArgument?: [string, number];
+
+  @ViewChild('description', {read: ElementRef})
+  protected description!: ElementRef;
+
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    if ( !this.rubix )
+      return;
+
+    this.properties.description = [
+      ["Tous segments", []], ["Purs Spécialistes", ["segmentMarketing", 1]], ["Multi Spécialistes", ["segmentMarketing", 2]], ["Généralistes", ["segmentMarketing", 3]], ["Autres", ["segmentMarketing", 4]]
+    ];
+
+    this.rubixIndex = 0;
+    this.rubixArgument = this.properties.description[0][1];
+    this.setSubtitle(this.properties.description[0][0]);
+    
+    this.ready?.subscribe(() => {
+      this.description.nativeElement.style.cursor = 'pointer';
+      this.description.nativeElement.addEventListener('click', (_: any) => {
+        let entry;
+        this.rubixIndex = (this.rubixIndex + 1) % this.properties.description.length;
+        entry = this.properties.description[this.rubixIndex];
+        this.rubixArgument = entry[1];
+        this.setSubtitle(entry[0]);
+        this.update();
+      });
+    });
   }
 
   private axisPadding: number = 120;
@@ -114,6 +146,7 @@ export class HistoRowComponent extends BasicWidget {
 
   //wait on delays
   updateGraph({data}: any) {
+    console.log('$', data);
     if ( data[0][0] != 'x' ) {
       console.log('[HistoRow]: Rendering inaccurate format because `x` axis is unspecified.')
       data = [['x', ...data.map((d: any[]) => d[0])], ...data];
@@ -135,8 +168,8 @@ export class HistoRowComponent extends BasicWidget {
     });
   } 
 
-  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+  getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], true, false];
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], true, false, this.rubixArgument!];
   }
 }
