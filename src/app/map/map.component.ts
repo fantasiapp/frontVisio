@@ -159,11 +159,12 @@ export class MapComponent implements AfterViewInit {
     if ( name ) {
       let content = document.createElement('div'),
         title = document.createElement('span'),
-        button = document.createElement('button');
+        button = document.createElement('img');
       
       content.classList.add('infowindow');
       title.classList.add('infowindow-title');
       button.classList.add('infowindow-button');
+      button.src = 'assets/! icon.svg';
       
       title.innerText = name;
       button.innerText = '❓';
