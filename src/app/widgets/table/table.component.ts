@@ -95,16 +95,14 @@ export class TableComponent extends BasicWidget {
     this.updateTitle()
     this.pinnedRow = data[1][0]; //Hardest part
     groupInfos = data[3][0];
-    displayedGroups = {}
-    for(let value of groupInfos.values) displayedGroups[value] = true;
+    hiddenGroups = {}
   }
 
   updateGroups(id: string) {
     this.currentOpt = id;
     this.gridApi.setRowData(this.sliceTable.buildGroups(id, this.type))
     groupInfos = this.sliceTable.groupInfos;
-    displayedGroups = {}
-    for(let value of groupInfos.values) displayedGroups[value] = true;
+    hiddenGroups = {}
   }
 
   updateTitle() {
@@ -259,18 +257,19 @@ export class TableComponent extends BasicWidget {
   }
 
   externalFilterChanged(value: any) {
-    displayedGroups[value] = !displayedGroups[value];
+    if (hiddenGroups[value] === true) delete hiddenGroups[value];
+    else hiddenGroups[value] = true;
     this.gridApi.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    return Object.values(displayedGroups).includes(false);
+    return Object.keys(hiddenGroups).length > 0
   }
 
   doesExternalFilterPass(node: any) {
     if(node.data.groupRow == true) return true;
     try {
-      return displayedGroups[node.data[groupInfos.field]] === true;
+      return !hiddenGroups[node.data[groupInfos.field]] === true;
     } catch {
       return true;
     }
@@ -279,5 +278,5 @@ export class TableComponent extends BasicWidget {
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)
-var displayedGroups: {[field: string]: boolean} = {};
+var hiddenGroups: {[field: string]: boolean} = {};
 var groupInfos: {field: string, values: string[]} = {field : '', values: []};
