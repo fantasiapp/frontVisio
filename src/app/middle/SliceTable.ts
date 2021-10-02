@@ -47,8 +47,8 @@ export class SliceTable {
         'enduit': {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
-                // Math.floor(this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow === true ? pdv.target : 0),0)/1000),
-                0,
+                Math.floor(this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.checkbox === true && pdv.potential > 0 ? pdv.potential : 0),0)/1000),
+                // 0,
                 Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
