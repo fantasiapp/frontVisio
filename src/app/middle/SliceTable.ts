@@ -1,3 +1,4 @@
+import { DatePipe, formatDate } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { DataService } from "../services/data.service";
 import DataExtractionHelper from "./DataExtractionHelper";
@@ -300,7 +301,7 @@ export class SliceTable {
         let newTarget;
         if(pdv['target'] === null) {
             newTarget = {
-                0:"Soon a proper date",
+                0:formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z",
                 1:0,
                 2:false,
                 3:false,
@@ -311,7 +312,8 @@ export class SliceTable {
             }
         } else {
             newTarget = pdv['target'];
-            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')!] = pdv.checkbox;      newTarget
+            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'date')!] = formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z";
+            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')!] = pdv.checkbox;
         }
 
         newPdv[DataExtractionHelper.getPDVFields().findIndex((field: string) => field === 'target')] = newTarget;

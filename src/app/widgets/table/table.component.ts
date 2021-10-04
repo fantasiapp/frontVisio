@@ -109,7 +109,6 @@ export class TableComponent extends BasicWidget {
   }
 
   updateTitle() {
-    console.log("Title update")
     let title = this.sliceTable.getTitleData();
     if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${(title[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
     if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.floor(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
@@ -214,7 +213,6 @@ export class TableComponent extends BasicWidget {
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
     }
-    console.log("Toggle ", event)
     if(event['column']['colId'] === 'checkbox') {
       this.updateTitle()
       this.sliceTable.updatePdv(event['data']) //sous cette forme ?
