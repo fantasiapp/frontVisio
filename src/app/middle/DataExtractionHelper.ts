@@ -285,7 +285,12 @@ class DataExtractionHelper{
 
   // à faire
   static treatDescIndicator(slice:any, str:string){
-    if (str = '@ciblage') return PDV.computeCiblage(slice);
+    if (str == '@ciblage') return PDV.computeCiblage(slice);
+    if (str == '@targetArea'){
+      let listSlice = Object.entries(slice) as [string, number][];
+      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
+      return DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'targetP2CD');
+    }
     return "Ceci est une description";
   }
 };
