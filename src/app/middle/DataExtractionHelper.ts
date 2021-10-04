@@ -1,3 +1,5 @@
+import { PDV } from "./Slice&Dice";
+
 const paramsCompute = {
   growthConquestLimit: 0.1,
   theoricalRatioEnduit: 0.360,
@@ -177,7 +179,6 @@ class DataExtractionHelper{
   }
   
   static getGeoLevelName(height: number, id: number): string{
-    // if (height == 0) return 'France';
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
     if (name === undefined) throw `No level with id=${id}`;
     return name;
@@ -197,6 +198,7 @@ class DataExtractionHelper{
     // HARDCODE
     if ( height == 0 ) return '';
     let name = this.data[this.getTradeLevel(height)[this.LABEL_INDEX]][id];
+    console.log('trade', this.getTradeLevel(height)[this.LABEL_INDEX], id);
     if (name === undefined) throw `No level with id=${id}`;
     return name;
   }
@@ -226,11 +228,6 @@ class DataExtractionHelper{
 
   static getNameOfRegularObject(field:string, id:number){
     return DataExtractionHelper.get(field)[id];
-  }
-
-  // a enlever, normalement on peut utiliser le get pour ça
-  static getPDVFields(){
-    return this.data['structurePdv'];
   }
 
   static get(field: string){
@@ -277,17 +274,18 @@ class DataExtractionHelper{
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
   }
 
-  static computeDescription(slice:any, descArray:string[]){
-    for (let i = 0; i < descArray.length; i++){
-      if (descArray[i] == '') continue;
-      if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
+  static computeDescription(slice:any, description:string[]){
+    for (let i = 0; i < description.length; i++){
+      if (description[i] == '') continue;
+      if (description[i][0] == '@') description[i] = DataExtractionHelper.treatDescIndicator(slice, description[i]) as string;
     }
-    return descArray.reduce((str:string, acc: string) => str + acc, "");
+    return description.reduce((str:string, acc: string) => str + acc, "");
   }
 
   // à faire
-  static treatDescIndicator(str:string){
-    return str;
+  static treatDescIndicator(slice:any, str:string){
+    if (str = '@ciblage') return PDV.computeCiblage(slice);
+    return "Ceci est une description";
   }
 };
 

@@ -543,6 +543,11 @@ export class PDV{
     return PDV.reSlice(pdvs, addConditions);
   }
 
+  static computeCiblage(slice: {[key:string]:number}){
+    let pdvs = this.sliceTree(slice, true)[0];
+    return pdvs.reduce((acc, pdv) => acc + pdv.targetP2cd, 0);
+  }
+
   static heightOf(tree: Tree, label: string){
     return tree.attributes['labels'].indexOf(label);
   }
