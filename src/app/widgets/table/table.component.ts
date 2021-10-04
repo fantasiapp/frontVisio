@@ -254,7 +254,8 @@ export class TableComponent extends BasicWidget {
   }
 
   toggleRedistributed() {
-    this.sliceTable.updatePdv(this.selectedPdv, this.redistributed);
+    this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
+    this.updateGraph(this.updateData());
   }
 
   externalFilterChanged(value: any) {
