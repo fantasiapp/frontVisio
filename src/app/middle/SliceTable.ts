@@ -10,6 +10,7 @@ export class SliceTable {
     private sortedPdvsList: {}[] = [];
     private pdvsWithGroupslist: {}[] = [];
     groupInfos: {field: string, values: string[]} = {field : '', values: []};
+    private titleData: number[] = [0,0,0];
     private pdvFields: string[];
     private segmentDnEnduit: {[id: number]: string} = {};
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
@@ -46,11 +47,12 @@ export class SliceTable {
         'enduit': {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
-                Math.floor(this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow === true ? pdv.target : 0),0)/1000),
+                Math.floor(this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.checkbox === true && pdv.potential > 0 ? pdv.potential : 0),0)/1000),
+                // 0,
                 Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'target', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { return params.data.target} else {return params.data.target}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
+            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'target', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkbox && node.data.enseigne === params.data.name.name) value+=node.data.potential}); return value; } else {return params.data.target}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
             'specificColumns': ['target', 'potential', 'typologie', 'info', 'checkbox', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
@@ -58,7 +60,7 @@ export class SliceTable {
                 let group: {}[] = [];
                 group = group.concat({
                     'name': {'name': entry[0], 'number': entry[1].length},
-                    'target': entry[1].reduce((totalTarget: number, pdv: any) => totalTarget + (this.getPdvInstance(pdv)!.targetP2cd > 0 ? this.getPdvInstance(pdv)!.targetP2cd : 0), 0),
+                    // 'target': 0,
                     'potential': entry[1].reduce((totalPotential: number, pdv: {}) => totalPotential + ((pdv as any).potential > 0 ? (pdv as any).potential : 0), 0),
                     'groupRow': true
                     })
@@ -152,7 +154,7 @@ export class SliceTable {
 
     }
 
-    loadPdvsFromRaw(slice: any = {}) {
+    getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
         let pdvs = []
         if (slice !== {}){
             let allPdvs = DataExtractionHelper.get('pdvs');
@@ -163,14 +165,6 @@ export class SliceTable {
             }
         }
         this.pdvs = pdvs;
-        return pdvs;
-    }
-
-    getPdvs(slice: any = {}, groupField: string, type: string, reload: boolean = true): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
-        let pdvs = []
-        if(reload) pdvs = this.loadPdvsFromRaw(slice);
-        else pdvs = this.pdvs;
-
         let pdvsAsList =  [];
         for(let pdv of pdvs) {
             var newPdv: {[key:string]:any} = {}; //concrete row of the table
@@ -228,16 +222,25 @@ export class SliceTable {
         return array;
     }
 
-    getTitleData(type: string){
-        return this.tableConfig[type]['computeTitle']();
+    initializeTitleData(type: string){
+        this.titleData = this.tableConfig[type]['computeTitle']();
     }
+
+    getTitleData(){
+        return this.titleData;
+    }
+
+    updateTotalTarget(increment: number) {
+        this.titleData[1]+=increment;
+    }
+
 
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];
         data.push(this.getColumnDefs(type, rowGroupId));
         data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
-        data.push(this.getTitleData(type));
+        this.initializeTitleData(type);
         data.push([this.groupInfos])
         return data;
     }

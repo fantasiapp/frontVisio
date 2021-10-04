@@ -1,3 +1,6 @@
+import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
+import Dashboard from "./Dashboard";
+
 const paramsCompute = {
   growthConquestLimit: 0.1,
   theoricalRatioEnduit: 0.360,
@@ -96,6 +99,9 @@ class DataExtractionHelper{
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
+  static PDV_VOLUME_ID: number;
+  static PDV_LIGHT_ID: number;
+  static PDV_COMMENT_ID: number;
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -129,6 +135,9 @@ class DataExtractionHelper{
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
+    this.PDV_VOLUME_ID = this.data["structurePdv"].indexOf("targetP2CD");
+    this.PDV_LIGHT_ID = this.data["structurePdv"].indexOf("greenLight");
+    this.PDV_COMMENT_ID = this.data["structurePdv"].indexOf("commentTargetP2CD");
 
     
     //trades have less info that geo
@@ -249,38 +258,40 @@ class DataExtractionHelper{
     return Object.keys(object).find(key => object[key] === value);
   }
 
-  // à terme il vaudrait mieux restructurer ce que renvoie le back
-  static findGoodTarget(level:string, id:number){
-    if (level = "Région"){
-      let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
-      for (let target of Object.values(targets))
-        if (target[indexIdDrv] == id) return target;
-    };
-    if (level = "Secteur"){
-      let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
-      for (let target of Object.values(targets))
-        if (target[indexIdAgent] == id) return target;
-    };
-    return
-  }
+  // // à terme il vaudrait mieux restructurer ce que renvoie le back
+  // static findGoodTarget(level:string, id:number){
+  //   if (level = "Région"){
+  //     let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
+  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
+  //     for (let target of Object.values(targets))
+  //       if (target[indexIdDrv] == id) return target;
+  //   };
+  //   if (level = "Secteur"){
+  //     let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
+  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
+  //     for (let target of Object.values(targets))
+  //       if (target[indexIdAgent] == id) return target;
+  //   };
+  //   return
+  // }                              
 
-  static getTarget(level='national', id:number, targetName:string){
+  static getTarget(level='national', id:number, targetType:string){
     if (level == 'Secteur'){
-      let targetId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetName);
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+      let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetType);
+      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      // return target[targetTypeId];
+      return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
     }
-    let targetId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetName);
+    let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetType);
     if (level == 'Région'){
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      // return target[targetTypeId];
+      return DataExtractionHelper.get("targetLevelDrv")[id][targetTypeId];
     }
     let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
     let target = 0;
     for (let drvTarget of drvTargets)
-      target += drvTarget[targetId];
+      target += drvTarget[targetTypeId];
     return target;
   }
 
@@ -291,14 +302,15 @@ class DataExtractionHelper{
   static computeDescription(descArray:string[]){
     for (let i = 0; i < descArray.length; i++){
       if (descArray[i] == '') continue;
-      // if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
+      if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
     }
     return descArray.reduce((str:string, acc: string) => str + acc, "");
   }
 
-  // static treatDescIndicator(str){
-
-  // }
+  // à faire
+  static treatDescIndicator(str:string){
+    return str;
+  }
 };
 
 export type DataTree = [number, [DataTree]] | number;
