@@ -69,7 +69,6 @@ export class MapComponent implements AfterViewInit {
           west: -10,
         }
       },
-
       disableDefaultUI: true,
       zoomControl: true,
       rotateControl: true,
@@ -193,10 +192,48 @@ export class MapComponent implements AfterViewInit {
     this.markers.length = 0;
   }
 
+  private adjustMap(markers:  MarkerType[]) {
+    let center = [0, 0];
+    markers.forEach((marker: MarkerType) => {
+      let latlng = marker.position;
+      center[0] += latlng.lat();
+      center[1] += latlng.lng();
+    });
+
+    center[0] /= markers.length;
+    center[1] /= markers.length;
+
+    //calculate deviation, the bigger it is, the less the zoom
+    let variance = [0, 0];
+
+    markers.forEach((marker: MarkerType) => {
+      let latlng = marker.position;
+      variance[0] += Math.pow(latlng.lat() - center[0], 2);
+      variance[1] += Math.pow(latlng.lng() - center[1], 2);
+    });
+
+    variance[0] /= (markers.length - 1);
+    variance[1] /= (markers.length - 1);
+    let std = Math.sqrt(variance[0] + variance[1]);
+    let zoom = Math.floor(10.017 - 1.143*std);
+    
+    this.map!.setZoom(zoom);
+
+    this.map!.panTo(
+      new google.maps.LatLng(
+        center[0],
+        center[1]
+      )
+    );
+  }
+
   private addMarkersFromPDVs() {
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
+      let lat = pdv.attribute('latitude'),
+        lng = pdv.attribute('longitude');
+      
       return {
-        position: new google.maps.LatLng(pdv.attribute('latitude'), pdv.attribute('longitude')),
+        position: new google.maps.LatLng(lat, lng),
         icon: MapComponent.icons[Math.random()*4|0],
         title: pdv.attribute('name'),
         pdv
@@ -205,6 +242,8 @@ export class MapComponent implements AfterViewInit {
 
     for ( let marker of markers )
       this.addMarker(marker);
+
+    this.adjustMap(markers);
   };
 
   private static createSVGIcon(keys: any = {}) {
