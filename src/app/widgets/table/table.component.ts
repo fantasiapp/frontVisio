@@ -38,6 +38,8 @@ export class TableComponent extends BasicWidget {
 
   //Side menus
   pdv?: PDV;
+  redistributed?: boolean;
+  selectedPdv?: any;
 
   //Apis
   gridApi: any;
@@ -207,8 +209,16 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') this.pdv = this.sliceTable.getPdvInstance(event['data']);
-    if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
+    if(event['column']['colId'] === 'edit') {
+      this.pdv = this.sliceTable.getPdvInstance(event['data']);
+      this.selectedPdv = event['data'];
+    }
+    if(event['column']['colId'] === 'info') {
+      this.selectedPdv = event['data'];
+      this.showInfoOnClick(this.selectedPdv);
+      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] : this.redistributed = false;
+    }
+    
     if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
@@ -241,6 +251,10 @@ export class TableComponent extends BasicWidget {
       'potential': Math.floor(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalEnduitSales': Math.floor(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
     };
+  }
+
+  toggleRedistributed() {
+    this.sliceTable.updatePdv(this.selectedPdv, this.redistributed);
   }
 
   externalFilterChanged(value: any) {

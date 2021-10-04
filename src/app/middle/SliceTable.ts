@@ -296,17 +296,17 @@ export class SliceTable {
         return pdvAsList;
     }
 
-    updatePdv(pdv: any) {
+    updatePdv(pdv: any, redistributed = false) { //We check here fields that may have been updated : target.redistributed, target.targetFinition
         let newPdv = this.pdvFromObjectToList(pdv);
         let newTarget;
-        if(pdv['target'] === null) {
+        if(!pdv['target']) {
             newTarget = {
                 0:formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z",
                 1:0,
-                2:false,
+                2:redistributed,
                 3:false,
                 4:0,
-                5:pdv.checkbox,
+                5:pdv['checkbox'],
                 6:'g',
                 7:""
             }
@@ -314,6 +314,8 @@ export class SliceTable {
             newTarget = pdv['target'];
             newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'date')!] = formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z";
             newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')!] = pdv.checkbox;
+            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] = redistributed;
+
         }
 
         newPdv[DataExtractionHelper.getPDVFields().findIndex((field: string) => field === 'target')] = newTarget;
