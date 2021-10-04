@@ -14,21 +14,26 @@ input[type="radio"] {
     /* filter: invert(100%) hue-rotate(18deg) brightness(1.7); */
 }
 
+ul li {
+    font-weight: 300;
+    margin: 10px -40px;
+    list-style-type: none;
+}
+span {
+    font-weight: 500;
+}
+
+
 .side-div {
     display: flex;
     flex-direction: column;
-    padding: 2em;
+    padding: 2em 5em;
     position: absolute;
-    width: 80%;
     height: 100%;
     background-color: white;
     top: 0;
     right: 0;
     box-shadow: -2px 0 4px grey;
-}
-
-.side-div strong {
-    padding: 10px;
 }
 
 .side-div img{
@@ -39,7 +44,6 @@ input[type="radio"] {
 }
 
 .side-div div {
-    margin-left: 20px;
     flex-grow: 1;
 }
 
@@ -49,13 +53,15 @@ input[type="radio"] {
 }
 
 
-.side-div .values-div {
+.values-div {
     display: flex;
     flex-direction: row;
 }
 
-#bottom-div input {
-    display: block;
-    width: 100%;
-    height: 4em;
+
+.vertical-bar {
+    min-width: 2px;
+    max-width: 2px;
+    height: 60%;
+    background-color: lightgray;
 }

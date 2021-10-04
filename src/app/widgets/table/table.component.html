@@ -36,31 +36,40 @@
     <div>
         <div>
             <span>
-                <h2>{{ infoData.name }}</h2>
+                <h1>{{ infoData.name }}</h1>
             </span>
-            <span><strong>Enseigne : </strong> {{ infoData.enseigne }}</span><br>
-            <span><strong>Département : </strong> {{ infoData.dep }}</span><br>
-            <span><strong>Typologie PdV : </strong> {{ infoData.typologie }}</span><br>
-            <span><strong>Segmentation marketing : </strong> {{ infoData.segmentMarketing }}</span><br>
-            <span><strong>Segmentation portefeuille : </strong> {{ infoData.segmentCommercial }}</span><br>
-            <span><strong>Nombre de visites : </strong> {{ infoData.nbVisits }}</span>
+            <ul>
+                <li><span>Enseigne : </span>{{ infoData.enseigne }}</li>
+                <li><span>Département :  </span>{{ infoData.dep }}</li>
+                <li><span>Typologie PdV : </span> {{ infoData.typologie }}</li>
+                <li><span>Segmentation marketing : </span> {{ infoData.segmentMarketing }}</li>
+                <li><span>Segmentation portefeuille : </span>{{ infoData.segmentCommercial }}</li>
+                <li><span>Nombre de visites : </span>{{ infoData.nbVisits }}</li>
+            </ul>
         </div>
     </div>
     <div class="checkbox-div">Point de vente redistribue<input type="checkbox"></div>
     <div class="values-div">
         <div>
-            <h2>P2CD</h2>
-            <span><strong>Siniat : </strong>{{ infoData.siniatP2cdSales }} m²</span><br>
-            <span><strong>Placo : </strong>{{ infoData.placoP2cdSales }} m²</span><br>
-            <span><strong>Knauf : </strong>{{ infoData.knaufP2cdSales }} m²</span><br>
-            <span><strong>Total P2CD estimé : </strong>{{ infoData.totalP2cdSales }} m²</span>
+            <h1>P2CD</h1>
+            <ul>
+                <li><span>Siniat : </span>{{ infoData.siniatP2cdSales }} m²</li>
+                <li><span>Placo : </span>{{ infoData.placoP2cdSales }} m²</li>
+                <li><span>Knauf : </span>{{ infoData.knaufP2cdSales }} m²</li>
+                <li><span>Total P2CD estimé : </span>{{ infoData.totalP2cdSales }} m²</li>
+            </ul>
         </div>
         <div>
-            <h2>Enduit</h2>
-            <span><strong>Pregy : </strong>{{ infoData.pregyEnduitSales }} KG</span><br>
-            <span><strong>Potentiel : </strong>{{ infoData.salsiEnduitSales }} KG</span><br>
-            <span><strong>Total siniat : </strong>{{ infoData.potential }} KG</span><br>
-            <span><strong>Total estimé : </strong>{{ infoData.totalEnduitSales }} KG</span>
+            <div class="vertical-bar"></div>
+        </div>
+        <div>
+            <h1>Enduit</h1>
+            <ul>
+                <li><span>Pregy : </span>{{ infoData.pregyEnduitSales }} KG</li>
+                <li><span>Potentiel : </span>{{ infoData.salsiEnduitSales }} KG</li>
+                <li><span>Total siniat : </span>{{ infoData.potential }} KG</li>
+                <li><span>Total estimé : </span>{{ infoData.totalEnduitSales }} KG</li>
+            </ul>
         </div>
     </div>
 </div>
