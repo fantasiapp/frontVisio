@@ -253,19 +253,19 @@ export class PDV{
       this.instances.set(intId, new PDV(intId, <any[]>data));
     }
     if (loadTrees) this.loadTrees();
-    let structureTargets = DataExtractionHelper.get('structureTarget');
-    let indexPdv: number = structureTargets.indexOf("pdv"),
-      indexTargetP2cd:number = structureTargets.indexOf("targetP2CD"),
-      indexTargetFinition:number = structureTargets.indexOf("targetFinition");
-    for (let dataTarget of Object.values(DataExtractionHelper.get('target'))){
-      let data: any = dataTarget as any;
-      let pdvId: number = data[indexPdv] as number;
-      let pdv = this.instances.get(pdvId) as PDV;
-      let targetP2cd: number = data[indexTargetP2cd] as number;
-      let targetFinition:boolean = data[indexTargetFinition] as boolean;
-      pdv.targetP2cd = targetP2cd;
-      pdv.targetFinition = targetFinition;
-    }
+    // let structureTargets = DataExtractionHelper.get('structureTarget');
+    // let indexPdv: number = structureTargets.indexOf("pdv"),
+      // indexTargetP2cd:number = structureTargets.indexOf("targetP2CD"),
+      // indexTargetFinition:number = structureTargets.indexOf("targetFinition");
+    // for (let dataTarget of Object.values(DataExtractionHelper.get('target'))){
+    //   let data: any = dataTarget as any;
+    //   let pdvId: number = data[indexPdv] as number;
+    //   let pdv = this.instances.get(pdvId) as PDV;
+    //   let targetP2cd: number = data[indexTargetP2cd] as number;
+    //   let targetFinition:boolean = data[indexTargetFinition] as boolean;
+    //   pdv.targetP2cd = targetP2cd;
+    //   pdv.targetFinition = targetFinition;
+    // }
   };
 
   private static createIndexMapping(){
@@ -430,7 +430,7 @@ export class PDV{
     return this.instances.get(id);
   }
 
-  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number][]): void{
+  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
     if (axis1 == 'suiviAD' || axis2 == 'suiviAD' || axis1 == 'histo&curve') dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock des visites
     else {
@@ -457,7 +457,7 @@ export class PDV{
     return this.values[PDV.index(name)];
   }
 
-  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number][]): DataWidget{
+  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
     if (axe2 == 'lg-1') {
       let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
@@ -485,11 +485,13 @@ export class PDV{
     return dataWidget;
   }
 
-  static reSlice(pdvs:PDV[], conditions: [string, number][]): PDV[]{
+  static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
     if (conditions.length === 0) return pdvs;
     let newPdvs: PDV[] = [];
-    for (let pdv of pdvs)
-      if (conditions.map(condition => pdv.attribute(condition[0]) === condition[1]).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
+    for (let pdv of pdvs){
+      console.log(pdv.attribute('segmentMarketing'));
+      if (conditions.map(condition => condition[1].includes(pdv.attribute(condition[0]))).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
+    }
     return newPdvs;
   }
 
@@ -557,6 +559,30 @@ export class PDV{
     let pdvs = connectedNodes.map(node => this.getLeaves(tree, node, node.height, dictChildren)).flat();
     return pdvs;
   }
+
+  clientProspect(){
+    let dnResult = this.getValue('dn', false, false, true) as number[],
+      clientProspectAxis = DataExtractionHelper.get('clientProspect');
+    for (let i = 0; i < dnResult.length; i++)
+      if (dnResult[i] === 1) return clientProspectAxis[i];
+  }
+
+  displayIndustrieSaleVolumes(){
+    let industriesSalevolume = this.getValue('p2cd', true) as number[],
+      dictResult:{[key:string]:number} = {},
+      siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+      knaufId = DataExtractionHelper.INDUSTRIE_KNAUF_ID,
+      placoId = DataExtractionHelper.INDUSTRIE_PLACO_ID,
+      other = 0,
+      industrieAxis = DataExtractionHelper.get('industrie');
+    dictResult[industrieAxis[siniatId]] = industriesSalevolume[siniatId];
+    dictResult[industrieAxis[placoId]] = industriesSalevolume[placoId];
+    dictResult[industrieAxis[knaufId]] = industriesSalevolume[knaufId];
+    for (let i = 0; i < industriesSalevolume.length; i++)
+      if (![siniatId, knaufId, placoId].includes(i)) other += industriesSalevolume[i];
+    dictResult['Autres'] = other;
+    return dictResult;
+  }
 };
 
 
@@ -566,7 +592,7 @@ class SliceDice{
   constructor(){console.log('[SliceDice]: on');}
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), 
-      percent:string, transpose=false, target=false, addConditions:[string, number][] = []){
+      percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
     let colors: undefined;
     if (typeof(groupsAxis1) === 'number'){
       let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];

@@ -33,7 +33,7 @@ export class HistoRowComponent extends BasicWidget {
       return;
 
     this.properties.description = [
-      ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', 1]]], ['Multi Spécialistes', [['segmentMarketing', 2]]], ['Généralistes', [['segmentMarketing', 3]]], ['Autres', [['segmentMarketing', 4]]]
+      ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
     ];
 
     this.rubixIndex = 0;

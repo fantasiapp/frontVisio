@@ -1,5 +1,5 @@
 import { Data } from "@angular/router";
-import { DataService } from "../services/data.service";
+import Dashboard from "./Dashboard";
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -94,6 +94,8 @@ class DataExtractionHelper{
   static INDUSTRIE_SALSI_ID: any;
   static INDUSTRIE_PREGY_ID: any;
   static INDUSTRIE_SINIAT_ID: any;
+  static INDUSTRIE_KNAUF_ID: any;
+  static INDUSTRIE_PLACO_ID: any;
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
@@ -106,8 +108,6 @@ class DataExtractionHelper{
   static geoHeight: number;
   static tradeHeight: number;
 
-
-  constructor(private dataService: DataService) {}
 
   static setData(d: any){
     this.data = d;
@@ -128,6 +128,8 @@ class DataExtractionHelper{
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
     this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
     this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
+    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.data['industrie'], 'Knauf');
+    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.data['industrie'], 'Placo');
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
@@ -283,43 +285,58 @@ class DataExtractionHelper{
     return Object.keys(object).find(key => object[key] === value);
   }
 
-  // à terme il vaudrait mieux restructurer ce que renvoie le back
-  static findGoodTarget(level:string, id:number){
-    if (level = "Région"){
-      let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
-      for (let target of Object.values(targets))
-        if (target[indexIdDrv] == id) return target;
-    };
-    if (level = "Secteur"){
-      let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
-      for (let target of Object.values(targets))
-        if (target[indexIdAgent] == id) return target;
-    };
-    return
-  }
+  // // à terme il vaudrait mieux restructurer ce que renvoie le back
+  // static findGoodTarget(level:string, id:number){
+  //   if (level = "Région"){
+  //     let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
+  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
+  //     for (let target of Object.values(targets))
+  //       if (target[indexIdDrv] == id) return target;
+  //   };
+  //   if (level = "Secteur"){
+  //     let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
+  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
+  //     for (let target of Object.values(targets))
+  //       if (target[indexIdAgent] == id) return target;
+  //   };
+  //   return
+  // }                              
 
-  static getTarget(level='national', id:number, targetName:string){
+  static getTarget(level='national', id:number, targetType:string){
     if (level == 'Secteur'){
-      let targetId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetName);
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+      let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetType);
+      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      // return target[targetTypeId];
+      return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
     }
-    let targetId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetName);
+    let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetType);
     if (level == 'Région'){
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      // return target[targetTypeId];
+      return DataExtractionHelper.get("targetLevelDrv")[id][targetTypeId];
     }
     let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
     let target = 0;
     for (let drvTarget of drvTargets)
-      target += drvTarget[targetId];
+      target += drvTarget[targetTypeId];
     return target;
   }
 
   static getListTarget(ids: number[], targetName:string){
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
+  }
+
+  static computeDescription(descArray:string[]){
+    for (let i = 0; i < descArray.length; i++){
+      if (descArray[i] == '') continue;
+      if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
+    }
+    return descArray.reduce((str:string, acc: string) => str + acc, "");
+  }
+
+  // à faire
+  static treatDescIndicator(str:string){
+    return str;
   }
 };
 
