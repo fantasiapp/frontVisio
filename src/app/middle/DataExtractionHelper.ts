@@ -275,6 +275,7 @@ class DataExtractionHelper{
   }
 
   static computeDescription(slice:any, description:string[]){
+    if (typeof(description) == 'string') return description;
     for (let i = 0; i < description.length; i++){
       if (description[i] == '') continue;
       if (description[i][0] == '@') description[i] = DataExtractionHelper.treatDescIndicator(slice, description[i]) as string;
