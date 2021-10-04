@@ -1,4 +1,6 @@
-<button class="close" (click)="exit()">×</button>
+<button class="close" (click)="exit()">
+    <img src="assets/X.svg"/>
+</button>
 <div class="nav">
     <ul #navigation>
         <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
@@ -14,12 +16,12 @@
                 <div class="definition">
                     <ul>
                         <li><span>Point de vente :</span> {{pdv!.attribute('name')}}</li>
-                        <li><span>Agent :</span> {{getName('agent', pdv!.attribute('agent'))}}</li>
-                        <li><span>Segment :</span> {{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
-                        <li><span>Enseigne :</span> {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
-                        <li><span>Département :</span> {{getName('dep', pdv!.attribute('dep'))}}</li>
-                        <li><span>Ville :</span> {{getName('ville', pdv!.attribute('ville'))}}</li>
-                        <li><span>Bassin :</span> {{getName('bassin', pdv!.attribute('bassin'))}}</li>
+                        <li><span>Agent :</span> {{getName('agent')}}</li>
+                        <li><span>Segment :</span> {{getName('segmentMarketing')}}</li>
+                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
+                        <li><span>Département :</span> {{getName('dep')}}</li>
+                        <li><span>Ville :</span> {{getName('ville')}}</li>
+                        <li><span>Bassin :</span> {{getName('bassin')}}</li>
                     </ul>
                 </div>
                 <div class="props">
@@ -27,14 +29,14 @@
                         <li>
                             <label class="container-checkbox">
                                 Ne vend pas de plaque
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
+                                <input type="checkbox" [attr.checked]="!pdv!.attribute('sale')" disabled>
+                                <span class="checkmark" ></span>
                             </label>
                         </li>
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox">
+                                <input type="checkbox" [attr.checked]="pdv!.attribute('redistributed')" disabled>
                                 <span class="checkmark"></span>
                             </label>
                         </li>
@@ -52,25 +54,25 @@
                 <div class="definition">
                     <div class="name">Général</div>
                     <ul>
-                        <li><span>Agent :</span> {{getName('agent', pdv!.attribute('agent'))}}</li>
-                        <li><span>Enseigne :</span> {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
-                        <li><span>Départements :</span> {{getName('dep', pdv!.attribute('dep'))}}</li>
-                        <li><span>Client prospect :</span> -- </li>
-                        <li><span>Segmentation marketing :</span>{{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
-                        <li><span>Segmentation portefeuille :</span> -- </li>
+                        <li><span>Agent :</span> {{getName('agent')}}</li>
+                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
+                        <li><span>Départements :</span> {{getName('dep')}}</li>
+                        <li><span>Client prospect :</span> {{pdv!.clientProspect() || "Non documenté"}} </li>
+                        <li><span>Segmentation marketing :</span>{{getName('segmentMarketing')}}</li>
+                        <li><span>Segmentation portefeuille :</span> {{getName('segmentCommercial')}} </li>
                     </ul>
                 </div>
 
-                <div class="definition">
+                <div class="definition" *ngIf="getSalesVolumes().length">
                     <div class="name">Volumes de vente par marque en m²</div>
                     <ul>
-                        <li><span>KNAUF :</span>20 000 MOCK</li>
+                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} :</span>{{entry[1].toFixed(1)}}</li>
                     </ul>
                 </div>
 
-                <div class="eval easy">
+                <div class="eval" [ngClass]="targetClass">
                     <ul>
-                        <li><span class="bolder">Volume visé en m² :</span><input type="text"/></li>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget() || 0" type="text" disabled/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
                             <div class="circle"></div>
                             <div class="circle"></div>
@@ -103,8 +105,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input *ngIf="i != 3" type="number" [(ngModel)]="grid[j+1][i]" (input)="updateSum(i)"/>
-                            <input *ngIf="i == 3" type="number" [disabled]="i == 3" [value]="grid[j+1][0] + grid[j+1][1] + grid[j+1][2]"/>
+                            <input type="number" [(ngModel)]="grid[j+1][i]" (input)="updateSum(j+1, i)" [disabled]="i == 3"/>
                         </div>
                     </div>
                 </div>
@@ -122,5 +123,8 @@
 
 <div *ngIf="currentIndex == 2" class="validation">
     <button>Annuler</button>
-    <button>Validate</button>
+    <button>Valider</button>
 </div>
+
+<img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
+<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2" (click)="setPage(currentIndex + 1)"/>

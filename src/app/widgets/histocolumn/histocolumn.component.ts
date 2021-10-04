@@ -54,7 +54,10 @@ export class HistoColumnComponent extends BasicWidget {
         }
       },
       bar: {
-        sensitivity: 10
+        sensitivity: 10,
+        width: {
+          ratio: 0.3
+        }
       },
       color: {
         pattern: colors

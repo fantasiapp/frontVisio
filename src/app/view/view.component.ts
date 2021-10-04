@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { Layout } from '../grid/grid-manager/grid-manager.component';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
 
 @Component({
   selector: 'app-view',
@@ -22,5 +23,11 @@ export class ViewComponent implements OnInit {
 
   ngOnInit(): void {
  
+  }
+
+  computeDescription(description: string | string[]) {
+    if ( Array.isArray(description) )
+      return DataExtractionHelper.computeDescription(this.filtersService.$path, description);
+    return description;
   }
 }

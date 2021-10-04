@@ -1,6 +1,7 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy } from '@angular/core';
 import { AsyncSubject } from 'rxjs';
 import { PDV } from '../middle/Slice&Dice';
+import { MapFiltersComponent } from './map-filters/map-filters.component';
 type MarkerType = {
   pdv: PDV;
   position: google.maps.LatLng;
@@ -27,8 +28,15 @@ export class MapComponent implements AfterViewInit {
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
+  private _pdvs: PDV[] = [];
+  set pdvs(value: PDV[]) {
+    this._pdvs = value;
+    this.update();
+  }
+
+  get pdvs() { return this._pdvs; }
+
   selectedPDV?: PDV;
-  private pdvs: PDV[] = [];
   private hidden: boolean = true;
   private markers: google.maps.Marker[] = [];
 
@@ -39,19 +47,21 @@ export class MapComponent implements AfterViewInit {
   map?: google.maps.Map;
   ready: AsyncSubject<never> = new AsyncSubject<never>();
 
-  constructor() {}
+  constructor() {
+    this._pdvs = PDV.sliceMap({}, []);
+  }
 
   ngAfterViewInit() {
     this.ready.next(0 as never);
     this.ready.complete();
   }
-  
-  setPDVs(pdvs: PDV[]) {
-    this.pdvs = pdvs;
+
+  update() {
+    this.removeMarkers();
     if ( !this.map )
       this.createMap();
     this.addMarkersFromPDVs();
-  };
+  }
 
   private createMap() {
     let zoom = 7;
@@ -69,7 +79,6 @@ export class MapComponent implements AfterViewInit {
           west: -10,
         }
       },
-
       disableDefaultUI: true,
       zoomControl: true,
       rotateControl: true,
@@ -164,22 +173,28 @@ export class MapComponent implements AfterViewInit {
       content.classList.add('infowindow');
       title.classList.add('infowindow-title');
       button.classList.add('infowindow-button');
-      button.src = 'assets/! icon.svg';
+      button.src = 'assets/Point d\'info.svg';
       
       title.innerText = name;
-      button.innerText = '❓';
-      button.addEventListener('click', () => {
-        this.handleClick(markerData.pdv);
-      });
+      
 
       content.appendChild(title);
       content.appendChild(button);
 
+      let info: google.maps.InfoWindow | undefined = undefined;
       marker.addListener('click', () => {
-        const info = new google.maps.InfoWindow({
-          content      
-        })
+        if ( !info )
+          info = new google.maps.InfoWindow({
+            content      
+          });          
+        
+        info.close();
         info.open(this.map, marker);
+      });
+
+      button.addEventListener('click', () => {
+        this.handleClick(markerData.pdv);
+        //info?.close();
       });
     }
     
@@ -193,10 +208,51 @@ export class MapComponent implements AfterViewInit {
     this.markers.length = 0;
   }
 
+  private adjustMap(markers:  MarkerType[]) {
+    let center = [0, 0];
+    markers.forEach((marker: MarkerType) => {
+      let latlng = marker.position;
+      center[0] += latlng.lat();
+      center[1] += latlng.lng();
+    });
+
+    center[0] /= markers.length;
+    center[1] /= markers.length;
+
+    //calculate deviation, the bigger it is, the less the zoom
+    let variance = [0, 0];
+
+    markers.forEach((marker: MarkerType) => {
+      let latlng = marker.position;
+      variance[0] += Math.pow(latlng.lat() - center[0], 2);
+      variance[1] += Math.pow(latlng.lng() - center[1], 2);
+    });
+
+    variance[0] /= (markers.length - 1);
+    variance[1] /= (markers.length - 1);
+    let std = Math.sqrt(variance[0] + variance[1]);
+    let zoom = Math.round(10.017 - 1.143*std)-1;
+    
+    this.map!.setZoom(zoom);
+
+    this.map!.panTo(
+      new google.maps.LatLng(
+        center[0],
+        center[1]
+      )
+    );
+  }
+
   private addMarkersFromPDVs() {
+    if ( !this.pdvs.length )
+      return;
+    
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
+      let lat = pdv.attribute('latitude'),
+        lng = pdv.attribute('longitude');
+      
       return {
-        position: new google.maps.LatLng(pdv.attribute('latitude'), pdv.attribute('longitude')),
+        position: new google.maps.LatLng(lat, lng),
         icon: MapComponent.icons[Math.random()*4|0],
         title: pdv.attribute('name'),
         pdv
@@ -205,6 +261,8 @@ export class MapComponent implements AfterViewInit {
 
     for ( let marker of markers )
       this.addMarker(marker);
+
+    this.adjustMap(markers);
   };
 
   private static createSVGIcon(keys: any = {}) {

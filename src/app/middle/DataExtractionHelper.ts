@@ -1,6 +1,7 @@
 import { Data } from "@angular/router";
 import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
 import Dashboard from "./Dashboard";
+import { PDV } from "./Slice&Dice";
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -203,6 +204,10 @@ class DataExtractionHelper{
       DataExtractionHelper.setData(this.data)
   }
 
+  static getPDVFields() {
+    return DataExtractionHelper.get('structurePdv');
+  }
+
   static getGeoLevel(height: number){
     if (height >= this.geoLevels.length || height < 0)
       throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
@@ -214,7 +219,6 @@ class DataExtractionHelper{
   }
   
   static getGeoLevelName(height: number, id: number): string{
-    // if (height == 0) return 'France';
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
     if (name === undefined) throw `No level with id=${id}`;
     return name;
@@ -265,11 +269,6 @@ class DataExtractionHelper{
     return DataExtractionHelper.get(field)[id];
   }
 
-  // a enlever, normalement on peut utiliser le get pour ça
-  static getPDVFields(){
-    return this.data['structurePdv'];
-  }
-
   static get(field: string){
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
@@ -292,36 +291,15 @@ class DataExtractionHelper{
 
   static getKeyByValue(object:any, value:any) {
     return Object.keys(object).find(key => object[key] === value);
-  }
-
-  // // à terme il vaudrait mieux restructurer ce que renvoie le back
-  // static findGoodTarget(level:string, id:number){
-  //   if (level = "Région"){
-  //     let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
-  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
-  //     for (let target of Object.values(targets))
-  //       if (target[indexIdDrv] == id) return target;
-  //   };
-  //   if (level = "Secteur"){
-  //     let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
-  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
-  //     for (let target of Object.values(targets))
-  //       if (target[indexIdAgent] == id) return target;
-  //   };
-  //   return
-  // }                              
+  }                          
 
   static getTarget(level='national', id:number, targetType:string){
     if (level == 'Secteur'){
       let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetType);
-      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      // return target[targetTypeId];
       return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
     }
     let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetType);
     if (level == 'Région'){
-      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      // return target[targetTypeId];
       return DataExtractionHelper.get("targetLevelDrv")[id][targetTypeId];
     }
     let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
@@ -335,17 +313,24 @@ class DataExtractionHelper{
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
   }
 
-  static computeDescription(descArray:string[]){
-    for (let i = 0; i < descArray.length; i++){
-      if (descArray[i] == '') continue;
-      if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
+  static computeDescription(slice:any, description:string[]|string){
+    if (typeof(description) == 'string') return description;
+    for (let i = 0; i < description.length; i++){
+      if (description[i] == '') continue;
+      if (description[i][0] == '@') description[i] = DataExtractionHelper.treatDescIndicator(slice, description[i]) as string;
     }
-    return descArray.reduce((str:string, acc: string) => str + acc, "");
+    return description.reduce((str:string, acc: string) => str + acc, "");
   }
 
   // à faire
-  static treatDescIndicator(str:string){
-    return str;
+  static treatDescIndicator(slice:any, str:string){
+    if (str == '@ciblage') return PDV.computeCiblage(slice);
+    if (str == '@targetArea'){
+      let listSlice = Object.entries(slice) as [string, number][];
+      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
+      return DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'targetP2CD');
+    }
+    return "Ceci est une description";
   }
 };
 

@@ -2,7 +2,7 @@
   box-sizing: border-box;
   width: 100vw;
   height: calc(100vh - 60px);
-  padding: 20px;
+  padding: 30px;
   display: flex;
   flex-flow: column nowrap;
   z-index: 9;
@@ -19,6 +19,7 @@ h1 {
 .map-container {
   width: 100%;
   flex: 1;
+  border-radius: 5px;
 }
 
 .map-container::ng-deep .infowindow {
