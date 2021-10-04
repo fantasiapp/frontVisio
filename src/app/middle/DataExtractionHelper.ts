@@ -1,4 +1,5 @@
 import { Data } from "@angular/router";
+import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
 import Dashboard from "./Dashboard";
 
 const paramsCompute = {
@@ -99,6 +100,9 @@ class DataExtractionHelper{
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
+  static PDV_VOLUME_ID: number;
+  static PDV_LIGHT_ID: number;
+  static PDV_COMMENT_ID: number;
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -133,6 +137,9 @@ class DataExtractionHelper{
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
+    this.PDV_VOLUME_ID = this.data["structurePdv"].indexOf("targetP2CD");
+    this.PDV_LIGHT_ID = this.data["structurePdv"].indexOf("greenLight");
+    this.PDV_COMMENT_ID = this.data["structurePdv"].indexOf("commentTargetP2CD");
 
     
     //trades have less info that geo
