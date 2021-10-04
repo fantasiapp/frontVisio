@@ -1,6 +1,7 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy } from '@angular/core';
 import { AsyncSubject } from 'rxjs';
 import { PDV } from '../middle/Slice&Dice';
+import { MapFiltersComponent } from './map-filters/map-filters.component';
 type MarkerType = {
   pdv: PDV;
   position: google.maps.LatLng;
@@ -27,8 +28,15 @@ export class MapComponent implements AfterViewInit {
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
+  private _pdvs: PDV[] = [];
+  set pdvs(value: PDV[]) {
+    this._pdvs = value;
+    this.update();
+  }
+
+  get pdvs() { return this._pdvs; }
+
   selectedPDV?: PDV;
-  private pdvs: PDV[] = [];
   private hidden: boolean = true;
   private markers: google.maps.Marker[] = [];
 
@@ -39,19 +47,21 @@ export class MapComponent implements AfterViewInit {
   map?: google.maps.Map;
   ready: AsyncSubject<never> = new AsyncSubject<never>();
 
-  constructor() {}
+  constructor() {
+    this._pdvs = PDV.sliceMap({}, []);
+  }
 
   ngAfterViewInit() {
     this.ready.next(0 as never);
     this.ready.complete();
   }
-  
-  setPDVs(pdvs: PDV[]) {
-    this.pdvs = pdvs;
+
+  update() {
+    this.removeMarkers();
     if ( !this.map )
       this.createMap();
     this.addMarkersFromPDVs();
-  };
+  }
 
   private createMap() {
     let zoom = 7;
@@ -166,9 +176,7 @@ export class MapComponent implements AfterViewInit {
       button.src = 'assets/Point d\'info.svg';
       
       title.innerText = name;
-      button.addEventListener('click', () => {
-        this.handleClick(markerData.pdv);
-      });
+      
 
       content.appendChild(title);
       content.appendChild(button);
@@ -182,6 +190,11 @@ export class MapComponent implements AfterViewInit {
         
         info.close();
         info.open(this.map, marker);
+      });
+
+      button.addEventListener('click', () => {
+        this.handleClick(markerData.pdv);
+        //info?.close();
       });
     }
     
@@ -231,6 +244,9 @@ export class MapComponent implements AfterViewInit {
   }
 
   private addMarkersFromPDVs() {
+    if ( !this.pdvs.length )
+      return;
+    
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
       let lat = pdv.attribute('latitude'),
         lng = pdv.attribute('longitude');

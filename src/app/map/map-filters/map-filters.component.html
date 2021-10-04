@@ -1,62 +1,75 @@
-<button class="close" (click)="exit()">
+<button class="close" (click)="opened = false">
     <img src="assets/X.svg"/>
 </button>
 <div class="main">
     <h2 class="title">Géolocalisation</h2>
-    <p>Total: {{pdvs.length}}</p>
-    <!-- <div class="criterion">
+    <p class="total">Total: {{pdvs.length}}</p>
+    <div class="criterion">
         <span class="name">Segment Marketing :</span>
-        <select class="content">
-            <option *ngFor="let entry of loadCriterion('segmentMarketing')" [value]="entry[0]">
-                {{entry[1]}}
-            </option>
-        </select>
+        <div class="class">
+            <select>
+                <option *ngFor="let entry of loadCriterion('segmentMarketing')" [value]="entry[0]">
+                    {{entry[1]}}
+                </option>
+            </select>
+        </div>
     </div>
 
     <div class="criterion">
         <span class="name">Segment Commercial :</span>
-        <select class="content">
-            <option *ngFor="let entry of loadCriterion('segmentCommercial')" [value]="entry[0]">
-                {{entry[1]}}
-            </option>
-        </select>
+        <div class="class">
+            <select>
+                <option *ngFor="let entry of loadCriterion('segmentCommercial')" [value]="entry[0]">
+                    {{entry[1]}}
+                </option>
+            </select>
+        </div>
+        
     </div>
 
     <div class="criterion">
         <span class="name">Enseigne :</span>
-        <select class="content">
-            <option *ngFor="let entry of loadCriterion('enseigne')" [value]="entry[0]">
-                {{entry[1]}}
-            </option>
-        </select>
+        <div class="class">
+            <select>
+                <option *ngFor="let entry of loadCriterion('enseigne')" [value]="entry[0]">
+                    {{entry[1]}}
+                </option>
+            </select>
+        </div>
     </div>
 
     <div class="criterion">
         <span class="name">Agent :</span>
-        <select class="content">
-            <option *ngFor="let entry of loadCriterion('agent')" [value]="entry[0]">
-                {{entry[1]}}
-            </option>
-        </select>
+        <div class="class">
+            <select>
+                <option *ngFor="let entry of loadCriterion('agent')" [value]="entry[0]">
+                    {{entry[1]}}
+                </option>
+            </select>
+        </div>
     </div>
 
     <div class="criterion">
         <span class="name">Département :</span>
-        <select class="content">
-            <option *ngFor="let entry of loadCriterion('dep')" [value]="entry[0]">
-                {{entry[1]}}
-            </option>
-        </select>
+        <div class="class">
+            <select>
+                <option *ngFor="let entry of loadCriterion('dep')" [value]="entry[0]">
+                    {{entry[1]}}
+                </option>
+            </select>
+        </div>
     </div>
 
     <div class="criterion">
         <span class="name">Bassin :</span>
-        <select class="content">
-            <option *ngFor="let entry of loadCriterion('bassin')" [value]="entry[0]">
-                {{entry[1]}}
-            </option>
-        </select>
-    </div> -->
+        <div class="class">
+            <select>
+                <option *ngFor="let entry of loadCriterion('bassin')" [value]="entry[0]">
+                    {{entry[1]}}
+                </option>
+            </select>
+        </div>
+    </div>
 </div>
 <div class="toggle" (click)="opened = !opened">
     <img *ngIf="!opened" src="assets/list.svg"/>
