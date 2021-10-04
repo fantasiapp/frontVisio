@@ -278,9 +278,52 @@ export class SliceTable {
     }
 
 
-    sendUpdatedData(data: {[field: string]: []}) {
+    private dataToUpdate: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []};
+    
+    pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
+        let pdvAsList = []
+        for(let field of DataExtractionHelper.getPDVFields()) {
+            if(this.idsToFields[field]) {
+                for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
+                    if(fieldValue === pdv[field]) {
+                        pdvAsList.push(id)
+                        break;
+                    }
+                }
+            } else pdvAsList.push(pdv[field])
+        }
+        return pdvAsList;
+    }
+
+    updatePdv(pdv: any) {
+        let newPdv = this.pdvFromObjectToList(pdv);
+        let newTarget;
+        if(pdv['target'] === null) {
+            newTarget = {
+                0:"Soon a proper date",
+                1:0,
+                2:false,
+                3:false,
+                4:0,
+                5:pdv.checkbox,
+                6:'g',
+                7:""
+            }
+        } else {
+            newTarget = pdv['target'];
+            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')!] = pdv.checkbox;      newTarget
+        }
+
+        newPdv[DataExtractionHelper.getPDVFields().findIndex((field: string) => field === 'target')] = newTarget;
+        console.log("newPdv : ", newPdv)
+        this.dataToUpdate.pdvs.push(newPdv);
+        this.sendUpdatedData(this.dataToUpdate);
+    }
+
+    sendUpdatedData(data: any) {
         this.dataService.updateData(data)
         DataExtractionHelper.updateData(data)
+        this.dataToUpdate = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []};
     }
 
     updateData() {

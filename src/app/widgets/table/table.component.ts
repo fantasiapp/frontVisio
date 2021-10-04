@@ -217,7 +217,7 @@ export class TableComponent extends BasicWidget {
     console.log("Toggle ", event)
     if(event['column']['colId'] === 'checkbox') {
       this.updateTitle()
-      this.sliceTable.sendUpdatedData({'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}) //sous cette forme ?
+      this.sliceTable.updatePdv(event['data']) //sous cette forme ?
     }
   }
 
@@ -263,7 +263,6 @@ export class TableComponent extends BasicWidget {
       return true;
     }
   }
-
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)
