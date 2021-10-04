@@ -288,11 +288,11 @@ p {
 
 /* On mouse-over, add a grey background color */
 .props .container-checkbox:hover input ~ .checkmark {
-    background-color: #ccc;
+    /* background-color: #ccc; */
 }
 
 /* When the checkbox is checked, add a blue background */
-.props .container-checkbox input:checked ~ .checkmark {
+.props .container-checkbox input[checked="true"] ~ .checkmark {
     background-color: #F38839;
 }
 
@@ -304,7 +304,7 @@ p {
 }
 
 /* Show the checkmark when checked */
-.props .container-checkbox input:checked ~ .checkmark:after {
+.props .container-checkbox input[checked="true"] ~ .checkmark:after {
     display: block;
 }
 

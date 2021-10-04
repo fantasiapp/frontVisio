@@ -27,14 +27,14 @@
                         <li>
                             <label class="container-checkbox">
                                 Ne vend pas de plaque
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
+                                <input type="checkbox" [attr.checked]="!pdv!.attribute('sale')" disabled>
+                                <span class="checkmark" ></span>
                             </label>
                         </li>
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox">
+                                <input type="checkbox" [attr.checked]="pdv!.attribute('redistributed')" disabled>
                                 <span class="checkmark"></span>
                             </label>
                         </li>
