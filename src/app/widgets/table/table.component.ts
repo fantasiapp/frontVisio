@@ -6,6 +6,7 @@ import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
 import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
 @Component({
   selector: 'app-table',
@@ -214,7 +215,10 @@ export class TableComponent extends BasicWidget {
       this.externalFilterChanged(event['data'].name.name)
     }
     console.log("Toggle ", event)
-    if(event['column']['colId'] === 'checkbox') this.updateTitle()
+    if(event['column']['colId'] === 'checkbox') {
+      this.updateTitle()
+      this.sliceTable.sendUpdatedData({'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}) //sous cette forme ?
+    }
   }
 
   showEdit: boolean = false;

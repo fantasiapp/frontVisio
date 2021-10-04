@@ -1,3 +1,6 @@
+import { Data } from "@angular/router";
+import { DataService } from "../services/data.service";
+
 const paramsCompute = {
   growthConquestLimit: 0.1,
   theoricalRatioEnduit: 0.360,
@@ -102,7 +105,10 @@ class DataExtractionHelper{
 
   static geoHeight: number;
   static tradeHeight: number;
-  
+
+
+  constructor(private dataService: DataService) {}
+
   static setData(d: any){
     this.data = d;
     console.log("[DataExtractionHelper] this.data : ", this.data)
@@ -152,6 +158,38 @@ class DataExtractionHelper{
     NavigationExtractionHelper.height = this.geoHeight;
     TradeExtrationHelper.data = this.get('tradeTree');
     TradeExtrationHelper.height = this.tradeHeight;
+  }
+
+  static updateData(data: {[field: string]: []}) {
+    // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
+      console.log("Back updated, now update middle")
+      // Check how deletions are managed 
+
+
+      //update this.pdv
+      let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
+      for(let newPdv of data.pdvs) {
+        for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
+          if((oldPdv as any)[idCode] === newPdv[idCode]) {
+            this.data.pdvs[oldPdvId] = newPdv;
+            break;
+          }
+        }
+      }
+  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
+      for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
+        for(let [newTargetId, newTarget] of Object.entries(data[targetType])) {
+          for(let oldTargetId of Object.keys(this.data[targetType])) {
+            if(newTargetId === oldTargetId) {
+              this.data[targetType][newTargetId] = newTarget;
+              break;
+            }
+          }
+        }
+      }
+      
+      //Build trees !!! CUSTOM THIS
+      DataExtractionHelper.setData(this.data)
   }
 
   static getGeoLevel(height: number){

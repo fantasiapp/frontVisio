@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { map } from 'rxjs/internal/operators/map';
 import { environment } from 'src/environments/environment';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,22 @@ export class DataService {
       .subscribe((data) => {
         this.response.next(data);
       });
+    return this.response;
+  }
+
+  public requestUpdateData(): Observable<Object|null> {
+    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update"}})
+    .subscribe((updatedData) => {
+      this.response.next(updatedData);
+    });
+    return this.response;
+  }
+
+  public updateData(data: {[field: string]: []}): Observable<Object|null> {
+    this.http.post(environment.backUrl + 'visioServer/data/', data, {params : {"action" : "update"}})
+    .subscribe((updateReponse) => {
+      this.response.next(updateReponse)
+    });
     return this.response;
   }
 }

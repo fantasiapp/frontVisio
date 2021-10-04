@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { DataService } from "../services/data.service";
 import DataExtractionHelper from "./DataExtractionHelper";
 import { PDV } from "./Slice&Dice";
 
@@ -138,7 +139,7 @@ export class SliceTable {
         'instanceId': (pdv: any) => pdv.instanceId,
     }
 
-    constructor(){
+    constructor(private dataService: DataService){
         PDV.load(false);
         this.pdvFields = DataExtractionHelper.get('structurePdv');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
@@ -272,6 +273,19 @@ export class SliceTable {
             if ((array as any)[0] === axis && (array as any)[1] === enseigne) return (array as any)[2]
         }
         return 'black'
+    }
+
+
+    sendUpdatedData(data: {[field: string]: []}) {
+        this.dataService.updateData(data)
+        .subscribe( () => DataExtractionHelper.updateData(data));
+    }
+
+    updateData() {
+        this.dataService.requestUpdateData()
+        .subscribe((updatedData) => {
+            DataExtractionHelper.updateData(updatedData as {[field: string]: []})
+        })
     }
 
 }
