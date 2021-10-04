@@ -17,7 +17,13 @@ export class SliceTable {
     private segmentDnEnduit: {[id: number]: string} = {};
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
-    private idIndustries: {[key: string]: number} = {}; 
+
+    private idIndustries: {[key: string]: number} = {};
+    // private structureSales = DataExtractionHelper.get('structureSales')
+    // private keyIndustry = DataExtractionHelper.getKeyByValue(this.structureSales, 'industry')
+    // private keyProduct = DataExtractionHelper.getKeyByValue(this.structureSales, 'product')
+    // private keyVolume = DataExtractionHelper.getKeyByValue(this.structureSales, 'volume')
+
     static currentGroupField: string = "enseigne";
 
     //type : 'p2cd' or 'enduit'
@@ -75,13 +81,13 @@ export class SliceTable {
     private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
         'siniatSales': (pdv: any) => {
             return pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structurePdv'), 'sales') as any].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[1]) && sale[0] === 1))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
+                .includes(sale[1]) && sale[2] === 1))
+                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
         'totalSales': (pdv: any) => {
             return pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structurePdv'), 'sales') as any].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1])))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
+                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
         'graph': (pdv: any) => {
             let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
