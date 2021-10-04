@@ -557,6 +557,30 @@ export class PDV{
     let pdvs = connectedNodes.map(node => this.getLeaves(tree, node, node.height, dictChildren)).flat();
     return pdvs;
   }
+
+  clientProspect(){
+    let dnResult = this.getValue('dn', false, false, true) as number[],
+      clientProspectAxis = DataExtractionHelper.get('clientProspect');
+    for (let i = 0; i < dnResult.length; i++)
+      if (dnResult[i] === 1) return clientProspectAxis[i];
+  }
+
+  displayIndustrieSaleVolumes(){
+    let industriesSalevolume = this.getValue('p2cd', true) as number[],
+      dictResult:{[key:string]:number} = {},
+      siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+      knaufId = DataExtractionHelper.INDUSTRIE_KNAUF_ID,
+      placoId = DataExtractionHelper.INDUSTRIE_PLACO_ID,
+      other = 0,
+      industrieAxis = DataExtractionHelper.get('industrie');
+    dictResult[industrieAxis[siniatId]] = industriesSalevolume[siniatId];
+    dictResult[industrieAxis[placoId]] = industriesSalevolume[placoId];
+    dictResult[industrieAxis[knaufId]] = industriesSalevolume[knaufId];
+    for (let i = 0; i < industriesSalevolume.length; i++)
+      if (![siniatId, knaufId, placoId].includes(i)) other += industriesSalevolume[i];
+    dictResult['Autres'] = other;
+    return dictResult;
+  }
 };
 
 
