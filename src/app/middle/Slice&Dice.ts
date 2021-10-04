@@ -217,9 +217,9 @@ class DataWidget{
 }
 
 class Sale {
-  static INDUSTRY_ID_INDEX = 0;
-  static PRODUCT_ID_INDEX = 1;
-  static VOLUME_INDEX = 2;
+  static INDUSTRY_ID_INDEX = 1;
+  static PRODUCT_ID_INDEX = 2;
+  static VOLUME_INDEX = 3;
 
   constructor(private data: any[]){};
 

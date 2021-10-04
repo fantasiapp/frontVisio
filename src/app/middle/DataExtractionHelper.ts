@@ -198,7 +198,6 @@ class DataExtractionHelper{
     // HARDCODE
     if ( height == 0 ) return '';
     let name = this.data[this.getTradeLevel(height)[this.LABEL_INDEX]][id];
-    console.log('trade', this.getTradeLevel(height)[this.LABEL_INDEX], id);
     if (name === undefined) throw `No level with id=${id}`;
     return name;
   }
@@ -274,7 +273,7 @@ class DataExtractionHelper{
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
   }
 
-  static computeDescription(slice:any, description:string[]){
+  static computeDescription(slice:any, description:string[]|string){
     if (typeof(description) == 'string') return description;
     for (let i = 0; i < description.length; i++){
       if (description[i] == '') continue;
