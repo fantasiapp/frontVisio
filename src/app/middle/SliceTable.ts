@@ -17,8 +17,9 @@ export class SliceTable {
     private segmentDnEnduit: {[id: number]: string} = {};
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
-    private idIndustries: {[key: string]: number} = {};
-    
+    private idIndustries: {[key: string]: number} = {}; 
+    static currentGroupField: string = "enseigne";
+
     //type : 'p2cd' or 'enduit'
     private tableConfig : {[type: string]: {[property: string]: any}} = {
         'p2cd': {
@@ -53,7 +54,7 @@ export class SliceTable {
                 Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkbox && node.data.enseigne === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
+            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkbox && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
             'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkbox', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
@@ -254,6 +255,7 @@ export class SliceTable {
     }
 
     buildGroups(groupField: string, type: string) {
+        SliceTable.currentGroupField = groupField;
         let pdvsByGroup = new Map<string, {}[]>();
         for(let pdv of this.sortedPdvsList){
             if(pdvsByGroup.get((pdv as any)[groupField]) === undefined) pdvsByGroup.set((pdv as any)[groupField], [pdv]);

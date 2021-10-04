@@ -219,7 +219,7 @@ export class TableComponent extends BasicWidget {
       this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] : this.redistributed = false;
     }
     
-    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
+    if(event['column']['colId'] === 'graph') console.log("Data : ", event['data'], event)
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
     }
