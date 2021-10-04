@@ -99,9 +99,10 @@ class DataExtractionHelper{
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
-  static PDV_VOLUME_ID: number;
-  static PDV_LIGHT_ID: number;
-  static PDV_COMMENT_ID: number;
+  static TARGET_VOLUME_ID: number;
+  static TARGET_FINITION_ID: number;
+  static TARGET_LIGHT_ID: number;
+  static TARGET_COMMENT_ID: number;
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -135,9 +136,10 @@ class DataExtractionHelper{
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
-    this.PDV_VOLUME_ID = this.data["structurePdv"].indexOf("targetP2CD");
-    this.PDV_LIGHT_ID = this.data["structurePdv"].indexOf("greenLight");
-    this.PDV_COMMENT_ID = this.data["structurePdv"].indexOf("commentTargetP2CD");
+    this.TARGET_VOLUME_ID = this.data["structureTarget"].indexOf("targetP2CD");
+    this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
+    this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
+    this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
 
     
     //trades have less info that geo
