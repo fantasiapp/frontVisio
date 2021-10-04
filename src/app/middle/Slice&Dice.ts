@@ -584,11 +584,23 @@ export class PDV{
     return dictResult;
   }
 
-  getVolumeTarget(){return this.attribute('target')[DataExtractionHelper.PDV_VOLUME_ID]}
+  getVolumeTarget(){
+    let target = this.attribute('target');
+    if (target == undefined) return 0;
+    return target[DataExtractionHelper.PDV_VOLUME_ID]
+  }
 
-  getLightTarget(){return this.attribute('target')[DataExtractionHelper.PDV_LIGHT_ID]}
+  getLightTarget(){
+    let target = this.attribute('target');
+    if (target == undefined) return "";
+    return target[DataExtractionHelper.PDV_LIGHT_ID]
+  }
 
-  getCommentTarget(){return this.attribute('target')[DataExtractionHelper.PDV_COMMENT_ID]}
+  getCommentTarget(){
+    let target = this.attribute('target');
+    if (target == undefined) return "";
+    return target[DataExtractionHelper.PDV_COMMENT_ID]
+  }
 };
 
 
