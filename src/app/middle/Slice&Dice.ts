@@ -557,6 +557,13 @@ export class PDV{
     let pdvs = connectedNodes.map(node => this.getLeaves(tree, node, node.height, dictChildren)).flat();
     return pdvs;
   }
+
+  clientProspect(){
+    let dnResult = this.getValue('dn', false, false, true) as number[],
+      clientProspectAxis = DataExtractionHelper.get('clientProspect');
+    for (let i = 0; i < dnResult.length; i++)
+      if (dnResult[i] === 1) return clientProspectAxis[i];
+  }
 };
 
 
