@@ -14,10 +14,11 @@ export class MapFiltersComponent {
   opened: boolean = false;
 
   criteriaNames = ['segmentMarketing', 'segmentCommercial', 'enseigne', 'agent', 'dep', 'bassin'];
-
+  criteriaPrettyNames = ['Segment Marketing', 'Segment Commercial', 'Enseigne', 'Agent', 'Département', 'Bassin'];
 
   @Input()
-  pdvs: PDV[] = [];
+  PDVNumber: number = 0;
+
   @Output()
   criteriaChange = new EventEmitter<any>();
 
@@ -27,6 +28,10 @@ export class MapFiltersComponent {
 
   trackById(index: number, couple: any) {
     return couple[0];
+  }
+
+  trackByIndex(index: number, _: any) {
+    return index;
   }
 
   updateCriteria(index: number) {

@@ -30,34 +30,50 @@ export class MapComponent implements AfterViewInit {
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
-  pdvs: PDV[] = [];
-
+  
   set criteria(value: any[]) {
     this.pdvs = PDV.sliceMap(this.path, value);
     this.update();
   }
-
+  
   selectedPDV?: PDV;
   private hidden: boolean = true;
   private markers: google.maps.Marker[] = [];
-
+  
   hide() { this.hidden = true; }
   show() { this.hidden = false; }
   get shown() { return !this.hidden; }
-
+  
   map?: google.maps.Map;
   ready: AsyncSubject<never> = new AsyncSubject<never>();
   path: any = {};
+  pdvs: PDV[]  = PDV.sliceMap(this.path, []);
+  infowindow: any = {};
+  markerTimeout: any = 0;
 
   constructor(private filtersService: FiltersStatesService) {
-    this.pdvs = PDV.sliceMap({}, []);
     filtersService.$path.subscribe(path => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.pdvs = PDV.sliceMap(path, []);
         this.update();
       }
-    });
+    }); this.initializeInfowindow();
+  }
+
+  initializeInfowindow() {
+    let content = this.infowindow.content = document.createElement('div'),
+      title = this.infowindow.title = document.createElement('span'),
+      button = this.infowindow.button = document.createElement('img');
+      
+    content.classList.add('infowindow');
+    title.classList.add('infowindow-title');
+    button.classList.add('infowindow-button');
+    button.src = 'assets/Point d\'info.svg';
+    
+    content.appendChild(title);
+    content.appendChild(button);
+    this.infowindow.element = new google.maps.InfoWindow();
   }
 
   ngAfterViewInit() {
@@ -169,41 +185,18 @@ export class MapComponent implements AfterViewInit {
   private addMarker(markerData: MarkerType): google.maps.Marker {
     let marker = new google.maps.Marker({
       ...markerData,
-      map: this.map!,
       optimized: true
     });
 
     let name = markerData.title;
     if ( name ) {
-      let content = document.createElement('div'),
-        title = document.createElement('span'),
-        button = document.createElement('img');
-      
-      content.classList.add('infowindow');
-      title.classList.add('infowindow-title');
-      button.classList.add('infowindow-button');
-      button.src = 'assets/Point d\'info.svg';
-      
-      title.innerText = name;
-      
-
-      content.appendChild(title);
-      content.appendChild(button);
-
-      let info: google.maps.InfoWindow | undefined = undefined;
+      let info = this.infowindow.element as google.maps.InfoWindow;
       marker.addListener('click', () => {
-        if ( !info )
-          info = new google.maps.InfoWindow({
-            content      
-          });          
-        
         info.close();
+        this.infowindow.title.innerText = name;
+        this.infowindow.button.onclick = () => { this.handleClick(markerData.pdv); }
+        info.setContent(this.infowindow.content);
         info.open(this.map, marker);
-      });
-
-      button.addEventListener('click', () => {
-        this.handleClick(markerData.pdv);
-        //info?.close();
       });
     }
     
@@ -211,10 +204,26 @@ export class MapComponent implements AfterViewInit {
     return marker;
   }
 
+  displayMarkers() {
+    let f: any, step = 2000, idx = 0;
+    this.markerTimeout = setTimeout(f = () => {
+      for ( let i = idx, l = Math.min(this.markers.length, idx+step); i < l; i++ )
+        this.markers[i].setMap(this.map!);
+      idx += step;
+      if ( idx < this.markers.length )
+        setTimeout(f, 0);
+    }, this.markers.length > 2000 ? this.markers.length / 20 : 0);
+    //if number is too big, wait for the animation
+  }
+
   removeMarkers() {
     for ( let marker of this.markers )
       marker.setMap(null); 
     this.markers.length = 0;
+    if ( this.markerTimeout ) {
+      clearTimeout(this.markerTimeout);
+      this.markerTimeout = 0;
+    }
   }
 
   private adjustMap(markers:  MarkerType[]) {
@@ -268,10 +277,12 @@ export class MapComponent implements AfterViewInit {
       }
     });
 
+    this.adjustMap(markers);
+
     for ( let marker of markers )
       this.addMarker(marker);
-
-    this.adjustMap(markers);
+    
+    this.displayMarkers();
   };
 
   private static createSVGIcon(keys: any = {}) {

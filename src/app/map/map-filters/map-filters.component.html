@@ -3,73 +3,19 @@
 </button>
 <div class="main">
     <h2 class="title">Géolocalisation</h2>
-    <p class="total">Total: {{pdvs.length}}</p>
-    <div class="criterion">
-        <span class="name">Segment Marketing :</span>
-        <div class="class">
-            <select (change)="updateCriteria(0)">
-                <option *ngFor="let entry of loadCriterion('segmentMarketing'); trackBy: trackById" [value]="entry[0]">
-                    {{entry[1]}}
-                </option>
-            </select>
-        </div>
-    </div>
+    <p class="total">Total: {{PDVNumber}}</p>
 
-    <div class="criterion">
-        <span class="name">Segment Commercial :</span>
+    <div class="criterion" *ngFor="let criteria of criteriaNames; let idx = index; trackBy: trackById">
+        <h6 class="name">{{ criteriaPrettyNames[idx] }}</h6>
         <div class="class">
-            <select (change)="updateCriteria(1)">
-                <option *ngFor="let entry of loadCriterion('segmentCommercial'); trackBy: trackById" [value]="entry[0]">
-                    {{entry[1]}}
-                </option>
-            </select>
-        </div>
-        
-    </div>
-
-    <div class="criterion">
-        <span class="name">Enseigne :</span>
-        <div class="class">
-            <select (change)="updateCriteria(2)">
-                <option *ngFor="let entry of loadCriterion('enseigne'); trackBy: trackById" [value]="entry[0]">
+            <select (change)="updateCriteria(idx)">
+                <option *ngFor="let entry of loadCriterion(criteria); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>
         </div>
     </div>
-
-    <div class="criterion">
-        <span class="name">Agent :</span>
-        <div class="class">
-            <select (change)="updateCriteria(3)">
-                <option *ngFor="let entry of loadCriterion('agent'); trackBy: trackById" [value]="entry[0]">
-                    {{entry[1]}}
-                </option>
-            </select>
-        </div>
-    </div>
-
-    <div class="criterion">
-        <span class="name">Département :</span>
-        <div class="class">
-            <select (change)="updateCriteria(4)">
-                <option *ngFor="let entry of loadCriterion('dep'); trackBy: trackById" [value]="entry[0]">
-                    {{entry[1]}}
-                </option>
-            </select>
-        </div>
-    </div>
-
-    <div class="criterion">
-        <span class="name">Bassin :</span>
-        <div class="class">
-            <select (change)="updateCriteria(55)">
-                <option *ngFor="let entry of loadCriterion('bassin'); trackBy: trackById" [value]="entry[0]">
-                    {{entry[1]}}
-                </option>
-            </select>
-        </div>
-    </div>
+    
 </div>
 <div class="toggle" (click)="opened = !opened">
     <img *ngIf="!opened" src="assets/list.svg"/>
