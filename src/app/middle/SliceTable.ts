@@ -304,13 +304,12 @@ export class SliceTable {
         if(!pdv['target']) {
             newTarget = {
                 0:formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z",
-                1:0,
-                2:redistributed,
-                3:false,
-                4:0,
-                5:pdv['checkbox'],
-                6:'g',
-                7:""
+                1:redistributed,
+                2:false,
+                3:0,
+                4:pdv['checkbox'],
+                5:'g',
+                6:""
             }
         } else {
             newTarget = pdv['target'];
