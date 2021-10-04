@@ -166,7 +166,6 @@ export class MapComponent implements AfterViewInit {
       button.src = 'assets/Point d\'info.svg';
       
       title.innerText = name;
-      button.innerText = '❓';
       button.addEventListener('click', () => {
         this.handleClick(markerData.pdv);
       });
