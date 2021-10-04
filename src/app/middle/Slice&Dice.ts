@@ -538,6 +538,11 @@ export class PDV{
     return [pdvs, dictChildren];
   }
 
+  static sliceMap(slice: {[key:string]:number}, addConditions:[string, number][]){
+    let pdvs = this.sliceTree(slice, true)[0];
+    return PDV.reSlice(pdvs, addConditions);
+  }
+
   static heightOf(tree: Tree, label: string){
     return tree.attributes['labels'].indexOf(label);
   }
@@ -590,6 +595,7 @@ export class PDV{
     dictResult['Autres'] = other;
     return dictResult;
   }
+
 
   getVolumeTarget(){
     let target = this.attribute('target');
