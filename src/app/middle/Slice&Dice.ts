@@ -583,6 +583,12 @@ export class PDV{
     dictResult['Autres'] = other;
     return dictResult;
   }
+
+  getVolumeTarget(){return this.attribute('target')[DataExtractionHelper.PDV_VOLUME_ID]}
+
+  getLightTarget(){return this.attribute('target')[DataExtractionHelper.PDV_LIGHT_ID]}
+
+  getCommentTarget(){return this.attribute('target')[DataExtractionHelper.PDV_COMMENT_ID]}
 };
 
 
