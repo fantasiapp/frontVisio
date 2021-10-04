@@ -91,6 +91,8 @@ class DataExtractionHelper{
   static INDUSTRIE_SALSI_ID: any;
   static INDUSTRIE_PREGY_ID: any;
   static INDUSTRIE_SINIAT_ID: any;
+  static INDUSTRIE_KNAUF_ID: any;
+  static INDUSTRIE_PLACO_ID: any;
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
@@ -122,6 +124,8 @@ class DataExtractionHelper{
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
     this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
     this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
+    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.data['industrie'], 'Knauf');
+    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.data['industrie'], 'Placo');
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
@@ -283,6 +287,18 @@ class DataExtractionHelper{
   static getListTarget(ids: number[], targetName:string){
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
   }
+
+  static computeDescription(descArray:string[]){
+    for (let i = 0; i < descArray.length; i++){
+      if (descArray[i] == '') continue;
+      // if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
+    }
+    return descArray.reduce((str:string, acc: string) => str + acc, "");
+  }
+
+  // static treatDescIndicator(str){
+
+  // }
 };
 
 export type DataTree = [number, [DataTree]] | number;
