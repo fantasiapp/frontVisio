@@ -168,7 +168,7 @@ export class TableComponent extends BasicWidget {
               }
               break;
             
-            case 'target':
+            case 'graph':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow ===  true) return "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
                 return params.value;
