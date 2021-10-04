@@ -1,11 +1,11 @@
-import { Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 
 @Component({
   selector: 'info-bar',
   templateUrl: './info-bar.component.html',
-  styleUrls: ['./info-bar.component.css']
+  styleUrls: ['./info-bar.component.css'],
 })
 export class InfoBarComponent {
   @HostBinding('class.opened')

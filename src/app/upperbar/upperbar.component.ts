@@ -48,7 +48,6 @@ export class UpperbarComponent implements OnInit {
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
 
-  private path: any = {};
   private shouldUpdateMap: boolean = true;
 
   isSearchOpen = new BehaviorSubject(false);
@@ -62,23 +61,6 @@ export class UpperbarComponent implements OnInit {
   ngOnInit(): void {
     this.filtersState.filtersVisible.subscribe(
       (val) => (this.isFilterVisible = val)
-    );
-
-    this.filtersState.$path.subscribe(
-      (path) => {
-        if ( BasicWidget.shallowObjectEquality(this.path, path) )
-          return;
-        this.path = path;
-        if ( this.mapComponent?.shown ) {
-          this.mapComponent!.removeMarkers();
-          this.mapComponent!.setPDVs(
-            PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
-          );
-          this.shouldUpdateMap = false;
-        } else {
-          this.shouldUpdateMap = true;
-        }
-      }
     );
   }
   showFilters() {
@@ -106,10 +88,7 @@ export class UpperbarComponent implements OnInit {
   toggleMap() {
     if ( !this.mapComponent?.shown ) {
       if ( this.shouldUpdateMap ) {
-        this.mapComponent!.removeMarkers();
-        this.mapComponent!.setPDVs(
-          PDV.sliceTree(this.path, this.filtersState.tree == getGeoTree())[0]
-        );
+        this.mapComponent!.update()
         this.shouldUpdateMap = false;
       }
 
