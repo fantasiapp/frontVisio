@@ -30,6 +30,7 @@ span {
     padding: 2em 5em;
     position: absolute;
     height: 100%;
+    width: 50%;
     background-color: white;
     top: 0;
     right: 0;
