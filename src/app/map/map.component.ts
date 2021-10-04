@@ -174,10 +174,14 @@ export class MapComponent implements AfterViewInit {
       content.appendChild(title);
       content.appendChild(button);
 
+      let info: google.maps.InfoWindow | undefined = undefined;
       marker.addListener('click', () => {
-        const info = new google.maps.InfoWindow({
-          content      
-        })
+        if ( !info )
+          info = new google.maps.InfoWindow({
+            content      
+          });          
+        
+        info.close();
         info.open(this.map, marker);
       });
     }
