@@ -1,3 +1,5 @@
+import Dashboard from "./Dashboard";
+
 const paramsCompute = {
   growthConquestLimit: 0.1,
   theoricalRatioEnduit: 0.360,
@@ -249,38 +251,40 @@ class DataExtractionHelper{
     return Object.keys(object).find(key => object[key] === value);
   }
 
-  // à terme il vaudrait mieux restructurer ce que renvoie le back
-  static findGoodTarget(level:string, id:number){
-    if (level = "Région"){
-      let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
-      for (let target of Object.values(targets))
-        if (target[indexIdDrv] == id) return target;
-    };
-    if (level = "Secteur"){
-      let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
-      for (let target of Object.values(targets))
-        if (target[indexIdAgent] == id) return target;
-    };
-    return
-  }
+  // // à terme il vaudrait mieux restructurer ce que renvoie le back
+  // static findGoodTarget(level:string, id:number){
+  //   if (level = "Région"){
+  //     let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
+  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
+  //     for (let target of Object.values(targets))
+  //       if (target[indexIdDrv] == id) return target;
+  //   };
+  //   if (level = "Secteur"){
+  //     let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
+  //     let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
+  //     for (let target of Object.values(targets))
+  //       if (target[indexIdAgent] == id) return target;
+  //   };
+  //   return
+  // }                              
 
-  static getTarget(level='national', id:number, targetName:string){
+  static getTarget(level='national', id:number, targetType:string){
     if (level == 'Secteur'){
-      let targetId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetName);
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+      let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetType);
+      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      // return target[targetTypeId];
+      return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
     }
-    let targetId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetName);
+    let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetType);
     if (level == 'Région'){
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+      // let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
+      // return target[targetTypeId];
+      return DataExtractionHelper.get("targetLevelDrv")[id][targetTypeId];
     }
     let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
     let target = 0;
     for (let drvTarget of drvTargets)
-      target += drvTarget[targetId];
+      target += drvTarget[targetTypeId];
     return target;
   }
 

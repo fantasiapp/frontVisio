@@ -1,7 +1,7 @@
 import DataExtractionHelper from "./DataExtractionHelper";
 class Dashboard {
   name: string;
-  description: string;
+  description: string | any[];
   grid: [number, number];
   template: string;
   areas: {[name:string]: number};
