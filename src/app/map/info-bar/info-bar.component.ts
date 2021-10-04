@@ -42,9 +42,9 @@ export class InfoBarComponent {
 
   private _pdv: PDV | undefined;
 
-  
-  //HACK
-  getName: any = DataExtractionHelper.getNameOfRegularObject.bind(DataExtractionHelper);
+  getName(name: string) {
+    return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
+  }
 
   constructor(private ref: ElementRef) {
     console.log('[InfobarComponent]: On');
@@ -52,6 +52,11 @@ export class InfoBarComponent {
     this.grid = new Array(this.industries.length + 1);
     for ( let i = 0; i < this.grid.length; i++ )
       this.grid[i] = new Array(this.products.length).fill(0);
+  }
+
+  //make variable
+  getSalesVolumes() {
+    return (this.pdv ? Object.entries(this.pdv.displayIndustrieSaleVolumes()) : []).filter(entry => entry[1] != 0);
   }
 
   exit() {

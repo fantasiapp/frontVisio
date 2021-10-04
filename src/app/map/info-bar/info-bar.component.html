@@ -14,12 +14,12 @@
                 <div class="definition">
                     <ul>
                         <li><span>Point de vente :</span> {{pdv!.attribute('name')}}</li>
-                        <li><span>Agent :</span> {{getName('agent', pdv!.attribute('agent'))}}</li>
-                        <li><span>Segment :</span> {{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
-                        <li><span>Enseigne :</span> {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
-                        <li><span>Département :</span> {{getName('dep', pdv!.attribute('dep'))}}</li>
-                        <li><span>Ville :</span> {{getName('ville', pdv!.attribute('ville'))}}</li>
-                        <li><span>Bassin :</span> {{getName('bassin', pdv!.attribute('bassin'))}}</li>
+                        <li><span>Agent :</span> {{getName('agent')}}</li>
+                        <li><span>Segment :</span> {{getName('segmentMarketing')}}</li>
+                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
+                        <li><span>Département :</span> {{getName('dep')}}</li>
+                        <li><span>Ville :</span> {{getName('ville')}}</li>
+                        <li><span>Bassin :</span> {{getName('bassin')}}</li>
                     </ul>
                 </div>
                 <div class="props">
@@ -52,19 +52,19 @@
                 <div class="definition">
                     <div class="name">Général</div>
                     <ul>
-                        <li><span>Agent :</span> {{getName('agent', pdv!.attribute('agent'))}}</li>
-                        <li><span>Enseigne :</span> {{getName('enseigne', pdv!.attribute('enseigne'))}}</li>
-                        <li><span>Départements :</span> {{getName('dep', pdv!.attribute('dep'))}}</li>
-                        <li><span>Client prospect :</span> -- </li>
-                        <li><span>Segmentation marketing :</span>{{getName('segmentMarketing', pdv!.attribute('segmentMarketing'))}}</li>
-                        <li><span>Segmentation portefeuille :</span> -- </li>
+                        <li><span>Agent :</span> {{getName('agent')}}</li>
+                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
+                        <li><span>Départements :</span> {{getName('dep')}}</li>
+                        <li><span>Client prospect :</span> {{pdv!.clientProspect() || "Non documenté"}} </li>
+                        <li><span>Segmentation marketing :</span>{{getName('segmentMarketing')}}</li>
+                        <li><span>Segmentation portefeuille :</span> {{getName('segmentCommercial')}} </li>
                     </ul>
                 </div>
 
-                <div class="definition">
+                <div class="definition" *ngIf="getSalesVolumes().length">
                     <div class="name">Volumes de vente par marque en m²</div>
                     <ul>
-                        <li><span>KNAUF :</span>20 000 MOCK</li>
+                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} :</span>{{entry[1].toFixed(1)}}</li>
                     </ul>
                 </div>
 
@@ -121,5 +121,5 @@
 
 <div *ngIf="currentIndex == 2" class="validation">
     <button>Annuler</button>
-    <button>Validate</button>
+    <button>Valider</button>
 </div>
