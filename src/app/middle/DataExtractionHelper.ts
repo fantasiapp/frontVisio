@@ -291,14 +291,15 @@ class DataExtractionHelper{
   static computeDescription(descArray:string[]){
     for (let i = 0; i < descArray.length; i++){
       if (descArray[i] == '') continue;
-      // if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
+      if (descArray[i][0] == '@') descArray[i] = DataExtractionHelper.treatDescIndicator(descArray[i]);
     }
     return descArray.reduce((str:string, acc: string) => str + acc, "");
   }
 
-  // static treatDescIndicator(str){
-
-  // }
+  // à faire
+  static treatDescIndicator(str:string){
+    return str;
+  }
 };
 
 export type DataTree = [number, [DataTree]] | number;
