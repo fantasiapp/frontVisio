@@ -16,7 +16,7 @@
     [rowHeight]="rowHeight"
     [defaultColDef]="defaultColDef"
     [columnDefs]="columnDefs"
-    [animateRows]="true"
+    [animateRows]="false"
     [isExternalFilterPresent]="isExternalFilterPresent"
     [doesExternalFilterPass]="doesExternalFilterPass"
     [rowData]="rowData"
@@ -28,6 +28,8 @@
 
 >
 </ag-grid-angular>
+
+<info-bar [(pdv)]="pdv"></info-bar>
 
 <div *ngIf="showEdit" class="side-div" id="info-div">
     <img src="assets/x icon.svg" (click)="showEditOnClick()"/>

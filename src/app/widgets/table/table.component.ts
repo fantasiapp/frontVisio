@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
@@ -35,7 +35,8 @@ export class TableComponent extends BasicWidget {
   rowData: any;
   rowHeight?: number;
 
-  //Groups
+  //Side menus
+  pdv?: PDV;
 
   //Apis
   gridApi: any;
@@ -47,6 +48,7 @@ export class TableComponent extends BasicWidget {
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
+
       })
   }
   gridObservable = new Observable();
@@ -206,7 +208,7 @@ export class TableComponent extends BasicWidget {
 
   onCellClicked(event: any) {
     if(event['column']['colId'] === 'edit') this.showEditOnClick(event['data']);
-    if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
+    if(event['column']['colId'] === 'info') this.pdv = this.sliceTable.getPdvInstance(event['data']);
     if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
