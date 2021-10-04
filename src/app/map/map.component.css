@@ -19,6 +19,7 @@ h1 {
 .map-container {
   width: 100%;
   flex: 1;
+  border-radius: 5px;
 }
 
 .map-container::ng-deep .infowindow {

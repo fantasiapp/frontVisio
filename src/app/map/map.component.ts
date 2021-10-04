@@ -163,7 +163,7 @@ export class MapComponent implements AfterViewInit {
       content.classList.add('infowindow');
       title.classList.add('infowindow-title');
       button.classList.add('infowindow-button');
-      button.src = 'assets/! icon.svg';
+      button.src = 'assets/Point d\'info.svg';
       
       title.innerText = name;
       button.innerText = '❓';

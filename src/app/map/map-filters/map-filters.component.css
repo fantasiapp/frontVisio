@@ -1,10 +1,10 @@
 :host {
-    --filter-bar-width: 50%;
-    --filter-bar-max-width: 800px;
+    --filter-bar-width: 40%;
+    --filter-bar-max-width: 600px;
     --filter-bar-padding-y: 50px;
     --filter-bar-padding-x: 40px;
     --filter-bar-margin-y: 70px;
-    --navigation-height: 20px;
+    --navigation-height: 40px;
     --navigation-ball-size: 30px;
     --pdv-title-margin-y: 15px;
     --pdv-fields-margin-y: 10px;
@@ -21,7 +21,7 @@
     height: calc(100% - var(--filter-bar-margin-y) - var(--navigation-height));
     padding: var(--filter-bar-padding-y) var(--filter-bar-padding-x);
     padding-right: 0;
-    top: 0;
+    top: 10px;
     left: calc(-1*var(--filter-bar-width) + 30px);
     background: white;
     z-index: 9999;
@@ -31,7 +31,7 @@
     transition: left 200ms ease-out 0s;
     font-family: 'Roboto';
     font-size: 20px;
-    box-shadow: 2px 0 3px 0px #555;
+    box-shadow: 2px 0 3px 0px #aaa;
     border-radius: 3px;
     overflow: auto;
 }
@@ -72,4 +72,15 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.close {
+    border: none;
+    outline: none;
+    display: block;
+    background: none !important;
+    position: absolute;
+    top: 2em;
+    right: 25px;
+    cursor: pointer;
 }

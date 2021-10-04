@@ -15,6 +15,7 @@
 }
 
 .container {
+    background: white;
     transition: transform 100ms ease-out 0s;
 }
 

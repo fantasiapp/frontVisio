@@ -11,6 +11,7 @@ export class MapFiltersComponent {
 
   constructor() { }
 
-  ngOnInit(): void {
+  exit() {
+    
   }
 }

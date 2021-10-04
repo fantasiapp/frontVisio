@@ -14,17 +14,19 @@ export class InfoBarComponent {
   @ViewChild('comments', {static: false, read: ElementRef})
   private comment?: ElementRef;
   
-  @Output()
-  close: EventEmitter<boolean> = new EventEmitter();
-  
   @Input()
   set pdv(value: PDV | undefined) {
     this._pdv = value;
     this.opened = value ? true : false;
     this.currentIndex = 0;
     this.pdvChange.emit(value);
-    if ( this.comment )
-      this.comment.nativeElement.value = '';
+    if ( value ) {
+      let target = value!.getLightTarget();
+      console.log(target);
+      this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
+      if ( this.comment )
+        this.comment.nativeElement.value = value!.getCommentTarget() || "Non Ciblé";
+    } 
   }
 
   @Output()
@@ -36,6 +38,11 @@ export class InfoBarComponent {
   industries: string[] = (PDV.getIndustries() as string[]);
   products: string[] = PDV.getProducts() as string[];
   grid: number[][] = [];
+  targetClass: any = {
+    'r': false,
+    'g': false,
+    'o': false
+  };
 
   get pdv() {
     return this._pdv;
@@ -63,14 +70,12 @@ export class InfoBarComponent {
   exit() {
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
-      this.close.emit(true);
       this.ref!.nativeElement.removeEventListener('transitionend', fn);
     });
     this.pdv = undefined;
   }
 
   setPage(index: number) {
-    console.log('setPage', index, index % this.pages.length);
     this.currentIndex = index % this.pages.length;
   }
 
