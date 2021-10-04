@@ -48,7 +48,7 @@ export class InfoBarComponent {
 
   constructor(private ref: ElementRef) {
     console.log('[InfobarComponent]: On');
-    this.products.splice(3, 0, 'P2CD')
+    this.products.splice(3, this.products.length, 'P2CD')
     this.grid = new Array(this.industries.length + 1);
     for ( let i = 0; i < this.grid.length; i++ )
       this.grid[i] = new Array(this.products.length).fill(0);
@@ -67,12 +67,15 @@ export class InfoBarComponent {
     this.currentIndex = index;
   }
 
-  updateSum(i: number) {
-    console.log('summing!');
-    let sum = 0;
+  updateSum(row: number, i: number) {
+    let sum = 0, diff;
     for ( let j = 0; j < this.grid.length-1; j++ ) {
       sum += this.grid[j+1][i] | 0;
     }
-    return this.grid[0][i] = sum;
+    this.grid[0][i] = sum;
+    diff = this.grid[row][0] + this.grid[row][1] + this.grid[row][2] - this.grid[row][3];
+    this.grid[row][3] += diff;
+    this.grid[0][3] += diff;
+    return sum;
   }
 }
