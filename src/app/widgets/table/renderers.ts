@@ -106,7 +106,6 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     enduit?: {[name: string]: number}[];
     overflow: number = 0;
     agInit(params: ICellRendererParams): void {
-      console.log("params: ", params)
         this.p2cd = Object.values(params.value['p2cd']);
         this.enduit = Object.values(params.value['enduit']);
         if (params.data.potential < 0) this.overflow = 10;
