@@ -280,7 +280,7 @@ export class SliceTable {
 
     sendUpdatedData(data: {[field: string]: []}) {
         this.dataService.updateData(data)
-        .subscribe( () => DataExtractionHelper.updateData(data));
+        DataExtractionHelper.updateData(data)
     }
 
     updateData() {

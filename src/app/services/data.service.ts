@@ -5,7 +5,6 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { map } from 'rxjs/internal/operators/map';
 import { environment } from 'src/environments/environment';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
 
 @Injectable({
   providedIn: 'root'
