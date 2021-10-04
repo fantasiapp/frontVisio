@@ -238,6 +238,18 @@ export class PDV{
   static tradeTree: Tree;
   private static indexMapping: Map<string, number>;
 
+  get targetP2cd(){
+    let target = this.attribute('target');
+    if (target == undefined) return 0;
+    return target[DataExtractionHelper.TARGET_VOLUME_ID]
+  }
+
+  get targetFinition(){
+    let target = this.attribute('target');
+    if (target == undefined) return 0;
+    return target[DataExtractionHelper.TARGET_FINITION_ID]
+  }
+
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
       this.load(false);
@@ -294,12 +306,8 @@ export class PDV{
   }
   
   readonly sales: Sale[];
-  public targetP2cd: number;
-  private targetFinition: boolean;
   constructor(readonly id: number, private values: any[]){
     this.sales = [];
-    this.targetP2cd = -1;
-    this.targetFinition = false;
     for (let d of this.attribute('sales'))
       this.sales.push(new Sale(d));
   };
@@ -584,11 +592,23 @@ export class PDV{
     return dictResult;
   }
 
-  getVolumeTarget(){return this.attribute('target')[DataExtractionHelper.PDV_VOLUME_ID]}
+  getVolumeTarget(){
+    let target = this.attribute('target');
+    if (target == undefined) return 0;
+    return target[DataExtractionHelper.TARGET_VOLUME_ID]
+  }
 
-  getLightTarget(){return this.attribute('target')[DataExtractionHelper.PDV_LIGHT_ID]}
+  getLightTarget(){
+    let target = this.attribute('target');
+    if (target == undefined) return "";
+    return target[DataExtractionHelper.TARGET_LIGHT_ID]
+  }
 
-  getCommentTarget(){return this.attribute('target')[DataExtractionHelper.PDV_COMMENT_ID]}
+  getCommentTarget(){
+    let target = this.attribute('target');
+    if (target == undefined) return "";
+    return target[DataExtractionHelper.TARGET_COMMENT_ID]
+  }
 };
 
 
