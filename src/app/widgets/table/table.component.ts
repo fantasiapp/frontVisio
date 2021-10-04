@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer, GroupTargetCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
 
 @Component({
   selector: 'app-table',
@@ -41,6 +41,7 @@ export class TableComponent extends BasicWidget {
   gridApi: any;
   columnApi: any;
   onGridReady = (params: any) => {
+    console.log("ready")
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
@@ -56,19 +57,12 @@ export class TableComponent extends BasicWidget {
     'group-row': 'data.groupRow === true'
   }
   frameworkComponents = {
-    rowSalesCellRenderer: RowSalesCellRenderer,
-    groupSalesCellRenderer: GroupSalesCellRenderer,
     editCellRenderer: EditCellRenderer,
     checkboxCellRenderer: CheckboxCellRenderer,
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
-    groupTargetCellRenderer: GroupTargetCellRenderer,
-    groupNameCellRenderer: GroupNameCellRenderer,
     infoCellRenderer: InfoCellRenderer,
-    potentialCellRenderer: PotentialCellRenderer,
-    groupPotentialCellRenderer: GroupPotentialCellRenderer,
-    visitsCellRenderer: VisitsCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -98,22 +92,27 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
-    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    this.updateTitle()
     this.pinnedRow = data[1][0]; //Hardest part
-    this.titleContainer!.nativeElement.innerText = this.title;
-
-    groupInfos = data[4][0];
-    for(let value of groupInfos.values) displayedGroups[value] = true;
+    groupInfos = data[3][0];
+    hiddenGroups = {}
   }
 
   updateGroups(id: string) {
     this.currentOpt = id;
     this.gridApi.setRowData(this.sliceTable.buildGroups(id, this.type))
     groupInfos = this.sliceTable.groupInfos;
-    displayedGroups = {}
-    for(let value of groupInfos.values) displayedGroups[value] = true;
+    hiddenGroups = {}
   }
+
+  updateTitle() {
+    console.log("Title update")
+    let title = this.sliceTable.getTitleData();
+    if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${(title[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.floor(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    this.titleContainer!.nativeElement.innerText = this.title
+  }
+
 
   createGraph(data: any[], opt?: {}): void {
     throw new Error('Method not implemented.');
@@ -124,23 +123,23 @@ export class TableComponent extends BasicWidget {
         for(let cd of data){
           switch (cd.field) {
             case 'name':
-              cd.cellRendererSelector = function (params: any) {
-                const groupNameDetails = {component : 'groupNameCellRenderer'};
-                if(params.data.groupRow === true) return groupNameDetails;
-                return;
+
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow) return params.value['name'] + ' PdV : ' + params.value['number']
+                return params.value;
               }
               break;
             case 'siniatSales':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}};
-                else return {component: 'rowSalesCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Siniat : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
             case 'totalSales':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}};
-                else return {component: 'rowSalesCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Identifie : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                else return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
@@ -167,9 +166,13 @@ export class TableComponent extends BasicWidget {
               break;
             
             case 'target':
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow ===  true) return "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
+                return params.value;
+              }
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupTargetCellRenderer'}
-                return {component: 'targetCellRenderer'};
+                if(params.data.groupRow !== true) return {component: 'targetCellRenderer'};
+                return;
               }
               break;
             
@@ -181,15 +184,15 @@ export class TableComponent extends BasicWidget {
               break;
             
             case 'potential':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupPotentialCellRenderer'}
-                return {component : 'potentialCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
+                return Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
               }
               break;
             case 'nbVisits':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return {component : 'visitsCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return;
+                return params.value + ' V'
               }
               break;
 
@@ -206,9 +209,10 @@ export class TableComponent extends BasicWidget {
     if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
     if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
     if(event['data'].groupRow === true) {
-      console.log("Toggle ", event['data'].name.name)
       this.externalFilterChanged(event['data'].name.name)
     }
+    console.log("Toggle ", event)
+    if(event['column']['colId'] === 'checkbox') this.updateTitle()
   }
 
   showEdit: boolean = false;
@@ -253,18 +257,19 @@ export class TableComponent extends BasicWidget {
   }
 
   externalFilterChanged(value: any) {
-    displayedGroups[value] = !displayedGroups[value];
+    if (hiddenGroups[value] === true) delete hiddenGroups[value];
+    else hiddenGroups[value] = true;
     this.gridApi.onFilterChanged();
   }
 
   isExternalFilterPresent() {
-    return Object.values(displayedGroups).includes(false);
+    return Object.keys(hiddenGroups).length > 0
   }
 
   doesExternalFilterPass(node: any) {
     if(node.data.groupRow == true) return true;
     try {
-      return displayedGroups[node.data[groupInfos.field]] === true;
+      return !hiddenGroups[node.data[groupInfos.field]] === true;
     } catch {
       return true;
     }
@@ -273,5 +278,5 @@ export class TableComponent extends BasicWidget {
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)
-var displayedGroups: {[field: string]: boolean} = {};
+var hiddenGroups: {[field: string]: boolean} = {};
 var groupInfos: {field: string, values: string[]} = {field : '', values: []};
