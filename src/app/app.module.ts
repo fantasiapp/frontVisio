@@ -43,6 +43,7 @@ import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, Checkbo
 
 import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
+import { MapFiltersComponent } from './map/map-filters/map-filters.component';
 
 @NgModule({
   declarations: [
@@ -78,7 +79,8 @@ import { InfoBarComponent } from './map/info-bar/info-bar.component';
     PieTargetComponent,
     HistoColumnTargetComponent,
     HistocurveComponent,
-    InfoBarComponent
+    InfoBarComponent,
+    MapFiltersComponent
   ],
   imports: [
     BrowserModule,

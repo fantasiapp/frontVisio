@@ -1,0 +1,75 @@
+:host {
+    --filter-bar-width: 50%;
+    --filter-bar-max-width: 800px;
+    --filter-bar-padding-y: 50px;
+    --filter-bar-padding-x: 40px;
+    --filter-bar-margin-y: 70px;
+    --navigation-height: 20px;
+    --navigation-ball-size: 30px;
+    --pdv-title-margin-y: 15px;
+    --pdv-fields-margin-y: 10px;
+    --pdv-props-margin-y: 20px;
+    --pdv-comment-margin-y: 20px;
+    --pdv-section-margin-y: 30px;
+    --eval-circle-size: 30px;
+
+
+    box-sizing: border-box;
+    position: absolute;
+    width: var(--filter-bar-width);
+    max-width: var(--filter-bar-max-width);
+    height: calc(100% - var(--filter-bar-margin-y) - var(--navigation-height));
+    padding: var(--filter-bar-padding-y) var(--filter-bar-padding-x);
+    padding-right: 0;
+    top: 0;
+    left: calc(-1*var(--filter-bar-width) + 30px);
+    background: white;
+    z-index: 9999;
+    margin-top: var(--filter-bar-margin-y);
+    display: flex;
+    flex-flow: row nowrap;
+    transition: left 200ms ease-out 0s;
+    font-family: 'Roboto';
+    font-size: 20px;
+    box-shadow: 2px 0 3px 0px #555;
+    border-radius: 3px;
+    overflow: auto;
+}
+
+:host(.opened) {
+    left: 0;
+}
+
+@media (max-width: 1366px) {
+    :host {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 1920px) {
+    :host {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 1920px) {
+    :host {
+        font-size: 22px;
+    }
+}
+
+.main {
+    flex: 1;
+}
+
+.toggle {
+    cursor: pointer;
+    flex: 0 0 30px;
+    position: relative;
+}
+
+.toggle img {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}

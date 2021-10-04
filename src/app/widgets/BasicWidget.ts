@@ -95,6 +95,10 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     }; return data;
   }
 
+  setTitle(title: string) {
+    d3.select(this.ref.nativeElement).select('div:nth-of-type(1) h2').text(title);
+  }
+
   setSubtitle(subtitle: string) {
     d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
   }

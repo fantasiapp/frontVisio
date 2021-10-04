@@ -9,7 +9,7 @@ import { PDV } from 'src/app/middle/Slice&Dice';
 })
 export class InfoBarComponent {
   @HostBinding('class.opened')
-  private opened: boolean = false;
+  opened: boolean = false;
 
   @ViewChild('comments', {static: false, read: ElementRef})
   private comment?: ElementRef;
@@ -21,6 +21,7 @@ export class InfoBarComponent {
   set pdv(value: PDV | undefined) {
     this._pdv = value;
     this.opened = value ? true : false;
+    this.currentIndex = 0;
     this.pdvChange.emit(value);
     if ( this.comment )
       this.comment.nativeElement.value = '';
@@ -69,7 +70,8 @@ export class InfoBarComponent {
   }
 
   setPage(index: number) {
-    this.currentIndex = index;
+    console.log('setPage', index, index % this.pages.length);
+    this.currentIndex = index % this.pages.length;
   }
 
   updateSum(row: number, i: number) {

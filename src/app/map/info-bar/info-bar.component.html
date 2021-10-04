@@ -70,7 +70,7 @@
 
                 <div class="eval easy">
                     <ul>
-                        <li><span class="bolder">Volume visé en m² :</span><input type="text"/></li>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" type="text" disabled/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
                             <div class="circle"></div>
                             <div class="circle"></div>
@@ -123,3 +123,6 @@
     <button>Annuler</button>
     <button>Valider</button>
 </div>
+
+<img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
+<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2" (click)="setPage(currentIndex + 1)"/>
