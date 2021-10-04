@@ -82,7 +82,7 @@ export class TableComponent extends BasicWidget {
   }
 
   
-  protected start(): void {
+  private start(): void {
     this.gridObservable = new Observable((observer) => {
       observer.next()
     })
