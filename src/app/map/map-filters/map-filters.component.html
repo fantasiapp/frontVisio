@@ -7,8 +7,8 @@
     <div class="criterion">
         <span class="name">Segment Marketing :</span>
         <div class="class">
-            <select>
-                <option *ngFor="let entry of loadCriterion('segmentMarketing')" [value]="entry[0]">
+            <select (change)="updateCriteria(0)">
+                <option *ngFor="let entry of loadCriterion('segmentMarketing'); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>
@@ -18,8 +18,8 @@
     <div class="criterion">
         <span class="name">Segment Commercial :</span>
         <div class="class">
-            <select>
-                <option *ngFor="let entry of loadCriterion('segmentCommercial')" [value]="entry[0]">
+            <select (change)="updateCriteria(1)">
+                <option *ngFor="let entry of loadCriterion('segmentCommercial'); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>
@@ -30,8 +30,8 @@
     <div class="criterion">
         <span class="name">Enseigne :</span>
         <div class="class">
-            <select>
-                <option *ngFor="let entry of loadCriterion('enseigne')" [value]="entry[0]">
+            <select (change)="updateCriteria(2)">
+                <option *ngFor="let entry of loadCriterion('enseigne'); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>
@@ -41,8 +41,8 @@
     <div class="criterion">
         <span class="name">Agent :</span>
         <div class="class">
-            <select>
-                <option *ngFor="let entry of loadCriterion('agent')" [value]="entry[0]">
+            <select (change)="updateCriteria(3)">
+                <option *ngFor="let entry of loadCriterion('agent'); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>
@@ -52,8 +52,8 @@
     <div class="criterion">
         <span class="name">Département :</span>
         <div class="class">
-            <select>
-                <option *ngFor="let entry of loadCriterion('dep')" [value]="entry[0]">
+            <select (change)="updateCriteria(4)">
+                <option *ngFor="let entry of loadCriterion('dep'); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>
@@ -63,8 +63,8 @@
     <div class="criterion">
         <span class="name">Bassin :</span>
         <div class="class">
-            <select>
-                <option *ngFor="let entry of loadCriterion('bassin')" [value]="entry[0]">
+            <select (change)="updateCriteria(55)">
+                <option *ngFor="let entry of loadCriterion('bassin'); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>

@@ -1,6 +1,8 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy } from '@angular/core';
 import { AsyncSubject } from 'rxjs';
+import { FiltersStatesService } from '../filters/filters-states.service';
 import { PDV } from '../middle/Slice&Dice';
+import { BasicWidget } from '../widgets/BasicWidget';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
 type MarkerType = {
   pdv: PDV;
@@ -28,13 +30,12 @@ export class MapComponent implements AfterViewInit {
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
-  private _pdvs: PDV[] = [];
-  set pdvs(value: PDV[]) {
-    this._pdvs = value;
+  pdvs: PDV[] = [];
+
+  set criteria(value: any[]) {
+    this.pdvs = PDV.sliceMap(this.path, value);
     this.update();
   }
-
-  get pdvs() { return this._pdvs; }
 
   selectedPDV?: PDV;
   private hidden: boolean = true;
@@ -46,9 +47,17 @@ export class MapComponent implements AfterViewInit {
 
   map?: google.maps.Map;
   ready: AsyncSubject<never> = new AsyncSubject<never>();
+  path: any = {};
 
-  constructor() {
-    this._pdvs = PDV.sliceMap({}, []);
+  constructor(private filtersService: FiltersStatesService) {
+    this.pdvs = PDV.sliceMap({}, []);
+    filtersService.$path.subscribe(path => {
+      if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
+        this.path = path;
+        this.pdvs = PDV.sliceMap(path, []);
+        this.update();
+      }
+    });
   }
 
   ngAfterViewInit() {
