@@ -31,38 +31,7 @@
 
 <info-bar [style.margin-top]="0"  [style.height]="'100%'" [(pdv)]="pdv"></info-bar>
 
-<div *ngIf="showEdit" class="side-div" id="info-div">
-    <img src="assets/x icon.svg" (click)="showEditOnClick()"/>
-    <div class="navigation">
-        Référentiel  ||   Ciblage  ||   Saisie de l'AD
-    </div>
-    <h2>Référentiel : ?????</h2>
-    <div id="top-div">
-        <div class="values-div">
-            <div>
-                <span><strong>Point de vente : </strong>{{ editData.name }}</span><br>
-                <span><strong>Agent : </strong>{{ editData.agent }}</span><br>
-                <span><strong>Segment : </strong>{{ editData.segment }}</span><br>
-                <span><strong>Enseigne : </strong>{{ editData.enseigne }}</span>
-                <span>Ensemble : {{ editData.ensemble }}</span><br>
-                <span>Département : {{ editData.dep }}</span><br>
-                <span>Ville : {{ editData.ville }}</span><br>
-                <span>Bassin : {{ editData.bassin }}</span>
-            </div>
-            <div class="checkbox-div">
-                <span>Ne vend pas de plaque<input type="checkbox"></span>
-                <span>Point de vente redistribué<input type="checkbox"></span>
-            </div>
-        </div>
-
-    </div>
-    <div id="bottom-div">
-        <h3>Commentaires</h3>
-        <input id="commentary"> 
-    </div>
-</div>
-
-<div *ngIf="showInfo" class="side-div" id="edit-div">
+<div *ngIf="showInfo" class="side-div">
     <img src="assets/x icon.svg" (click)="showInfoOnClick()"/>
     <div>
         <div>
@@ -77,7 +46,7 @@
             <span><strong>Nombre de visites : </strong> {{ infoData.nbVisits }}</span>
         </div>
     </div>
-    <div class="checkbox-div"><em>Point de vente redistribue</em><input type="checkbox"></div>
+    <div class="checkbox-div">Point de vente redistribue<input type="checkbox"></div>
     <div class="values-div">
         <div>
             <h2>P2CD</h2>

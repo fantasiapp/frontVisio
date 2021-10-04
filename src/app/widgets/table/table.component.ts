@@ -208,8 +208,8 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') this.showEditOnClick(event['data']);
-    if(event['column']['colId'] === 'info') this.pdv = this.sliceTable.getPdvInstance(event['data']);
+    if(event['column']['colId'] === 'edit') this.pdv = this.sliceTable.getPdvInstance(event['data']);
+    if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
     if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
@@ -218,23 +218,6 @@ export class TableComponent extends BasicWidget {
     if(event['column']['colId'] === 'checkbox') {
       this.updateTitle()
       this.sliceTable.sendUpdatedData({'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}) //sous cette forme ?
-    }
-  }
-
-  showEdit: boolean = false;
-  editData: any = {}
-  showEditOnClick(data: any = {}) {
-    if(this.showEdit) {this.showEdit = false; return}
-    this.showEdit = true;
-    this.editData = {
-      'name': data.name,
-      'agent': data.agent,
-      'segment': data.segmentMarketing,
-      'enseigne': data.enseigne,
-      'ensemble': data.ensemble,
-      'dep': data.dep,
-      'ville': data.ville,
-      'bassin': data.bassin,
     }
   }
 

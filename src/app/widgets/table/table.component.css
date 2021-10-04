@@ -14,15 +14,6 @@ input[type="radio"] {
     /* filter: invert(100%) hue-rotate(18deg) brightness(1.7); */
 }
 
-.edit-div {
-    position: absolute;
-    height: 60%;
-    width: 60%;
-    top: 20%;
-    left: 20%;
-    background-color: grey;
-}
-
 .side-div {
     display: flex;
     flex-direction: column;
@@ -34,6 +25,10 @@ input[type="radio"] {
     top: 0;
     right: 0;
     box-shadow: -2px 0 4px grey;
+}
+
+.side-div strong {
+    padding: 10px;
 }
 
 .side-div img{
@@ -50,6 +45,7 @@ input[type="radio"] {
 
 .side-div .checkbox-div {
     color: orange;
+    
 }
 
 
