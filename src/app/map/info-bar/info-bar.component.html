@@ -11,7 +11,7 @@
 <ng-container *ngIf="pdv">
     <ng-container *ngIf="currentIndex == 0">
         <div class="main">
-            <h2>{{pages[currentIndex]}} : {{pdv!.attribute('name')}}</h2>
+            <h2><span class="title">{{pages[currentIndex]}} :</span>{{pdv!.attribute('name')}}</h2>
             <div class="reference">
                 <div class="definition">
                     <ul>
@@ -48,7 +48,7 @@
 
     <ng-container *ngIf="currentIndex == 1">
         <div class="main">
-            <h2>{{pages[currentIndex]}} : {{pdv!.attribute('name')}}</h2>
+            <h2><span class="title">{{pages[currentIndex]}} :</span>{{pdv!.attribute('name')}}</h2>
             <!-- <p>information sur la point de vente</p> -->
             <div class="content">
                 <div class="definition">
@@ -86,7 +86,7 @@
 
     <ng-container *ngIf="currentIndex == 2">
         <div class="main">
-            <h2>{{pages[currentIndex]}} : {{pdv!.attribute('name')}}</h2>
+            <h2><span class="title">{{pages[currentIndex]}} :</span>{{pdv!.attribute('name')}}</h2>
             <!-- <p>information sur la point de vente</p> -->
             <div class="content">
                 <div class="grid">

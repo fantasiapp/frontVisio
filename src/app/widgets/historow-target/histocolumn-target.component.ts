@@ -18,9 +18,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
-  @ViewChild('validateTargetControl', {read: ElementRef})
-  protected validateTargetControl!: ElementRef;
-
   private transitionDuration = 250;
   private needles?: d3Selection;
   private barHeights: number[] = [];
@@ -29,7 +26,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private offsetY: number = 0;
   private marginX: number = 0;
   private barWidth: number = 0;
-  private inputIsOpen: boolean = false;
+  inputIsOpen: boolean = false;
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -158,8 +155,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   toggleTargetControl() {
     this.inputIsOpen = !this.inputIsOpen;
-    this.openTargetControl!.nativeElement.innerText = 
-      this.inputIsOpen ? '❌' : '✏️';
     
     let self = this;
     let container = d3.select(this.content.nativeElement)
@@ -168,10 +163,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     //make target control just in case
     this.renderTargetControl()
       .classed('target-control-opened', this.inputIsOpen);
-    
-    d3.select(this.validateTargetControl!.nativeElement)
-      .classed('target-control-opened', this.inputIsOpen);
-
   }
 
   doTargetControl() {
