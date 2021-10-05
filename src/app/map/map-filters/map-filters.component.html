@@ -9,7 +9,7 @@
         <h6 class="name">{{ criteriaPrettyNames[idx] }}</h6>
         <div class="class">
             <select (change)="updateCriteria(idx)">
-                <option *ngFor="let entry of loadCriterion(criteria); trackBy: trackById" [value]="entry[0]">
+                <option *ngFor="let entry of loadCriterion(criteria, path); trackBy: trackById" [value]="entry[0]">
                     {{entry[1]}}
                 </option>
             </select>

@@ -468,6 +468,7 @@ input[type=number] {
     height: 30px;
     display: block;
     position: absolute;
+    cursor: pointer;
     /* vertical centering */
     top: 50%;
     transform: translateY(-50%);

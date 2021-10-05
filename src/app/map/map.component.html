@@ -1,4 +1,4 @@
 <h1>Cartographie</h1>
-<map-filters [PDVNumber]="pdvs.length" (criteriaChange)="criteria=$event"></map-filters>
+<map-filters [path]="path" [PDVNumber]="pdvs.length" (criteriaChange)="criteria=$event"></map-filters>
 <div class="map-container" #mapContainer></div>
 <info-bar [(pdv)]="selectedPDV"></info-bar>

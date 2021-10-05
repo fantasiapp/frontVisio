@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ElementRef, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
@@ -14,7 +14,10 @@ export class MapFiltersComponent {
   opened: boolean = false;
 
   criteriaNames = ['segmentMarketing', 'segmentCommercial', 'enseigne', 'agent', 'dep', 'bassin'];
-  criteriaPrettyNames = ['Segment Marketing', 'Segment Commercial', 'Enseigne', 'Agent', 'Département', 'Bassin'];
+  criteriaPrettyNames = ['Segment Marketing', 'Segment Commercial', 'Enseigne', 'Secteur', 'Département', 'Bassin'];
+
+  @Input()
+  path: any = {};
 
   @Input()
   PDVNumber: number = 0;
@@ -22,7 +25,7 @@ export class MapFiltersComponent {
   @Output()
   criteriaChange = new EventEmitter<any>();
 
-  constructor(private ref: ElementRef) {
+  constructor(private ref: ElementRef, private cd: ChangeDetectorRef) {
     console.log('[MapFiltersComponent]: On.');
   }
 
@@ -48,8 +51,18 @@ export class MapFiltersComponent {
     return criteria;
   }
 
-  loadCriterion(criterion: string): [string, any][] {
+  loadCriterion(criterion: string, path: any): [string, any][] {
+    //use pretty prints on path slice
+    let criterionPretty = this.criteriaPrettyNames[this.criteriaNames.indexOf(criterion)];
+    if ( criterionPretty && path[criterionPretty] !== undefined ) {
+      return [['0', DataExtractionHelper.get(criterion)[path[criterionPretty]]]];
+    }
+
     let entries = Object.entries<any>(DataExtractionHelper.get(criterion));
     return ([['0', 'Tous']] as [string, any][]).concat(entries);
+  }
+
+  updateOptions(index: number) {
+
   }
 }

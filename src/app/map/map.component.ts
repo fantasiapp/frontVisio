@@ -30,9 +30,10 @@ export class MapComponent implements AfterViewInit {
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
-  
+  private _criteria: any[] = [];
+
   set criteria(value: any[]) {
-    this.pdvs = PDV.sliceMap(this.path, value);
+    this.pdvs = PDV.sliceMap(this.path, this._criteria = value);
     this.update();
   }
   
@@ -55,7 +56,7 @@ export class MapComponent implements AfterViewInit {
     filtersService.$path.subscribe(path => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
-        this.pdvs = PDV.sliceMap(path, []);
+        this.pdvs = PDV.sliceMap(path, this._criteria);
         this.update();
       }
     }); this.initializeInfowindow();
@@ -251,12 +252,12 @@ export class MapComponent implements AfterViewInit {
     let std = Math.sqrt(variance[0] + variance[1]);
     let zoom = Math.round(10.017 - 1.143*std)-1;
     
-    this.map!.setZoom(zoom);
+    this.map!.setZoom(zoom || 13);
 
     this.map!.panTo(
       new google.maps.LatLng(
-        center[0],
-        center[1]
+        center[0] || 48.52,
+        center[1] || 2.19
       )
     );
   }
