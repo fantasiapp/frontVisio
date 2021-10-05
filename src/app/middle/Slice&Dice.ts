@@ -503,9 +503,11 @@ export class PDV{
   }
 
   property(propertyName:string){
+    console.log(propertyName)
     if (propertyName == 'clientProspect') return this.clientProspect(true);
     if (propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
+    if (propertyName == 'pointFeu') return (this.attribute('pointFeu'))? 2: 1;
     return this.attribute(propertyName);
   }
 
@@ -524,7 +526,7 @@ export class PDV{
   }
 
   ciblage(){
-    return (this.targetP2cd > 0 && this.getLightTarget() !== 'r')
+    return (this.targetP2cd > 0 && this.getLightTarget() !== 'r') ? 2: 1;
   }
 
   //La fonction est appelée une fois par widget, ça pourrait peut-être être optimisé tous les widgets d'un dashboard ont le même slice
