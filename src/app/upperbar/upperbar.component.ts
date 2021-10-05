@@ -16,6 +16,7 @@ import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
 import { combineLatest } from 'rxjs';
 import { BasicWidget } from '../widgets/BasicWidget';
+import { DataService } from '../services/data.service';
 
 
 @Component({
@@ -54,7 +55,8 @@ export class UpperbarComponent implements OnInit {
   constructor(
     private filtersState: FiltersStatesService,
     private authService: AuthService,
-    private sliceDice: SliceDice
+    private sliceDice: SliceDice,
+    private dataService: DataService
   ) {}
   shouldShowButtons = false;
 
@@ -96,5 +98,9 @@ export class UpperbarComponent implements OnInit {
     } else {
       this.mapComponent?.hide();
     }
+  }
+
+  updateData() {
+    this.dataService.requestUpdateData()
   }
 }

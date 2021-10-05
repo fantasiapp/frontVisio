@@ -33,13 +33,13 @@ export class DataService {
     return this.response;
   }
 
-  public requestUpdateData(): Observable<Object|null> {
+  public requestUpdateData() {
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
     .subscribe((updatedData) => {
-      this.response.next(updatedData);
+      console.log("Updated data received : ", updatedData ? updatedData as any : this.dataToUpdate)
+      DataExtractionHelper.updateData(updatedData ? updatedData as any : this.dataToUpdate);
       this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}})
     });
-    return this.response;
   }
 
   private dataToUpdate: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
