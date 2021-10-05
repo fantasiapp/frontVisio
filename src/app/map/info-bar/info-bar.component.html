@@ -74,9 +74,9 @@
                     <ul>
                         <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget() || 0" type="text" disabled/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                            <div class="circle"></div>
-                            <div class="circle"></div>
-                            <div class="circle"></div>
+                            <div class="circle" [ngStyle]="{'background':'pdv.attribute(`target`)[DataExtractionHelper.TARGET_LIGHT_ID] === `r` ? red : lightgray'}"></div>
+                            <div class="circle" [ngStyle]="{'background':'pdv.attribute(`target`)[DataExtractionHelper.TARGET_LIGHT_ID] === `o` ? orange : lightgray'}"></div>
+                            <div class="circle" [ngStyle]="{'background':'pdv.attribute(`target`)[DataExtractionHelper.TARGET_LIGHT_ID] === `g` ? green : lightgray'}"></div>
                         </li>
                     </ul>
                 </div>
