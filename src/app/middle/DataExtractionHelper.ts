@@ -156,7 +156,7 @@ class DataExtractionHelper{
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
-    this.TARGET_ID = this.getKeyByValue(this.data['structurePdv'], 'target');
+    this.TARGET_ID = this.getKeyByValue(this.data['structurePdvs'], 'target');
     this.TARGET_DATE_ID = this.data["structureTarget"].indexOf("date");
     this.TARGET_REDISTRIBUTED_ID = this.data["structureTarget"].indexOf("redistributed");
     this.TARGET_SALE_ID = this.data["structureTarget"].indexOf("sale");
@@ -164,8 +164,8 @@ class DataExtractionHelper{
     this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
     this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
-    this.SALES_ID = this.getKeyByValue(this.data['structurePdv'], 'sales');
-    this.SALE_ID = this.getKeyByValue(this.data['structurePdv'], 'sale');
+    this.SALES_ID = this.getKeyByValue(this.data['structurePdvs'], 'sales');
+    this.SALE_ID = this.getKeyByValue(this.data['structurePdvs'], 'sale');
 
     
     //trades have less info that geo
