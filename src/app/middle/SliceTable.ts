@@ -178,14 +178,16 @@ export class SliceTable {
         this.pdvs = pdvs;
         let pdvsAsList =  [];
         for(let pdv of pdvs) {
-            var newPdv: {[key:string]:any} = {}; //concrete row of the table
-            for(let index = 0; index < Object.keys(this.getAllColumns(type)).length; index ++) {
-                let field = this.getAllColumns(type)[index]
-                if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
-                else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
-                else newPdv[field] = pdv[index]
+            if(pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'available')!] === true && pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'sale')!] === true) {
+                var newPdv: {[key:string]:any} = {}; //concrete row of the table
+                for(let index = 0; index < Object.keys(this.getAllColumns(type)).length; index ++) {
+                    let field = this.getAllColumns(type)[index]
+                    if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
+                    else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
+                    else newPdv[field] = pdv[index]
+                }
+                pdvsAsList.push(newPdv);
             }
-            pdvsAsList.push(newPdv);
         }
         
         pdvsAsList.sort(this.tableConfig[type]['customSort'])
