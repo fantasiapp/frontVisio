@@ -161,10 +161,6 @@ ul, hr {
     font-weight: 500;
 }
 
-.definition .name {
-    font-weight: 700;
-}
-
 .definition, .props {
     flex: 1;
 }
@@ -521,6 +517,7 @@ input[type=number] {
 }
 
 .button {
+    background: white;
     border: none !important;
     outline: none !important;
     margin: 0 10px;

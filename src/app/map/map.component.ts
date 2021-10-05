@@ -251,6 +251,8 @@ export class MapComponent implements AfterViewInit {
     variance[1] /= (markers.length - 1);
     let std = Math.sqrt(variance[0] + variance[1]);
     let zoom = Math.round(10.017 - 1.143*std)-1;
+
+    //console.log(std);
     
     this.map!.setZoom(zoom || 13);
 

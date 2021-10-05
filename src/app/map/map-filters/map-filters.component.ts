@@ -13,8 +13,8 @@ export class MapFiltersComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
-  criteriaNames = ['segmentMarketing', 'segmentCommercial', 'enseigne', 'agent', 'dep', 'bassin'];
-  criteriaPrettyNames = ['Segment Marketing', 'Segment Commercial', 'Enseigne', 'Secteur', 'Département', 'Bassin'];
+  criteriaNames = ['clientProspect', 'ciblage', 'pointFeu', 'segmentMarketing', 'segmentCommercial', 'industrie', 'enseigne', 'agent', 'dep', 'bassin'];
+  criteriaPrettyNames = ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Secteur', 'Département', 'Bassin'];
 
   @Input()
   path: any = {};
@@ -58,7 +58,8 @@ export class MapFiltersComponent {
       return [['0', DataExtractionHelper.get(criterion)[path[criterionPretty]]]];
     }
 
-    let entries = Object.entries<any>(DataExtractionHelper.get(criterion));
+    let data = DataExtractionHelper.get(criterion) || {};
+    let entries = Object.entries<any>(data);
     return ([['0', 'Tous']] as [string, any][]).concat(entries);
   }
 
