@@ -503,7 +503,6 @@ export class PDV{
   }
 
   property(propertyName:string){
-    console.log(propertyName)
     if (propertyName == 'clientProspect') return this.clientProspect(true);
     if (propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
@@ -512,17 +511,13 @@ export class PDV{
   }
 
   industriel(){
-    let dnIndustries = this.getValue('dn', true) as number[],
+    let dnIndustries = this.getValue('p2cd', true) as number[],
       industriesDict = DataExtractionHelper.get('industrie'),
-      max = 0,
       iMax = 0;
-    let industriesAxis = Object.values(industriesDict);
-    for (let i = 0; i < dnIndustries.length; i++)
-      if (dnIndustries[i] > max){
-        max = dnIndustries[i];
-        iMax = i;
-      }
-    return DataExtractionHelper.getKeyByValue(industriesDict, industrieAxis[iMax]);
+    let industriesList = Object.values(industriesDict);
+    for (let i = 1; i < dnIndustries.length; i++)
+      if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
+    return DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax]);
   }
 
   ciblage(){
