@@ -172,7 +172,7 @@ class DataExtractionHelper{
     TradeExtrationHelper.height = this.tradeHeight;
   }
 
-  static updateData(data: {[field: string]: []}) {
+  static updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
       console.log("Back updated, now update middle")
       // Check how deletions are managed 
@@ -190,7 +190,7 @@ class DataExtractionHelper{
       }
   //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
       for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
-        for(let [newTargetId, newTarget] of Object.entries(data[targetType])) {
+        for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
           for(let oldTargetId of Object.keys(this.data[targetType])) {
             if(newTargetId === oldTargetId) {
               this.data[targetType][newTargetId] = newTarget;

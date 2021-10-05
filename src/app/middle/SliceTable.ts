@@ -285,10 +285,7 @@ export class SliceTable {
         }
         return 'black'
     }
-
-
-    private dataToUpdate: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []};
-    
+  
     pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
         let pdvAsList = []
         for(let field of DataExtractionHelper.getPDVFields()) {
@@ -327,21 +324,15 @@ export class SliceTable {
 
         newPdv[DataExtractionHelper.getPDVFields().findIndex((field: string) => field === 'target')] = newTarget;
         console.log("newPdv : ", newPdv)
-        this.dataToUpdate.pdvs.push(newPdv);
-        this.sendUpdatedData(this.dataToUpdate);
+        this.dataService.updatePdv(newPdv);
     }
 
-    sendUpdatedData(data: any) {
-        this.dataService.updateData(data)
-        DataExtractionHelper.updateData(data)
-        this.dataToUpdate = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []};
-    }
 
-    updateData() {
-        this.dataService.requestUpdateData()
-        .subscribe((updatedData) => {
-            DataExtractionHelper.updateData(updatedData as {[field: string]: []})
-        })
-    }
+    // updateData() {
+    //     this.dataService.requestUpdateData()
+    //     .subscribe((updatedData) => {
+    //         DataExtractionHelper.updateData(updatedData as {[field: string]: []})
+    //     })
+    // }
 
 }

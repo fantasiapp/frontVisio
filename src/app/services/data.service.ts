@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { map } from 'rxjs/internal/operators/map';
 import { environment } from 'src/environments/environment';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
 
 @Injectable({
   providedIn: 'root'
@@ -40,10 +41,21 @@ export class DataService {
     return this.response;
   }
 
-  public updateData(data: {[field: string]: []}): Observable<Object|null> {
-    this.http.post(environment.backUrl + 'visioServer/data/', data, {params : {"action" : "update"}})
+  private dataToUpdate: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
+
+  public updatePdv(pdv: any[]) {
+    this.dataToUpdate['pdvs'].push(pdv);
+
+    this.updateData(this.dataToUpdate);
+
+    this.dataToUpdate = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []};
+  }
+
+  public updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}): Observable<Object|null> {
+    this.http.post(environment.backUrl + 'visioServer/data/', {'content': data}, {params : {"action" : "update"}})
     .subscribe((updateReponse) => {
       this.response.next(updateReponse)
+      DataExtractionHelper.updateData(data)
     });
     return this.response;
   }

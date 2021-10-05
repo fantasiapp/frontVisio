@@ -14,7 +14,7 @@ export class ErrorInterceptor implements HttpInterceptor{
         Observable<HttpEvent<any>> {
             
             if(req.urlWithParams.includes("action=update")) {
-              console.log("Update intercepted in Error Interceptor")
+              console.log("Update intercepted in Error Interceptor : ", req)
               return of(new HttpResponse<any>());
             }
 
