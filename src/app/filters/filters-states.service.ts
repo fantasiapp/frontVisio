@@ -5,6 +5,7 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { loadAll, getGeoTree } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
+import { AsyncSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -20,12 +21,15 @@ export class FiltersStatesService {
         loadAll();
         let defaultTree = getGeoTree();
         this.reset(defaultTree);
+        this.$load.next(0 as never);
+        this.$load.complete();
       }
     });
   }
 
 
   $path: BehaviorSubject<{}> = new BehaviorSubject({});
+  $load: AsyncSubject<never> = new AsyncSubject();
 
   stateSubject = new BehaviorSubject({
     States: {

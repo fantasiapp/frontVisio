@@ -1,6 +1,6 @@
 :host {
-    --filter-bar-width: 600px;
-    --filter-bar-max-width: 700px;
+    --filter-bar-width: 400px;
+    --filter-bar-max-width: 500px;
     --filter-bar-padding-y: 25px;
     --filter-bar-padding-x: 0;
     --filter-bar-elements-padding-x: 20px;
