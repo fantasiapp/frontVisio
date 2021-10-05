@@ -29,7 +29,6 @@ export class DataService {
       )
       .subscribe((data) => {
         this.response.next(data);
-        this.updateData(this.dataToUpdate)
       });
     return this.response;
   }

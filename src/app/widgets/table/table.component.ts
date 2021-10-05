@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
 @Component({
@@ -63,7 +63,8 @@ export class TableComponent extends BasicWidget {
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
-    checkboxCellRenderer: CheckboxCellRenderer,
+    checkboxP2cdCellRenderer: CheckboxP2cdCellRenderer,
+    checkboxEnduitCellRenderer: CheckboxEnduitCellRenderer,
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
@@ -155,9 +156,15 @@ export class TableComponent extends BasicWidget {
               break;
             
             case 'checkbox':
+              if(this.type === 'pcd') {
+                cd.cellRendererSelector = function (params: any) {
+                  if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                  return {component : 'checkboxP2cdCellRenderer'};
+                }
+              }
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return {component : 'checkboxCellRenderer'};;
+                return {component : 'checkboxEnduitCellRenderer'};
               }
 
               break;
@@ -254,10 +261,10 @@ export class TableComponent extends BasicWidget {
     };
   }
 
-  toggleRedistributed() {
-    this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
-    this.updateGraph(this.updateData());
-  }
+  // toggleRedistributed() {
+  //   this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
+  //   this.updateGraph(this.updateData());
+  // }
 
   externalFilterChanged(value: any) {
     if (hiddenGroups[value] === true) delete hiddenGroups[value];

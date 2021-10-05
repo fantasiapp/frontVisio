@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
+import { DataService } from 'src/app/services/data.service';
 
 @Component({
   selector: 'info-bar',
@@ -10,9 +11,6 @@ import { PDV } from 'src/app/middle/Slice&Dice';
 export class InfoBarComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
-
-  @ViewChild('comments', {static: false, read: ElementRef})
-  private comment?: ElementRef;
   
   @Input()
   set pdv(value: PDV | undefined) {
@@ -24,8 +22,6 @@ export class InfoBarComponent {
       let target = value!.getLightTarget();
       console.log(target);
       this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
-      if ( this.comment )
-        this.comment.nativeElement.value = value!.getCommentTarget() || "Non Ciblé";
     } 
   }
 
@@ -46,19 +42,22 @@ export class InfoBarComponent {
 
   TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
   TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
-
+  TARGET_VOLUME_ID = DataExtractionHelper.TARGET_VOLUME_ID;
+  TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
+  TARGET_LIGHT_ID = DataExtractionHelper.TARGET_LIGHT_ID;
 
   get pdv() {
     return this._pdv;
   }
 
   private _pdv: PDV | undefined;
+  redistributed?: boolean;
 
   getName(name: string) {
     return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
   }
 
-  constructor(private ref: ElementRef) {
+  constructor(private ref: ElementRef, private dataService: DataService) {
     console.log('[InfobarComponent]: On');
     this.products.splice(3, this.products.length, 'P2CD')
     this.grid = new Array(this.industries.length + 1);
@@ -94,4 +93,40 @@ export class InfoBarComponent {
     this.grid[0][3] += diff;
     return sum;
   }
+
+  changeRedistributed() {
+    this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
+    this.updatePdv(this._pdv!)
+  }
+
+  changeTargetP2CD(newTargetP2cd: string) { //PB : newValue isn't a number
+    this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = newTargetP2cd;
+    this.updatePdv(this._pdv!)
+  }
+
+  changeComment(newComment: string) { //PB : newValue isn't a number
+    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = newComment;
+    this.updatePdv(this._pdv!)
+  }
+
+  changeLight(newLightValue: string) {
+    this._pdv!.attribute('target')[this.TARGET_LIGHT_ID] = newLightValue
+    this.updatePdv(this._pdv!)
+  }
+
+  pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
+    let pdvAsList = []
+    for(let field of DataExtractionHelper.getPDVFields()) {
+      pdvAsList.push(pdv.attribute(field))
+    }
+    return pdvAsList;
+  }
+
+  updatePdv(pdv: PDV) { //Field that may be changed here : target.commentTargetP2CD, target.redistributed, target.greenLight, target.targetP2CD
+    let newPdv = this.pdvFromPDVToList(pdv);
+    console.log("[InfoBar] newPdv : ", newPdv)
+    this.dataService.updatePdv(newPdv);
+  }
+
+
 }
