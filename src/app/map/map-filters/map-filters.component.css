@@ -99,10 +99,10 @@
 }
 
 .criterion .name {
-    display: block;
     font-size: 1em;
     font-weight: 500;
     padding: 10px var(--filter-bar-elements-padding-x);
+    margin: 0;
     background: #F7F7F7;
     color: #151D21;
 }

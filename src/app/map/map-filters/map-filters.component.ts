@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import * as d3 from 'd3';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
 
 @Component({
   selector: 'map-filters',
@@ -14,29 +13,39 @@ export class MapFiltersComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
+  criteriaNames = ['segmentMarketing', 'segmentCommercial', 'enseigne', 'agent', 'dep', 'bassin'];
+  criteriaPrettyNames = ['Segment Marketing', 'Segment Commercial', 'Enseigne', 'Agent', 'Département', 'Bassin'];
+
   @Input()
-  pdvs: PDV[] = [];
-  path: any = {};
-  criteria: any[] = [
-    
-  ];
+  PDVNumber: number = 0;
 
   @Output()
-  pdvsChange = new EventEmitter<PDV[]>();
+  criteriaChange = new EventEmitter<any>();
 
-  constructor(private filtersService: FiltersStatesService) {
+  constructor(private ref: ElementRef) {
     console.log('[MapFiltersComponent]: On.');
-    filtersService.$path.subscribe(path => {
-      if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
-        this.path = path;
-        this.pdvs = PDV.sliceMap(path, this.criteria);
-        this.pdvsChange.emit(this.pdvs);
-      }
-    });
   }
 
-  updateCriteria() {
-    console.log('updating criteria');
+  trackById(index: number, couple: any) {
+    return couple[0];
+  }
+
+  trackByIndex(index: number, _: any) {
+    return index;
+  }
+
+  updateCriteria(index: number) {
+    let criteria = this.criteriaNames.reduce((acc: any[], item: string, idx: number) => {
+      let sel = d3.select(this.ref.nativeElement).selectAll('select').nodes()[idx] as any,
+        value = sel.value | 0, 
+        res = value ? [[item, value]] : [];
+      
+      return acc.concat(res);
+    }, []);
+
+    console.log(criteria);
+    this.criteriaChange.emit(criteria);
+    return criteria;
   }
 
   loadCriterion(criterion: string): [string, any][] {
