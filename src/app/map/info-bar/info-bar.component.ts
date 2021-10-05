@@ -99,9 +99,10 @@ export class InfoBarComponent {
     this.updatePdv(this._pdv!)
   }
 
-  changeTargetP2CD(newTargetP2cd: string) { //PB : newValue isn't a number
-    this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = newTargetP2cd;
+  changeTargetP2CD(newTargetP2cd: any) { //PB : newValue isn't a number
+    this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = +newTargetP2cd;
     this.updatePdv(this._pdv!)
+    console.log("this : ", this._pdv!.attribute('target'))
   }
 
   changeComment(newComment: string) { //PB : newValue isn't a number
