@@ -129,8 +129,8 @@ class DataExtractionHelper{
     this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
     this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
     this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboard'].indexOf('comment');
-    this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
-    this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetParam'].indexOf('widgetCompute');
+    this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetparams'].indexOf('widget');
+    this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetparams'].indexOf('widgetCompute');
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
     this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
     this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
@@ -270,6 +270,11 @@ class DataExtractionHelper{
   }
 
   static get(field: string){
+    //redirections:
+    if (field == 'structurePdvs') field = 'structurePdv';
+    if (field == 'indexesPdvs') field = 'indexesPdv';
+    if (field == 'structureWidgetparams') field = 'structureWidgetParam';
+    if (field == 'indexesWidgetparams') field = 'indexesWidgetParam';
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
