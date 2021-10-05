@@ -1,11 +1,12 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
 import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
 @Component({
   selector: 'app-table',
@@ -35,7 +36,10 @@ export class TableComponent extends BasicWidget {
   rowData: any;
   rowHeight?: number;
 
-  //Groups
+  //Side menus
+  pdv?: PDV;
+  redistributed?: boolean;
+  selectedPdv?: any;
 
   //Apis
   gridApi: any;
@@ -47,6 +51,7 @@ export class TableComponent extends BasicWidget {
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
+
       })
   }
   gridObservable = new Observable();
@@ -106,7 +111,6 @@ export class TableComponent extends BasicWidget {
   }
 
   updateTitle() {
-    console.log("Title update")
     let title = this.sliceTable.getTitleData();
     if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${(title[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
     if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.floor(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
@@ -165,7 +169,7 @@ export class TableComponent extends BasicWidget {
               }
               break;
             
-            case 'target':
+            case 'graph':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow ===  true) return "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
                 return params.value;
@@ -205,30 +209,23 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') this.showEditOnClick(event['data']);
-    if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
+    if(event['column']['colId'] === 'edit') {
+      this.pdv = this.sliceTable.getPdvInstance(event['data']);
+      this.selectedPdv = event['data'];
+    }
+    if(event['column']['colId'] === 'info') {
+      this.selectedPdv = event['data'];
+      this.showInfoOnClick(this.selectedPdv);
+      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] : this.redistributed = false;
+    }
+    
     if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
     }
-    console.log("Toggle ", event)
-    if(event['column']['colId'] === 'checkbox') this.updateTitle()
-  }
-
-  showEdit: boolean = false;
-  editData: any = {}
-  showEditOnClick(data: any = {}) {
-    if(this.showEdit) {this.showEdit = false; return}
-    this.showEdit = true;
-    this.editData = {
-      'name': data.name,
-      'agent': data.agent,
-      'segment': data.segmentMarketing,
-      'enseigne': data.enseigne,
-      'ensemble': data.ensemble,
-      'dep': data.dep,
-      'ville': data.ville,
-      'bassin': data.bassin,
+    if(event['column']['colId'] === 'checkbox') {
+      this.updateTitle()
+      this.sliceTable.updatePdv(event['data']) //sous cette forme ?
     }
   }
 
@@ -245,15 +242,19 @@ export class TableComponent extends BasicWidget {
       'segmentMarketing': data.segmentMarketing,
       'segmentCommercial': data.segmentCommercial,
       'nbVisits': data.nbVisits,
-      'siniatP2cdSales': Math.floor(data.target.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'placoP2cdSales': Math.floor(data.target.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'knaufP2cdSales': Math.floor(data.target.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalP2cdSales': Math.floor(data.target.p2cd['Siniat'].value + data.target.p2cd['Placo'].value + data.target.p2cd['Knauf'].value + data.target.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.floor(data.target.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'salsiEnduitSales': Math.floor(data.target.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'siniatP2cdSales': Math.floor(data.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'placoP2cdSales': Math.floor(data.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'knaufP2cdSales': Math.floor(data.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalP2cdSales': Math.floor(data.graph.p2cd['Siniat'].value + data.graph.p2cd['Placo'].value + data.graph.p2cd['Knauf'].value + data.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.floor(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'salsiEnduitSales': Math.floor(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'potential': Math.floor(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalEnduitSales': Math.floor(data.target.enduit['Pregy'].value + data.target.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalEnduitSales': Math.floor(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
     };
+  }
+
+  toggleRedistributed() {
+    this.sliceTable.updatePdv(this.selectedPdv, this.redistributed);
   }
 
   externalFilterChanged(value: any) {
@@ -274,7 +275,6 @@ export class TableComponent extends BasicWidget {
       return true;
     }
   }
-
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)

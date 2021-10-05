@@ -217,9 +217,9 @@ class DataWidget{
 }
 
 class Sale {
-  static INDUSTRY_ID_INDEX = 0;
-  static PRODUCT_ID_INDEX = 1;
-  static VOLUME_INDEX = 2;
+  static INDUSTRY_ID_INDEX = 1;
+  static PRODUCT_ID_INDEX = 2;
+  static VOLUME_INDEX = 3;
 
   constructor(private data: any[]){};
 
@@ -541,6 +541,11 @@ export class PDV{
   static sliceMap(slice: {[key:string]:number}, addConditions:[string, number][]){
     let pdvs = this.sliceTree(slice, true)[0];
     return PDV.reSlice(pdvs, addConditions);
+  }
+
+  static computeCiblage(slice: {[key:string]:number}){
+    let pdvs = this.sliceTree(slice, true)[0];
+    return pdvs.reduce((acc, pdv) => acc + pdv.targetP2cd, 0);
   }
 
   static heightOf(tree: Tree, label: string){
