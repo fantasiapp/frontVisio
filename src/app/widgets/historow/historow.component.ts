@@ -28,7 +28,7 @@ export class HistoRowComponent extends BasicWidget {
   ngOnInit() {
     super.ngOnInit();
     this.properties.description = [
-      ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
+      ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', 6]]], ['Multi Spécialistes', [['segmentMarketing', 7]]], ['Généralistes', [['segmentMarketing', 8]]], ['Autres', [['segmentMarketing', 9]]]
     ];
     this.rubixArgument = this.properties.description[0][1];
   }
