@@ -105,6 +105,11 @@ class DataExtractionHelper{
   static TARGET_FINITION_ID: number;
   static TARGET_LIGHT_ID: number;
   static TARGET_COMMENT_ID: number;
+  static TARGET_DATE_ID: number;
+  static TARGET_REDISTRIBUTED_ID: number;
+  static TARGET_ID: any;
+  static SALES_ID: any;
+
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -139,10 +144,14 @@ class DataExtractionHelper{
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
+    this.TARGET_ID = this.getKeyByValue(this.data['structurePdv'], 'target');
     this.TARGET_VOLUME_ID = this.data["structureTarget"].indexOf("targetP2CD");
     this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
     this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
+    this.TARGET_DATE_ID = this.data["structureTarget"].indexOf("date");
+    this.TARGET_REDISTRIBUTED_ID = this.data["structureTarget"].indexOf("redistributed");
+    this.SALES_ID = this.getKeyByValue(this.data['structurePdv'], 'sales');
 
     
     //trades have less info that geo
@@ -201,7 +210,7 @@ class DataExtractionHelper{
       }
       
       //Build trees !!! CUSTOM THIS
-      DataExtractionHelper.setData(this.data)
+      // DataExtractionHelper.setData(this.data)
   }
 
   static getPDVFields() {

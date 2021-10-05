@@ -19,10 +19,6 @@ export class SliceTable {
     private columnDefs: {[k: string]: any}[] = [];
 
     private idIndustries: {[key: string]: number} = {};
-    // private structureSales = DataExtractionHelper.get('structureSales')
-    // private keyIndustry = DataExtractionHelper.getKeyByValue(this.structureSales, 'industry')
-    // private keyProduct = DataExtractionHelper.getKeyByValue(this.structureSales, 'product')
-    // private keyVolume = DataExtractionHelper.getKeyByValue(this.structureSales, 'volume')
 
     static currentGroupField: string = "enseigne";
 
@@ -80,12 +76,12 @@ export class SliceTable {
 
     private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
         'siniatSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structurePdv'), 'sales') as any].filter((sale: number[]) => ([1,2,3]
+            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1]) && sale[2] === 1))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
         'totalSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structurePdv'), 'sales') as any].filter((sale: number[]) => ([1,2,3]
+            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1])))
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
@@ -132,10 +128,8 @@ export class SliceTable {
             return true; //should return what is inside the new div ?
         },
         'checkbox': (pdv: any) => {
-            let targetId = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'target')
-            if (pdv[targetId!] === null) return false; 
-            let targetFinitionId = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')
-            return pdv[targetId!][targetFinitionId!] === true; //Could be check by default ?
+            if (pdv[DataExtractionHelper.TARGET_ID] === null) return false; 
+            return pdv[DataExtractionHelper.TARGET_ID][DataExtractionHelper.TARGET_FINITION_ID] === true; //Could be check by default ?
         },
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
@@ -318,13 +312,13 @@ export class SliceTable {
             }
         } else {
             newTarget = pdv['target'];
-            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'date')!] = formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z";
-            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')!] = pdv.checkbox;
-            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] = redistributed;
+            newTarget[DataExtractionHelper.TARGET_DATE_ID] = formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z";
+            newTarget[DataExtractionHelper.TARGET_FINITION_ID] = pdv.checkbox;
+            newTarget[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = redistributed;
 
         }
 
-        newPdv[DataExtractionHelper.getPDVFields().findIndex((field: string) => field === 'target')] = newTarget;
+        newPdv[DataExtractionHelper.TARGET_ID] = newTarget;
         console.log("newPdv : ", newPdv)
         this.dataService.updatePdv(newPdv);
     }

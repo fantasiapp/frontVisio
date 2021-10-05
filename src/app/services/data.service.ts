@@ -29,14 +29,16 @@ export class DataService {
       )
       .subscribe((data) => {
         this.response.next(data);
+        this.updateData(this.dataToUpdate)
       });
     return this.response;
   }
 
   public requestUpdateData(): Observable<Object|null> {
-    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update"}})
+    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
     .subscribe((updatedData) => {
       this.response.next(updatedData);
+      this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}})
     });
     return this.response;
   }
@@ -52,9 +54,10 @@ export class DataService {
   }
 
   public updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}): Observable<Object|null> {
-    this.http.post(environment.backUrl + 'visioServer/data/', {'content': data}, {params : {"action" : "update"}})
-    .subscribe((updateReponse) => {
-      this.response.next(updateReponse)
+    this.http.post(environment.backUrl + 'visioServer/data/', data, {params : {"action" : "update"}})
+    .subscribe((updateResponse) => {
+      console.log("Response obtained : ", updateResponse)
+      this.response.next(updateResponse)
       DataExtractionHelper.updateData(data)
     });
     return this.response;
