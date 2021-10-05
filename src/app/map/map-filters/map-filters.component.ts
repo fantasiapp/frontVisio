@@ -46,7 +46,6 @@ export class MapFiltersComponent {
       return acc.concat(res);
     }, []);
 
-    console.log(criteria);
     this.criteriaChange.emit(criteria);
     return criteria;
   }

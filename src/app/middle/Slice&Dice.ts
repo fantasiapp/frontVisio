@@ -519,7 +519,7 @@ export class PDV{
       if (dnIndustries[i] > max){
         max = dnIndustries[i];
         iMax = i;
-      }
+      }    
     return DataExtractionHelper.getKeyByValue(industriesDict, industrieAxis[iMax]);
   }
 

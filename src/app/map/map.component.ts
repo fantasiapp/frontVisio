@@ -1,5 +1,5 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy } from '@angular/core';
-import { AsyncSubject } from 'rxjs';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { AsyncSubject, combineLatest } from 'rxjs';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { PDV } from '../middle/Slice&Dice';
 import { BasicWidget } from '../widgets/BasicWidget';
@@ -19,7 +19,8 @@ function randomColor() {
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css']
+  styleUrls: ['./map.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent implements AfterViewInit {
   @HostBinding('style.display')
@@ -48,15 +49,12 @@ export class MapComponent implements AfterViewInit {
   map?: google.maps.Map;
   ready: AsyncSubject<never> = new AsyncSubject<never>();
   path: any = {};
-  pdvs: PDV[]  = PDV.sliceMap(this.path, []);
+  pdvs: PDV[] = [];
   infowindow: any = {};
   markerTimeout: any = 0;
 
-  constructor(private filtersService: FiltersStatesService) {
-    let first = true;
-    filtersService.$path.subscribe(path => {
-      if ( first )
-        return first = false;
+  constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
+    combineLatest([filtersService.$path, this.ready]).subscribe(([path, _]) => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.pdvs = PDV.sliceMap(path, this._criteria);
@@ -184,6 +182,7 @@ export class MapComponent implements AfterViewInit {
 
   handleClick(pdv: PDV) {
     this.selectedPDV = pdv;
+    this.cd.detectChanges();
   }
 
   private addMarker(markerData: MarkerType): google.maps.Marker {
@@ -271,11 +270,13 @@ export class MapComponent implements AfterViewInit {
     
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
       let lat = pdv.attribute('latitude'),
-        lng = pdv.attribute('longitude');
+        lng = pdv.attribute('longitude'),
+        industrie = pdv.property('industrie'),
+        icon = MapComponent.icons[industrie] ? MapComponent.icons[industrie] : MapComponent.icons['default'];
       
       return {
         position: new google.maps.LatLng(lat, lng),
-        icon: MapComponent.icons[Math.random()*4|0],
+        icon,
         title: pdv.attribute('name'),
         pdv
       }
@@ -289,7 +290,7 @@ export class MapComponent implements AfterViewInit {
     this.displayMarkers();
   };
 
-  private static createSVGIcon(keys: any = {}) {
+  static createSVGIcon(keys: any = {}) {
     let {
       width = 30,
       height = 30,
@@ -310,9 +311,7 @@ export class MapComponent implements AfterViewInit {
     };
   };
 
-  static icons = ['#A61F7D', '#0056A6', '#67CFFE', '#888888'].map(color =>
-    MapComponent.createSVGIcon({fill: color})
-  );
+  static icons: any = {};
 
   static round(x: number, threshold: number = 0.5): number {
     let int = Math.floor(x),
@@ -322,3 +321,8 @@ export class MapComponent implements AfterViewInit {
     return int;
   };
 }
+
+Object.entries({1: '#A61F7D', 3: '#0056A6', 6: '#67CFFE'})
+  .reduce((acc: any, [key, color]) => {acc[key] = MapComponent.createSVGIcon({fill: color}); return acc;}, MapComponent.icons);
+
+MapComponent.icons['default'] = MapComponent.createSVGIcon({fill: '#888888'});
