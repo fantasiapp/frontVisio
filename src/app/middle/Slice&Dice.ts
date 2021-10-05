@@ -502,7 +502,7 @@ export class PDV{
     return newPdvs;
   }
 
-  private property(propertyName:string){
+  property(propertyName:string){
     if (propertyName == 'clientProspect') return this.clientProspect(true);
     if (propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
