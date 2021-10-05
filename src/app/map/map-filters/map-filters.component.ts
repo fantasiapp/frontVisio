@@ -62,7 +62,7 @@ export class MapFiltersComponent {
 
   someCriteriaChange(idx: number, criteria: any) {
     this.criteriaResult[idx] = criteria;
-    let result = this.criteriaResult.reduce((acc, el) => acc.concat(el), []);
+    let result = this.criteriaResult.reduce((acc: any[][], el: any[]) => acc.concat([el]), []);
     this.criteriaChange.emit(result);
   }
 
