@@ -44,6 +44,7 @@ import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, TargetCel
 import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
 import { MapFiltersComponent } from './map/map-filters/map-filters.component';
+import { MapSelectComponent } from './map/map-select/map-select.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { MapFiltersComponent } from './map/map-filters/map-filters.component';
     HistoColumnTargetComponent,
     HistocurveComponent,
     InfoBarComponent,
-    MapFiltersComponent
+    MapFiltersComponent,
+    MapSelectComponent
   ],
   imports: [
     BrowserModule,

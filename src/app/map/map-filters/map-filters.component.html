@@ -6,14 +6,8 @@
     <p class="total">Total: {{PDVNumber}}</p>
 
     <div class="criterion" *ngFor="let criteria of criteriaNames; let idx = index; trackBy: trackById">
-        <h6 class="name">{{ criteriaPrettyNames[idx] }}</h6>
-        <div class="class">
-            <select (change)="updateCriteria(idx)">
-                <option *ngFor="let entry of loadCriterion(criteria, path) | async; trackBy: trackById" [value]="entry[0]">
-                    {{entry[1]}}
-                </option>
-            </select>
-        </div>
+        <map-select [criterion]="criteria" [prettyCriterion]="criteriaPrettyNames[idx]" [criteria]="loadCriterion(criteria, path) | async" (criteriaChange)="someCriteriaChange(idx, $event)">
+        </map-select>
     </div>
     
 </div>
