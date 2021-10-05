@@ -70,7 +70,6 @@ ul, hr {
     height: 100%;
 }
 
-
 .nav ul {
     display: flex;
     flex-flow: row nowrap;
@@ -134,7 +133,7 @@ ul, hr {
 }
 
 .reference {
-    flex: 1;
+    flex-grow: 0;
     max-height: 40%;
     display: flex;
     flex-flow: row nowrap;
@@ -149,15 +148,12 @@ ul, hr {
     flex: 1;
     display: flex;
     flex-flow: column nowrap;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .main .reference, .main .content {
-    margin: auto 0;
-}
-
-.definition {
-    margin-bottom: var(--pdv-section-margin-y);
+    margin-top: 45px;
+    margin: 0;
 }
 
 .name {
@@ -184,7 +180,7 @@ ul, hr {
 }
 
 .definition ul li span {
-    font-weight: 500;
+    font-weight: 400;
 }
 
 span.bolder {
@@ -195,7 +191,7 @@ span.bolder {
 .definition {
     display: flex;
     flex-flow: column nowrap;
-    align-self: center;
+    align-self: flex-start;
 }
 
 .props {
@@ -204,7 +200,12 @@ span.bolder {
     flex-flow: column nowrap;
     justify-content: space-around;
     align-items: flex-end;
-    text-align: right;
+    text-align: left;
+}
+
+.props ul {
+    font-weight: 400;
+    width: 100%;
 }
 
 .props ul li {
@@ -216,6 +217,7 @@ span.bolder {
 }
 
 .comments {
+    margin-top: 65px;
     margin-bottom: var(--pdv-title-margin-y);
 }
 
@@ -240,11 +242,15 @@ span.bolder {
 
 h2 {
     margin: var(--pdv-title-margin-y) 0;
+    margin-bottom: 65px;
     font-size: 1.20em;
-    font-weight: 600;
-    align-self: center;
-    text-align: center;
+    font-weight: 300;
 }
+
+h2 .title {
+    font-weight: 400;
+}
+
 
 p {
     font-size: 0.9em;
@@ -254,7 +260,7 @@ p {
 .container-checkbox {
     display: block;
     position: relative;
-    padding-left: 0;
+    padding-left: 10px;
     cursor: pointer;
     user-select: none;
 }
@@ -274,6 +280,7 @@ p {
     height: 25px;
     width: 25px;
     background-color: #eee;
+    float: right;
 }
 
 /* On mouse-over, add a grey background color */
@@ -520,6 +527,7 @@ input[type=number] {
     width: 150px;
     height: 40px;
     text-align: center;
+    cursor: pointer;
     border-radius: 3px;
 }
 
