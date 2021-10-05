@@ -271,10 +271,10 @@ class DataExtractionHelper{
 
   static get(field: string){
     //redirections:
-    if (field == 'structurePdvs') field = 'structurePdv';
-    if (field == 'indexesPdvs') field = 'indexesPdv';
-    if (field == 'structureWidgetparams') field = 'structureWidgetParam';
-    if (field == 'indexesWidgetparams') field = 'indexesWidgetParam';
+    if (field == 'structurePdv') field = 'structurePdvs';
+    if (field == 'indexesPdv') field = 'indexesPdvs';
+    if (field == 'structureWidgetParam') field = 'structureWidgetparams';
+    if (field == 'indexesWidgetParam') field = 'indexesWidgetparams';
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
