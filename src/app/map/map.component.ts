@@ -3,7 +3,7 @@ import { AsyncSubject } from 'rxjs';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { PDV } from '../middle/Slice&Dice';
 import { BasicWidget } from '../widgets/BasicWidget';
-import { MapFiltersComponent } from './map-filters/map-filters.component';
+
 type MarkerType = {
   pdv: PDV;
   position: google.maps.LatLng;
@@ -53,12 +53,15 @@ export class MapComponent implements AfterViewInit {
   markerTimeout: any = 0;
 
   constructor(private filtersService: FiltersStatesService) {
+    let first = true;
     filtersService.$path.subscribe(path => {
+      if ( first )
+        return first = false;
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.pdvs = PDV.sliceMap(path, this._criteria);
         this.update();
-      }
+      } return true;
     }); this.initializeInfowindow();
   }
 
@@ -250,10 +253,8 @@ export class MapComponent implements AfterViewInit {
     variance[0] /= (markers.length - 1);
     variance[1] /= (markers.length - 1);
     let std = Math.sqrt(variance[0] + variance[1]);
-    let zoom = Math.round(10.017 - 1.143*std)-1;
+    let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
 
-    //console.log(std);
-    
     this.map!.setZoom(zoom || 13);
 
     this.map!.panTo(
@@ -312,4 +313,12 @@ export class MapComponent implements AfterViewInit {
   static icons = ['#A61F7D', '#0056A6', '#67CFFE', '#888888'].map(color =>
     MapComponent.createSVGIcon({fill: color})
   );
+
+  static round(x: number, threshold: number = 0.5): number {
+    let int = Math.floor(x),
+      frac = x - int;
+    if ( frac > threshold )
+      return int + 1;
+    return int;
+  };
 }
