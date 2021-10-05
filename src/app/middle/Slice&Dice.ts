@@ -497,9 +497,34 @@ export class PDV{
     if (conditions.length === 0) return pdvs;
     let newPdvs: PDV[] = [];
     for (let pdv of pdvs){
-      if (conditions.map(condition => pdv.attribute(condition[0]) == condition[1]).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
+      if (conditions.map(condition => pdv.property(condition[0]) == condition[1]).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
     }
     return newPdvs;
+  }
+
+  private property(propertyName:string){
+    if (propertyName = 'clientProspect') return this.clientProspect(true);
+    if (propertyName = 'industrie') return this.industriel();
+    if (propertyName = 'ciblage') return this.ciblage();
+    return this.attribute(propertyName);
+  }
+
+  industriel(){
+    let dnIndustries = this.getValue('dn', true) as number[],
+      industriesDict = DataExtractionHelper.get('industrie'),
+      max = 0,
+      iMax = 0;
+    let industriesAxis = Object.values(industriesDict);
+    for (let i = 0; i < dnIndustries.length; i++)
+      if (dnIndustries[i] > max){
+        max = dnIndustries[i];
+        iMax = i;
+      }
+    return DataExtractionHelper.getKeyByValue(industriesDict, industrieAxis[iMax]);
+  }
+
+  ciblage(){
+    return (this.targetP2cd > 0 && this.getLightTarget() !== 'r')
   }
 
   //La fonction est appelée une fois par widget, ça pourrait peut-être être optimisé tous les widgets d'un dashboard ont le même slice
@@ -538,7 +563,7 @@ export class PDV{
     return [pdvs, dictChildren];
   }
 
-  static sliceMap(slice: {[key:string]:number}, addConditions:[string, number][]){
+  static sliceMap(slice: {[key:string]:number}, addConditions:[string, any][]){
     let pdvs = this.sliceTree(slice, true)[0];
     return PDV.reSlice(pdvs, addConditions);
   }
@@ -577,11 +602,15 @@ export class PDV{
     return pdvs;
   }
 
-  clientProspect(){
+  clientProspect(index=false){
     let dnResult = this.getValue('dn', false, false, true) as number[],
-      clientProspectAxis = DataExtractionHelper.get('clientProspect');
+      clientProspectDict = DataExtractionHelper.get('clientProspect');
+    let clientProspectAxis = Object.values(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
-      if (dnResult[i] === 1) return clientProspectAxis[i];
+      if (dnResult[i] === 1){
+        let result = (index) ? DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i]): clientProspectAxis[i];
+        return result;
+      }
   }
 
   displayIndustrieSaleVolumes(){

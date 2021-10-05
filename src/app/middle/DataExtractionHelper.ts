@@ -77,6 +77,16 @@ const histoCurve = {
   2: "Histo"
 }
 
+const pointFeu = {
+  0: 'Non point Feu',
+  1: 'Point feu'
+}
+
+const ciblage = {
+  0: 'Non ciblé',
+  1: 'Ciblé'
+}
+
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -283,6 +293,8 @@ class DataExtractionHelper{
     if (field == "suiviAD") return suiviAD;
     if (field == "weeks") return weeks;
     if (field == "histo&curve") return histoCurve;    
+    if (field == 'ciblage') return ciblage;
+    if (field == 'pointFeu') return pointFeu;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 
