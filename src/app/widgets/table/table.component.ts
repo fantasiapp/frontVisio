@@ -216,7 +216,7 @@ export class TableComponent extends BasicWidget {
     if(event['column']['colId'] === 'info') {
       this.selectedPdv = event['data'];
       this.showInfoOnClick(this.selectedPdv);
-      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] : this.redistributed = false;
+      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
     }
     
     console.log("Data : ", event['data'], event)

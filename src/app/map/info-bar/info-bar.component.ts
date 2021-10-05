@@ -44,6 +44,10 @@ export class InfoBarComponent {
     'o': false
   };
 
+  TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
+  TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
+
+
   get pdv() {
     return this._pdv;
   }
