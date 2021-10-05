@@ -78,13 +78,13 @@ const histoCurve = {
 }
 
 const pointFeu = {
-  0: 'Non point Feu',
-  1: 'Point feu'
+  1: 'Non point Feu',
+  2: 'Point feu'
 }
 
 const ciblage = {
-  0: 'Non ciblé',
-  1: 'Ciblé'
+  1: 'Non ciblé',
+  2: 'Ciblé'
 }
 
 
