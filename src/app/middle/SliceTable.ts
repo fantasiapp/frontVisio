@@ -1,5 +1,5 @@
 import { DatePipe, formatDate } from "@angular/common";
-import { Injectable } from "@angular/core";
+import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
 import DataExtractionHelper from "./DataExtractionHelper";
 import { PDV } from "./Slice&Dice";
@@ -143,7 +143,7 @@ export class SliceTable {
         'instanceId': (pdv: any) => pdv.instanceId,
     }
 
-    constructor(private dataService: DataService){
+    constructor(private dataService: DataService, @Inject(LOCALE_ID) public locale: string){
         PDV.load(false);
         this.pdvFields = DataExtractionHelper.get('structurePdv');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
@@ -302,7 +302,7 @@ export class SliceTable {
         let newTarget;
         if(!pdv['target']) {
             newTarget = {
-                0:formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z",
+                0:formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', 'en-US'),
                 1:redistributed,
                 2:false,
                 3:0,
@@ -312,7 +312,7 @@ export class SliceTable {
             }
         } else {
             newTarget = pdv['target'];
-            newTarget[DataExtractionHelper.TARGET_DATE_ID] = formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z";
+            newTarget[DataExtractionHelper.TARGET_DATE_ID] = formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', this.locale);
             newTarget[DataExtractionHelper.TARGET_FINITION_ID] = pdv.checkbox;
             newTarget[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = redistributed;
 
