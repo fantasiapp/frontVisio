@@ -299,12 +299,8 @@ export class MapComponent implements AfterViewInit {
     return {
       url: 'data:image/svg+xml,' + encodeURIComponent(`
         <svg width='${width}' height='${height}' version='1.1' xmlns='http://www.w3.org/2000/svg'>
-          ${
-            keys.content ?
-              keys.content :
-            `<circle cy='10' cx='15' r='8' stroke='${circleStroke}' stroke-width='1' fill='${fill}'></circle>
-            <line x1='15' y1='18' x2='15' y2='30' stroke='${lineStroke}' stroke-width='${strokeWidth}'></line>`
-          }
+            <circle cy='10' cx='15' r='8' stroke='${circleStroke}' stroke-width='1' fill='${fill}'></circle>
+            <line x1='15' y1='18' x2='15' y2='30' stroke='${lineStroke}' stroke-width='${strokeWidth}'></line>
         </svg>
       `),
       scaledSize: new google.maps.Size(width, height)

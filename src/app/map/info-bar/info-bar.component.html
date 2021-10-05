@@ -1,4 +1,4 @@
-<button class="close" (click)="exit()">
+<button class="close" (click)="requestQuit()">
     <img src="assets/X.svg"/>
 </button>
 <div class="nav">
@@ -128,3 +128,14 @@
 
 <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
 <img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2" (click)="setPage(currentIndex + 1)"/>
+
+<div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
+    <div class="cover"></div>
+    <div class="quitbar">
+        <h1>Souhaitez-vous mettre à jour les modifications</h1>
+        <div class="button-container">
+            <button class="negative button" (click)="quit(false)">Non, merci</button>
+            <button class="positive button" (click)="quit(true)">Oui</button>
+        </div>
+    </div>
+</div>

@@ -12,6 +12,8 @@ export class InfoBarComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
+  quiting: boolean = false;
+
   @ViewChild('comments', {static: false, read: ElementRef})
   private comment?: ElementRef;
   
@@ -68,12 +70,18 @@ export class InfoBarComponent {
     return (this.pdv ? Object.entries(this.pdv.displayIndustrieSaleVolumes()) : []).filter(entry => entry[1] != 0);
   }
 
-  exit() {
+  quit(save: boolean) {
+    this.quiting = false;
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
       this.ref!.nativeElement.removeEventListener('transitionend', fn);
     });
     this.pdv = undefined;
+  }
+
+  requestQuit() {
+    //show the quit bar
+    this.quiting = true;
   }
 
   setPage(index: number) {

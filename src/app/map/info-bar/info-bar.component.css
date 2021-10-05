@@ -1,6 +1,6 @@
 :host {
     --info-bar-width: 50%;
-    --info-bar-max-width: 800px;
+    --info-bar-max-width: 700px;
     --info-bar-padding-y: 50px;
     --info-bar-padding-x: 40px;
     --info-bar-margin-y: 70px;
@@ -480,4 +480,55 @@ input[type=number] {
 
 .navigateRight {
     right: 5px;
+}
+
+.quitbar-container {
+    background: rgba(247, 247, 247, 0.5);
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.quitbar {
+    z-index: 99999;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 250px;
+    text-align: center;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0px 3px 6px #00000053;
+    
+    padding: 30px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.quitbar h1 {
+    margin-bottom: 50px;
+}
+
+.button {
+    border: none !important;
+    outline: none !important;
+    margin: 0 10px;
+    width: 150px;
+    height: 40px;
+    text-align: center;
+    border-radius: 3px;
+}
+
+.negative.button {
+    border: 1px solid #E07030 !important;
+    color: #e07030;
+}
+
+.positive.button {
+    background: #E07030;
+    color: white;
 }
