@@ -25,7 +25,6 @@ export class InfoBarComponent {
     this.pdvChange.emit(value);
     if ( value ) {
       let target = value!.getLightTarget();
-      console.log(target);
       this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
       if ( this.comment )
         this.comment.nativeElement.value = value!.getCommentTarget() || "Non Ciblé";
