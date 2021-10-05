@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
@@ -36,8 +38,8 @@ export class InfoBarComponent {
   pages: string[] = ['Référentiel', 'Ciblage', 'Saisie de l\'AD'];
   currentIndex: number = 0;
 
-  industries: string[] = (PDV.getIndustries() as string[]);
-  products: string[] = PDV.getProducts() as string[];
+  industries: string[] = [];//(PDV.getIndustries() as string[]);
+  products: string[] = [];//PDV.getProducts() as string[];
   grid: number[][] = [];
   targetClass: any = {
     'r': false,
@@ -62,12 +64,19 @@ export class InfoBarComponent {
     return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
   }
 
-  constructor(private ref: ElementRef, private dataService: DataService) {
+  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService) {
     console.log('[InfobarComponent]: On');
-    this.products.splice(3, this.products.length, 'P2CD')
-    this.grid = new Array(this.industries.length + 1);
-    for ( let i = 0; i < this.grid.length; i++ )
-      this.grid[i] = new Array(this.products.length).fill(0);
+    
+    filtersState.$load.subscribe(() => {
+      this.industries = PDV.getIndustries() as string[];
+      this.products = PDV.getProducts() as string[];
+      this.products.splice(3, this.products.length, 'P2CD')
+      this.grid = new Array(this.industries.length + 1);
+      for ( let i = 0; i < this.grid.length; i++ )
+        this.grid[i] = new Array(this.products.length).fill(0);
+    });
+
+    
   }
 
   //make variable
