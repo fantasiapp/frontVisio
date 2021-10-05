@@ -76,11 +76,7 @@
 
                 <div class="eval">
                     <ul>
-<<<<<<< HEAD
-                        <li><span class="bolder">Volume visé en m²: </span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget() || 0" type="text" disabled/></li>
-=======
                         <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget()" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD/></li>
->>>>>>> bd6579e279264b9221438e9f7038a5084ea9b0d2
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
                             <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'r' ? 'red' : 'lightgray'}" (click)="changeLight('r')"></div>
                             <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'o' ? 'orange' : 'lightgray'}" (click)="changeLight('o')"></div>
