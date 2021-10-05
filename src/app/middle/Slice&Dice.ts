@@ -517,7 +517,7 @@ export class PDV{
     let industriesList = Object.values(industriesDict);
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    return DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax]);
+    return parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
   }
 
   ciblage(){
@@ -605,7 +605,7 @@ export class PDV{
     let clientProspectAxis = Object.values(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
       if (dnResult[i] === 1){
-        let result = (index) ? DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i]): clientProspectAxis[i];
+        let result = (index) ? parseInt(DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i])!): clientProspectAxis[i];
         return result;
       }
   }
