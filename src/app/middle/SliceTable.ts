@@ -1,5 +1,5 @@
 import { DatePipe, formatDate } from "@angular/common";
-import { Injectable } from "@angular/core";
+import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
 import DataExtractionHelper from "./DataExtractionHelper";
 import { PDV } from "./Slice&Dice";
@@ -17,8 +17,11 @@ export class SliceTable {
     private segmentDnEnduit: {[id: number]: string} = {};
     private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
+
     private idIndustries: {[key: string]: number} = {};
-    
+
+    static currentGroupField: string = "enseigne";
+
     //type : 'p2cd' or 'enduit'
     private tableConfig : {[type: string]: {[property: string]: any}} = {
         'p2cd': {
@@ -53,7 +56,7 @@ export class SliceTable {
                 Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkbox && node.data.enseigne === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
+            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkbox && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
             'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkbox', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
@@ -73,14 +76,14 @@ export class SliceTable {
 
     private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
         'siniatSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structurePdv'), 'sales') as any].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[1]) && sale[0] === 1))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
+            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
+                .includes(sale[1]) && sale[2] === 1))
+                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
         'totalSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structurePdv'), 'sales') as any].filter((sale: number[]) => ([1,2,3]
+            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1])))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[2], 0);
+                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
         'graph': (pdv: any) => {
             let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
@@ -125,10 +128,8 @@ export class SliceTable {
             return true; //should return what is inside the new div ?
         },
         'checkbox': (pdv: any) => {
-            let targetId = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'target')
-            if (pdv[targetId!] === null) return false; 
-            let targetFinitionId = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')
-            return pdv[targetId!][targetFinitionId!] === true; //Could be check by default ?
+            if (pdv[DataExtractionHelper.TARGET_ID] === null) return false; 
+            return pdv[DataExtractionHelper.TARGET_ID][DataExtractionHelper.TARGET_FINITION_ID] === true; //Could be check by default ?
         },
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
@@ -142,7 +143,7 @@ export class SliceTable {
         'instanceId': (pdv: any) => pdv.instanceId,
     }
 
-    constructor(private dataService: DataService){
+    constructor(private dataService: DataService, @Inject(LOCALE_ID) public locale: string){
         PDV.load(false);
         this.pdvFields = DataExtractionHelper.get('structurePdv');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
@@ -171,14 +172,16 @@ export class SliceTable {
         this.pdvs = pdvs;
         let pdvsAsList =  [];
         for(let pdv of pdvs) {
-            var newPdv: {[key:string]:any} = {}; //concrete row of the table
-            for(let index = 0; index < Object.keys(this.getAllColumns(type)).length; index ++) {
-                let field = this.getAllColumns(type)[index]
-                if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
-                else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
-                else newPdv[field] = pdv[index]
+            if(pdv[DataExtractionHelper.SALE_ID] === true) {
+                var newPdv: {[key:string]:any} = {}; //concrete row of the table
+                for(let index = 0; index < Object.keys(this.getAllColumns(type)).length; index ++) {
+                    let field = this.getAllColumns(type)[index]
+                    if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
+                    else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
+                    else newPdv[field] = pdv[index]
+                }
+                pdvsAsList.push(newPdv);
             }
-            pdvsAsList.push(newPdv);
         }
         
         pdvsAsList.sort(this.tableConfig[type]['customSort'])
@@ -254,6 +257,7 @@ export class SliceTable {
     }
 
     buildGroups(groupField: string, type: string) {
+        SliceTable.currentGroupField = groupField;
         let pdvsByGroup = new Map<string, {}[]>();
         for(let pdv of this.sortedPdvsList){
             if(pdvsByGroup.get((pdv as any)[groupField]) === undefined) pdvsByGroup.set((pdv as any)[groupField], [pdv]);
@@ -277,10 +281,7 @@ export class SliceTable {
         }
         return 'black'
     }
-
-
-    private dataToUpdate: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []};
-    
+  
     pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
         let pdvAsList = []
         for(let field of DataExtractionHelper.getPDVFields()) {
@@ -301,40 +302,33 @@ export class SliceTable {
         let newTarget;
         if(!pdv['target']) {
             newTarget = {
-                0:formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z",
-                1:0,
-                2:redistributed,
-                3:false,
-                4:0,
-                5:pdv['checkbox'],
-                6:'g',
-                7:""
+                0:formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', 'en-US'),
+                1:redistributed,
+                2:false,
+                3:0,
+                4:pdv['checkbox'],
+                5:'g',
+                6:""
             }
         } else {
             newTarget = pdv['target'];
-            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'date')!] = formatDate(Date.now(), 'yyyy-MM-dd\THH:mm:ss', 'en-US') + "Z";
-            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'targetFinition')!] = pdv.checkbox;
-            newTarget[DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] = redistributed;
+            newTarget[DataExtractionHelper.TARGET_DATE_ID] = formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', this.locale);
+            newTarget[DataExtractionHelper.TARGET_FINITION_ID] = pdv.checkbox;
+            newTarget[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = redistributed;
 
         }
 
-        newPdv[DataExtractionHelper.getPDVFields().findIndex((field: string) => field === 'target')] = newTarget;
+        newPdv[DataExtractionHelper.TARGET_ID] = newTarget;
         console.log("newPdv : ", newPdv)
-        this.dataToUpdate.pdvs.push(newPdv);
-        this.sendUpdatedData(this.dataToUpdate);
+        this.dataService.updatePdv(newPdv);
     }
 
-    sendUpdatedData(data: any) {
-        this.dataService.updateData(data)
-        DataExtractionHelper.updateData(data)
-        this.dataToUpdate = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []};
-    }
 
-    updateData() {
-        this.dataService.requestUpdateData()
-        .subscribe((updatedData) => {
-            DataExtractionHelper.updateData(updatedData as {[field: string]: []})
-        })
-    }
+    // updateData() {
+    //     this.dataService.requestUpdateData()
+    //     .subscribe((updatedData) => {
+    //         DataExtractionHelper.updateData(updatedData as {[field: string]: []})
+    //     })
+    // }
 
 }

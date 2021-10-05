@@ -628,7 +628,7 @@ export class PDV{
   }
 
 
-  getVolumeTarget(){
+  getVolumeTarget() : number{
     let target = this.attribute('target');
     if (target == undefined) return 0;
     return target[DataExtractionHelper.TARGET_VOLUME_ID]

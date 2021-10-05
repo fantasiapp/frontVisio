@@ -28,7 +28,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkbox">`,
+    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkbox" hidden="params.data.clientProspect==='Client' || params.data.redistributd">`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -43,7 +43,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
       
       `]
   })
-  export class CheckboxCellRenderer extends DefaultCellRenderer {
+  export class CheckboxEnduitCellRenderer extends DefaultCellRenderer {
     params: any;
     constructor(private sliceTable: SliceTable) {
       super();
@@ -61,6 +61,40 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }
   }
   
+  @Component({
+    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkbox" hidden="params.data.redistributdEnduit">`,
+    styles:  [`:host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 25%;
+        left: 25%;
+        position: relative;
+      }
+      input {
+        transform: scale(1.3);
+      }
+      
+      `]
+  })
+  export class CheckboxP2cdCellRenderer extends DefaultCellRenderer {
+    params: any;
+    constructor(private sliceTable: SliceTable) {
+      super();
+    }
+    agInit(params: ICellRendererParams): void {
+      this.params = params;
+    }
+    checkedHandler(event: any) {
+      let checked = event.target.checked;
+      let colId = this.params.column.colId;
+      this.params.node.setDataValue(colId, checked);
+      
+      if(checked) this.sliceTable.updateTotalTarget(this.params.data.potential)
+      else this.sliceTable.updateTotalTarget(-this.params.data.potential)
+    }
+  }
+
   @Component({
     template: `<img *ngIf="show" src="assets/feu.svg">`,
     styles:  [`:host {

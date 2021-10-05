@@ -316,7 +316,6 @@ p {
     width: var(--eval-circle-size);
     height: var(--eval-circle-size);
     border-radius: 50%;
-    background: #aaa;
     box-shadow: -1px -1px 3px 0 #aaaa;
     display: inline-block;
     margin: 0 5px;

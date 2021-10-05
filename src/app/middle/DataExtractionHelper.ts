@@ -111,10 +111,17 @@ class DataExtractionHelper{
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
+  static TARGET_DATE_ID: number;
+  static TARGET_REDISTRIBUTED_ID: number;
+  static TARGET_SALE_ID: number;
   static TARGET_VOLUME_ID: number;
   static TARGET_FINITION_ID: number;
   static TARGET_LIGHT_ID: number;
-  static TARGET_COMMENT_ID: number;
+  static TARGET_COMMENT_ID: number
+  static TARGET_ID: any;
+  static SALES_ID: any;
+  static SALE_ID: any;
+
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -149,10 +156,16 @@ class DataExtractionHelper{
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
+    this.TARGET_ID = this.getKeyByValue(this.data['structurePdv'], 'target');
+    this.TARGET_DATE_ID = this.data["structureTarget"].indexOf("date");
+    this.TARGET_REDISTRIBUTED_ID = this.data["structureTarget"].indexOf("redistributed");
+    this.TARGET_SALE_ID = this.data["structureTarget"].indexOf("sale");
     this.TARGET_VOLUME_ID = this.data["structureTarget"].indexOf("targetP2CD");
     this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
     this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
+    this.SALES_ID = this.getKeyByValue(this.data['structurePdv'], 'sales');
+    this.SALE_ID = this.getKeyByValue(this.data['structurePdv'], 'sale');
 
     
     //trades have less info that geo
@@ -182,7 +195,7 @@ class DataExtractionHelper{
     TradeExtrationHelper.height = this.tradeHeight;
   }
 
-  static updateData(data: {[field: string]: []}) {
+  static updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
       console.log("Back updated, now update middle")
       // Check how deletions are managed 
@@ -200,7 +213,7 @@ class DataExtractionHelper{
       }
   //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
       for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
-        for(let [newTargetId, newTarget] of Object.entries(data[targetType])) {
+        for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
           for(let oldTargetId of Object.keys(this.data[targetType])) {
             if(newTargetId === oldTargetId) {
               this.data[targetType][newTargetId] = newTarget;
@@ -211,7 +224,8 @@ class DataExtractionHelper{
       }
       
       //Build trees !!! CUSTOM THIS
-      DataExtractionHelper.setData(this.data)
+      // DataExtractionHelper.setData(this.data)
+      PDV.load()
   }
 
   static getPDVFields() {
