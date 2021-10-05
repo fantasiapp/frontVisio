@@ -22,7 +22,7 @@
         {{ dashName }}
       </option>
     </select>
-  <img (click)="close()" src="assets/x icon.svg" class="close" />
+  <img style="cursor: pointer;" (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
     <div class="list-button" [style.column-count]="viewList.name.length > 12? '3' : '2'">
       <ng-container *ngFor="let levName of viewList.name; let idLev = index">

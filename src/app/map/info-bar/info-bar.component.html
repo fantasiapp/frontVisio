@@ -115,7 +115,7 @@
 </ng-container>
 
 
-<div *ngIf="currentIndex < 2" class="comments">
+<div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
     <span>Commentaires :</span>
     <textarea #comments></textarea>
 </div>

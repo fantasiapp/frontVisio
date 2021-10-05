@@ -17,6 +17,6 @@
     </div>
     
 </div>
-<div class="toggle" (click)="opened = !opened">
-    <img *ngIf="!opened" src="assets/list.svg"/>
+<div *ngIf="!opened" class="toggle" (click)="opened = !opened">
+    <img src="assets/list.svg"/>
 </div>

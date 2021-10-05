@@ -6,6 +6,7 @@ import { PDV } from 'src/app/middle/Slice&Dice';
   selector: 'info-bar',
   templateUrl: './info-bar.component.html',
   styleUrls: ['./info-bar.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InfoBarComponent {
   @HostBinding('class.opened')
