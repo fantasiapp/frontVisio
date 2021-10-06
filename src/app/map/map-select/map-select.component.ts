@@ -76,4 +76,18 @@ export class MapSelectComponent {
     
     this.emitSelection();
   }
+
+  private minHeight = 40; //height for title only
+  private contentPadding = 30;
+  private lineHeight = 30;
+  private dropped = false;
+
+  toggleDropdown(e: any) {
+    let el = this.ref.nativeElement;
+    this.dropped = !this.dropped;
+    if ( this.dropped ) {
+      el.style.height = (this.minHeight + this.contentPadding + this.lineHeight * (this.criteria ? this.criteria.length+1 : 1)) + 'px';
+    } else
+      el.style.height = this.minHeight + 'px';
+  }
 }
