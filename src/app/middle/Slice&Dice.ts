@@ -524,7 +524,7 @@ export class PDV{
   static countForFilter(pdvs:PDV[]){
     // Peut-être qu'il faudrait relier cette liste à ce que Majed fait
     let listAttributeToTest = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin']
-    let dictCounter: {[key:string]: {[key:number]:number}}= {};
+    let dictCounter: {[key:string]: {[key:string]:number}}= {};
     for (let attribute of listAttributeToTest)
       dictCounter[attribute] = {};
     for (let pdv of pdvs){
@@ -533,6 +533,8 @@ export class PDV{
         else dictCounter[attribute][pdv.property(attribute)] += 1;
       }
     }
+    for (let attribute of listAttributeToTest)
+      dictCounter[attribute]['total'] = Object.values(dictCounter[attribute]).reduce((acc, value) => acc + value, 0);
     return dictCounter
   }
 
