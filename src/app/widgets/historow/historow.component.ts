@@ -3,13 +3,12 @@ import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { SequentialSchedule } from '../Schedule';
 import bb, {bar, Chart} from 'billboard.js';
 
 
 @Component({
   selector: 'app-historow',
-  templateUrl: '../widget-template.html',
+  templateUrl: './historow.component.html',
   styleUrls: ['./historow.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -17,8 +16,21 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
+  private rubixArgument?: [string, number];
+
+  @ViewChild('description', {read: ElementRef})
+  protected description!: ElementRef;
+
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
+  }
+
+  ngOnInit() {
+    super.ngOnInit();
+    this.properties.description = [
+      ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
+    ];
+    this.rubixArgument = this.properties.description[0][1];
   }
 
   private axisPadding: number = 120;
@@ -32,7 +44,6 @@ export class HistoRowComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
 
-    console.log(this.properties);
     let self = this;
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     (window as any).chart = this.chart = bb.generate({
@@ -135,8 +146,13 @@ export class HistoRowComponent extends BasicWidget {
     });
   } 
 
-  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+  getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], true, false];
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], true, false, this.rubixArgument!];
+  }
+
+  updateCondition(e: Event) {
+    this.rubixArgument = this.properties.description[(e.target as any).value][1];
+    this.update();
   }
 }

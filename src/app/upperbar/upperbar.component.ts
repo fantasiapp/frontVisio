@@ -1,26 +1,27 @@
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { getGeoTree, getTradeTree, PDV } from '../middle/Slice&Dice';
+import { getGeoTree, getTradeTree } from '../middle/Slice&Dice';
 
 import {
   trigger,
   state,
   style,
-  animation,
   transition,
   animate
 } from '@angular/animations';
 import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
+import { combineLatest } from 'rxjs';
+import { BasicWidget } from '../widgets/BasicWidget';
+import { DataService } from '../services/data.service';
 
 
 @Component({
   selector: 'app-upperbar',
   templateUrl: './upperbar.component.html',
   styleUrls: ['./upperbar.component.css'],
-
   animations: [
     //here go animation triggers
     trigger('openClose', [
@@ -43,16 +44,21 @@ export class UpperbarComponent implements OnInit {
   searchDebounceId!: number;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
 
+  @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
+
   @ViewChild('map', {read: MapComponent, static: false})
-  private mapComponent?: MapComponent;
+  mapComponent?: MapComponent;
 
   isSearchOpen = new BehaviorSubject(false);
   constructor(
     private filtersState: FiltersStatesService,
     private authService: AuthService,
-    private sliceDice: SliceDice
+    private sliceDice: SliceDice,
+    private dataService: DataService,
+    private cd: ChangeDetectorRef
   ) {}
   shouldShowButtons = false;
+
   ngOnInit(): void {
     this.filtersState.filtersVisible.subscribe(
       (val) => (this.isFilterVisible = val)
@@ -80,12 +86,17 @@ export class UpperbarComponent implements OnInit {
     );
   }
 
-  showMap() {
-    this.mapComponent?.show();
-    this.mapComponent?.ready.subscribe(() => {
-      this.mapComponent!.setPDVs(
-        [...PDV.getInstances().values()]
-      )
-    });
+  toggleMap() {
+    if ( !this.mapComponent?.shown ) {
+      this.mapComponent!.show();
+      this.mapVisible.emit(true);
+    } else {
+      this.mapComponent?.hide();
+      this.mapVisible.emit(false);
+    }
+  }
+
+  updateData() {
+    this.dataService.requestUpdateData()
   }
 }

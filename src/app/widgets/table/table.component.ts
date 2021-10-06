@@ -1,12 +1,13 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, GroupNameCellRenderer, InfoCellRenderer, PotentialCellRenderer, GroupPotentialCellRenderer, VisitsCellRenderer, GroupTargetCellRenderer } from './renderers';
-import { ifStmt } from '@angular/compiler/src/output/output_ast';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 
 @Component({
   selector: 'app-table',
@@ -36,19 +37,22 @@ export class TableComponent extends BasicWidget {
   rowData: any;
   rowHeight?: number;
 
-  //Groups
-  groupDisplayType: any;
-  groupDefaultExpanded?: number;
+  //Side menus
+  pdv?: PDV;
+  redistributed?: boolean;
+  selectedPdv?: any;
 
   //Apis
   gridApi: any;
   columnApi: any;
   onGridReady = (params: any) => {
+    console.log("ready")
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
+
       })
   }
   gridObservable = new Observable();
@@ -59,19 +63,13 @@ export class TableComponent extends BasicWidget {
     'group-row': 'data.groupRow === true'
   }
   frameworkComponents = {
-    rowSalesCellRenderer: RowSalesCellRenderer,
-    groupSalesCellRenderer: GroupSalesCellRenderer,
     editCellRenderer: EditCellRenderer,
-    checkboxCellRenderer: CheckboxCellRenderer,
+    checkboxP2cdCellRenderer: CheckboxP2cdCellRenderer,
+    checkboxEnduitCellRenderer: CheckboxEnduitCellRenderer,
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
-    groupTargetCellRenderer: GroupTargetCellRenderer,
-    groupNameCellRenderer: GroupNameCellRenderer,
     infoCellRenderer: InfoCellRenderer,
-    potentialCellRenderer: PotentialCellRenderer,
-    groupPotentialCellRenderer: GroupPotentialCellRenderer,
-    visitsCellRenderer: VisitsCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -101,16 +99,26 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
     this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
-    if(this.type === 'p2cd') this.title = `PdV: ${data[3][0]} Siniat : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${data[3][0]} ciblé : ${data[3][1].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${data[3][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    this.updateTitle()
     this.pinnedRow = data[1][0]; //Hardest part
-    this.titleContainer!.nativeElement.innerText = this.title;
+    groupInfos = data[3][0];
+    hiddenGroups = {}
   }
 
   updateGroups(id: string) {
     this.currentOpt = id;
     this.gridApi.setRowData(this.sliceTable.buildGroups(id, this.type))
+    groupInfos = this.sliceTable.groupInfos;
+    hiddenGroups = {}
   }
+
+  updateTitle() {
+    let title = this.sliceTable.getTitleData();
+    if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${(title[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.floor(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    this.titleContainer!.nativeElement.innerText = this.title
+  }
+
 
   createGraph(data: any[], opt?: {}): void {
     throw new Error('Method not implemented.');
@@ -121,23 +129,23 @@ export class TableComponent extends BasicWidget {
         for(let cd of data){
           switch (cd.field) {
             case 'name':
-              cd.cellRendererSelector = function (params: any) {
-                const groupNameDetails = {component : 'groupNameCellRenderer'};
-                if(params.data.groupRow === true) return groupNameDetails;
-                return;
+
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow) return params.value['name'] + ' PdV : ' + params.value['number']
+                return params.value;
               }
               break;
             case 'siniatSales':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params: {text: "Siniat : "}};
-                else return {component: 'rowSalesCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Siniat : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
             case 'totalSales':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupSalesCellRenderer', params : {text: "Identifie : "}};
-                else return {component: 'rowSalesCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Identifie : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                else return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
@@ -148,10 +156,18 @@ export class TableComponent extends BasicWidget {
               }
               break;
             
-            case 'checkbox':
+            case 'checkboxP2cd':
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return {component : 'checkboxCellRenderer'};;
+                return {component : 'checkboxP2cdCellRenderer'};
+              }
+
+              break;
+
+            case 'checkboxEnduit':
+              cd.cellRendererSelector = function (params: any) {
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                return {component : 'checkboxEnduitCellRenderer'};
               }
 
               break;
@@ -163,10 +179,14 @@ export class TableComponent extends BasicWidget {
               }
               break;
             
-            case 'target':
+            case 'graph':
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow ===  true) return "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
+                return params.value;
+              }
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupTargetCellRenderer'}
-                return {component: 'targetCellRenderer'};
+                if(params.data.groupRow !== true) return {component: 'targetCellRenderer'};
+                return;
               }
               break;
             
@@ -178,15 +198,15 @@ export class TableComponent extends BasicWidget {
               break;
             
             case 'potential':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'groupPotentialCellRenderer'}
-                return {component : 'potentialCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
+                return Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
               }
               break;
             case 'nbVisits':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return {component : 'visitsCellRenderer'};
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return;
+                return params.value + ' V'
               }
               break;
 
@@ -199,25 +219,25 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') this.showEditOnClick(event['data']);
-    if(event['column']['colId'] === 'info') this.showInfoOnClick(event['data']);
-    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
-  }
-
-  showEdit: boolean = false;
-  editData: any = {}
-  showEditOnClick(data: any = {}) {
-    if(this.showEdit) {this.showEdit = false; return}
-    this.showEdit = true;
-    this.editData = {
-      'name': data.name,
-      'agent': data.agent,
-      'segment': data.segmentMarketing,
-      'enseigne': data.enseigne,
-      'ensemble': data.ensemble,
-      'dep': data.dep,
-      'ville': data.ville,
-      'bassin': data.bassin,
+    if(event['column']['colId'] === 'edit') {
+      this.pdv = this.sliceTable.getPdvInstance(event['data'])
+      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+      InfoBarComponent.pdvId = event['data'].instanceId;
+      this.selectedPdv = event['data'];
+    }
+    if(event['column']['colId'] === 'info') {
+      this.selectedPdv = event['data'];
+      this.showInfoOnClick(this.selectedPdv);
+      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
+    }
+    
+    console.log("Data : ", event['data'], event)
+    
+    if(event['data'].groupRow === true) {
+      this.externalFilterChanged(event['data'].name.name)
+    }
+    if(event['column']['colId'] === 'checkboxEnduit') {
+      this.updateTitle()
     }
   }
 
@@ -234,15 +254,42 @@ export class TableComponent extends BasicWidget {
       'segmentMarketing': data.segmentMarketing,
       'segmentCommercial': data.segmentCommercial,
       'nbVisits': data.nbVisits,
-      'siniatP2cdSales': Math.floor(data.target.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'placoP2cdSales': Math.floor(data.target.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'knaufP2cdSales': Math.floor(data.target.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalP2cdSales': Math.floor(data.target.p2cd['Siniat'].value + data.target.p2cd['Placo'].value + data.target.p2cd['Knauf'].value + data.target.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.floor(data.target.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'salsiEnduitSales': Math.floor(data.target.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'siniatP2cdSales': Math.floor(data.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'placoP2cdSales': Math.floor(data.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'knaufP2cdSales': Math.floor(data.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalP2cdSales': Math.floor(data.graph.p2cd['Siniat'].value + data.graph.p2cd['Placo'].value + data.graph.p2cd['Knauf'].value + data.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.floor(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'salsiEnduitSales': Math.floor(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'potential': Math.floor(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalEnduitSales': Math.floor(data.target.enduit['Pregy'].value + data.target.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalEnduitSales': Math.floor(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
     };
   }
 
+  // toggleRedistributed() {
+  //   this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
+  //   this.updateGraph(this.updateData());
+  // }
+
+  externalFilterChanged(value: any) {
+    if (hiddenGroups[value] === true) delete hiddenGroups[value];
+    else hiddenGroups[value] = true;
+    this.gridApi.onFilterChanged();
+  }
+
+  isExternalFilterPresent() {
+    return Object.keys(hiddenGroups).length > 0
+  }
+
+  doesExternalFilterPass(node: any) {
+    if(node.data.groupRow == true) return true;
+    try {
+      return !hiddenGroups[node.data[groupInfos.field]] === true;
+    } catch {
+      return true;
+    }
+  }
 }
+
+//for an unknown reason, only works if this variables are outside the class (next time, try them as public)
+var hiddenGroups: {[field: string]: boolean} = {};
+var groupInfos: {field: string, values: string[]} = {field : '', values: []};

@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
@@ -18,9 +19,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
-  @ViewChild('validateTargetControl', {read: ElementRef})
-  protected validateTargetControl!: ElementRef;
-
   private transitionDuration = 250;
   private needles?: d3Selection;
   private barHeights: number[] = [];
@@ -29,7 +27,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private offsetY: number = 0;
   private marginX: number = 0;
   private barWidth: number = 0;
-  private inputIsOpen: boolean = false;
+  inputIsOpen: boolean = false;
+  private data?: any;
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -62,7 +61,10 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .attr('value', 0)
+        .attr('value', (d) => +DataExtractionHelper.get("targetLevelDrv")[Object.keys(DataExtractionHelper.get('drv'))[d]][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTargetLevelDrv'), this.data.updateTargetName)!])
+        // .attr('value', (d) => d)
+        .attr('type', 'number')
+        .on('change', (event) => {console.log("change : ", event.target.value), this.changeValue(event.target.value, event.target.__data__, event)})
         .style('width', (this.barWidth.toFixed(1)) + 'px')
         .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px');
       return container;
@@ -70,13 +72,16 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   createGraph(data: any) {
     let self = this;
+    this.data = data;
+    console.log("data : ", data)
     super.createGraph(data, {
       onresized: () => {
         this.renderTargetContainer({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
+        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
         self.chart = this;
-        (<any>window).chart = this;
         self.renderTargetContainer(data);
       },
       transition: {
@@ -158,8 +163,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   toggleTargetControl() {
     this.inputIsOpen = !this.inputIsOpen;
-    this.openTargetControl!.nativeElement.innerText = 
-      this.inputIsOpen ? '❌' : '✏️';
     
     let self = this;
     let container = d3.select(this.content.nativeElement)
@@ -168,15 +171,16 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     //make target control just in case
     this.renderTargetControl()
       .classed('target-control-opened', this.inputIsOpen);
-    
-    d3.select(this.validateTargetControl!.nativeElement)
-      .classed('target-control-opened', this.inputIsOpen);
-
   }
 
   doTargetControl() {
     console.log('[HistoRowTargetComponent]: Target control validated:\nRespect+.');
     //close
     this.toggleTargetControl();
+  }
+
+  changeValue(newValue :number, inputId: number, fullEvent: any) {
+    this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
+    this.updateGraph(this.data)
   }
 }

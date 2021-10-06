@@ -32,12 +32,13 @@ export class PieTargetComponent extends SimplePieComponent {
         onover: () => {
           //check if needle is over the slice 
           this.getNeedleGroup()
-            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.03)`);
+            .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.05)`);
         },
         onout: () => {
           this.getNeedleGroup()
             .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1)`);
-        }
+        },
+        order: null
       },
       onresized: () => {
         this.createNeedle({data: null, target: this.needleRotate})
@@ -75,7 +76,7 @@ export class PieTargetComponent extends SimplePieComponent {
       .classed('simple-needle', true)
       .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px)`)
       .append('line')
-      .style('transform', `rotate(${this.needleRotate }deg)`)
+      .style('transform', `rotate(${this.needleRotate}deg)`)
       .attr('x1', 0)
       .attr('y1', 2 - radius)
       .attr('x2', 0)
@@ -84,7 +85,7 @@ export class PieTargetComponent extends SimplePieComponent {
 
   // 🛑 this is the mission of the middle 🛑
   computeNeedlePosition(data: any): number {
-    return data ? data.target : this.needleRotate;
+    return (data ? data.target : this.needleRotate)+90;
   }
 
   updateGraph(data: any[]) {

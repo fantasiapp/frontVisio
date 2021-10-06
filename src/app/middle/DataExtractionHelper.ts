@@ -1,3 +1,6 @@
+import { PDV } from "./Slice&Dice";
+import {Node} from "./Node"
+
 const paramsCompute = {
   growthConquestLimit: 0.1,
   theoricalRatioEnduit: 0.360,
@@ -72,6 +75,30 @@ const histoCurve = {
   2: "Histo"
 }
 
+const pointFeuFilter = {
+  1: 'Non point Feu',
+  2: 'Point feu'
+}
+
+const ciblage = {
+  1: 'Non ciblé',
+  2: 'Ciblé'
+}
+
+const industriel = {
+  1: "Siniat",
+  2: "Placo",
+  3: "Knauf",
+  4: "Autres"
+}
+
+const segmentMarketingFilter = {
+  "1": "Purs Spécialistes",
+  "2": "Multi Spécialistes",
+  "3": "Généralistes",
+  "4": "Non documenté"
+}
+
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -91,9 +118,22 @@ class DataExtractionHelper{
   static INDUSTRIE_SALSI_ID: any;
   static INDUSTRIE_PREGY_ID: any;
   static INDUSTRIE_SINIAT_ID: any;
+  static INDUSTRIE_KNAUF_ID: any;
+  static INDUSTRIE_PLACO_ID: any;
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
+  static TARGET_DATE_ID: number;
+  static TARGET_REDISTRIBUTED_ID: number;
+  static TARGET_SALE_ID: number;
+  static TARGET_VOLUME_ID: number;
+  static TARGET_FINITION_ID: number;
+  static TARGET_LIGHT_ID: number;
+  static TARGET_COMMENT_ID: number
+  static TARGET_ID: any;
+  static SALES_ID: any;
+  static SALE_ID: any;
+
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -102,7 +142,8 @@ class DataExtractionHelper{
 
   static geoHeight: number;
   static tradeHeight: number;
-  
+
+
   static setData(d: any){
     this.data = d;
     console.log("[DataExtractionHelper] this.data : ", this.data)
@@ -113,18 +154,30 @@ class DataExtractionHelper{
     this.DASHBOARD_INDEX = structure.indexOf('listDashBoards');
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
     this.LAYOUT_TEMPLATE_INDEX = this.data['structureLayout'].indexOf('template');
-    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
-    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
-    this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
-    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboard'].indexOf('comment');
-    this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetParam'].indexOf('widget');
-    this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetParam'].indexOf('widgetCompute');
+    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboards'].indexOf('layout');
+    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboards'].indexOf('widgetParams');
+    this.DASHBOARD_NAME_INDEX = this.data['structureDashboards'].indexOf('name');
+    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboards'].indexOf('comment');
+    this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetparams'].indexOf('widget');
+    this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetparams'].indexOf('widgetCompute');
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
     this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.data['industrie'], 'Pregy');
     this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.data['industrie'], 'Siniat');
+    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.data['industrie'], 'Knauf');
+    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.data['industrie'], 'Placo');
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
+    this.TARGET_ID = this.getKeyByValue(this.data['structurePdvs'], 'target');
+    this.TARGET_DATE_ID = this.data["structureTarget"].indexOf("date");
+    this.TARGET_REDISTRIBUTED_ID = this.data["structureTarget"].indexOf("redistributed");
+    this.TARGET_SALE_ID = this.data["structureTarget"].indexOf("sale");
+    this.TARGET_VOLUME_ID = this.data["structureTarget"].indexOf("targetP2CD");
+    this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
+    this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
+    this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
+    this.SALES_ID = this.getKeyByValue(this.data['structurePdvs'], 'sales');
+    this.SALE_ID = this.getKeyByValue(this.data['structurePdvs'], 'sale');
 
     
     //trades have less info that geo
@@ -154,6 +207,43 @@ class DataExtractionHelper{
     TradeExtrationHelper.height = this.tradeHeight;
   }
 
+  static updateData(data: {'targetLevelAgentP2CD': {[id: number]: number[]}, 'targetLevelAgentFinition': {[id: number]: number[]}, 'targetLevelDrv': {[id: number]: number[]}, 'pdvs': {[id: number]: any}}) {
+    // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
+      console.log("Back updated, now update middle")
+      // Check how deletions are managed 
+
+
+      //update this.pdv
+      let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
+      for(let newPdv of Object.values(data.pdvs)) {
+        for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
+          if((oldPdv as any)[idCode] === newPdv[idCode]) {
+            this.data.pdvs[oldPdvId] = newPdv;
+            break;
+          }
+        }
+      }
+  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
+      for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
+        for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
+          for(let oldTargetId of Object.keys(this.data[targetType])) {
+            if(newTargetId === oldTargetId) {
+              this.data[targetType][newTargetId] = newTarget;
+              break;
+            }
+          }
+        }
+      }
+      
+      //Build trees !!! CUSTOM THIS
+      DataExtractionHelper.setData(this.data)
+      PDV.load()
+  }
+
+  static getPDVFields() {
+    return DataExtractionHelper.get('structurePdv');
+  }
+
   static getGeoLevel(height: number){
     if (height >= this.geoLevels.length || height < 0)
       throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
@@ -165,9 +255,8 @@ class DataExtractionHelper{
   }
   
   static getGeoLevelName(height: number, id: number): string{
-    // if (height == 0) return 'France';
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
-    if (name === undefined) throw `No level with id=${id}`;
+    if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
     return name;
   }
 
@@ -185,7 +274,7 @@ class DataExtractionHelper{
     // HARDCODE
     if ( height == 0 ) return '';
     let name = this.data[this.getTradeLevel(height)[this.LABEL_INDEX]][id];
-    if (name === undefined) throw `No level with id=${id}`;
+    if (name === undefined) throw `No trade level with id=${id} at height=${height}`;
     return name;
   }
 
@@ -216,12 +305,14 @@ class DataExtractionHelper{
     return DataExtractionHelper.get(field)[id];
   }
 
-  // a enlever, normalement on peut utiliser le get pour ça
-  static getPDVFields(){
-    return this.data['structurePdv'];
-  }
-
   static get(field: string){
+    //redirections:
+    if (field == 'structurePdv') field = 'structurePdvs';
+    if (field == 'indexesPdv') field = 'indexesPdvs';
+    if (field == 'structureWidgetParam') field = 'structureWidgetparams';
+    if (field == 'indexesWidgetParam') field = 'indexesWidgetparams';
+    if (field == 'structureDashboard') field = 'structureDashboards';
+    if (field == 'indexesDashboard') field = 'indexesDashboards';
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
@@ -230,6 +321,10 @@ class DataExtractionHelper{
     if (field == "suiviAD") return suiviAD;
     if (field == "weeks") return weeks;
     if (field == "histo&curve") return histoCurve;    
+    if (field == 'ciblage') return ciblage;
+    if (field == 'pointFeuFilter') return pointFeuFilter;
+    if (field == 'industriel') return industriel;
+    if (field == 'segmentMarketingFilter') return segmentMarketingFilter;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 
@@ -243,45 +338,91 @@ class DataExtractionHelper{
 
   static getKeyByValue(object:any, value:any) {
     return Object.keys(object).find(key => object[key] === value);
-  }
+  }                          
 
-  // à terme il vaudrait mieux restructurer ce que renvoie le back
-  static findGoodTarget(level:string, id:number){
-    if (level = "Région"){
-      let indexIdDrv:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf('drv');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelDrv");
-      for (let target of Object.values(targets))
-        if (target[indexIdDrv] == id) return target;
-    };
-    if (level = "Secteur"){
-      let indexIdAgent:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf('agent');
-      let targets:{[key:number]: number[]} = DataExtractionHelper.get("targetLevelAgentP2CD");
-      for (let target of Object.values(targets))
-        if (target[indexIdAgent] == id) return target;
-    };
-    return
-  }
-
-  static getTarget(level='national', id:number, targetName:string){
+  static getTarget(level='national', id:number, targetType:string){
     if (level == 'Secteur'){
-      let targetId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetName);
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+      if (targetType == 'volFinition'){
+        let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentFinition").indexOf(targetType);
+        return DataExtractionHelper.get("targetLevelAgentFinition")[id][targetTypeId];
+      }
+      let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetType);
+      return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
     }
-    let targetId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetName);
-    if (level == 'Région'){
-      let target = DataExtractionHelper.findGoodTarget(level, id) as number[];
-      return target[targetId];
+    let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetType);
+    if (level == 'Région') return DataExtractionHelper.get("targetLevelDrv")[id][targetTypeId];
+    if (level == 'nationalByAgent'){
+      let agentTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelAgentP2CD")); //mettre la version enduit après
+      let target = 0;
+      for (let agentTarget of agentTargets)
+      target += agentTarget[targetTypeId];
+    return target;
     }
     let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
     let target = 0;
     for (let drvTarget of drvTargets)
-      target += drvTarget[targetId];
+      target += drvTarget[targetTypeId];
     return target;
   }
 
   static getListTarget(ids: number[], targetName:string){
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
+  }
+
+  static computeDescription(slice:any, description:string[]){
+    let descriptionCopy = description.slice();
+    if (descriptionCopy.length == 1) return descriptionCopy[0];
+    for (let i = 0; i < descriptionCopy.length; i++){
+      if (descriptionCopy[i] == '') continue;
+      if (descriptionCopy[i][0] == '@') descriptionCopy[i] = DataExtractionHelper.treatDescIndicator(slice, descriptionCopy[i]) as string;
+    }
+    return descriptionCopy.reduce((str:string, acc: string) => str + acc, "");
+  }
+
+  // à faire
+  static treatDescIndicator(slice:any, str:string):string{
+    if (str == "@ciblageP2CD") return PDV.computeCiblage(slice);
+    if (str == "@ciblageEnduit") return PDV.computeCiblage(slice, true);
+    if (str == '@DRV') return DataExtractionHelper.getObjectifDrv(slice);
+    if (str == "@objectifP2CD") return DataExtractionHelper.getObjectif(slice);
+    if (str == "@objectifEnduit") return DataExtractionHelper.getObjectif(slice, true);
+    if (str == "@objectifSiege") return DataExtractionHelper.getObjectifSiege(slice);
+    return "";
+  }
+
+  static getObjectif(slice:any, enduit = false){
+    if (enduit){
+      if (Object.keys(slice).length == 0) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volFinition')/1000).toString(), ' T, ');
+      let listSlice = Object.entries(slice) as [string, number][];
+      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
+      return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'volFinition')/1000).toString(), ' T, ');
+    }      
+    if (Object.keys(slice).length == 0) return "";
+    let listSlice = Object.entries(slice) as [string, number][];
+    let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
+    if (relevantLevel[0] == 'Région') return "";    
+    return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'volP2CD')/1000).toString(), ' km², ');
+  }
+
+  static getObjectifDrv(slice:any){
+    if (Object.keys(slice).length == 0) return 'DRV: '.concat(Math.round(DataExtractionHelper.getTarget('nationalByAgent', 0, 'volP2CD')/1000).toString(), ' km², ');
+    let listSlice = Object.entries(slice) as [string, number][];
+    let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
+    if (relevantLevel[0] == 'Région'){
+      let hight = PDV.geoTree.attributes['labels'].indexOf('Région');
+      let drvNode = PDV.geoTree.getNodesAtHeight(hight).filter(node => node.id == relevantLevel[1])[0];
+      let agentNodes = drvNode.children;
+      return 'DRV: '.concat(Math.round(agentNodes.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, 'volP2CD')).reduce((acc:number, value:number) => acc + value, 0)/1000).toString(), ' km², ');
+    }
+    return "";
+  }
+
+  static getObjectifSiege(slice:any):string{
+    if (Object.keys(slice).length == 0) return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volP2CD')/1000).toString(), ' km², ');
+    let listSlice = Object.entries(slice) as [string, number][];
+    let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
+    if (relevantLevel[0] == 'Région') return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'volP2CD')/1000).toString(), ' km², ');  
+    return "";  
   }
 };
 

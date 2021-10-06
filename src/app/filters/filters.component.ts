@@ -64,7 +64,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
       this.selectedDashboardName = currentStates.States.dashboard.name;
     });
     this.viewList =
-    this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
+      this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
   private blockToShow(list: listDash | listLev) {}
 
@@ -78,7 +78,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
   showSuper(level?: lev, levels?: listLev) {
     this.filtersState.updateState(undefined, undefined, true);
     this.viewList =
-    this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
+      this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
 
   updateState(

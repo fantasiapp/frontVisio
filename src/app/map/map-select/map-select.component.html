@@ -1,0 +1,20 @@
+<ng-container *ngIf="criteria">
+    <h6 class="name" (click)="toggleDropdown($event)">{{ prettyCriterion }}</h6>
+    <div class="container">
+        <div>
+            <label class="checkboxed">
+                <span class="option">Tous</span>
+                <input type="checkbox" (click)="totalClicked($event)" [checked]="all">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+
+        <div *ngFor="let entry of criteria; let idx = index; trackBy: trackById">
+            <label class="checkboxed">
+                <span class="option">{{ entry[1] }}</span><span class="count">{{entry[2]}}</span>
+                <input type="checkbox" (click)="criterionClicked($event, idx)">
+                <span class="checkmark" ></span>
+            </label>
+        </div>
+    </div>
+</ng-container>

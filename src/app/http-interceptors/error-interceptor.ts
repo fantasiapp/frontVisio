@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse } from "@angular/common/http";
-import { Observable, throwError } from "rxjs";
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse, HttpResponse } from "@angular/common/http";
+import { Observable, of, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { AuthService } from "../connection/auth.service";
 
@@ -12,6 +12,12 @@ export class ErrorInterceptor implements HttpInterceptor{
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
+            
+            // if(req.urlWithParams.includes("action=update")) {
+            //   console.log("Update intercepted in Error Interceptor : ", req)
+            //   return of(new HttpResponse<any>());
+            // }
+
             return next.handle(req).pipe(
                 catchError((error: HttpErrorResponse) => {
                   let errorMsg = '';

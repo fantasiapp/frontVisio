@@ -33,7 +33,8 @@ export class SimplePieComponent extends BasicWidget {
       bindto: this.content.nativeElement,
       data: {
         columns: data,
-        type: pie()
+        type: pie(),
+        order: null
       },
       tooltip: {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {

@@ -3,8 +3,8 @@
   column-gap: 20px;
   row-gap: 20px;
   /* tune this */
-  margin: 150px 5% 0;
-  height: calc(100% - 200px);
+  margin: 175px 5% 0;
+  height: calc(100% - 190px);
   font-size: 20px;
 }
 
@@ -38,6 +38,7 @@
   overflow: hidden;
   position: relative;
   font-size: inherit;
+  user-select: none;
 }
 
 :host::ng-deep * .props h2 {
@@ -48,7 +49,7 @@
   font-weight: 500;
   padding: 0 25px;
   border-bottom: 1px solid #707070;
-  color: #DC6206;
+  color: #151d21;
 }
 
 :host::ng-deep * .props p {

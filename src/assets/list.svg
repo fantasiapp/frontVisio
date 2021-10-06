@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="27.044" height="20.855" viewBox="0 0 27.044 20.855">
+  <g id="Group_17510" data-name="Group 17510" transform="translate(-1287 -19)">
+    <g id="Group_17509" data-name="Group 17509" transform="translate(1287 19)">
+      <g id="noun_List_2044518" transform="translate(5.491 1.124)">
+        <g id="Group_17508" data-name="Group 17508" transform="translate(0 0)">
+          <rect id="Rectangle_149553" data-name="Rectangle 149553" width="21.253" height="0.651" fill="#151d21"/>
+          <path id="Rectangle_149553_-_Outline" data-name="Rectangle 149553 - Outline" d="M-.3-.3H21.553V.951H-.3ZM20.953.3H.3V.351H20.953Z"/>
+          <rect id="Rectangle_149554" data-name="Rectangle 149554" width="21.253" height="0.651" transform="translate(0 8.978)" fill="#151d21"/>
+          <path id="Rectangle_149554_-_Outline" data-name="Rectangle 149554 - Outline" d="M-.3-.3H21.553V.951H-.3ZM20.953.3H.3V.351H20.953Z" transform="translate(0 8.978)"/>
+          <rect id="Rectangle_149555" data-name="Rectangle 149555" width="21.253" height="0.651" transform="translate(0 17.956)" fill="#151d21"/>
+          <path id="Rectangle_149555_-_Outline" data-name="Rectangle 149555 - Outline" d="M-.3-.3H21.553V.951H-.3ZM20.953.3H.3V.351H20.953Z" transform="translate(0 17.956)"/>
+        </g>
+      </g>
+      <ellipse id="Ellipse_1531" data-name="Ellipse 1531" cx="1.614" cy="1.614" rx="1.614" ry="1.614" fill="#151d21"/>
+      <ellipse id="Ellipse_1532" data-name="Ellipse 1532" cx="1.614" cy="1.614" rx="1.614" ry="1.614" transform="translate(0 8.813)" fill="#151d21"/>
+      <ellipse id="Ellipse_1533" data-name="Ellipse 1533" cx="1.614" cy="1.614" rx="1.614" ry="1.614" transform="translate(0 17.627)" fill="#151d21"/>
+    </g>
+  </g>
+</svg>

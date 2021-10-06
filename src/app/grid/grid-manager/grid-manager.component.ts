@@ -1,4 +1,6 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, Output } from '@angular/core';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
+import { EventEmitter } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
@@ -43,6 +45,11 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.computeLayout();
   }
 
+  @Output()
+  layoutChanged: EventEmitter<Layout> = new EventEmitter;
+
+  instances: any[] = [];
+
   @ViewChild('target', {read: ViewContainerRef})
   ref!: ViewContainerRef;
 
@@ -58,6 +65,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     let layoutChanges = changes['layout'];
     if ( layoutChanges && !layoutChanges.isFirstChange() ) {
       this.createComponents();
+      this.layoutChanged.emit(this.$layout);
     }
   }
 
@@ -79,7 +87,8 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
       component.instance.properties.unit = desc[2];
       component.instance.properties.arguments = <WidgetParams>desc[4];
       /***************************/
-
+      
+      this.instances.push(component.instance);
       this.ref.insert(component.hostView);
     }
     this.cd.detectChanges();
@@ -87,9 +96,27 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit(): void { }
 
+  interactiveMode() {
+    for ( let i = 0; i < this.instances.length; i++ ) {
+      let widget = this.instances[i] as any;
+      if ( widget && widget instanceof BasicWidget )
+        (widget as BasicWidget).interactiveMode();
+    }
+  }
+
+  pause() {
+    for ( let i = 0; i < this.instances.length; i++ ) {
+      let widget = this.instances[i] as any;
+      if ( widget && widget instanceof BasicWidget )
+        (widget as BasicWidget).pause();
+    }
+  }
+
   ngOnDestroy() {
     while ( this.ref.length )
       this.ref.remove();
+    
+    this.instances.length = 0;
   }
 
   private computeLayout() {

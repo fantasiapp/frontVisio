@@ -1,7 +1,7 @@
 <div class="main-container">
-    <app-upperbar>
-        <div class="aligned description">{{ (layout && layout.description) || '' }}</div>
+    <app-upperbar (mapVisible)="mapIsVisible($event)">
+        <div class="aligned description">{{ computeDescription((layout && layout.description) || '') }}</div>
     </app-upperbar>
-    <grid-manager [layout]="layout">
+    <grid-manager [layout]="layout" (layoutChanged)="onLayoutChange($event)" #gridManager>
     </grid-manager>
 </div>

@@ -39,10 +39,12 @@ import { PieTargetComponent } from './widgets/pie-target/pie-target.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { TableComponent } from './widgets/table/table.component';
 import { HistoColumnTargetComponent } from './widgets/historow-target/histocolumn-target.component';
-import { RowSalesCellRenderer, GroupSalesCellRenderer, EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, TargetCellRenderer, GroupNameCellRenderer } from './widgets/table/renderers';
+import { EditCellRenderer, CheckboxEnduitCellRenderer, CheckboxP2cdCellRenderer, PointFeuCellRenderer, TargetCellRenderer } from './widgets/table/renderers';
 
 import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
+import { MapFiltersComponent } from './map/map-filters/map-filters.component';
+import { MapSelectComponent } from './map/map-select/map-select.component';
 
 @NgModule({
   declarations: [
@@ -67,18 +69,18 @@ import { InfoBarComponent } from './map/info-bar/info-bar.component';
     HistoColumnComponent,
     HistoRowComponent,
     TableComponent,
-    RowSalesCellRenderer,
-    GroupSalesCellRenderer,
     EditCellRenderer,
-    CheckboxCellRenderer,
+    CheckboxEnduitCellRenderer,
+    CheckboxP2cdCellRenderer,
     PointFeuCellRenderer,
     TargetCellRenderer,
-    GroupNameCellRenderer,
     GaugeComponent,
     PieTargetComponent,
     HistoColumnTargetComponent,
     HistocurveComponent,
-    InfoBarComponent
+    InfoBarComponent,
+    MapFiltersComponent,
+    MapSelectComponent
   ],
   imports: [
     BrowserModule,
