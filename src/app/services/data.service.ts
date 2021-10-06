@@ -54,11 +54,11 @@ export class DataService {
   }
 
   public updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}): Observable<Object|null> {
-    this.http.post(environment.backUrl + 'visioServer/data/', this.emptyData
+    this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}})
     .subscribe((updateResponse) => {
       console.log("Response obtained : ", updateResponse)
-      DataExtractionHelper.updateData(this.emptyData)
+      DataExtractionHelper.updateData(data)
     });
     return this.response;
   }

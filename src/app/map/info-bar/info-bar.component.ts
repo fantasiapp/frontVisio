@@ -56,10 +56,11 @@ export class InfoBarComponent {
   SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
   SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')
   SALES_VOLUME_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'volume')
+  SALES_DATE_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'date')
 
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
-
+  hasChanged = false;
 
   get pdv() {
     return this._pdv;
@@ -87,8 +88,6 @@ export class InfoBarComponent {
         this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
       for(let i = 0; i<this.products.length-1; i++)
         this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
-      console.log("1 : ", this.industryIdToIndex)
-      console.log("2 : ", this.productIdToIndex)
     });
 
     
@@ -100,7 +99,8 @@ export class InfoBarComponent {
   }
 
   quit(save: boolean) {
-    if(save) this.updatePdv(this._pdv!)
+    if(save && this.hasChanged) this.updatePdv(this._pdv!)
+    else this._pdv!.setValues(InfoBarComponent.valuesSave)
     this.quiting = false;
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
@@ -145,19 +145,32 @@ export class InfoBarComponent {
   }
   changeRedistributed() {
     this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
+    this.hasChanged = true;
   }
 
   changeTargetP2CD(newTargetP2cd: any) { //PB : newValue isn't a number
     this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = +newTargetP2cd;
+    this.hasChanged = true;
   }
 
   changeComment() { //PB : newValue isn't a number
     this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
-    this.updatePdv(this._pdv!)
+    this.hasChanged = true;
   }
 
   changeLight(newLightValue: string) {
     this._pdv!.attribute('target')[this.TARGET_LIGHT_ID] = newLightValue
+    this.hasChanged = true;
+  }
+
+  changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
+    for(let sale of this._pdv!.attribute('sales')) {
+      if(i === this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]] && j === this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]) {
+        sale[this.SALES_VOLUME_ID!] = this.grid[i][j];
+        sale[this.SALES_DATE_ID!] = Date.now();
+      }
+    }
+    this.hasChanged = true;
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
