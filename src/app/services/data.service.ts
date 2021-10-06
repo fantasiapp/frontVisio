@@ -35,14 +35,15 @@ export class DataService {
 
   public requestUpdateData() {
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
-    .subscribe((updatedData) => {
-      console.log("Updated data received : ", updatedData ? updatedData as any : this.dataToUpdate)
-      DataExtractionHelper.updateData(updatedData ? updatedData as any : this.dataToUpdate);
-      this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}})
+    .subscribe((response : any) => {
+      console.log("Updated data received : ", response ? response as any : this.dataToUpdate)
+      DataExtractionHelper.updateData(this.emptyData);
+      this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((response) => console.log("Ack response : ", response))
     });
   }
 
   private dataToUpdate: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
+  private emptyData : {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
 
   public updatePdv(pdv: any[]) {
     this.dataToUpdate['pdvs'].push(pdv);
@@ -57,7 +58,7 @@ export class DataService {
     .subscribe((updateResponse) => {
       console.log("Response obtained : ", updateResponse)
       this.response.next(updateResponse)
-      DataExtractionHelper.updateData(data)
+      DataExtractionHelper.updateData(this.emptyData)
     });
     return this.response;
   }

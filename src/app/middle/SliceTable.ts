@@ -32,8 +32,8 @@ export class SliceTable {
                 ],
             'navIds': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkbox', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
-            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkbox', 'instanceId'],
+            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
+            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
             'groupRowConfig': (entry: any) => {
@@ -52,12 +52,12 @@ export class SliceTable {
         'enduit': {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
-                this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.checkbox === true ? pdv.potential : 0),0),
+                this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.checkboxEnduit === true ? pdv.potential : 0),0),
                 Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkbox && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkbox', flex: 0.3}],
-            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkbox', 'instanceId'],
+            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkboxEnduit && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkboxEnduit', flex: 0.3}],
+            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkboxEnduit', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
             'groupRowConfig': (entry: any) => {
@@ -127,9 +127,13 @@ export class SliceTable {
         'edit': () => {
             return true; //should return what is inside the new div ?
         },
-        'checkbox': (pdv: any) => {
-            if (pdv[DataExtractionHelper.TARGET_ID] === null) return false; 
-            return pdv[DataExtractionHelper.TARGET_ID][DataExtractionHelper.TARGET_FINITION_ID] === true; //Could be check by default ?
+        'checkboxEnduit': (pdv: any) => {
+                if (pdv[DataExtractionHelper.TARGET_ID] === null) return false; 
+                return pdv[DataExtractionHelper.TARGET_ID][DataExtractionHelper.TARGET_FINITION_ID] === true;
+        },
+        'checkboxP2cd': (pdv: any) => {
+            if(!pdv['target']) return false;
+            return pdv['target'][DataExtractionHelper.TARGET_VOLUME_ID] > 0 && pdv['target'][DataExtractionHelper.TARGET_ID] !== 'r'
         },
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
@@ -179,6 +183,7 @@ export class SliceTable {
                     if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
                     else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
                     else newPdv[field] = pdv[index]
+                    if(field === 'pointFeu') console.log("value : ", pdv['pointFeu'])
                 }
                 pdvsAsList.push(newPdv);
             }
@@ -306,14 +311,14 @@ export class SliceTable {
                 1:redistributed,
                 2:false,
                 3:0,
-                4:pdv['checkbox'],
+                4:pdv['checkboxEnduit'],
                 5:'g',
                 6:""
             }
         } else {
             newTarget = pdv['target'];
             newTarget[DataExtractionHelper.TARGET_DATE_ID] = formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', this.locale);
-            newTarget[DataExtractionHelper.TARGET_FINITION_ID] = pdv.checkbox;
+            newTarget[DataExtractionHelper.TARGET_FINITION_ID] = pdv.checkboxEnduit;
             newTarget[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = redistributed;
 
         }

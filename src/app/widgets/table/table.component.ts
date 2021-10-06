@@ -155,13 +155,15 @@ export class TableComponent extends BasicWidget {
               }
               break;
             
-            case 'checkbox':
-              if(this.type === 'pcd') {
-                cd.cellRendererSelector = function (params: any) {
-                  if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                  return {component : 'checkboxP2cdCellRenderer'};
-                }
+            case 'checkboxP2cd':
+              cd.cellRendererSelector = function (params: any) {
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                return {component : 'checkboxP2cdCellRenderer'};
               }
+
+              break;
+
+            case 'checkboxEnduit':
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return {component : 'checkboxEnduitCellRenderer'};
@@ -231,9 +233,8 @@ export class TableComponent extends BasicWidget {
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
     }
-    if(event['column']['colId'] === 'checkbox' && this.type === 'enduit') {
+    if(event['column']['colId'] === 'checkboxEnduit') {
       this.updateTitle()
-      this.sliceTable.updatePdv(event['data']) //sous cette forme ?
     }
   }
 
