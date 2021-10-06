@@ -1,4 +1,4 @@
-import { HttpClient} from '@angular/common/http';
+import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { typeofExpr } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
@@ -43,7 +43,7 @@ export class DataService {
   }
 
   private dataToUpdate: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
-  private emptyData : {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
+  emptyData : {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
 
   public updatePdv(pdv: any[]) {
     this.dataToUpdate['pdvs'].push(pdv);
@@ -54,10 +54,10 @@ export class DataService {
   }
 
   public updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}): Observable<Object|null> {
-    this.http.post(environment.backUrl + 'visioServer/data/', data, {params : {"action" : "update"}})
+    this.http.post(environment.backUrl + 'visioServer/data/', this.emptyData
+    , {params : {"action" : "update"}})
     .subscribe((updateResponse) => {
       console.log("Response obtained : ", updateResponse)
-      this.response.next(updateResponse)
       DataExtractionHelper.updateData(this.emptyData)
     });
     return this.response;

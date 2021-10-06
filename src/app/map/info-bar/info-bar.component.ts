@@ -104,6 +104,9 @@ export class InfoBarComponent {
       this.ref!.nativeElement.removeEventListener('transitionend', fn);
     });
     this.pdv = undefined;
+
+    if(save) this.updatePdv(this._pdv!)
+
   }
 
   requestQuit() {
@@ -120,7 +123,10 @@ export class InfoBarComponent {
     for(let sale of this._pdv!.attribute('sales')) {
       console.log("update ", this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]])
       this.grid[this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]]][this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]] = +sale[this.SALES_VOLUME_ID!]
+      this.updateSum(this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]])
     }
+
+
   }
 
   updateSum(row: number, i: number) {
@@ -137,23 +143,19 @@ export class InfoBarComponent {
 
   changeRedistributed() {
     this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
-    this.updatePdv(this._pdv!)
   }
 
   changeTargetP2CD(newTargetP2cd: any) { //PB : newValue isn't a number
     this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = +newTargetP2cd;
-    this.updatePdv(this._pdv!)
     console.log("this : ", this._pdv!.attribute('target'))
   }
 
   changeComment(newComment: string) { //PB : newValue isn't a number
     this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = newComment;
-    this.updatePdv(this._pdv!)
   }
 
   changeLight(newLightValue: string) {
     this._pdv!.attribute('target')[this.TARGET_LIGHT_ID] = newLightValue
-    this.updatePdv(this._pdv!)
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
