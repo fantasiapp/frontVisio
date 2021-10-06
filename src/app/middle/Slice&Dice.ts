@@ -596,9 +596,32 @@ export class PDV{
     return PDV.reSlice(pdvs, addConditions);
   }
 
-  static computeCiblage(slice: {[key:string]:number}){
+  static computeCiblage(slice: {[key:string]:number}, enduit = false){
     let pdvs = this.sliceTree(slice, true)[0];
-    return pdvs.reduce((acc, pdv) => acc + pdv.targetP2cd, 0);
+    let ciblage = 0;
+    if (enduit){
+      for (let pdv of pdvs){
+        if (pdv.targetFinition) ciblage += pdv.getPotential();
+      }
+      return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' T.');
+    }
+    for (let pdv of pdvs){
+      let target = pdv.targetP2cd;
+      if (isNaN(target)) target = 0;
+      ciblage += target;
+    }
+    return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².');
+  }
+
+  getPotential(){
+      let p2cdSalesRaw = this.displayIndustrieSaleVolumes();
+      let siniatSale = p2cdSalesRaw['Siniat'];
+      let totalSale = Object.entries(p2cdSalesRaw).filter(([industry, value]) => {!['Siniat', 'Placo', 'Knauf'].includes(industry)})
+      .reduce((total: number, [industry, value]: [string, number]) => total + value, 0)
+      let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
+      let pregySale = enduitSalesRaw['Pregy'];
+      let salsiSale = enduitSalesRaw['Salsi'];
+      return Math.max(siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale, 0);
   }
 
   static heightOf(tree: Tree, label: string){
