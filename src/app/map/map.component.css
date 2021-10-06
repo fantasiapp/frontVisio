@@ -11,11 +11,6 @@
   top: 60px;
 }
 
-h1 {
-  padding: 0 0 20px 20px;
-  margin: 0;
-}
-
 .map-container {
   width: 100%;
   flex: 1;

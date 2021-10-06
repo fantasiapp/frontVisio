@@ -240,7 +240,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       idx += step;
       if ( idx < this.markers.length )
         setTimeout(f, 0);
-    }, this.markers.length > 2000 ? this.markers.length / 10 : 0);
+    }, this.markers.length > 2000 ? this.markers.length / 20 : 0);
     //if number is too big, wait for the animation
   }
 
