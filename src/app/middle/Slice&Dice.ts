@@ -502,12 +502,23 @@ export class PDV{
     return newPdvs;
   }
 
+  //Juste pour le reSlice
   property(propertyName:string){
     if (propertyName == 'clientProspect') return this.clientProspect(true);
     if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
     if (propertyName == 'pointFeu') return (this.attribute('pointFeu'))? 2: 1;
+    if (propertyName == 'segmentMarketing') return this.segmentMarketingFilter();
     return this.attribute(propertyName);
+  }
+
+  private segmentMarketingFilter(){
+    let dictSegment = DataExtractionHelper.get('segmentMarketingFilter'),
+      dictAllSegments = DataExtractionHelper.get('segmentMarketing')
+    let pdvSegment = this.attribute('segmentMarketing');
+    let result = parseInt(DataExtractionHelper.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
+    if (Number.isNaN(result)) result = 4;
+    return result;
   }
 
   industriel(){
