@@ -20,7 +20,7 @@ function randomColor() {
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  //changeDetection: ChangeDetectionStrategy.OnPush //we want easy mode here
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
   @HostBinding('style.display')
@@ -43,7 +43,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private markers: google.maps.Marker[] = [];
   
   hide() {
-    console.log('hidden');
     this.hidden = true;
     this.subscription?.unsubscribe();
   }

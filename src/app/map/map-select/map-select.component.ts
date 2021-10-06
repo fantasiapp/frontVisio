@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
@@ -7,12 +7,12 @@ import * as d3 from 'd3';
   styleUrls: ['./map-select.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapSelectComponent {
+export class MapSelectComponent implements OnChanges {
 
   @Input()
   criterion = '';
   @Input()
-  prettyCriterion = 'Secteur';
+  prettyCriterion = '';
   @Input()
   criteria: [string, any][] | null = null;
 
@@ -30,6 +30,10 @@ export class MapSelectComponent {
 
   trackById(index: number, couple: any) {
     return couple[0];
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log(changes);
   }
 
   totalClicked(e: any) {
@@ -77,17 +81,19 @@ export class MapSelectComponent {
     this.emitSelection();
   }
 
-  private minHeight = 40; //height for title only
-  private contentPadding = 30;
-  private lineHeight = 30;
+  protected minHeight = 40; //height for title only
+  protected contentPadding = 30;
+  protected lineHeight = 30;
   private dropped = false;
 
+  @HostBinding('style.height')
+  get height() {
+    if ( this.dropped )
+      return (this.minHeight + this.contentPadding + this.lineHeight * (this.criteria ? this.criteria.length+1 : 1)) + 'px';
+    return this.minHeight + 'px';
+  }
+
   toggleDropdown(e: any) {
-    let el = this.ref.nativeElement;
     this.dropped = !this.dropped;
-    if ( this.dropped ) {
-      el.style.height = (this.minHeight + this.contentPadding + this.lineHeight * (this.criteria ? this.criteria.length+1 : 1)) + 'px';
-    } else
-      el.style.height = this.minHeight + 'px';
   }
 }
