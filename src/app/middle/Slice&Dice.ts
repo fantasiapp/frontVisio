@@ -1,6 +1,7 @@
 import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
+import { DataService } from '../services/data.service';
 
 
 // peut-être à mettre dans un fichier de config
@@ -721,7 +722,8 @@ export class PDV{
 @Injectable()
 class SliceDice{
   geoTree: boolean = true;
-  constructor(){console.log('[SliceDice]: on');}
+  private updateTargetName?: string;
+  constructor(private dataService: DataService){console.log('[SliceDice]: on');}
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), 
       percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
@@ -766,9 +768,10 @@ class SliceDice{
         let targetValues = DataExtractionHelper.getListTarget(agentIds, targetName);
         for (let i = 0; i < targetValues.length; i++) rodPosition[i] = targetValues[i] / sum[i];
       }
+      this.updateTargetName = targetName;
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors};
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, updateTargetName: this.updateTargetName};
   }
 
   getIndustriesReverseDict(){
@@ -788,6 +791,13 @@ class SliceDice{
     
   //   return acc + (this.geoTree ? 0 : 1);
   // }
+
+  updateTargetLevelDrv(id: number, value: number, updateTargetName: string) {
+    let newTargetLevelDrv: number[] = DataExtractionHelper.get('targetLevelDrv')[Object.keys(DataExtractionHelper.get('drv'))[id]]
+    console.log("targetLevelDrv : ", newTargetLevelDrv, " DataExtractionHelper.get('structureTargetLevelDrv') : ", DataExtractionHelper.get('structureTargetLevelDrv'), "this.updateTargetName : ", updateTargetName, "DataExtractionHelper.get('structureTargetLevelDrv').indexOf(this.updateTargetName) : ", DataExtractionHelper.get('structureTargetLevelDrv').indexOf(updateTargetName))
+    newTargetLevelDrv[+DataExtractionHelper.get('structureTargetLevelDrv').indexOf(updateTargetName)] = +value;
+    this.dataService.updateTargetLevelDrv(newTargetLevelDrv, +Object.keys(DataExtractionHelper.get('drv'))[id]);
+  }
 };
 
 function loadAll(){
