@@ -86,27 +86,25 @@ export class SliceTable {
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
         'graph': (pdv: any) => {
-            let enduitSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('enduit', false, true) as number[];
-
             let p2cdSales: any =  {};
             let enduitSales: any =  {};
-            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes())) {
-                p2cdSales[entry[0]] = {'value': entry[1], 'color': this.getColor('industry', entry[0])}
+            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reverse()) {
+                p2cdSales[entry[0]] = {'value': entry[1], 'color': this.getColor('industryP2CD', entry[0])}
             }
-            enduitSales['Pregy'] = {'value': enduitSalesRaw[0], color: this.getColor('indFinition', 'Pregy')}
-            enduitSales['Salsi'] = {'value': enduitSalesRaw[1], color: this.getColor('indFinition', 'Salsi')}
-            enduitSales['Autres'] = {'value': enduitSalesRaw[2]+enduitSalesRaw[3], color: this.getColor('indFinition', 'Croissance')}
+            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)).reverse()) {
+                enduitSales[entry[0]] = {'value': entry[1], 'color': this.getColor('indFinition', entry[0])}
+            }
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {
-            let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
-            let siniatSale = p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_SINIAT_ID];
-            let totalSale = p2cdSalesRaw.filter((value, index) => {![DataExtractionHelper.INDUSTRIE_SINIAT_ID, DataExtractionHelper.INDUSTRIE_PLACO_ID, DataExtractionHelper.INDUSTRIE_KNAUF_ID].includes(index)})
-            .reduce((total: number, value: number) => total + value, 0)
+            let p2cdSalesRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes();
+            let siniatSale = p2cdSalesRaw['Siniat'];
+            let totalSale = Object.entries(p2cdSalesRaw).filter(([industry, value]) => {!['Siniat', 'Placo', 'Knauf'].includes(industry)})
+            .reduce((total: number, [industry, value]: [string, number]) => total + value, 0)
 
-            let enduitSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('enduit', false, true) as number[];
-            let pregySale = enduitSalesRaw[0];
-            let salsiSale = enduitSalesRaw[0];
+            let enduitSalesRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true);
+            let pregySale = enduitSalesRaw['Pregy'];
+            let salsiSale = enduitSalesRaw['Salsi'];
 
 
             return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale;
