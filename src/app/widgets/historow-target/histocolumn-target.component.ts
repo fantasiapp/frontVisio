@@ -27,6 +27,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private marginX: number = 0;
   private barWidth: number = 0;
   inputIsOpen: boolean = false;
+  private data?: any;
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -60,6 +61,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .enter()
         .append('input')
         .attr('value', 0)
+        .attr('type', 'number')
+        .on('change', (event) => {console.log("change : ", event.target.value), this.changeValue(event.target.value, event.target.__data__, event)})
         .style('width', (this.barWidth.toFixed(1)) + 'px')
         .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px');
       return container;
@@ -67,6 +70,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   createGraph(data: any) {
     let self = this;
+    this.data = data;
+    console.log("data : ", data)
     super.createGraph(data, {
       onresized: () => {
         this.renderTargetContainer({data: null, target: this.barTargets});
@@ -170,5 +175,10 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     console.log('[HistoRowTargetComponent]: Target control validated:\nRespect+.');
     //close
     this.toggleTargetControl();
+  }
+
+  changeValue(newValue :number, inputId: number, fullEvent: any) {
+    this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
+    this.updateGraph(this.data)
   }
 }

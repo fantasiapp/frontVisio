@@ -7,6 +7,7 @@ import { BasicWidget } from '../BasicWidget';
 import { Observable} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 
 @Component({
   selector: 'app-table',
@@ -155,13 +156,15 @@ export class TableComponent extends BasicWidget {
               }
               break;
             
-            case 'checkbox':
-              if(this.type === 'pcd') {
-                cd.cellRendererSelector = function (params: any) {
-                  if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                  return {component : 'checkboxP2cdCellRenderer'};
-                }
+            case 'checkboxP2cd':
+              cd.cellRendererSelector = function (params: any) {
+                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                return {component : 'checkboxP2cdCellRenderer'};
               }
+
+              break;
+
+            case 'checkboxEnduit':
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return {component : 'checkboxEnduitCellRenderer'};
@@ -217,7 +220,9 @@ export class TableComponent extends BasicWidget {
 
   onCellClicked(event: any) {
     if(event['column']['colId'] === 'edit') {
-      this.pdv = this.sliceTable.getPdvInstance(event['data']);
+      this.pdv = this.sliceTable.getPdvInstance(event['data'])
+      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+      InfoBarComponent.pdvId = event['data'].instanceId;
       this.selectedPdv = event['data'];
     }
     if(event['column']['colId'] === 'info') {
@@ -231,9 +236,8 @@ export class TableComponent extends BasicWidget {
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
     }
-    if(event['column']['colId'] === 'checkbox' && this.type === 'enduit') {
+    if(event['column']['colId'] === 'checkboxEnduit') {
       this.updateTitle()
-      this.sliceTable.updatePdv(event['data']) //sous cette forme ?
     }
   }
 

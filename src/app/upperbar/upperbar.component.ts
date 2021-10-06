@@ -13,6 +13,9 @@ import {
 } from '@angular/animations';
 import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
+import { combineLatest } from 'rxjs';
+import { BasicWidget } from '../widgets/BasicWidget';
+import { DataService } from '../services/data.service';
 
 
 @Component({
@@ -51,6 +54,7 @@ export class UpperbarComponent implements OnInit {
     private filtersState: FiltersStatesService,
     private authService: AuthService,
     private sliceDice: SliceDice,
+    private dataService: DataService,
     private cd: ChangeDetectorRef
   ) {}
   shouldShowButtons = false;
@@ -90,5 +94,9 @@ export class UpperbarComponent implements OnInit {
       this.mapComponent?.hide();
       this.mapVisible.emit(false);
     }
+  }
+
+  updateData() {
+    this.dataService.requestUpdateData()
   }
 }

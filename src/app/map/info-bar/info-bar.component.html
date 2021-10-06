@@ -36,16 +36,12 @@
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="pdv.attribute('redistributed') || pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" disabled="pdv.attribute('redistributed')">
+                                <input type="checkbox" [attr.checked]="!pdv.attribute('redistributed') || !pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" [disabled]="!pdv.attribute('redistributed')">
                                 <span class="checkmark"></span>
                             </label>
                         </li>
                     </ul>
                 </div>
-            </div>
-            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
-                <span>Commentaires :</span>
-                <textarea #comments></textarea>
             </div>
         </div>
     </ng-container>
@@ -107,13 +103,13 @@
                     <div class="total row">
                         <div class="first cell">Totaux</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [value]="grid[0][i]" [disabled]="i == 3"/>
+                            <input type="text"[value]="grid[0][i]" [disabled]="true"/>
                         </div>
                     </div>
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="number" [(ngModel)]="grid[j+1][i]" (input)="updateSum(j+1, i)" [disabled]="i == 3"/>
+                            <input type="number"  (change)="changeSales(j+1,i)" [(ngModel)]="grid[j+1][i]" (input)="updateSum(j+1, i)" [disabled]="i == 3 || j == 0"/>
                         </div>
                     </div>
                 </div>
