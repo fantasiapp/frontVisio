@@ -15,7 +15,7 @@ export class MapFiltersComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
-  criteriaNames = ['clientProspect', 'ciblage', 'pointFeu', 'segmentMarketing', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin'];
+  criteriaNames = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin'];
   criteriaPrettyNames = ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Secteur', 'Département', 'Bassin'];
 
   @Input()
