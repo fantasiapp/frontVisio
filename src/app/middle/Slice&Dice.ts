@@ -502,12 +502,23 @@ export class PDV{
     return newPdvs;
   }
 
+  //Juste pour le reSlice
   property(propertyName:string){
     if (propertyName == 'clientProspect') return this.clientProspect(true);
-    if (propertyName == 'industrie') return this.industriel();
+    if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
     if (propertyName == 'pointFeu') return (this.attribute('pointFeu'))? 2: 1;
+    if (propertyName == 'segmentMarketing') return this.segmentMarketingFilter();
     return this.attribute(propertyName);
+  }
+
+  private segmentMarketingFilter(){
+    let dictSegment = DataExtractionHelper.get('segmentMarketingFilter'),
+      dictAllSegments = DataExtractionHelper.get('segmentMarketing')
+    let pdvSegment = this.attribute('segmentMarketing');
+    let result = parseInt(DataExtractionHelper.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
+    if (Number.isNaN(result)) result = 4;
+    return result;
   }
 
   industriel(){
@@ -517,13 +528,8 @@ export class PDV{
     let industriesList = Object.values(DataExtractionHelper.get('industrie'));
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    let result = 0;
-    try{
-      result = parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
-    }
-    catch{
-      result = 4;
-    }
+    let result = parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
+    if (Number.isNaN(result)) result = 4;
     return result;
   }
 
