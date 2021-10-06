@@ -41,7 +41,7 @@ export class MapFiltersComponent {
     return index;
   }
 
-  loadCriterion(criterion: string, path: any): [string, any][] {
+  loadCriterion(criterion: string, path: any): [number, any][] {
     //use pretty prints on path slice
 
     let result = this.filterDict[criterion];
@@ -49,7 +49,7 @@ export class MapFiltersComponent {
 
     return Object.keys(result).filter(key => result[key]).map(key =>
       [key, DataExtractionHelper.get(criterion)[key]]
-    );
+    ).map(([key, index]) => [key|0, index]);
   }
 
   someCriteriaChange(idx: number, criteria: any) {
