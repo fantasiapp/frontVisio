@@ -8,7 +8,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
   styleUrls: ['./map-filters.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapFiltersComponent  {
+export class MapFiltersComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
@@ -17,6 +17,9 @@ export class MapFiltersComponent  {
 
   @Input()
   path: any = {};
+
+  @Input()
+  filterDict: any = {};
 
   @Input()
   PDVNumber: number = 0;
@@ -40,15 +43,13 @@ export class MapFiltersComponent  {
 
   loadCriterion(criterion: string, path: any): [string, any][] {
     //use pretty prints on path slice
-    let criterionPretty = this.criteriaPrettyNames[this.criteriaNames.indexOf(criterion)];
-    if ( criterionPretty && path[criterionPretty] !== undefined )
-      return [
-        [path[criterionPretty], DataExtractionHelper.get(criterion)[path[criterionPretty]]]
-      ];
 
-    let data = DataExtractionHelper.get(criterion) || {};
-    let entries = Object.entries<any>(data);
-    return entries;
+    let result = this.filterDict[criterion];
+    if ( !result ) return [];
+
+    return Object.keys(result).filter(key => result[key]).map(key =>
+      [key, DataExtractionHelper.get(criterion)[key]]
+    );
   }
 
   someCriteriaChange(idx: number, criteria: any) {

@@ -7,7 +7,7 @@ import * as d3 from 'd3';
   styleUrls: ['./map-select.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapSelectComponent implements OnChanges {
+export class MapSelectComponent {
 
   @Input()
   criterion = '';
@@ -30,10 +30,6 @@ export class MapSelectComponent implements OnChanges {
 
   trackById(index: number, couple: any) {
     return couple[0];
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
   }
 
   totalClicked(e: any) {
