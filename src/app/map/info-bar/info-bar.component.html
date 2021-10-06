@@ -43,10 +43,6 @@
                     </ul>
                 </div>
             </div>
-            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
-                <span>Commentaires :</span>
-                <textarea #comments></textarea>
-            </div>
         </div>
     </ng-container>
 
@@ -85,10 +81,6 @@
                     </ul>
                 </div>
             </div>
-            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
-                <span>Commentaires :</span>
-                <textarea #comments></textarea>
-            </div>
         </div>
     </ng-container>
 
@@ -118,23 +110,16 @@
                     </div>
                 </div>
             </div>
-            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
-                <span>Commentaires :</span>
-                <textarea #comments></textarea>
-            </div>
         </div>
     </ng-container>
 </ng-container>
 
 
-<<<<<<< HEAD
-=======
 <div *ngIf="currentIndex < 2" class="comments">
     <span>Commentaires :</span>
     <input [value]="pdv ? pdv!.getCommentTarget() : ''" (change)="changeComment(comment.value)" type="text" #comment>
 </div>
 
->>>>>>> bd6579e279264b9221438e9f7038a5084ea9b0d2
 
 <div *ngIf="currentIndex == 2" class="validation">
     <button>Annuler</button>
