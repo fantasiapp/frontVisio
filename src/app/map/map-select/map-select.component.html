@@ -1,5 +1,5 @@
 <ng-container *ngIf="criteria">
-    <h6 class="name">{{ prettyCriterion }}</h6>
+    <h6 class="name" (click)="toggleDropdown($event)">{{ prettyCriterion }}</h6>
     <div class="container">
         <div>
             <label class="checkboxed">

@@ -1,5 +1,5 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { AsyncSubject, combineLatest } from 'rxjs';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { AsyncSubject, combineLatest, Subscription } from 'rxjs';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { PDV } from '../middle/Slice&Dice';
 import { BasicWidget } from '../widgets/BasicWidget';
@@ -20,9 +20,9 @@ function randomColor() {
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  //changeDetection: ChangeDetectionStrategy.OnPush //we want easy mode here
 })
-export class MapComponent implements AfterViewInit {
+export class MapComponent implements AfterViewInit, OnDestroy {
   @HostBinding('style.display')
   private get display() {
     return this.hidden ? 'none' : 'flex';
@@ -32,9 +32,11 @@ export class MapComponent implements AfterViewInit {
   mapContainer?: ElementRef;
 
   private _criteria: any[] = [];
+  filterDict: any = {};
 
   set criteria(value: any[]) {
     this.pdvs = PDV.sliceMap(this.path, this._criteria = value);
+    this.filterDict = PDV.countForFilter(this.pdvs);
     this.update();
   }
   
@@ -42,8 +44,15 @@ export class MapComponent implements AfterViewInit {
   private hidden: boolean = true;
   private markers: google.maps.Marker[] = [];
   
-  hide() { this.hidden = true; }
-  show() { this.hidden = false; }
+  hide() {
+    this.hidden = true;
+    this.subscription?.unsubscribe();
+  }
+  show() {
+    this.interactiveMode();
+    this.hidden = false;
+  }
+  
   get shown() { return !this.hidden; }
   
   map?: google.maps.Map;
@@ -52,15 +61,24 @@ export class MapComponent implements AfterViewInit {
   pdvs: PDV[] = [];
   infowindow: any = {};
   markerTimeout: any = 0;
+  subscription?: Subscription;
 
   constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
-    combineLatest([filtersService.$path, filtersService.$load, this.ready]).subscribe(([path, _, __]) => {
+    console.log('[MapComponent]: On')
+    this.initializeInfowindow();
+    if ( this.shown )
+      this.interactiveMode();
+  }
+
+  private interactiveMode() {
+    this.subscription = combineLatest([this.filtersService.$path, this.filtersService.$load, this.ready]).subscribe(([path, _, __]) => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.pdvs = PDV.sliceMap(path, this._criteria);
+        this.filterDict = PDV.countForFilter(this.pdvs);
         this.update();
       } return true;
-    }); this.initializeInfowindow();
+    });
   }
 
   initializeInfowindow() {
@@ -320,9 +338,13 @@ export class MapComponent implements AfterViewInit {
       return int + 1;
     return int;
   };
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
+  }
 }
 
-Object.entries({1: '#A61F7D', 3: '#0056A6', 6: '#67CFFE'})
+Object.entries({1: '#A61F7D', 2: '#0056A6', 3: '#67CFFE'})
   .reduce((acc: any, [key, color]) => {acc[key] = MapComponent.createSVGIcon({fill: color}); return acc;}, MapComponent.icons);
 
 MapComponent.icons['default'] = MapComponent.createSVGIcon({fill: '#888888'});

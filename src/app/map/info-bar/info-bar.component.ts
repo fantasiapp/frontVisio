@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { DataService } from 'src/app/services/data.service';
 
 @Component({
@@ -139,6 +140,9 @@ export class InfoBarComponent {
     return sum;
   }
 
+  formatVolume(x: number) {
+    return BasicWidget.format(x, 3);
+  }
   changeRedistributed() {
     this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
   }
@@ -147,8 +151,9 @@ export class InfoBarComponent {
     this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = +newTargetP2cd;
   }
 
-  changeComment(newComment: string) { //PB : newValue isn't a number
-    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = newComment;
+  changeComment() { //PB : newValue isn't a number
+    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
+    this.updatePdv(this._pdv!)
   }
 
   changeLight(newLightValue: string) {
