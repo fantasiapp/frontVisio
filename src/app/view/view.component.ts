@@ -30,7 +30,7 @@ export class ViewComponent implements OnInit {
 
   computeDescription(description: string | string[]) {
     if ( Array.isArray(description) )
-      return DataExtractionHelper.computeDescription(this.filtersService.$path, description);
+      return DataExtractionHelper.computeDescription(this.filtersService.$path.value, description);
     return description;
   }
 
