@@ -641,7 +641,22 @@ export class PDV{
       }
   }
 
-  displayIndustrieSaleVolumes(){
+  displayIndustrieSaleVolumes(enduit = false){
+    if (enduit){
+      let industriesSalevolume = this.getValue('enduit', true) as number[],
+      dictResult:{[key:string]:number} = {},
+      pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+      salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+      industrieAxis = DataExtractionHelper.get('industrie'),
+      listIndustries = Object.values(industrieAxis);
+    dictResult['Autres'] = 0;
+    for (let i = 0; i < industriesSalevolume.length; i++){
+      if (listIndustries[i] == industrieAxis[pregyId]) dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
+      else if (listIndustries[i] == industrieAxis[salsiId]) dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
+      else dictResult['Autres'] += industriesSalevolume[i];
+    }
+    return dictResult;
+    }
     let industriesSalevolume = this.getValue('p2cd', true) as number[],
       dictResult:{[key:string]:number} = {},
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
@@ -702,9 +717,9 @@ class SliceDice{
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
+    let sum = dataWidget.getSum();
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined;
-    let sum = dataWidget.getSum();
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let targetName:string;
