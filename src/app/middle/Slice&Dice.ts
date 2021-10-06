@@ -222,7 +222,12 @@ class DataWidget{
       if (axis1 == "enduitIndustrieTarget") return this.data[0] + this.data[1];
       if (axis1 == "industrieTarget" || axis1 == "clientProspectTarget") return this.data[0];
     }
-    if (axis1 == "industrieTarget" || axis1 == "clientProspectTarget") return this.data[0];      
+    if (axis1 == "industrieTarget" || axis1 == "clientProspectTarget") return this.data[0];  
+    if (axis1 == "enduitIndustrieTarget"){
+      let startingPoints = new Array(this.columnsTitles.length).fill(0);
+      for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];
+      return startingPoints
+    }        
   }
 }
 
