@@ -502,22 +502,50 @@ export class PDV{
     return newPdvs;
   }
 
+  //Juste pour le reSlice
   property(propertyName:string){
     if (propertyName == 'clientProspect') return this.clientProspect(true);
-    if (propertyName == 'industrie') return this.industriel();
+    if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
-    if (propertyName == 'pointFeu') return (this.attribute('pointFeu'))? 2: 1;
+    if (propertyName == 'pointFeuFilter') return (this.attribute('pointFeu'))? 2: 1;
+    if (propertyName == 'segmentMarketingFilter') return this.segmentMarketingFilter();
     return this.attribute(propertyName);
+  }
+
+  private segmentMarketingFilter(){
+    let dictSegment = DataExtractionHelper.get('segmentMarketingFilter'),
+      dictAllSegments = DataExtractionHelper.get('segmentMarketing')
+    let pdvSegment = this.attribute('segmentMarketing');
+    let result = parseInt(DataExtractionHelper.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
+    if (Number.isNaN(result)) result = 4;
+    return result;
+  }
+
+  static countForFilter(pdvs:PDV[]){
+    // Peut-être qu'il faudrait relier cette liste à ce que Majed fait
+    let listAttributeToTest = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin']
+    let dictCounter: {[key:string]: {[key:string]:number}}= {};
+    for (let attribute of listAttributeToTest)
+      dictCounter[attribute] = {};
+    for (let pdv of pdvs){
+      for (let attribute of listAttributeToTest){
+        if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) dictCounter[attribute][pdv.property(attribute)] += 1;
+        else dictCounter[attribute][pdv.property(attribute)] = 1;
+      }
+    }
+    return dictCounter
   }
 
   industriel(){
     let dnIndustries = this.getValue('p2cd', true) as number[],
-      industriesDict = DataExtractionHelper.get('industrie'),
+      industriesDict = DataExtractionHelper.get('industriel'),
       iMax = 0;
-    let industriesList = Object.values(industriesDict);
+    let industriesList = Object.values(DataExtractionHelper.get('industrie'));
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    return parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
+    let result = parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
+    if (Number.isNaN(result)) result = 4;
+    return result;
   }
 
   ciblage(){

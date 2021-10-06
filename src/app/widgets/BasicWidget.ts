@@ -9,7 +9,7 @@ import { SequentialSchedule } from "./Schedule";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy {
-  protected subscription: Subscription;
+  protected subscription?: Subscription;
   protected path = {};
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
@@ -28,17 +28,29 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     super();    
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
     this.subscription = combineLatest([filtersService.$path, this.ready!]).subscribe(([path, _]) => {
-      this.subscription.unsubscribe();
+      this.subscription!.unsubscribe();
+      this.subscription = undefined;
       this.path = path;
       //view is initialized
-      this.subscription = filtersService.$path.subscribe(path => {
-        if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
-          this.path = path;
-          this.update();
-        }
-      });
+      this.interactiveMode();
       this.start();
     });
+  }
+
+  interactiveMode() {
+    if ( this.subscription ) return;
+    this.subscription = this.filtersService.$path.subscribe(path => {
+      if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
+        this.path = path;
+        this.update();
+      }
+    });
+  }
+
+  pause() {
+    if ( !this.subscription ) return;
+    this.subscription.unsubscribe();
+    this.subscription = undefined;
   }
   
   ngOnInit() {
@@ -109,7 +121,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
 
   ngOnDestroy() {
     d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
     // if ( this.chart )

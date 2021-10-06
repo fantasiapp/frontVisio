@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { DataService } from 'src/app/services/data.service';
 
 @Component({
@@ -64,19 +63,14 @@ export class InfoBarComponent {
     return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
   }
 
-  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService) {
+  constructor(private ref: ElementRef, private dataService: DataService) {
     console.log('[InfobarComponent]: On');
-    
-    filtersState.$load.subscribe(() => {
-      this.industries = PDV.getIndustries() as string[];
-      this.products = PDV.getProducts() as string[];
-      this.products.splice(3, this.products.length, 'P2CD')
-      this.grid = new Array(this.industries.length + 1);
-      for ( let i = 0; i < this.grid.length; i++ )
-        this.grid[i] = new Array(this.products.length).fill(0);
-    });
-
-    
+    this.industries = PDV.getIndustries() as string[];
+    this.products = PDV.getProducts() as string[];
+    this.products.splice(3, this.products.length, 'P2CD')
+    this.grid = new Array(this.industries.length + 1);
+    for ( let i = 0; i < this.grid.length; i++ )
+      this.grid[i] = new Array(this.products.length).fill(0);
   }
 
   //make variable
@@ -114,6 +108,9 @@ export class InfoBarComponent {
     return sum;
   }
 
+  formatVolume(x: number) {
+    return BasicWidget.format(x, 3);
+  }
   changeRedistributed() {
     this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
     this.updatePdv(this._pdv!)
@@ -125,8 +122,8 @@ export class InfoBarComponent {
     console.log("this : ", this._pdv!.attribute('target'))
   }
 
-  changeComment(newComment: string) { //PB : newValue isn't a number
-    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = newComment;
+  changeComment() { //PB : newValue isn't a number
+    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
     this.updatePdv(this._pdv!)
   }
 

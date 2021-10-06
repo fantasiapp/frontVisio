@@ -1,6 +1,3 @@
-import { Data } from "@angular/router";
-import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
-import Dashboard from "./Dashboard";
 import { PDV } from "./Slice&Dice";
 
 const paramsCompute = {
@@ -77,7 +74,7 @@ const histoCurve = {
   2: "Histo"
 }
 
-const pointFeu = {
+const pointFeuFilter = {
   1: 'Non point Feu',
   2: 'Point feu'
 }
@@ -85,6 +82,20 @@ const pointFeu = {
 const ciblage = {
   1: 'Non ciblé',
   2: 'Ciblé'
+}
+
+const industriel = {
+  1: "Siniat",
+  2: "Placo",
+  3: "Knauf",
+  4: "Autres"
+}
+
+const segmentMarketingFilter = {
+  "1": "Purs Spécialistes",
+  "2": "Multi Spécialistes",
+  "3": "Généralistes",
+  "4": "Non documenté"
 }
 
 
@@ -244,7 +255,7 @@ class DataExtractionHelper{
   
   static getGeoLevelName(height: number, id: number): string{
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
-    if (name === undefined) throw `No level with id=${id}`;
+    if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
     return name;
   }
 
@@ -262,7 +273,7 @@ class DataExtractionHelper{
     // HARDCODE
     if ( height == 0 ) return '';
     let name = this.data[this.getTradeLevel(height)[this.LABEL_INDEX]][id];
-    if (name === undefined) throw `No level with id=${id}`;
+    if (name === undefined) throw `No trade level with id=${id} at height=${height}`;
     return name;
   }
 
@@ -310,7 +321,9 @@ class DataExtractionHelper{
     if (field == "weeks") return weeks;
     if (field == "histo&curve") return histoCurve;    
     if (field == 'ciblage') return ciblage;
-    if (field == 'pointFeu') return pointFeu;
+    if (field == 'pointFeuFilter') return pointFeuFilter;
+    if (field == 'industriel') return industriel;
+    if (field == 'segmentMarketingFilter') return segmentMarketingFilter;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 
