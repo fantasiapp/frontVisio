@@ -87,6 +87,13 @@ const ciblage = {
   2: 'Ciblé'
 }
 
+const industriel = {
+  1: "Siniat",
+  2: "Placo",
+  3: "Knauf",
+  4: "Autres"
+}
+
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -311,6 +318,7 @@ class DataExtractionHelper{
     if (field == "histo&curve") return histoCurve;    
     if (field == 'ciblage') return ciblage;
     if (field == 'pointFeu') return pointFeu;
+    if (field == 'industriel') return industriel;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 

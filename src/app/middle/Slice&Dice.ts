@@ -512,12 +512,19 @@ export class PDV{
 
   industriel(){
     let dnIndustries = this.getValue('p2cd', true) as number[],
-      industriesDict = DataExtractionHelper.get('industrie'),
+      industriesDict = DataExtractionHelper.get('industriel'),
       iMax = 0;
-    let industriesList = Object.values(industriesDict);
+    let industriesList = Object.values(DataExtractionHelper.get('industrie'));
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    return parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
+    let result = 0;
+    try{
+      result = parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
+    }
+    catch{
+      result = 4;
+    }
+    return result;
   }
 
   ciblage(){
