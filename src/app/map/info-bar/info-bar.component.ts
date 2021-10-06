@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { of } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
@@ -65,6 +65,7 @@ export class InfoBarComponent {
   }
 
   private _pdv: PDV | undefined;
+  static valuesSave: any[] = [];
   redistributed?: boolean;
 
   getName(name: string) {
@@ -98,15 +99,14 @@ export class InfoBarComponent {
   }
 
   quit(save: boolean) {
+    if(save) this.updatePdv(this._pdv!)
+    else {console.log("Back to old values : ", InfoBarComponent.valuesSave); this._pdv!.setValues(InfoBarComponent.valuesSave!);}
     this.quiting = false;
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
       this.ref!.nativeElement.removeEventListener('transitionend', fn);
     });
     this.pdv = undefined;
-
-    if(save) this.updatePdv(this._pdv!)
-
   }
 
   requestQuit() {

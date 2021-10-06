@@ -312,6 +312,9 @@ export class PDV{
       this.sales.push(new Sale(d));
   };
 
+  public getValues() {return this.values;}
+  public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
+
   public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, target=false): (number | number[]){
     if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target);
     let relevantSales = this.sales.filter(sale => sale.type == indicator);

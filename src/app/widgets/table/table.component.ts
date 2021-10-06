@@ -7,6 +7,7 @@ import { BasicWidget } from '../BasicWidget';
 import { Observable} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 
 @Component({
   selector: 'app-table',
@@ -219,7 +220,9 @@ export class TableComponent extends BasicWidget {
 
   onCellClicked(event: any) {
     if(event['column']['colId'] === 'edit') {
-      this.pdv = this.sliceTable.getPdvInstance(event['data']);
+      this.pdv = this.sliceTable.getPdvInstance(event['data'])
+      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+      console.log("Save state :", InfoBarComponent.valuesSave)
       this.selectedPdv = event['data'];
     }
     if(event['column']['colId'] === 'info') {
