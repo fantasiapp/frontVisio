@@ -66,6 +66,8 @@ export class MapSelectComponent {
         if ( !this.selection.length )
           this.all = true;
       }
-    }; this.emitSelection();
+    };
+    
+    this.emitSelection();
   }
 }

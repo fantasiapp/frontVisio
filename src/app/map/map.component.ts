@@ -341,7 +341,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 }
 
-Object.entries({1: '#A61F7D', 3: '#0056A6', 6: '#67CFFE'})
+Object.entries({1: '#A61F7D', 2: '#0056A6', 3: '#67CFFE'})
   .reduce((acc: any, [key, color]) => {acc[key] = MapComponent.createSVGIcon({fill: color}); return acc;}, MapComponent.icons);
 
 MapComponent.icons['default'] = MapComponent.createSVGIcon({fill: '#888888'});
