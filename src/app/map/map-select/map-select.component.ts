@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
@@ -14,14 +14,14 @@ export class MapSelectComponent implements OnChanges {
   @Input()
   prettyCriterion = '';
   @Input()
-  criteria: [string, any][] | null = null;
+  criteria: [number, any][] | null = null;
 
   all: boolean = true;
 
   @Output()
   criteriaChange: EventEmitter<[string, any[]]|[]> = new EventEmitter();
   
-  selection: (number|string)[] = [];
+  selection: number[] = [];
 
   @ViewChild('total', {static: false, read: ElementRef})
   private total?: ElementRef;
@@ -52,7 +52,7 @@ export class MapSelectComponent implements OnChanges {
   }
 
   criterionClicked(e: any, idx: number) {
-    let id = (this.criteria![idx][0] as any) | 0;
+    let id = (this.criteria![idx][0] as any);
     
     if ( this.all  ) {
       this.all = false;
@@ -96,8 +96,16 @@ export class MapSelectComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ( this.criterion != 'clientProspect' ) return;
     let criteriaChange = changes['criteria'];
-    //selection is criteria ids
+    if ( !criteriaChange || criteriaChange.firstChange ) return;
+    let keys = this.criteria!.map(pair => pair[0]);
+    let oldLength = this.selection.length;
+    this.selection = this.selection.filter((e: number) => keys.includes(e));
+    
+    if ( !this.selection.length )
+      this.all = true;
+    
+    if ( this.selection.length != oldLength )
+      this.emitSelection();
   }
 }

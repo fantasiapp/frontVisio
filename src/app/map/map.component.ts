@@ -65,10 +65,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   subscription?: Subscription;
 
   constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
-    console.log('[MapComponent]: On')
+    console.log('[MapComponent]: On');
     this.initializeInfowindow();
     if ( this.shown )
-      this.interactiveMode();
+      this.interactiveMode();    
   }
 
   private interactiveMode() {
@@ -101,6 +101,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.ready.next(0 as never);
     this.ready.complete();
+  }
+
+  onCriteriaChange(criteria: any[]) {
+    this.criteria = criteria;
+    this.cd.detectChanges();
   }
 
   update() {
@@ -228,7 +233,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   displayMarkers() {
-    let f: any, step = 2000, idx = 0;
+    let f: any, step = 4000, idx = 0;
     this.markerTimeout = setTimeout(f = () => {
       for ( let i = idx, l = Math.min(this.markers.length, idx+step); i < l; i++ )
         this.markers[i].setMap(this.map!);
