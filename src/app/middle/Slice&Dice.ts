@@ -507,8 +507,8 @@ export class PDV{
     if (propertyName == 'clientProspect') return this.clientProspect(true);
     if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
-    if (propertyName == 'pointFeu') return (this.attribute('pointFeu'))? 2: 1;
-    if (propertyName == 'segmentMarketing') return this.segmentMarketingFilter();
+    if (propertyName == 'pointFeuFilter') return (this.attribute('pointFeu'))? 2: 1;
+    if (propertyName == 'segmentMarketingFilter') return this.segmentMarketingFilter();
     return this.attribute(propertyName);
   }
 
