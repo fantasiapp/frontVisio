@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
 
 @Component({
   selector: 'info-bar',
@@ -58,19 +59,14 @@ export class InfoBarComponent {
     return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
   }
 
-  constructor(private filtersState: FiltersStatesService, private ref: ElementRef) {
+  constructor(private ref: ElementRef) {
     console.log('[InfobarComponent]: On');
-    
-    filtersState.$load.subscribe(() => {
-      this.industries = PDV.getIndustries() as string[];
-      this.products = PDV.getProducts() as string[];
-      this.products.splice(3, this.products.length, 'P2CD')
-      this.grid = new Array(this.industries.length + 1);
-      for ( let i = 0; i < this.grid.length; i++ )
-        this.grid[i] = new Array(this.products.length).fill(0);
-    });
-
-    
+    this.industries = PDV.getIndustries() as string[];
+    this.products = PDV.getProducts() as string[];
+    this.products.splice(3, this.products.length, 'P2CD')
+    this.grid = new Array(this.industries.length + 1);
+    for ( let i = 0; i < this.grid.length; i++ )
+      this.grid[i] = new Array(this.products.length).fill(0);
   }
 
   //make variable
@@ -106,5 +102,9 @@ export class InfoBarComponent {
     this.grid[row][3] += diff;
     this.grid[0][3] += diff;
     return sum;
+  }
+
+  formatVolume(x: number) {
+    return BasicWidget.format(x, 3);
   }
 }

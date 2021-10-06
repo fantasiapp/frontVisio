@@ -1,28 +1,24 @@
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { getGeoTree, getTradeTree, PDV } from '../middle/Slice&Dice';
+import { getGeoTree, getTradeTree } from '../middle/Slice&Dice';
 
 import {
   trigger,
   state,
   style,
-  animation,
   transition,
   animate
 } from '@angular/animations';
 import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
-import { combineLatest } from 'rxjs';
-import { BasicWidget } from '../widgets/BasicWidget';
 
 
 @Component({
   selector: 'app-upperbar',
   templateUrl: './upperbar.component.html',
   styleUrls: ['./upperbar.component.css'],
-
   animations: [
     //here go animation triggers
     trigger('openClose', [
@@ -48,13 +44,12 @@ export class UpperbarComponent implements OnInit {
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
 
-  private shouldUpdateMap: boolean = true;
-
   isSearchOpen = new BehaviorSubject(false);
   constructor(
     private filtersState: FiltersStatesService,
     private authService: AuthService,
-    private sliceDice: SliceDice
+    private sliceDice: SliceDice,
+    private cd: ChangeDetectorRef
   ) {}
   shouldShowButtons = false;
 
@@ -85,16 +80,11 @@ export class UpperbarComponent implements OnInit {
     );
   }
 
+  mapShown: boolean = false;
   toggleMap() {
-    if ( !this.mapComponent?.shown ) {
-      if ( this.shouldUpdateMap ) {
-        this.mapComponent!.update()
-        this.shouldUpdateMap = false;
-      }
-
+    if ( !this.mapComponent?.shown )
       this.mapComponent!.show();
-    } else {
+    else
       this.mapComponent?.hide();
-    }
   }
 }

@@ -70,7 +70,7 @@
                 <div class="definition" *ngIf="getSalesVolumes().length">
                     <div class="name">Volumes de vente par marque en m²</div>
                     <ul>
-                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} :</span>{{entry[1].toFixed(1)}}</li>
+                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} :</span>{{formatVolume(entry[1])}} m²</li>
                     </ul>
                 </div>
 

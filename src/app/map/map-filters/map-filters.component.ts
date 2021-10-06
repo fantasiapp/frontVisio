@@ -29,7 +29,7 @@ export class MapFiltersComponent {
 
   private criteriaResult = this.criteriaNames.map(() => []);
 
-  constructor(private ref: ElementRef, private filtersState: FiltersStatesService, private cd: ChangeDetectorRef) {
+  constructor(private filtersState: FiltersStatesService) {
     console.log('[MapFiltersComponent]: On.');
   }
 
@@ -54,7 +54,7 @@ export class MapFiltersComponent {
         let data = DataExtractionHelper.get(criterion) || {};
         let entries = Object.entries<any>(data);
         return observer.next(entries)
-      });
+      }).unsubscribe();
     });
 
     return obversable;
@@ -68,7 +68,6 @@ export class MapFiltersComponent {
       return acc;
     }, []);
 
-    console.log(result);
     this.criteriaChange.emit(result);
   }
 
