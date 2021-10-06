@@ -52,6 +52,13 @@ export class InfoBarComponent {
   TARGET_VOLUME_ID = DataExtractionHelper.TARGET_VOLUME_ID;
   TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
   TARGET_LIGHT_ID = DataExtractionHelper.TARGET_LIGHT_ID;
+  SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
+  SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')
+  SALES_VOLUME_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'volume')
+
+  industryIdToIndex : {[industryId: number]: number} = {}
+  productIdToIndex : {[productId: number]: number} = {}
+
 
   get pdv() {
     return this._pdv;
@@ -74,6 +81,12 @@ export class InfoBarComponent {
       this.grid = new Array(this.industries.length + 1);
       for ( let i = 0; i < this.grid.length; i++ )
         this.grid[i] = new Array(this.products.length).fill(0);
+      for(let i = 0; i<this.industries.length; i++)
+        this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
+      for(let i = 0; i<this.products.length-1; i++)
+        this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
+      console.log("1 : ", this.industryIdToIndex)
+      console.log("2 : ", this.productIdToIndex)
     });
 
     
@@ -100,6 +113,14 @@ export class InfoBarComponent {
 
   setPage(index: number) {
     this.currentIndex = index % this.pages.length;
+    if(index === 2) this.loadGrid()
+  }
+
+  loadGrid() {
+    for(let sale of this._pdv!.attribute('sales')) {
+      console.log("update ", this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]])
+      this.grid[this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]]][this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]] = +sale[this.SALES_VOLUME_ID!]
+    }
   }
 
   updateSum(row: number, i: number) {
