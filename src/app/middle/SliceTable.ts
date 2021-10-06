@@ -128,8 +128,7 @@ export class SliceTable {
             return true; //should return what is inside the new div ?
         },
         'checkboxEnduit': (pdv: any) => {
-                if (pdv[DataExtractionHelper.TARGET_ID] === null) return false; 
-                return pdv[DataExtractionHelper.TARGET_ID][DataExtractionHelper.TARGET_FINITION_ID] === true;
+                return false;
         },
         'checkboxP2cd': (pdv: any) => {
             if(!pdv['target']) return false;
@@ -161,6 +160,7 @@ export class SliceTable {
 
         this.idIndustries = {'Siniat': 0, 'Placo': 2, 'Knauf': 5}
 
+        console.log("Ids : ", this.idsToFields)
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
@@ -178,12 +178,15 @@ export class SliceTable {
         for(let pdv of pdvs) {
             if(pdv[DataExtractionHelper.SALE_ID] === true) {
                 var newPdv: {[key:string]:any} = {}; //concrete row of the table
-                for(let index = 0; index < Object.keys(this.getAllColumns(type)).length; index ++) {
-                    let field = this.getAllColumns(type)[index]
+                let allColumns = this.getAllColumns(type);
+                for(let index = 0; index < Object.keys(allColumns).length; index ++) {
+                    let field = allColumns[index]
                     if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
                     else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
-                    else newPdv[field] = pdv[index]
-                    if(field === 'pointFeu') console.log("value : ", pdv['pointFeu'])
+                    else {
+                        if(field==='pointFeu') console.log("Pb : ", pdv)
+                        newPdv[field] = pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), field)!]
+                    }
                 }
                 pdvsAsList.push(newPdv);
             }
@@ -196,7 +199,7 @@ export class SliceTable {
     }
 
     getAllColumns(type: string) {
-        let allColumns = this.pdvFields.concat(this.tableConfig[type]['specificColumns']);
+        let allColumns = DataExtractionHelper.getPDVFields().concat(this.tableConfig[type]['specificColumns']);
         return allColumns;
     }
 
