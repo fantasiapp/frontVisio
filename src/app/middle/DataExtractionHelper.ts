@@ -206,7 +206,7 @@ class DataExtractionHelper{
     TradeExtrationHelper.height = this.tradeHeight;
   }
 
-  static updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}) {
+  static updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': {[id: number]: any}}) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
       console.log("Back updated, now update middle")
       // Check how deletions are managed 
@@ -214,7 +214,7 @@ class DataExtractionHelper{
 
       //update this.pdv
       let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
-      for(let newPdv of data.pdvs) {
+      for(let newPdv of Object.values(data.pdvs)) {
         for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
           if((oldPdv as any)[idCode] === newPdv[idCode]) {
             this.data.pdvs[oldPdvId] = newPdv;

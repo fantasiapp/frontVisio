@@ -318,7 +318,7 @@ export class SliceTable {
 
         newPdv[DataExtractionHelper.TARGET_ID] = newTarget;
         console.log("newPdv : ", newPdv)
-        this.dataService.updatePdv(newPdv);
+        this.dataService.updatePdv(newPdv, pdv.instanceId);
     }
 
 

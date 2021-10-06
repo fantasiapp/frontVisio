@@ -68,6 +68,7 @@ export class InfoBarComponent {
 
   private _pdv: PDV | undefined;
   static valuesSave: any[] = [];
+  static pdvId: number = 0;
   redistributed?: boolean;
 
   getName(name: string) {
@@ -78,7 +79,7 @@ export class InfoBarComponent {
     console.log('[InfobarComponent]: On');
     
     filtersState.$load.subscribe(() => {
-      this.industries = PDV.getIndustries() as string[];
+      this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
       this.products = PDV.getProducts() as string[];
       this.products.splice(3, this.products.length, 'P2CD')
       this.grid = new Array(this.industries.length + 1);
@@ -175,8 +176,8 @@ export class InfoBarComponent {
     //arriving here means that a new sale has to be created
     this._pdv!.attribute('sales').push([
       Math.floor(Date.now() / 1000),
-      DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), DataExtractionHelper.getKeyByValue(this.industryIdToIndex, i)),
-      DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), DataExtractionHelper.getKeyByValue(this.productIdToIndex, j)),
+      +DataExtractionHelper.getKeyByValue(this.industryIdToIndex, i)!,
+      +DataExtractionHelper.getKeyByValue(this.productIdToIndex, j)!,
       this.grid[i][j]
     ]);
     this.hasChanged = true;
@@ -194,7 +195,7 @@ export class InfoBarComponent {
   updatePdv(pdv: PDV) { //Field that may be changed here : target.commentTargetP2CD, target.redistributed, target.greenLight, target.targetP2CD
     let newPdv = this.pdvFromPDVToList(pdv);
     console.log("[InfoBar] newPdv : ", newPdv)
-    this.dataService.updatePdv(newPdv);
+    this.dataService.updatePdv(newPdv, InfoBarComponent.pdvId);
     this.hasChanged = false;
   }
 

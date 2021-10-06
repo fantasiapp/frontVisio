@@ -222,6 +222,7 @@ export class TableComponent extends BasicWidget {
     if(event['column']['colId'] === 'edit') {
       this.pdv = this.sliceTable.getPdvInstance(event['data'])
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+      InfoBarComponent.pdvId = event['data'].instanceId;
       this.selectedPdv = event['data'];
     }
     if(event['column']['colId'] === 'info') {

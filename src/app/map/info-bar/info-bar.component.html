@@ -109,7 +109,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="number"  (change)="changeSales(j+1,i)" [(ngModel)]="grid[j+1][i]" (input)="updateSum(j+1, i)" [disabled]="i == 3"/>
+                            <input type="number"  (change)="changeSales(j+1,i)" [(ngModel)]="grid[j+1][i]" (input)="updateSum(j+1, i)" [disabled]="i == 3 || j == 0"/>
                         </div>
                     </div>
                 </div>
