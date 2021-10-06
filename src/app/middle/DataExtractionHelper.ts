@@ -359,25 +359,26 @@ class DataExtractionHelper{
     return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
   }
 
-  static computeDescription(slice:any, description:string[]|string){
-    return "Ceci est une description"
-    // if (typeof(description) == 'string') return description;
-    // for (let i = 0; i < description.length; i++){
-    //   if (description[i] == '') continue;
-    //   if (description[i][0] == '@') description[i] = DataExtractionHelper.treatDescIndicator(slice, description[i]) as string;
-    // }
-    // return description.reduce((str:string, acc: string) => str + acc, "");
+  static computeDescription(slice:any, description:string[]){
+    if (description.length == 1) return description[0];
+    console.log('-->', slice)
+    for (let i = 0; i < description.length; i++){
+      if (description[i] == '') continue;
+      if (description[i][0] == '@') description[i] = DataExtractionHelper.treatDescIndicator(slice, description[i]) as string;
+      // if (description[i][0] == '@') description[i] = "Nombre";
+    }
+    return description.reduce((str:string, acc: string) => str + acc, "");
   }
 
   // à faire
-  static treatDescIndicator(slice:any, str:string){
-    if (str == '@ciblage') return PDV.computeCiblage(slice);
-    if (str == '@targetArea'){
-      let listSlice = Object.entries(slice) as [string, number][];
-      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-      return DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'targetP2CD');
-    }
-    return "Ceci est une description";
+  static treatDescIndicator(slice:any, str:string):string{
+    // if (str == '@ciblage') return PDV.computeCiblage(slice).toString();
+    // if (str == '@targetArea'){
+    //   let listSlice = Object.entries(slice) as [string, number][];
+    //   let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
+    //   return DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'targetP2CD').toString();
+    // }
+    return "Nombre";
   }
 };
 
