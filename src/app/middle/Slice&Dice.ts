@@ -530,11 +530,9 @@ export class PDV{
     for (let pdv of pdvs){
       for (let attribute of listAttributeToTest){
         if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) dictCounter[attribute][pdv.property(attribute)] += 1;
-        else dictCounter[attribute][pdv.property(attribute)] += 1;
+        else dictCounter[attribute][pdv.property(attribute)] = 1;
       }
     }
-    for (let attribute of listAttributeToTest)
-      dictCounter[attribute]['total'] = Object.values(dictCounter[attribute]).reduce((acc, value) => acc + value, 0);
     return dictCounter
   }
 
