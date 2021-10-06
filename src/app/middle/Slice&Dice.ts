@@ -644,14 +644,15 @@ export class PDV{
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
       knaufId = DataExtractionHelper.INDUSTRIE_KNAUF_ID,
       placoId = DataExtractionHelper.INDUSTRIE_PLACO_ID,
-      other = 0,
-      industrieAxis = DataExtractionHelper.get('industrie');
-    dictResult[industrieAxis[siniatId]] = industriesSalevolume[siniatId];
-    dictResult[industrieAxis[placoId]] = industriesSalevolume[placoId];
-    dictResult[industrieAxis[knaufId]] = industriesSalevolume[knaufId];
-    for (let i = 0; i < industriesSalevolume.length; i++)
-      if (![siniatId, knaufId, placoId].includes(i)) other += industriesSalevolume[i];
-    dictResult['Autres'] = other;
+      industrieAxis = DataExtractionHelper.get('industrie'),
+      listIndustries = Object.values(industrieAxis);
+    dictResult['Autres'] = 0;
+    for (let i = 0; i < industriesSalevolume.length; i++){
+      if (listIndustries[i] == industrieAxis[siniatId]) dictResult[industrieAxis[siniatId]] = industriesSalevolume[i];
+      else if (listIndustries[i] == industrieAxis[knaufId]) dictResult[industrieAxis[knaufId]] = industriesSalevolume[i];
+      else if (listIndustries[i] == industrieAxis[placoId]) dictResult[industrieAxis[placoId]] = industriesSalevolume[i];
+      else dictResult['Autres'] += industriesSalevolume[i];
+    }
     return dictResult;
   }
 
