@@ -122,8 +122,8 @@ export class InfoBarComponent {
     console.log("this : ", this._pdv!.attribute('target'))
   }
 
-  changeComment(newComment: string) { //PB : newValue isn't a number
-    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = newComment;
+  changeComment() { //PB : newValue isn't a number
+    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
     this.updatePdv(this._pdv!)
   }
 

@@ -20,7 +20,7 @@ function randomColor() {
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  //changeDetection: ChangeDetectionStrategy.OnPush //we want easy mode here
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
   @HostBinding('style.display')
@@ -32,9 +32,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   mapContainer?: ElementRef;
 
   private _criteria: any[] = [];
+  filterDict: any = {};
 
   set criteria(value: any[]) {
     this.pdvs = PDV.sliceMap(this.path, this._criteria = value);
+    this.filterDict = PDV.countForFilter(this.pdvs);
     this.update();
   }
   
@@ -43,7 +45,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private markers: google.maps.Marker[] = [];
   
   hide() {
-    console.log('hidden');
     this.hidden = true;
     this.subscription?.unsubscribe();
   }
@@ -63,6 +64,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   subscription?: Subscription;
 
   constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
+    console.log('[MapComponent]: On')
     this.initializeInfowindow();
     if ( this.shown )
       this.interactiveMode();
@@ -73,6 +75,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.pdvs = PDV.sliceMap(path, this._criteria);
+        this.filterDict = PDV.countForFilter(this.pdvs);
         this.update();
       } return true;
     });
