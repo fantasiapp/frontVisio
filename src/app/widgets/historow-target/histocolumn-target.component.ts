@@ -60,6 +60,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .enter()
         .append('input')
         .attr('value', 0)
+        .on('change', (event) => console.log("change : ", event.target.value))
         .style('width', (this.barWidth.toFixed(1)) + 'px')
         .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px');
       return container;
