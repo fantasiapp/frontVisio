@@ -68,6 +68,12 @@ export class MapSelectComponent {
       }
     };
     
+    if ( this.selection.length == this.criteria?.length ) {
+      d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
+      this.all = true;
+      this.selection.length = 0;
+    }
+    
     this.emitSelection();
   }
 }
