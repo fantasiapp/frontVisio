@@ -36,7 +36,7 @@
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="pdv.attribute('redistributed') || pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" disabled="pdv.attribute('redistributed')">
+                                <input type="checkbox" [attr.checked]="!pdv.attribute('redistributed') || !pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" [disabled]="!pdv.attribute('redistributed')">
                                 <span class="checkmark"></span>
                             </label>
                         </li>
