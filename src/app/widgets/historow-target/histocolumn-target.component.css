@@ -1,0 +1,70 @@
+.target-control {
+    box-sizing: border-box;
+    max-width: 100%;
+    height: 30px;
+    /* find the formula !!*/
+    margin: 0;   
+    display: flex;
+    position: absolute;
+    bottom: -30px;
+    transition: bottom 100ms ease-out 0s;
+}
+
+.target-control.target-control-opened {
+    bottom: 5px;
+}
+
+.container {
+    background: white;
+    transition: transform 100ms ease-out 0s;
+}
+
+.container.target-control-opened {
+    transform: translateY(-30px);
+}
+
+/* inputs are added dynamically */
+.target-control::ng-deep input {
+    box-sizing: border-box;
+    display: inline-block;
+    border: 1px solid black;
+    border-radius: 1px;
+    height: calc(100% - 2px);
+    outline: none !important;
+    border: none;
+    border-bottom: 2px solid #333;
+    background-color: #eee;
+    text-align: center;
+    font-size: 14px;
+}
+
+
+.open-target-control {
+    border: none !important;
+    outline: none !important;
+    position: absolute;
+    right: 50px;
+
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    background: #333;
+    z-index: 7;
+    cursor: pointer;
+    user-select: none;
+}
+
+.open-target-control img {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.open-target-control.validate {
+    background: #aaa;
+}
+
+.open-target-control:not(.validate):hover {
+    background: black;
+};

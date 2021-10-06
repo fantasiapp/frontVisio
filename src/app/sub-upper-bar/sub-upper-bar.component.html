@@ -1,7 +1,7 @@
 <div class="container aligned">
   <div [hidden]="filtersVisibles">
     <div class="dash">{{ currentDashboard }}</div>
-    <div class="level">Résultat {{ path }}</div>
+    <div class="level">Résultat {{ path }} {{ currentYear ? '(MÀJ ' + currentYear + ')' : '' }}</div>
   </div>
   <div class="select-year" style="width: 134px">
     <select >

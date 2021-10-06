@@ -1,48 +1,81 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { GridArea } from 'src/app/grid/grid-area/grid-area';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
-import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { Subject, combineLatest } from 'rxjs';
 
 import bb, {pie} from 'billboard.js';
 
 @Component({
   selector: 'app-simple-pie',
-  templateUrl: './simple-pie.component.html',
+  templateUrl: '../widget-template.html',
   styleUrls: ['./simple-pie.component.css'],
-  providers: [SliceDice]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SimplePieComponent extends GridArea implements AfterViewInit {
+
+export class SimplePieComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
-  private content!: ElementRef;
+  protected content!: ElementRef;
 
-  constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private sliceDice: SliceDice) {
-    super();
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
+    super(ref, filtersService, sliceDice);
+  }
 
-    combineLatest([filtersService.$path, this.ready!]).subscribe(([path, _]) => {
-      this.path = path;
-      this.update();
-    });
+  createGraph({data, colors}: {data: any[], colors?: string[]}, opt: {} = {}) {
+    let sum = data.reduce((acc: number, d: any[]) => acc + d[1], 0);
+      //temporary code to print no data⚠️
+      if ( !data.length || !sum )
+      return this.noData(this.content);
+    /****************⚠️ ***************/
     
-  }
-
-  private update() {
-    d3.select(this.ref.nativeElement).selectAll('div > svg').remove();
-    this.data = this.sliceDice.dnMarcheP2cd(this.path);
-
-    bb.generate({
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
+    this.chart = bb.generate({
+      bindto: this.content.nativeElement,
       data: {
-        columns: this.data.map(d => [d.label, d.value]),
-        type: pie()
+        columns: data,
+        type: pie(),
+        order: null
       },
-      bindto: this.content.nativeElement
-    })
-    // this.createSvg();
-    // this.createColors();
-    // this.drawChart();
+      tooltip: {
+        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
+          const data = d[0];
+          return `
+            <div class="tooltip">
+              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+              <div class="tooltip-tail"></div>
+            </div>
+          `;
+        },
+      },
+      //remove labels on slices
+      pie: {
+        label: {format(v: number, ratio: number, id: string) { return ''; }},
+        expand: {
+          duration: 50,
+          rate: 0.99
+        },
+        startingAngle: Math.PI/2
+      },
+      color: {
+        pattern: colors
+      },
+      //disable clicks on legend
+      legend: {
+        item: {
+          onclick() {},
+          tile: {height: this.tileHeight}
+        },
+        position: 'inset',
+        inset: {
+          anchor: 'bottom-right',
+          y: 5 + (data.length) * this.tileHeight
+        }
+      },
+      transition: {
+        duration: 250
+      },
+      // add opt
+      ...opt
+    });
   }
-  
-  private path = {};
-  private data: any[] = []; //nationalP2CD.tableauHaut;
 }

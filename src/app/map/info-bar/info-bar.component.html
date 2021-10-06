@@ -1,0 +1,149 @@
+<button class="close" (click)="requestQuit()">
+    <img src="assets/X.svg"/>
+</button>
+<div class="nav">
+    <ul #navigation>
+        <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
+        <hr class="horizontal-line">
+    </ul>
+</div>
+
+<ng-container *ngIf="pdv">
+    <ng-container *ngIf="currentIndex == 0">
+        <div class="main">
+            <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+            <div class="reference">
+                <div class="definition">
+                    <ul>
+                        <li><span>Point de vente :</span> {{pdv!.attribute('name')}}</li>
+                        <li><span>Agent :</span> {{getName('agent')}}</li>
+                        <li><span>Segment :</span> {{getName('segmentMarketing')}}</li>
+                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
+                        <li><span>Département :</span> {{getName('dep')}}</li>
+                        <li><span>Ville :</span> {{getName('ville')}}</li>
+                        <li><span>Bassin :</span> {{getName('bassin')}}</li>
+                    </ul>
+                </div>
+                <div class="props">
+                    <ul>
+                        <li>
+                            <label class="container-checkbox">
+                                Ne vend pas de plaque
+                                <input type="checkbox" [attr.checked]="pdv.attribute('target')[TARGET_SALE_ID]" disabled>
+                                <span class="checkmark" ></span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="container-checkbox">
+                                Point de vente redistribue
+                                <input type="checkbox" [attr.checked]="pdv.attribute('redistributed') || pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" disabled="pdv.attribute('redistributed')">
+                                <span class="checkmark"></span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
+                <span>Commentaires :</span>
+                <textarea #comments></textarea>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="currentIndex == 1">
+        <div class="main">
+            <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+            <!-- <p>information sur la point de vente</p> -->
+            <div class="content">
+                <div class="definition">
+                    <div class="name">Général</div>
+                    <ul>
+                        <li><span>Agent :</span> {{getName('agent')}}</li>
+                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
+                        <li><span>Départements :</span> {{getName('dep')}}</li>
+                        <li><span>Client prospect :</span> {{pdv!.clientProspect() || "Non documenté"}} </li>
+                        <li><span>Segmentation marketing :</span>{{getName('segmentMarketing')}}</li>
+                        <li><span>Segmentation portefeuille :</span> {{getName('segmentCommercial')}} </li>
+                    </ul>
+                </div>
+
+                <div class="definition" *ngIf="getSalesVolumes().length">
+                    <div class="name">Volumes de vente par marque en m²</div>
+                    <ul>
+                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} :</span>{{formatVolume(entry[1])}} m²</li>
+                    </ul>
+                </div>
+
+                <div class="eval">
+                    <ul>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget()" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD/></li>
+                        <li><span class="bolder">Capacité à faire basculer le PDV :</span>
+                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'r' ? 'red' : 'lightgray'}" (click)="changeLight('r')"></div>
+                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'o' ? 'orange' : 'lightgray'}" (click)="changeLight('o')"></div>
+                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'g' ? 'green' : 'lightgray'}" (click)="changeLight('g')"></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
+                <span>Commentaires :</span>
+                <textarea #comments (change)="changeComment()"></textarea>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="currentIndex == 2">
+        <div class="main">
+            <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+            <!-- <p>information sur la point de vente</p> -->
+            <div class="content">
+                <div class="grid">
+                    <div class="first row">
+                        <div class="first empty cell"></div>
+                        <div class="cell" *ngFor="let product of products">
+                            {{product | titlecase}}
+                        </div>
+                    </div>
+                    <div class="total row">
+                        <div class="first cell">Totaux</div>
+                        <div class="cell" *ngFor="let product of products; let i = index">
+                            <input type="text" [value]="grid[0][i]" [disabled]="i == 3"/>
+                        </div>
+                    </div>
+                    <div class="row" *ngFor="let industry of industries; let j = index">
+                        <div class="first cell">{{industry | titlecase}}</div>
+                        <div class="cell" *ngFor="let product of products; let i = index">
+                            <input type="number" [(ngModel)]="grid[j+1][i]" (input)="updateSum(j+1, i)" [disabled]="i == 3"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
+                <span>Commentaires :</span>
+                <textarea (change)="changeComment()" #comments>
+                    {{ pdv ? pdv!.getCommentTarget() : '' }}
+                </textarea>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>
+
+
+<div *ngIf="currentIndex == 2" class="validation">
+    <button>Annuler</button>
+    <button>Valider</button>
+</div>
+
+<img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
+<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2" (click)="setPage(currentIndex + 1)"/>
+
+<div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
+    <div class="cover"></div>
+    <div class="quitbar">
+        <h1>Souhaitez-vous mettre à jour les modifications</h1>
+        <div class="button-container">
+            <button class="negative button" (click)="quit(false)">Non, merci</button>
+            <button class="positive button" (click)="quit(true)">Oui</button>
+        </div>
+    </div>
+</div>

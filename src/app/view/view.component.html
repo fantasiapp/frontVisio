@@ -1,4 +1,7 @@
 <div class="main-container">
-    <app-upperbar></app-upperbar>
-    <grid-wrapper></grid-wrapper>
+    <app-upperbar (mapVisible)="mapIsVisible($event)">
+        <div class="aligned description">{{ computeDescription((layout && layout.description) || '') }}</div>
+    </app-upperbar>
+    <grid-manager [layout]="layout" #gridManager>
+    </grid-manager>
 </div>

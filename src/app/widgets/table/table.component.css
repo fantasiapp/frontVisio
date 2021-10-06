@@ -1,0 +1,68 @@
+.table-title {
+    padding-left: 30px;
+}
+
+.table-navigation {
+    padding-bottom: 20px;
+}
+.table-navigation label {
+    padding-left: 15px;
+}
+input[type="radio"] {
+    width: 15px;
+    height: 15px;
+    /* filter: invert(100%) hue-rotate(18deg) brightness(1.7); */
+}
+
+ul li {
+    font-weight: 300;
+    margin: 10px -40px;
+    list-style-type: none;
+}
+span {
+    font-weight: 500;
+}
+
+
+.side-div {
+    display: flex;
+    flex-direction: column;
+    padding: 2em 5em;
+    position: absolute;
+    height: 100%;
+    width: 50%;
+    background-color: white;
+    top: 0;
+    right: 0;
+    box-shadow: -2px 0 4px grey;
+}
+
+.side-div img{
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 10px;
+}
+
+.side-div div {
+    flex-grow: 1;
+}
+
+.side-div .checkbox-div {
+    color: orange;
+    
+}
+
+
+.values-div {
+    display: flex;
+    flex-direction: row;
+}
+
+
+.vertical-bar {
+    min-width: 2px;
+    max-width: 2px;
+    height: 60%;
+    background-color: lightgray;
+}

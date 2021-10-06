@@ -22,9 +22,9 @@
         {{ dashName }}
       </option>
     </select>
-  <img (click)="close()" src="assets/x icon.svg" class="close" />
+  <img style="cursor: pointer;" (click)="close()" src="assets/x icon.svg" class="close" />
   <div *ngIf="showselect">
-    <div class="list-button">
+    <div class="list-button" [style.column-count]="viewList.name.length > 12? '3' : '2'">
       <ng-container *ngFor="let levName of viewList.name; let idLev = index">
         <button
           class="list-elmt left-aligned"
@@ -33,12 +33,11 @@
           (dblclick)="updateStateClose(idLev + 1, undefined, undefined)"
         >
           {{ levName }}
-        </button></ng-container
-      >
+        </button></ng-container>
       </div>
   </div>
   <ng-container *ngIf="!showselect">
-    <div class="list">
+    <div class="list" [style.grid-template-columns]="'repeat(' + (viewList.name.length > 12 ? 3 : 2) + ', 1fr)'" [style.grid-template-rows]="'repeat(' + (viewList.name.length > 12 ? 7 : 6) + ', 25px)'">
       <button
         class="list-elmt left-aligned"
         *ngFor="let dashboardName of viewList.name; let idPos = index"
@@ -59,17 +58,16 @@
       <img
         src="assets/super.svg"
         class="navigate-button1"
-        *ngIf="superLevel.label"
+        [style.display]="superLevel.label ? 'initial' : 'none'"
         (click)="showSuper(this.superLevel)"
       />
       <br />
       {{ superLevel.label }}
     </div>
-    <div class="box-nav2" [ngClass]="{ disabled: subLevels == viewList }">
+    <div class="box-nav2" [style.display]="canSub() ? 'initial' : 'none'" [ngClass]="{ disabled: subLevels == viewList }">
       <img
         src="assets/sub.svg"
         class="navigate-button2"
-        *ngIf="subLevels.id.length"
         (click)="showSub(subLevels)"
       /><br />
       {{ subLevels.label[0] }}

@@ -1,0 +1,16 @@
+<button class="close" (click)="opened = false">
+    <img src="assets/X.svg"/>
+</button>
+<div class="main">
+    <h2 class="title">Géolocalisation</h2>
+    <p class="total">Total: {{PDVNumber}}</p>
+
+    <div class="criterion" *ngFor="let criteria of criteriaNames; let idx = index; trackBy: trackById">
+        <map-select [criterion]="criteria" [prettyCriterion]="criteriaPrettyNames[idx]" [criteria]="loadCriterion(criteria, path)" (criteriaChange)="someCriteriaChange(idx, $event)">
+        </map-select>
+    </div>
+    
+</div>
+<div *ngIf="!opened" class="toggle" (click)="opened = !opened">
+    <img src="assets/Filtre.svg"/>
+</div>

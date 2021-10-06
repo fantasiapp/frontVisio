@@ -1,4 +1,4 @@
-import { SliceDice } from 'src/app/sliceDice/Slice&Dice';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FormsModule } from '@angular/forms';
 import { FiltersStatesService } from './filters-states.service';
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
@@ -64,7 +64,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
       this.selectedDashboardName = currentStates.States.dashboard.name;
     });
     this.viewList =
-    this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
+      this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
   private blockToShow(list: listDash | listLev) {}
 
@@ -78,7 +78,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
   showSuper(level?: lev, levels?: listLev) {
     this.filtersState.updateState(undefined, undefined, true);
     this.viewList =
-    this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
+      this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
 
   updateState(
@@ -94,7 +94,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
           undefined
         );
       } else if (this.viewList.name[0] === this.listLevel.name[0]) {
-        this.filtersState.updateState(undefined, undefined, true);
+        this.filtersState.updateState(undefined, undefined, true, false);
         this.filtersState.updateState(
           this.viewList.id[indexLev - 1],
           undefined,
@@ -120,4 +120,6 @@ export class FiltersComponent implements OnInit , OnDestroy{
     this.updateState(indexLev, indexDash, superLev);
     this.close();
   }
+
+  canSub() { return this.filtersState.canSub(); }
 }

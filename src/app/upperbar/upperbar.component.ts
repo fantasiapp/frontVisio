@@ -1,25 +1,24 @@
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { range } from 'rxjs';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { getGeoTree, getTradeTree } from '../middle/Slice&Dice';
 
 import {
   trigger,
   state,
   style,
-  animation,
   transition,
   animate
 } from '@angular/animations';
+import { SliceDice } from '../middle/Slice&Dice';
+import { MapComponent } from '../map/map.component';
 
 
 @Component({
   selector: 'app-upperbar',
   templateUrl: './upperbar.component.html',
   styleUrls: ['./upperbar.component.css'],
-
   animations: [
     //here go animation triggers
     trigger('openClose', [
@@ -42,13 +41,20 @@ export class UpperbarComponent implements OnInit {
   searchDebounceId!: number;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
 
+  @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
+
+  @ViewChild('map', {read: MapComponent, static: false})
+  mapComponent?: MapComponent;
+
   isSearchOpen = new BehaviorSubject(false);
   constructor(
-    private router: Router,
     private filtersState: FiltersStatesService,
     private authService: AuthService,
+    private sliceDice: SliceDice,
+    private cd: ChangeDetectorRef
   ) {}
   shouldShowButtons = false;
+
   ngOnInit(): void {
     this.filtersState.filtersVisible.subscribe(
       (val) => (this.isFilterVisible = val)
@@ -67,5 +73,22 @@ export class UpperbarComponent implements OnInit {
   }
   logOut() {
     this.authService.logoutFromServer();
+  }
+  toggle() {
+    this.sldValue = 1 - this.sldValue;
+    this.sliceDice.geoTree = this.sldValue ? true : false;
+    this.filtersState.reset(
+      this.sldValue ? getGeoTree() : getTradeTree()
+    );
+  }
+
+  toggleMap() {
+    if ( !this.mapComponent?.shown ) {
+      this.mapComponent!.show();
+      this.mapVisible.emit(true);
+    } else {
+      this.mapComponent?.hide();
+      this.mapVisible.emit(false);
+    }
   }
 }

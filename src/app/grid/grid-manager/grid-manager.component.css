@@ -1,8 +1,81 @@
 :host {
   display: grid;
-  width: 100%;
-  height: 100%;
-  min-height: 500px;
   column-gap: 20px;
   row-gap: 20px;
+  /* tune this */
+  margin: 175px 5% 0;
+  height: calc(100% - 190px);
+  font-size: 20px;
+}
+
+@media (max-width: 1366px) {
+  :host {
+      font-size: 16px;
+  }
+}
+
+@media (max-width: 1920px) {
+  :host {
+      font-size: 20px;
+  }
+}
+
+@media (min-width: 1920px) {
+  :host {
+      font-size: 22px;
+  }
+}
+
+:host::ng-deep > * {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  background: white;
+  padding: 15px;
+  padding-bottom: 10px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  font-size: inherit;
+  user-select: none;
+}
+
+:host::ng-deep * .props h2 {
+  padding: 0;
+  margin: 0;
+  margin-bottom: 3px;
+  font-size: 0.9em;
+  font-weight: 500;
+  padding: 0 25px;
+  border-bottom: 1px solid #707070;
+  color: #151d21;
+}
+
+:host::ng-deep * .props p {
+  padding: 0;
+  margin: 0;
+  margin-bottom: 5px;
+  font-size: 0.7em;
+  font-weight: 500;
+  color: #070707;
+}
+
+:host::ng-deep * .props {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* try to use fit-content if available, if not it's not that bad*/
+@supports(width: fit-content) {
+  :host::ng-deep * .props {
+    width: fit-content;
+  }
+}
+
+
+:host::ng-deep > * .container {
+  flex: 1;
+  overflow: hidden;
 }

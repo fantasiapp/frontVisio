@@ -1,0 +1,122 @@
+:host {
+    --filter-bar-width: 400px;
+    --filter-bar-max-width: 500px;
+    --filter-bar-padding-y: 25px;
+    --filter-bar-padding-x: 0;
+    --filter-bar-elements-padding-x: 20px;
+    --filter-bar-margin-y: 70px;
+    --navigation-height: 40px;
+    --navigation-ball-size: 30px;
+    --pdv-title-margin-y: 15px;
+    --pdv-fields-margin-y: 10px;
+    --pdv-props-margin-y: 20px;
+    --pdv-comment-margin-y: 20px;
+    --pdv-section-margin-y: 30px;
+    --eval-circle-size: 30px;
+
+
+    box-sizing: border-box;
+    position: absolute;
+    width: var(--filter-bar-width);
+    max-width: var(--filter-bar-max-width);
+    height: calc(100% - var(--filter-bar-margin-y) - var(--navigation-height));
+    padding: var(--filter-bar-padding-y) var(--filter-bar-padding-x);
+    padding-right: 0;
+    top: 10px;
+    left: calc(-1*var(--filter-bar-width) + 30px);
+    background: white;
+    z-index: 9999;
+    margin-top: var(--filter-bar-margin-y);
+    display: flex;
+    flex-flow: row nowrap;
+    transition: left 200ms ease-out 0s;
+    font-family: 'Roboto';
+    font-size: 20px;
+    box-shadow: 2px 0 3px 0px #aaa;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+:host(.opened) {
+    left: 0;
+    overflow: auto;
+}
+
+@media (max-width: 1366px) {
+    :host {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 1920px) {
+    :host {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 1920px) {
+    :host {
+        font-size: 22px;
+    }
+}
+
+.main {
+    flex: 1;
+}
+
+.toggle {
+    cursor: pointer;
+    flex: 0 0 30px;
+    position: relative;
+}
+
+.toggle img {
+    position: absolute;
+    top: 30%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.close {
+    border: none;
+    outline: none;
+    display: block;
+    background: none !important;
+    position: absolute;
+    top: 2em;
+    right: 25px;
+    cursor: pointer;
+}
+
+.title {
+    font-size: 1.25em;
+    font-weight: medium;
+    padding-left: var(--filter-bar-elements-padding-x);
+}
+
+.total {
+    font-size: 0.8em;
+    font-weight: 300;
+    padding-left: var(--filter-bar-elements-padding-x);
+}
+
+.criterion .name {
+    font-size: 1em;
+    font-weight: 500;
+    padding: 10px var(--filter-bar-elements-padding-x);
+    margin: 0;
+    background: #F7F7F7;
+    color: #151D21;
+}
+
+.criterion .class {
+    font-size: 1.125em;
+    font-weight: 300;
+    padding: 15px var(--filter-bar-elements-padding-x);
+}
+
+.criterion .class select {
+    border: none !important;
+    border-bottom: 1px solid #7f7f7f;
+    outline: none !important;
+    width: 250px;
+}

@@ -1,15 +1,11 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
-import { MOCK_NAVIGATION } from '../structure/mock-structure';
-import DataExtractionHelper from '../sliceDice/DataExtractionHelper';
-import {Navigation} from '../sliceDice/Navigation';
-//!!!HACK
-import { load } from '../sliceDice/Slice&Dice';
-
-import { state } from '@angular/animations';
-import {MatSelectModule} from '@angular/material/select'
-import { Subject } from 'rxjs';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
+import { Navigation } from '../middle/Navigation';
+import { loadAll, getGeoTree } from '../middle/Slice&Dice';
+import { Tree } from '../middle/Node';
+import { AsyncSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -17,31 +13,23 @@ import { Subject } from 'rxjs';
 export class FiltersStatesService {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
-  
+  tree?: Tree;
   constructor(private navigation: Navigation, private dataservice : DataService) {
     this.dataservice.response.subscribe((data) => {
-      if (data){
-        console.debug('les datas ', data);
+      if (data) {
         DataExtractionHelper.setData(data);
-        //HACK!!
-        this.navigation.load(load());
-        const currentArrays = {
-          levelArray: this.navigation.getArray('level'),
-          dashboardArray: this.navigation.getArray('dashboard'),
-        };
-        const currentState = {
-          States: this.navigation.getCurrent(),
-        };
-
-        this.stateSubject.next(currentState);
-        this.arraySubject.next(currentArrays);}
-        this.$path.next({});
+        loadAll();
+        let defaultTree = getGeoTree();
+        this.reset(defaultTree);
+        this.$load.next(0 as never);
+        this.$load.complete();
+      }
     });
-
   }
 
 
   $path: BehaviorSubject<{}> = new BehaviorSubject({});
+  $load: AsyncSubject<never> = new AsyncSubject();
 
   stateSubject = new BehaviorSubject({
     States: {
@@ -53,6 +41,10 @@ export class FiltersStatesService {
       dashboard: {
         id: 0,
         name: '',
+        grid: ["1", "1"] as [string, string],
+        areas: {x: null},
+        template: 'x',
+        description: ''
       },
       path: []
     },
@@ -80,10 +72,15 @@ export class FiltersStatesService {
     },
   });
 
+  public getYear() {
+    return this.navigation.getCurrentYear();
+  };
+
   public updateState(
     levelId?: number,
     dashboardId?: number,
-    superlevel?: boolean
+    superlevel?: boolean,
+    emit: boolean = true
   ) {
     this.navigation.setCurrent(levelId, dashboardId, superlevel);
     const currentArrays = {
@@ -93,18 +90,39 @@ export class FiltersStatesService {
     const currentState = {
       States: this.navigation.getCurrent(),
     };
-    this.stateSubject.next(currentState);
-    this.arraySubject.next(currentArrays);
+
+    if ( emit )
+      this.stateSubject.next(currentState);
+      this.arraySubject.next(currentArrays);
     
     if ( this.navigation.currentLevel ) {
+      /* Rework this */
       let path = this.navigation.getCurrent()._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
-        if ( idx == 0 )
-          acc['Région'] = level[1]
-        else acc[level[0]]=level[1];
+        acc[level[0]]=level[1];
         return acc;
       }, {});
 
-      this.$path.next(path);
+      if ( emit )
+        this.$path.next(path);
     }
+  }
+
+  public reset(t: Tree) {
+    this.tree = t;
+    this.navigation.setTree(t);
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    const currentState = {
+      States: this.navigation.getCurrent(),
+    };
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+    this.$path.next({});
+  }
+
+  canSub() {
+    return this.arraySubject.value.levelArray.subLevel.id.length && this.navigation.childrenHaveSameDashboard();
   }
 }

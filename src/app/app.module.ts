@@ -16,20 +16,35 @@ import { UpperbarComponent } from './upperbar/upperbar.component';
 import { FiltersComponent } from './filters/filters.component';
 import { SearchFieldComponent } from './general/search-field/search-field.component';
 import { SubUpperBarComponent } from './sub-upper-bar/sub-upper-bar.component';
-import { FiltersStatesService } from './filters/filters-states.service';
 import { MapComponent } from './map/map.component';
 import { ViewComponent } from './view/view.component';
 // import { AgmCoreModule } from '@agm/core';
-import { Navigation } from './sliceDice/Navigation';
-import {MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
+import { Navigation } from './middle/Navigation';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SelectComponent } from './general/select/select.component';
 import { MatIconModule } from '@angular/material/icon'
-import { MatButtonModule } from  '@angular/material/button';
 import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
-import { SimpleDonutsComponent } from './widgets/simple-donuts/simple-donuts.component';
+import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.component';
 //---------------------------------------------------------------------------------------
-import { GridManager, GridManagerWrap } from './grid/grid-manager/grid-manager.component';
+import { GridManager } from './grid/grid-manager/grid-manager.component';
+import { HistoColumnComponent } from './widgets/histocolumn/histocolumn.component';
+import { HistoRowComponent } from './widgets/historow/historow.component';
+import { GaugeComponent } from './widgets/gauge/gauge.component';
+import { httpInterceptorProviders } from './http-interceptors/index';
+import { SliceDice } from './middle/Slice&Dice';
+import { SliceTable } from './middle/SliceTable';
+import { PieTargetComponent } from './widgets/pie-target/pie-target.component';
+
+import { AgGridModule } from 'ag-grid-angular';
+import { TableComponent } from './widgets/table/table.component';
+import { HistoColumnTargetComponent } from './widgets/historow-target/histocolumn-target.component';
+import { EditCellRenderer, CheckboxEnduitCellRenderer, CheckboxP2cdCellRenderer, PointFeuCellRenderer, TargetCellRenderer } from './widgets/table/renderers';
+
+import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
+import { InfoBarComponent } from './map/info-bar/info-bar.component';
+import { MapFiltersComponent } from './map/map-filters/map-filters.component';
+import { MapSelectComponent } from './map/map-select/map-select.component';
 
 @NgModule({
   declarations: [
@@ -48,10 +63,24 @@ import { GridManager, GridManagerWrap } from './grid/grid-manager/grid-manager.c
     ViewComponent,
     SelectComponent,
     SimplePieComponent,
-    SimpleDonutsComponent,
+    SimpleDonutComponent,
     //------------------------
     GridManager,
-    GridManagerWrap
+    HistoColumnComponent,
+    HistoRowComponent,
+    TableComponent,
+    EditCellRenderer,
+    CheckboxEnduitCellRenderer,
+    CheckboxP2cdCellRenderer,
+    PointFeuCellRenderer,
+    TargetCellRenderer,
+    GaugeComponent,
+    PieTargetComponent,
+    HistoColumnTargetComponent,
+    HistocurveComponent,
+    InfoBarComponent,
+    MapFiltersComponent,
+    MapSelectComponent
   ],
   imports: [
     BrowserModule,
@@ -63,12 +92,13 @@ import { GridManager, GridManagerWrap } from './grid/grid-manager/grid-manager.c
     BrowserAnimationsModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
     // AgmCoreModule.forRoot({
     //   apiKey:''
     // })
+    AgGridModule.withComponents([])
   ],
-  providers: [Navigation],
+  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
