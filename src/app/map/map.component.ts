@@ -35,8 +35,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   filterDict: any = {};
 
   set criteria(value: any[]) {
-    this.pdvs = PDV.sliceMap(this.path, this._criteria = value);
-    this.filterDict = PDV.countForFilter(this.pdvs);
+    let pdvs = PDV.sliceMap(this.path, []);
+    this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
+    this.filterDict = PDV.countForFilter(pdvs);
     this.update();
   }
   
@@ -74,8 +75,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.subscription = combineLatest([this.filtersService.$path, this.filtersService.$load, this.ready]).subscribe(([path, _, __]) => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
-        this.pdvs = PDV.sliceMap(path, this._criteria);
-        this.filterDict = PDV.countForFilter(this.pdvs);
+        let pdvs = PDV.sliceMap(this.path, []);
+        this.pdvs = PDV.reSlice(pdvs, this._criteria);
+        this.filterDict = PDV.countForFilter(pdvs);
         this.update();
       } return true;
     });
