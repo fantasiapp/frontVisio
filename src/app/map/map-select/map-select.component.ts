@@ -7,7 +7,7 @@ import * as d3 from 'd3';
   styleUrls: ['./map-select.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapSelectComponent {
+export class MapSelectComponent implements OnChanges {
 
   @Input()
   criterion = '';
@@ -23,10 +23,10 @@ export class MapSelectComponent {
   
   selection: (number|string)[] = [];
 
-  constructor(private ref: ElementRef) { }
-
   @ViewChild('total', {static: false, read: ElementRef})
   private total?: ElementRef;
+
+  constructor(private ref: ElementRef) { }
 
   trackById(index: number, couple: any) {
     return couple[0];
@@ -93,5 +93,11 @@ export class MapSelectComponent {
 
   toggleDropdown(e: any) {
     this.dropped = !this.dropped;
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if ( this.criterion != 'clientProspect' ) return;
+    let criteriaChange = changes['criteria'];
+    //selection is criteria ids
   }
 }

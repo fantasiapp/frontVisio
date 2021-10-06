@@ -255,7 +255,7 @@ class DataExtractionHelper{
   
   static getGeoLevelName(height: number, id: number): string{
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
-    if (name === undefined) throw `No level with id=${id}`;
+    if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
     return name;
   }
 
@@ -273,7 +273,7 @@ class DataExtractionHelper{
     // HARDCODE
     if ( height == 0 ) return '';
     let name = this.data[this.getTradeLevel(height)[this.LABEL_INDEX]][id];
-    if (name === undefined) throw `No level with id=${id}`;
+    if (name === undefined) throw `No trade level with id=${id} at height=${height}`;
     return name;
   }
 
