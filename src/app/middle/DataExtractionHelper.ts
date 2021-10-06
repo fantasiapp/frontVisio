@@ -142,10 +142,10 @@ class DataExtractionHelper{
     this.DASHBOARD_INDEX = structure.indexOf('listDashBoards');
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
     this.LAYOUT_TEMPLATE_INDEX = this.data['structureLayout'].indexOf('template');
-    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
-    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
-    this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
-    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboard'].indexOf('comment');
+    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboards'].indexOf('layout');
+    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboards'].indexOf('widgetParams');
+    this.DASHBOARD_NAME_INDEX = this.data['structureDashboards'].indexOf('name');
+    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboards'].indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetparams'].indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetparams'].indexOf('widgetCompute');
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
@@ -299,6 +299,8 @@ class DataExtractionHelper{
     if (field == 'indexesPdv') field = 'indexesPdvs';
     if (field == 'structureWidgetParam') field = 'structureWidgetparams';
     if (field == 'indexesWidgetParam') field = 'indexesWidgetparams';
+    if (field == 'structureDashboard') field = 'structureDashboards';
+    if (field == 'indexesDashboard') field = 'indexesDashboards';
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;

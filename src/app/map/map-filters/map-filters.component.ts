@@ -27,6 +27,8 @@ export class MapFiltersComponent {
   @Output()
   criteriaChange = new EventEmitter<any>();
 
+  private criteriaResult = this.criteriaNames.map(() => []);
+
   constructor(private ref: ElementRef, private filtersState: FiltersStatesService, private cd: ChangeDetectorRef) {
     console.log('[MapFiltersComponent]: On.');
   }
@@ -39,34 +41,35 @@ export class MapFiltersComponent {
     return index;
   }
 
-  updateCriteria(index: number) {
-    let criteria = this.criteriaNames.reduce((acc: any[], item: string, idx: number) => {
-      let sel = d3.select(this.ref.nativeElement).selectAll('select').nodes()[idx] as any,
-        value = sel.value | 0, 
-        res = value ? [[item, value]] : [];
-      
-      return acc.concat(res);
-    }, []);
-
-    this.criteriaChange.emit(criteria);
-    return criteria;
-  }
-
   loadCriterion(criterion: string, path: any): Observable<[string, any][]> {
     //use pretty prints on path slice
     let obversable: Observable<[string, any][]> = new Observable((observer) => {
       this.filtersState.$load.subscribe(() => {
         let criterionPretty = this.criteriaPrettyNames[this.criteriaNames.indexOf(criterion)];
         if ( criterionPretty && path[criterionPretty] !== undefined )
-          return observer.next([['0', DataExtractionHelper.get(criterion)[path[criterionPretty]]]]);
+          return observer.next([
+            path[criterionPretty], DataExtractionHelper.get(criterion)[path[criterionPretty]]
+          ]);
   
         let data = DataExtractionHelper.get(criterion) || {};
         let entries = Object.entries<any>(data);
-        return observer.next(([['0', 'Tous']] as [string, any][]).concat(entries))
+        return observer.next(entries)
       });
     });
 
     return obversable;
+  }
+
+  someCriteriaChange(idx: number, criteria: any) {
+    this.criteriaResult[idx] = criteria;
+    let result = this.criteriaResult.reduce((acc: any[][], el: any[]) => {
+      if ( el.length )
+        return acc.concat([el]);
+      return acc;
+    }, []);
+
+    console.log(result);
+    this.criteriaChange.emit(result);
   }
 
   updateOptions(index: number) {

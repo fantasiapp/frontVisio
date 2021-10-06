@@ -438,7 +438,7 @@ export class PDV{
     return this.instances.get(id);
   }
 
-  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number][]): void{
+  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
     if (axis1 == 'suiviAD' || axis2 == 'suiviAD' || axis1 == 'histo&curve') dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock des visites
     else {
@@ -465,7 +465,7 @@ export class PDV{
     return this.values[PDV.index(name)];
   }
 
-  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number][]): DataWidget{
+  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
     if (axe2 == 'lg-1') {
       let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
       let labels = this.geoTree.attributes['labels'];      
@@ -493,11 +493,11 @@ export class PDV{
     return dataWidget;
   }
 
-  static reSlice(pdvs:PDV[], conditions: [string, number][]): PDV[]{
+  static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
     if (conditions.length === 0) return pdvs;
     let newPdvs: PDV[] = [];
     for (let pdv of pdvs){
-      if (conditions.map(condition => pdv.property(condition[0]) == condition[1]).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
+      if (conditions.map(condition => condition[1].includes(pdv.property(condition[0]))).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
     }
     return newPdvs;
   }
@@ -517,7 +517,7 @@ export class PDV{
     let industriesList = Object.values(industriesDict);
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    return DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax]);
+    return parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
   }
 
   ciblage(){
@@ -605,7 +605,7 @@ export class PDV{
     let clientProspectAxis = Object.values(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
       if (dnResult[i] === 1){
-        let result = (index) ? DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i]): clientProspectAxis[i];
+        let result = (index) ? parseInt(DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i])!): clientProspectAxis[i];
         return result;
       }
   }
@@ -654,7 +654,7 @@ class SliceDice{
   constructor(){console.log('[SliceDice]: on');}
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), 
-      percent:string, transpose=false, target=false, addConditions:[string, number][] = []){
+      percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
     let colors: undefined;
     if (typeof(groupsAxis1) === 'number'){
       let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
