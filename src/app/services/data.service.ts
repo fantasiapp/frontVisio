@@ -36,9 +36,11 @@ export class DataService {
   public requestUpdateData() {
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
     .subscribe((response : any) => {
-      console.log("Updated data received : ", response ? response as any : this.dataToUpdate)
-      DataExtractionHelper.updateData(this.emptyData);
-      this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((response) => console.log("Ack response : ", response))
+      console.log("Updated data received : ", response)
+      if(response !== {}) {
+        DataExtractionHelper.updateData(response);
+        this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((response) => console.log("Ack response : ", response))
+      }
     });
   }
 
