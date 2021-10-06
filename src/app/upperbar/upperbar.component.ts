@@ -41,6 +41,8 @@ export class UpperbarComponent implements OnInit {
   searchDebounceId!: number;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
 
+  @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
+
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
 
@@ -80,11 +82,13 @@ export class UpperbarComponent implements OnInit {
     );
   }
 
-  mapShown: boolean = false;
   toggleMap() {
-    if ( !this.mapComponent?.shown )
+    if ( !this.mapComponent?.shown ) {
       this.mapComponent!.show();
-    else
+      this.mapVisible.emit(true);
+    } else {
       this.mapComponent?.hide();
+      this.mapVisible.emit(false);
+    }
   }
 }

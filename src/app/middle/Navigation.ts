@@ -27,6 +27,11 @@ export class Navigation{
         label: currentLevel.children.map((child: any) => child.label),
       }: {name: [], id: [], label:[]};
 
+      let superLevel = (currentLevel.parent && !currentLevel.parent.parent) ? {
+        name: 'dashboards', id: 0, label: 'Dashboards'
+      } : {name: currentLevel.parent?.name, id: currentLevel.parent?.id, label: currentLevel.parent?.label};
+
+
       return {
         currentLevel: {
           name: currentLevel.siblings.map((sibling: any) => sibling.name),
@@ -34,11 +39,7 @@ export class Navigation{
           label: currentLevel.children.map((child: any) => child.label),
         },
         subLevel,
-        superLevel: {
-          name: currentLevel.parent?.name,
-          id: currentLevel.parent?.id,
-          label: currentLevel.parent?.label,
-        },
+        superLevel,
       };
     
     } else{

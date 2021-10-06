@@ -35,8 +35,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   filterDict: any = {};
 
   set criteria(value: any[]) {
-    this.pdvs = PDV.sliceMap(this.path, this._criteria = value);
-    this.filterDict = PDV.countForFilter(this.pdvs);
+    let pdvs = PDV.sliceMap(this.path, []);
+    this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
+    this.filterDict = PDV.countForFilter(pdvs);
     this.update();
   }
   
@@ -64,18 +65,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   subscription?: Subscription;
 
   constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
-    console.log('[MapComponent]: On')
+    console.log('[MapComponent]: On');
     this.initializeInfowindow();
     if ( this.shown )
-      this.interactiveMode();
+      this.interactiveMode();    
   }
 
   private interactiveMode() {
     this.subscription = combineLatest([this.filtersService.$path, this.filtersService.$load, this.ready]).subscribe(([path, _, __]) => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
-        this.pdvs = PDV.sliceMap(path, this._criteria);
-        this.filterDict = PDV.countForFilter(this.pdvs);
+        let pdvs = PDV.sliceMap(this.path, []);
+        this.pdvs = PDV.reSlice(pdvs, this._criteria);
+        this.filterDict = PDV.countForFilter(pdvs);
         this.update();
       } return true;
     });
@@ -99,6 +101,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.ready.next(0 as never);
     this.ready.complete();
+  }
+
+  onCriteriaChange(criteria: any[]) {
+    this.criteria = criteria;
+    this.cd.detectChanges();
   }
 
   update() {
@@ -226,7 +233,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   displayMarkers() {
-    let f: any, step = 2000, idx = 0;
+    let f: any, step = 4000, idx = 0;
     this.markerTimeout = setTimeout(f = () => {
       for ( let i = idx, l = Math.min(this.markers.length, idx+step); i < l; i++ )
         this.markers[i].setMap(this.map!);
