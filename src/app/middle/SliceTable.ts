@@ -86,19 +86,13 @@ export class SliceTable {
                 .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
         },
         'graph': (pdv: any) => {
-            let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
             let enduitSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('enduit', false, true) as number[];
 
             let p2cdSales: any =  {};
             let enduitSales: any =  {};
-            p2cdSales['Siniat'] = {'value': p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_SINIAT_ID], color: this.getColor('industry', 'Siniat')}
-            p2cdSales['Placo'] = {'value': p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_PLACO_ID], color: this.getColor('industry', 'Placo')}
-            p2cdSales['Knauf'] = {'value': p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_KNAUF_ID], color: this.getColor('industry', 'Knauf')}
-            p2cdSales['Autres'] = {'value': p2cdSalesRaw
-                                .filter((value, index) => {![DataExtractionHelper.INDUSTRIE_SINIAT_ID, DataExtractionHelper.INDUSTRIE_PLACO_ID, DataExtractionHelper.INDUSTRIE_KNAUF_ID].includes(index)})
-                                .reduce((total: number, value: number) => total + value, 0)
-                            ,color: this.getColor('industry', 'Challengers')}
-
+            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes())) {
+                p2cdSales[entry[0]] = {'value': entry[1], 'color': this.getColor('industry', entry[0])}
+            }
             enduitSales['Pregy'] = {'value': enduitSalesRaw[0], color: this.getColor('indFinition', 'Pregy')}
             enduitSales['Salsi'] = {'value': enduitSalesRaw[1], color: this.getColor('indFinition', 'Salsi')}
             enduitSales['Autres'] = {'value': enduitSalesRaw[2]+enduitSalesRaw[3], color: this.getColor('indFinition', 'Croissance')}
@@ -159,9 +153,6 @@ export class SliceTable {
                     // ⚠️⚠️⚠️ Début à 0 ? Ou à 1 ? ⚠️⚠️⚠️
 
         // this.idIndustries = {'Siniat': 0, 'Placo': 2, 'Knauf': 5}
-        this.idIndustries = {'Siniat': DataExtractionHelper.INDUSTRIE_SINIAT_ID}
-
-        console.log("Ids : ", this.idsToFields)
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
@@ -185,7 +176,6 @@ export class SliceTable {
                     if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
                     else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
                     else {
-                        if(field==='pointFeu') console.log("Pb : ", pdv)
                         newPdv[field] = pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), field)!]
                     }
                 }
