@@ -507,8 +507,8 @@ export class PDV{
     if (propertyName == 'clientProspect') return this.clientProspect(true);
     if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
     if (propertyName == 'ciblage') return this.ciblage();
-    if (propertyName == 'pointFeu') return (this.attribute('pointFeu'))? 2: 1;
-    if (propertyName == 'segmentMarketing') return this.segmentMarketingFilter();
+    if (propertyName == 'pointFeuFilter') return (this.attribute('pointFeu'))? 2: 1;
+    if (propertyName == 'segmentMarketingFilter') return this.segmentMarketingFilter();
     return this.attribute(propertyName);
   }
 
@@ -519,6 +519,21 @@ export class PDV{
     let result = parseInt(DataExtractionHelper.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
     return result;
+  }
+
+  static countForFilter(pdvs:PDV[]){
+    // Peut-être qu'il faudrait relier cette liste à ce que Majed fait
+    let listAttributeToTest = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin']
+    let dictCounter: {[key:string]: {[key:number]:number}}= {};
+    for (let attribute of listAttributeToTest)
+      dictCounter[attribute] = {};
+    for (let pdv of pdvs){
+      for (let attribute of listAttributeToTest){
+        if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) dictCounter[attribute][pdv.property(attribute)] += 1;
+        else dictCounter[attribute][pdv.property(attribute)] += 1;
+      }
+    }
+    return dictCounter
   }
 
   industriel(){
