@@ -11,6 +11,7 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 export class ViewComponent implements OnInit {
 
   public layout: (Layout & {id: number}) | null = null;
+  private mapVisible: boolean = false;
 
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
@@ -35,7 +36,14 @@ export class ViewComponent implements OnInit {
   }
 
   mapIsVisible(val: boolean) {
-    if ( val )
+    if ( this.mapVisible = val )
+      this.gridManager?.pause();
+    else
+      this.gridManager?.interactiveMode();
+  }
+
+  onLayoutChange(layout: Layout) {
+    if ( this.mapVisible )
       this.gridManager?.pause();
     else
       this.gridManager?.interactiveMode();

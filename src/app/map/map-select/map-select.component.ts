@@ -14,7 +14,7 @@ export class MapSelectComponent implements OnChanges {
   @Input()
   prettyCriterion = '';
   @Input()
-  criteria: [number, any][] | null = null;
+  criteria: [number, any, number][] | null = null;
 
   all: boolean = true;
 

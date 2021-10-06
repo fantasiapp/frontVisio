@@ -131,7 +131,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 /* histograms automatically lower the tooltip */
 .histocolumn-tooltip {
-    transform: translate(calc(-50% - 18px), 20px);
+    transform: translate(-25%, 20px);
 }
 
 /*tail of the tooltip*/

@@ -1,5 +1,6 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, Output } from '@angular/core';
 import { BasicWidget } from 'src/app/widgets/BasicWidget';
+import { EventEmitter } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 
@@ -44,6 +45,9 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.computeLayout();
   }
 
+  @Output()
+  layoutChanged: EventEmitter<Layout> = new EventEmitter;
+
   instances: any[] = [];
 
   @ViewChild('target', {read: ViewContainerRef})
@@ -61,6 +65,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     let layoutChanges = changes['layout'];
     if ( layoutChanges && !layoutChanges.isFirstChange() ) {
       this.createComponents();
+      this.layoutChanged.emit(this.$layout);
     }
   }
 

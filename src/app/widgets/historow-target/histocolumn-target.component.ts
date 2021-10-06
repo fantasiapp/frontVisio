@@ -72,8 +72,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         this.renderTargetContainer({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
+        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
         self.chart = this;
-        (<any>window).chart = this;
         self.renderTargetContainer(data);
       },
       transition: {
