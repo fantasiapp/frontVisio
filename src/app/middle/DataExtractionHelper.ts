@@ -360,12 +360,13 @@ class DataExtractionHelper{
   }
 
   static computeDescription(slice:any, description:string[]|string){
-    if (typeof(description) == 'string') return description;
-    for (let i = 0; i < description.length; i++){
-      if (description[i] == '') continue;
-      if (description[i][0] == '@') description[i] = DataExtractionHelper.treatDescIndicator(slice, description[i]) as string;
-    }
-    return description.reduce((str:string, acc: string) => str + acc, "");
+    return "Ceci est une description"
+    // if (typeof(description) == 'string') return description;
+    // for (let i = 0; i < description.length; i++){
+    //   if (description[i] == '') continue;
+    //   if (description[i][0] == '@') description[i] = DataExtractionHelper.treatDescIndicator(slice, description[i]) as string;
+    // }
+    // return description.reduce((str:string, acc: string) => str + acc, "");
   }
 
   // à faire
