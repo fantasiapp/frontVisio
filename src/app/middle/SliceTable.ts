@@ -91,11 +91,11 @@ export class SliceTable {
 
             let p2cdSales: any =  {};
             let enduitSales: any =  {};
-            p2cdSales['Siniat'] = {'value': p2cdSalesRaw[this.idIndustries['Siniat']], color: this.getColor('industry', 'Siniat')}
-            p2cdSales['Placo'] = {'value': p2cdSalesRaw[this.idIndustries['Placo']], color: this.getColor('industry', 'Placo')}
-            p2cdSales['Knauf'] = {'value': p2cdSalesRaw[this.idIndustries['Knauf']], color: this.getColor('industry', 'Knauf')}
+            p2cdSales['Siniat'] = {'value': p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_SINIAT_ID], color: this.getColor('industry', 'Siniat')}
+            p2cdSales['Placo'] = {'value': p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_PLACO_ID], color: this.getColor('industry', 'Placo')}
+            p2cdSales['Knauf'] = {'value': p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_KNAUF_ID], color: this.getColor('industry', 'Knauf')}
             p2cdSales['Autres'] = {'value': p2cdSalesRaw
-                                .filter((value, index) => {![this.idIndustries['Siniat'], this.idIndustries['Placo'], this.idIndustries['Knauf']].includes(index)})
+                                .filter((value, index) => {![DataExtractionHelper.INDUSTRIE_SINIAT_ID, DataExtractionHelper.INDUSTRIE_PLACO_ID, DataExtractionHelper.INDUSTRIE_KNAUF_ID].includes(index)})
                                 .reduce((total: number, value: number) => total + value, 0)
                             ,color: this.getColor('industry', 'Challengers')}
 
@@ -106,8 +106,8 @@ export class SliceTable {
         },
         'potential': (pdv: any) => {
             let p2cdSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('p2cd', true) as number[];
-            let siniatSale = p2cdSalesRaw[this.idIndustries['Siniat']];
-            let totalSale = p2cdSalesRaw.filter((value, index) => {![this.idIndustries['Siniat'], this.idIndustries['Placo'], this.idIndustries['Knauf']].includes(index)})
+            let siniatSale = p2cdSalesRaw[DataExtractionHelper.INDUSTRIE_SINIAT_ID];
+            let totalSale = p2cdSalesRaw.filter((value, index) => {![DataExtractionHelper.INDUSTRIE_SINIAT_ID, DataExtractionHelper.INDUSTRIE_PLACO_ID, DataExtractionHelper.INDUSTRIE_KNAUF_ID].includes(index)})
             .reduce((total: number, value: number) => total + value, 0)
 
             let enduitSalesRaw: number[] = this.getPdvInstance(pdv)!.getValue('enduit', false, true) as number[];
@@ -158,7 +158,8 @@ export class SliceTable {
 
                     // ⚠️⚠️⚠️ Début à 0 ? Ou à 1 ? ⚠️⚠️⚠️
 
-        this.idIndustries = {'Siniat': 0, 'Placo': 2, 'Knauf': 5}
+        // this.idIndustries = {'Siniat': 0, 'Placo': 2, 'Knauf': 5}
+        this.idIndustries = {'Siniat': DataExtractionHelper.INDUSTRIE_SINIAT_ID}
 
         console.log("Ids : ", this.idsToFields)
     }

@@ -100,7 +100,6 @@ export class InfoBarComponent {
 
   quit(save: boolean) {
     if(save) this.updatePdv(this._pdv!)
-    else {console.log("Back to old values : ", InfoBarComponent.valuesSave); this._pdv!.setValues(InfoBarComponent.valuesSave!);}
     this.quiting = false;
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
@@ -121,7 +120,6 @@ export class InfoBarComponent {
 
   loadGrid() {
     for(let sale of this._pdv!.attribute('sales')) {
-      console.log("update ", this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]])
       this.grid[this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]]][this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]] = +sale[this.SALES_VOLUME_ID!]
       this.updateSum(this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]])
     }
@@ -147,7 +145,6 @@ export class InfoBarComponent {
 
   changeTargetP2CD(newTargetP2cd: any) { //PB : newValue isn't a number
     this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = +newTargetP2cd;
-    console.log("this : ", this._pdv!.attribute('target'))
   }
 
   changeComment(newComment: string) { //PB : newValue isn't a number
