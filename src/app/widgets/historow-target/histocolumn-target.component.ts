@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
@@ -60,7 +61,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .attr('value', 0)
+        .attr('value', (d) => +DataExtractionHelper.get("targetLevelDrv")[Object.keys(DataExtractionHelper.get('drv'))[d]][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTargetLevelDrv'), this.data.updateTargetName)!])
+        // .attr('value', (d) => d)
         .attr('type', 'number')
         .on('change', (event) => {console.log("change : ", event.target.value), this.changeValue(event.target.value, event.target.__data__, event)})
         .style('width', (this.barWidth.toFixed(1)) + 'px')

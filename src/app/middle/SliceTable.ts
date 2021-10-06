@@ -125,7 +125,7 @@ export class SliceTable {
         },
         'checkboxP2cd': (pdv: any) => {
             if(!pdv['target']) return false;
-            return pdv['target'][DataExtractionHelper.TARGET_VOLUME_ID] > 0 && pdv['target'][DataExtractionHelper.TARGET_ID] !== 'r'
+            return pdv['target'][DataExtractionHelper.TARGET_VOLUME_ID] > 0 && pdv['target'][DataExtractionHelper.TARGET_LIGHT_ID] !== 'r'
         },
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
