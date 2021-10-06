@@ -1,6 +1,7 @@
 import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
+import { RouterState } from '@angular/router';
 
 
 // peut-être à mettre dans un fichier de config
@@ -213,6 +214,14 @@ class DataWidget{
     for(let i = 0; i < this.rowsTitles.length; i++)
       for(let j = 0; j < this.columnsTitles.length; j++)
         this.data[i][j] = Math.random() * 100;
+  }
+
+  gettargetStartingPoint(axis1:string, axis2:string){
+    if (this.dim == 1){
+      if (axis1 == "enduitIndustrieTarget") return this.data[0] + this.data[1];
+      if (axis1 == "industrieTarget" || axis1 == "clientProspectTarget") return this.data[0];
+    }
+    if (axis1 == "industrieTarget" || axis1 == "clientProspectTarget") return this.data[0];      
   }
 }
 
@@ -738,6 +747,7 @@ class SliceDice{
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     let sum = dataWidget.getSum();
+    let targetsStartingPoint = dataWidget.gettargetStartingPoint(axis1, axis2);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined;
     if (target){
@@ -755,13 +765,13 @@ class SliceDice{
           let relevantLevel: [string, number] = listSlice[listSlice.length - 1]; //On considère que le dernier niveau est en dernier
           targetValue = DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], targetName);
         }
-        rodPosition = 2 * Math.PI * targetValue / sum;
+        rodPosition = 360 * (targetValue + targetsStartingPoint) / sum;
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
         let agentIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) agentIds[j] = id;
         let targetValues = DataExtractionHelper.getListTarget(agentIds, targetName);
-        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = targetValues[i] / sum[i];
+        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = (targetValues[i] + targetsStartingPoint[i]) / sum[i];
       }
     }
     if (typeof(sum) !== 'number') sum = 0;
