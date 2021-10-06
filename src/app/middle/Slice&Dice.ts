@@ -521,6 +521,21 @@ export class PDV{
     return result;
   }
 
+  static countForFilter(pdvs:PDV[]){
+    // Peut-être qu'il faudrait relier cette liste à ce que Majed fait
+    let listAttributeToTest = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin']
+    let dictCounter: {[key:string]: {[key:number]:number}}= {};
+    for (let attribute of listAttributeToTest)
+      dictCounter[attribute] = {};
+    for (let pdv of pdvs){
+      for (let attribute of listAttributeToTest){
+        if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) dictCounter[attribute][pdv.property(attribute)] += 1;
+        else dictCounter[attribute][pdv.property(attribute)] += 1;
+      }
+    }
+    return dictCounter
+  }
+
   industriel(){
     let dnIndustries = this.getValue('p2cd', true) as number[],
       industriesDict = DataExtractionHelper.get('industriel'),
