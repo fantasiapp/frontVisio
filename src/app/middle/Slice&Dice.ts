@@ -512,12 +512,19 @@ export class PDV{
 
   industriel(){
     let dnIndustries = this.getValue('p2cd', true) as number[],
-      industriesDict = DataExtractionHelper.get('industrie'),
+      industriesDict = DataExtractionHelper.get('industriel'),
       iMax = 0;
-    let industriesList = Object.values(industriesDict);
+    let industriesList = Object.values(DataExtractionHelper.get('industrie'));
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    return DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax]);
+    let result = 0;
+    try{
+      result = parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
+    }
+    catch{
+      result = 4;
+    }
+    return result;
   }
 
   ciblage(){
@@ -605,7 +612,7 @@ export class PDV{
     let clientProspectAxis = Object.values(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
       if (dnResult[i] === 1){
-        let result = (index) ? DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i]): clientProspectAxis[i];
+        let result = (index) ? parseInt(DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i])!): clientProspectAxis[i];
         return result;
       }
   }
@@ -628,7 +635,7 @@ export class PDV{
   }
 
 
-  getVolumeTarget(){
+  getVolumeTarget() : number{
     let target = this.attribute('target');
     if (target == undefined) return 0;
     return target[DataExtractionHelper.TARGET_VOLUME_ID]

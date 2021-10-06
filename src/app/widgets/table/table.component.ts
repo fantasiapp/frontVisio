@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { EditCellRenderer, CheckboxCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
 @Component({
@@ -63,7 +63,8 @@ export class TableComponent extends BasicWidget {
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
-    checkboxCellRenderer: CheckboxCellRenderer,
+    checkboxP2cdCellRenderer: CheckboxP2cdCellRenderer,
+    checkboxEnduitCellRenderer: CheckboxEnduitCellRenderer,
     pointFeuCellRenderer: PointFeuCellRenderer,
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
@@ -155,9 +156,15 @@ export class TableComponent extends BasicWidget {
               break;
             
             case 'checkbox':
+              if(this.type === 'pcd') {
+                cd.cellRendererSelector = function (params: any) {
+                  if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                  return {component : 'checkboxP2cdCellRenderer'};
+                }
+              }
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
-                return {component : 'checkboxCellRenderer'};;
+                return {component : 'checkboxEnduitCellRenderer'};
               }
 
               break;
@@ -216,14 +223,15 @@ export class TableComponent extends BasicWidget {
     if(event['column']['colId'] === 'info') {
       this.selectedPdv = event['data'];
       this.showInfoOnClick(this.selectedPdv);
-      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTarget'), 'redistributed')!] : this.redistributed = false;
+      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
     }
     
-    if(event['column']['colId'] === 'target') console.log("Data : ", event['data'], event)
+    console.log("Data : ", event['data'], event)
+    
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
     }
-    if(event['column']['colId'] === 'checkbox') {
+    if(event['column']['colId'] === 'checkbox' && this.type === 'enduit') {
       this.updateTitle()
       this.sliceTable.updatePdv(event['data']) //sous cette forme ?
     }
@@ -253,9 +261,10 @@ export class TableComponent extends BasicWidget {
     };
   }
 
-  toggleRedistributed() {
-    this.sliceTable.updatePdv(this.selectedPdv, this.redistributed);
-  }
+  // toggleRedistributed() {
+  //   this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
+  //   this.updateGraph(this.updateData());
+  // }
 
   externalFilterChanged(value: any) {
     if (hiddenGroups[value] === true) delete hiddenGroups[value];

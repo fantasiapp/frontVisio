@@ -87,6 +87,13 @@ const ciblage = {
   2: 'Ciblé'
 }
 
+const industriel = {
+  1: "Siniat",
+  2: "Placo",
+  3: "Knauf",
+  4: "Autres"
+}
+
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -111,10 +118,17 @@ class DataExtractionHelper{
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
+  static TARGET_DATE_ID: number;
+  static TARGET_REDISTRIBUTED_ID: number;
+  static TARGET_SALE_ID: number;
   static TARGET_VOLUME_ID: number;
   static TARGET_FINITION_ID: number;
   static TARGET_LIGHT_ID: number;
-  static TARGET_COMMENT_ID: number;
+  static TARGET_COMMENT_ID: number
+  static TARGET_ID: any;
+  static SALES_ID: any;
+  static SALE_ID: any;
+
 
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -135,10 +149,10 @@ class DataExtractionHelper{
     this.DASHBOARD_INDEX = structure.indexOf('listDashBoards');
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
     this.LAYOUT_TEMPLATE_INDEX = this.data['structureLayout'].indexOf('template');
-    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboard'].indexOf('layout');
-    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboard'].indexOf('widgetParams');
-    this.DASHBOARD_NAME_INDEX = this.data['structureDashboard'].indexOf('name');
-    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboard'].indexOf('comment');
+    this.DASHBOARD_LAYOUT_INDEX = this.data['structureDashboards'].indexOf('layout');
+    this.DASHBOARD_WIDGET_INDEX = this.data['structureDashboards'].indexOf('widgetParams');
+    this.DASHBOARD_NAME_INDEX = this.data['structureDashboards'].indexOf('name');
+    this.DASHBOARD_COMMENT_INDEX = this.data['structureDashboards'].indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.data['structureWidgetparams'].indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.data['structureWidgetparams'].indexOf('widgetCompute');
     this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.data['industrie'], 'Salsi');
@@ -149,10 +163,16 @@ class DataExtractionHelper{
     this.AXISFORGRAHP_LABELS_ID = this.data["structureAxisforgraph"].indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.data["structureLabelforgraph"].indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.data["structureLabelforgraph"].indexOf('color');
+    this.TARGET_ID = this.getKeyByValue(this.data['structurePdvs'], 'target');
+    this.TARGET_DATE_ID = this.data["structureTarget"].indexOf("date");
+    this.TARGET_REDISTRIBUTED_ID = this.data["structureTarget"].indexOf("redistributed");
+    this.TARGET_SALE_ID = this.data["structureTarget"].indexOf("sale");
     this.TARGET_VOLUME_ID = this.data["structureTarget"].indexOf("targetP2CD");
     this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
     this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
+    this.SALES_ID = this.getKeyByValue(this.data['structurePdvs'], 'sales');
+    this.SALE_ID = this.getKeyByValue(this.data['structurePdvs'], 'sale');
 
     
     //trades have less info that geo
@@ -182,7 +202,7 @@ class DataExtractionHelper{
     TradeExtrationHelper.height = this.tradeHeight;
   }
 
-  static updateData(data: {[field: string]: []}) {
+  static updateData(data: {'targetLevelAgentP2CD': any[], 'targetLevelAgentFinition': any[], 'targetLevelDrv': any[], 'pdvs': any[]}) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
       console.log("Back updated, now update middle")
       // Check how deletions are managed 
@@ -200,7 +220,7 @@ class DataExtractionHelper{
       }
   //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
       for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
-        for(let [newTargetId, newTarget] of Object.entries(data[targetType])) {
+        for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
           for(let oldTargetId of Object.keys(this.data[targetType])) {
             if(newTargetId === oldTargetId) {
               this.data[targetType][newTargetId] = newTarget;
@@ -211,7 +231,8 @@ class DataExtractionHelper{
       }
       
       //Build trees !!! CUSTOM THIS
-      DataExtractionHelper.setData(this.data)
+      // DataExtractionHelper.setData(this.data)
+      PDV.load()
   }
 
   static getPDVFields() {
@@ -285,6 +306,8 @@ class DataExtractionHelper{
     if (field == 'indexesPdv') field = 'indexesPdvs';
     if (field == 'structureWidgetParam') field = 'structureWidgetparams';
     if (field == 'indexesWidgetParam') field = 'indexesWidgetparams';
+    if (field == 'structureDashboard') field = 'structureDashboards';
+    if (field == 'indexesDashboard') field = 'indexesDashboards';
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
@@ -295,6 +318,7 @@ class DataExtractionHelper{
     if (field == "histo&curve") return histoCurve;    
     if (field == 'ciblage') return ciblage;
     if (field == 'pointFeu') return pointFeu;
+    if (field == 'industriel') return industriel;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
     if (field == 'segmentDnEnduitTarget') 

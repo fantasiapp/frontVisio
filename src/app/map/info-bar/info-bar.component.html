@@ -29,14 +29,14 @@
                         <li>
                             <label class="container-checkbox">
                                 Ne vend pas de plaque
-                                <input type="checkbox" [attr.checked]="!pdv!.attribute('sale')" disabled>
+                                <input type="checkbox" [attr.checked]="pdv.attribute('target')[TARGET_SALE_ID]" disabled>
                                 <span class="checkmark" ></span>
                             </label>
                         </li>
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="pdv!.attribute('redistributed')" disabled>
+                                <input type="checkbox" [attr.checked]="pdv.attribute('redistributed') || pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" disabled="pdv.attribute('redistributed')">
                                 <span class="checkmark"></span>
                             </label>
                         </li>
@@ -74,13 +74,13 @@
                     </ul>
                 </div>
 
-                <div class="eval" [ngClass]="targetClass">
+                <div class="eval">
                     <ul>
-                        <li><span class="bolder">Volume visé en m²: </span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget() || 0" type="text" disabled/></li>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget()" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                            <div class="circle"></div>
-                            <div class="circle"></div>
-                            <div class="circle"></div>
+                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'r' ? 'red' : 'lightgray'}" (click)="changeLight('r')"></div>
+                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'o' ? 'orange' : 'lightgray'}" (click)="changeLight('o')"></div>
+                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'g' ? 'green' : 'lightgray'}" (click)="changeLight('g')"></div>
                         </li>
                     </ul>
                 </div>
@@ -127,6 +127,14 @@
 </ng-container>
 
 
+<<<<<<< HEAD
+=======
+<div *ngIf="currentIndex < 2" class="comments">
+    <span>Commentaires :</span>
+    <input [value]="pdv ? pdv!.getCommentTarget() : ''" (change)="changeComment(comment.value)" type="text" #comment>
+</div>
+
+>>>>>>> bd6579e279264b9221438e9f7038a5084ea9b0d2
 
 <div *ngIf="currentIndex == 2" class="validation">
     <button>Annuler</button>
