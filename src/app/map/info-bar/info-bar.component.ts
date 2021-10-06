@@ -167,10 +167,20 @@ export class InfoBarComponent {
     for(let sale of this._pdv!.attribute('sales')) {
       if(i === this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]] && j === this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]) {
         sale[this.SALES_VOLUME_ID!] = this.grid[i][j];
-        sale[this.SALES_DATE_ID!] = Date.now();
+        sale[this.SALES_DATE_ID!] = Math.floor(Date.now() / 1000);
+        this.hasChanged = true;
+        return;
       }
     }
+    //arriving here means that a new sale has to be created
+    this._pdv!.attribute('sales').push([
+      Math.floor(Date.now() / 1000),
+      DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), DataExtractionHelper.getKeyByValue(this.industryIdToIndex, i)),
+      DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), DataExtractionHelper.getKeyByValue(this.productIdToIndex, j)),
+      this.grid[i][j]
+    ]);
     this.hasChanged = true;
+    return;
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
@@ -185,6 +195,7 @@ export class InfoBarComponent {
     let newPdv = this.pdvFromPDVToList(pdv);
     console.log("[InfoBar] newPdv : ", newPdv)
     this.dataService.updatePdv(newPdv);
+    this.hasChanged = false;
   }
 
 

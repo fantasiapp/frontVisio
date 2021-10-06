@@ -13,11 +13,12 @@ export class ErrorInterceptor implements HttpInterceptor{
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
             
+            console.log("req : ", req)
+
             // if(req.urlWithParams.includes("action=update")) {
             //   console.log("Update intercepted in Error Interceptor : ", req)
             //   return of(new HttpResponse<any>());
             // }
-            console.log("req : ", req)
 
             return next.handle(req).pipe(
                 catchError((error: HttpErrorResponse) => {
