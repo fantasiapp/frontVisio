@@ -90,7 +90,7 @@ export class SliceTable {
             let p2cdSales: any =  {};
             let enduitSales: any =  {};
             for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reverse()) {
-                p2cdSales[entry[0]] = {'value': entry[1], 'color': this.getColor('industryP2CD', entry[0])}
+                p2cdSales[entry[0]] = {'value': entry[1], 'color': this.getColor('industry', entry[0])}
             }
             for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)).reverse()) {
                 enduitSales[entry[0]] = {'value': entry[1], 'color': this.getColor('indFinition', entry[0])}
@@ -274,9 +274,16 @@ export class SliceTable {
     }
 
     getColor(axis: string, enseigne: string): string {
+        if(axis === 'industry' && enseigne === 'Siniat')
+            return '#da009a';
+        if(axis === 'industry' && enseigne === 'Autres')
+            return '#888888';
+        if(axis === 'indFinition' && enseigne === 'Autres')
+            return '#5b5b5b';
         for(let array of Object.values(DataExtractionHelper.get('labelForGraph'))) {
             if ((array as any)[0] === axis && (array as any)[1] === enseigne) return (array as any)[2]
         }
+
         return 'black'
     }
   

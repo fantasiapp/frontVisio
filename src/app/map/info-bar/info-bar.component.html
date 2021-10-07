@@ -115,12 +115,6 @@
                     </div>
                 </div>
             </div>
-            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
-                <span>Commentaires :</span>
-                <textarea (change)="changeComment()" #comments>
-                    {{ pdv ? pdv!.getCommentTarget() : '' }}
-                </textarea>
-            </div>
         </div>
     </ng-container>
 </ng-container>

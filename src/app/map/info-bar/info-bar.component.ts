@@ -5,6 +5,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { DataService } from 'src/app/services/data.service';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'info-bar',
@@ -165,6 +166,7 @@ export class InfoBarComponent {
   }
 
   changeComment() { //PB : newValue isn't a number
+    console.log("Comment : ", d3.select(this.ref.nativeElement).select('.main:nth-of-type(' + (this.currentIndex + 1) + ')').select('textarea').text())
     this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
     this.hasChanged = true;
   }
