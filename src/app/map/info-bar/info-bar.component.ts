@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { of } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { DataService } from 'src/app/services/data.service';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'info-bar',
@@ -17,9 +18,10 @@ export class InfoBarComponent {
   opened: boolean = false;
 
   quiting: boolean = false;
+  errorAdInput: boolean = false;
 
-  @ViewChild('comments', {static: false, read: ElementRef})
-  private comment?: ElementRef;
+  @ViewChildren('comments')
+  private comments?: QueryList<ElementRef>;
   
   @Input()
   set pdv(value: PDV | undefined) {
@@ -42,6 +44,7 @@ export class InfoBarComponent {
   industries: string[] = [];//(PDV.getIndustries() as string[]);
   products: string[] = [];//PDV.getProducts() as string[];
   grid: number[][] = [];
+  gridFormatted: string[][] = [];
   targetClass: any = {
     'r': false,
     'g': false,
@@ -83,8 +86,11 @@ export class InfoBarComponent {
       this.products = PDV.getProducts() as string[];
       this.products.splice(3, this.products.length, 'P2CD')
       this.grid = new Array(this.industries.length + 1);
-      for ( let i = 0; i < this.grid.length; i++ )
+      this.gridFormatted = new Array(this.industries.length+1);
+      for ( let i = 0; i < this.grid.length; i++ ) {
         this.grid[i] = new Array(this.products.length).fill(0);
+        this.gridFormatted[i] = new Array(this.products.length).fill(0);
+      }
       for(let i = 0; i<this.industries.length; i++)
         this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
       for(let i = 0; i<this.products.length-1; i++)
@@ -122,11 +128,11 @@ export class InfoBarComponent {
 
   loadGrid() {
     for(let sale of this._pdv!.attribute('sales')) {
-      this.grid[this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]]][this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]] = +sale[this.SALES_VOLUME_ID!]
-      this.updateSum(this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]])
+      let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
+      this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
+      this.gridFormatted[i][j] = Math.floor(+sale[this.SALES_VOLUME_ID!]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      this.updateSum(i,j)
     }
-
-
   }
 
   updateSum(row: number, i: number) {
@@ -135,9 +141,12 @@ export class InfoBarComponent {
       sum += this.grid[j+1][i] | 0;
     }
     this.grid[0][i] = sum;
+    this.gridFormatted[0][i] = Math.floor(sum).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     diff = this.grid[row][0] + this.grid[row][1] + this.grid[row][2] - this.grid[row][3];
     this.grid[row][3] += diff;
     this.grid[0][3] += diff;
+    this.gridFormatted[row][3] = Math.floor(this.grid[row][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[0][3] = Math.floor(this.grid[0][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     return sum;
   }
 
@@ -155,7 +164,15 @@ export class InfoBarComponent {
   }
 
   changeComment() { //PB : newValue isn't a number
+<<<<<<< HEAD
+    let ref = this.comments!.get(0); //<- the current text area is the first in view
+    if ( !ref ) return;
+    console.log(ref.nativeElement.value);
+    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
+=======
+    console.log("Comment : ", d3.select(this.ref.nativeElement).select('.main:nth-of-type(' + (this.currentIndex + 1) + ')').select('textarea').text())
     this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
+>>>>>>> d0a77ba4155241888fee903d684ef7b6fe92d7bd
     this.hasChanged = true;
   }
 
@@ -165,6 +182,17 @@ export class InfoBarComponent {
   }
 
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
+    if(Number.isNaN(+this.gridFormatted[i][j])) {
+      this.gridFormatted[i][j] = Math.floor(this.grid[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      this.errorAdInput = true;
+      return;
+    }
+    this.errorAdInput = false;
+  
+    this.grid[i][j] = +this.gridFormatted[i][j];
+    this.gridFormatted[i][j] = Math.floor(+this.gridFormatted[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.updateSum(i,j)
+
     for(let sale of this._pdv!.attribute('sales')) {
       if(i === this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]] && j === this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]) {
         sale[this.SALES_VOLUME_ID!] = this.grid[i][j];

@@ -18,4 +18,6 @@ export abstract class GridArea implements AfterViewInit {
     this.ready!.next();
     this.ready!.complete();
   }
+
+  update() {};
 };

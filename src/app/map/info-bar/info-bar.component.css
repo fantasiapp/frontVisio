@@ -539,3 +539,9 @@ input[type=number] {
     background: #E07030;
     color: white;
 }
+
+.invalidValue {
+    color: red;
+    font-weight: 300;
+    font-style: italic;
+}
