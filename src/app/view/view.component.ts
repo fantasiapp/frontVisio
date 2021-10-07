@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChil
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-view',
@@ -17,12 +18,16 @@ export class ViewComponent {
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
 
-  constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
+  constructor(private filtersService: FiltersStatesService, private dataservice: DataService) {
     filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
       if ( this.layout?.id !== dashboard.id ) {
         console.log('[ViewComponent]: Layout(.id) changed.')
         this.layout = dashboard;
       }
+    });
+
+    dataservice.update.subscribe((_) => {
+      this.update();
     });
   }
 
@@ -46,8 +51,8 @@ export class ViewComponent {
       this.gridManager?.interactiveMode();
   }
 
-  reload() {
+  update() {
     this.computeDescription(this.layout && this.layout.description || '');
-    this.gridManager?.reload();
+    this.gridManager?.update();
   }
 }

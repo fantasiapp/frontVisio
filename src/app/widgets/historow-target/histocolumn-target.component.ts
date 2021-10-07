@@ -73,7 +73,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   createGraph(data: any) {
     let self = this;
     this.data = data;
-    console.log("data : ", data)
     super.createGraph(data, {
       onresized: () => {
         this.renderTargetContainer({data: null, target: this.barTargets});
@@ -95,7 +94,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     super.updateGraph(data);
     //wait for animation
     this.schedule.queue(() => {
-      this.getNeedleGroup()!.remove();
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
@@ -181,6 +179,5 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   changeValue(newValue :number, inputId: number, fullEvent: any) {
     this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
-    this.updateGraph(this.data)
   }
 }

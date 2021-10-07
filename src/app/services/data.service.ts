@@ -69,9 +69,9 @@ export class DataService {
     , {params : {"action" : "update"}})
     .subscribe((updateResponse) => {
       console.log("Response obtained : ", updateResponse);
-      this.update.next();
     });
     DataExtractionHelper.updateData(data);
+    this.update.next();
     return this.response;
   }
 }
