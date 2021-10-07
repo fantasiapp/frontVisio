@@ -164,15 +164,10 @@ export class InfoBarComponent {
   }
 
   changeComment() { //PB : newValue isn't a number
-<<<<<<< HEAD
     let ref = this.comments!.get(0); //<- the current text area is the first in view
     if ( !ref ) return;
     console.log(ref.nativeElement.value);
     this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
-=======
-    console.log("Comment : ", d3.select(this.ref.nativeElement).select('.main:nth-of-type(' + (this.currentIndex + 1) + ')').select('textarea').text())
-    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
->>>>>>> d0a77ba4155241888fee903d684ef7b6fe92d7bd
     this.hasChanged = true;
   }
 
