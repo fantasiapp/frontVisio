@@ -42,6 +42,7 @@ export class InfoBarComponent {
   industries: string[] = [];//(PDV.getIndustries() as string[]);
   products: string[] = [];//PDV.getProducts() as string[];
   grid: number[][] = [];
+  gridFormatted: string[][] = [];
   targetClass: any = {
     'r': false,
     'g': false,
@@ -83,8 +84,11 @@ export class InfoBarComponent {
       this.products = PDV.getProducts() as string[];
       this.products.splice(3, this.products.length, 'P2CD')
       this.grid = new Array(this.industries.length + 1);
-      for ( let i = 0; i < this.grid.length; i++ )
+      this.gridFormatted = new Array(this.industries.length+1);
+      for ( let i = 0; i < this.grid.length; i++ ) {
         this.grid[i] = new Array(this.products.length).fill(0);
+        this.gridFormatted[i] = new Array(this.products.length).fill(0);
+      }
       for(let i = 0; i<this.industries.length; i++)
         this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
       for(let i = 0; i<this.products.length-1; i++)
@@ -122,8 +126,10 @@ export class InfoBarComponent {
 
   loadGrid() {
     for(let sale of this._pdv!.attribute('sales')) {
-      this.grid[this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]]][this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]] = +sale[this.SALES_VOLUME_ID!]
-      this.updateSum(this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]])
+      let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
+      this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
+      this.gridFormatted[i][j] = Math.floor(+sale[this.SALES_VOLUME_ID!]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      this.updateSum(i,j)
     }
 
 
@@ -135,9 +141,12 @@ export class InfoBarComponent {
       sum += this.grid[j+1][i] | 0;
     }
     this.grid[0][i] = sum;
+    this.gridFormatted[0][i] = Math.floor(sum).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     diff = this.grid[row][0] + this.grid[row][1] + this.grid[row][2] - this.grid[row][3];
     this.grid[row][3] += diff;
     this.grid[0][3] += diff;
+    this.gridFormatted[row][3] = Math.floor(this.grid[row][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[0][3] = Math.floor(this.grid[0][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     return sum;
   }
 

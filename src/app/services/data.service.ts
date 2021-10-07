@@ -71,6 +71,7 @@ export class DataService {
       console.log("Response obtained : ", updateResponse);
       this.update.next();
     });
+    DataExtractionHelper.updateData(data);
     return this.response;
   }
 }
