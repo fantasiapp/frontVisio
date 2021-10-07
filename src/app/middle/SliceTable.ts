@@ -275,7 +275,7 @@ export class SliceTable {
 
     getColor(axis: string, enseigne: string): string {
         if(axis === 'industry' && enseigne === 'Siniat')
-            return '#da009a';
+            return '#c12793';
         if(axis === 'industry' && enseigne === 'Autres')
             return '#888888';
         if(axis === 'indFinition' && enseigne === 'Autres')
