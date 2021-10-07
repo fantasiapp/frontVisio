@@ -78,14 +78,10 @@ export class SliceTable {
 
     private customField: {[name: string]: (pdv: any) => {} | null}  = { //the way to compute them
         'siniatSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[1]) && sale[2] === 1))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
+            return this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()['Siniat']
         },
         'totalSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[1])))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
+            return Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => entry[0] === 'Siniat' ? totalSales : totalSales + entry[1], 0)
         },
         'graph': (pdv: any) => {
             let p2cdSales: any =  {};
