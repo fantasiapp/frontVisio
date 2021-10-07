@@ -112,11 +112,20 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  ngOnDestroy() {
+  clear() {
     while ( this.ref.length )
       this.ref.remove();
     
     this.instances.length = 0;
+  }
+
+  reload() {
+    this.clear();
+    this.createComponents();
+  }
+
+  ngOnDestroy() {
+    this.clear();
   }
 
   private computeLayout() {

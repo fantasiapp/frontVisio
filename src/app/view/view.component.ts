@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
@@ -6,9 +6,10 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 @Component({
   selector: 'app-view',
   templateUrl: './view.component.html',
-  styleUrls: ['./view.component.css']
+  styleUrls: ['./view.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ViewComponent implements OnInit {
+export class ViewComponent {
 
   public layout: (Layout & {id: number}) | null = null;
   private mapVisible: boolean = false;
@@ -16,17 +17,13 @@ export class ViewComponent implements OnInit {
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
 
-  constructor(private filtersService: FiltersStatesService) {
+  constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
     filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
       if ( this.layout?.id !== dashboard.id ) {
         console.log('[ViewComponent]: Layout(.id) changed.')
         this.layout = dashboard;
       }
-    })
-  }
-
-  ngOnInit(): void {
- 
+    });
   }
 
   computeDescription(description: string | string[]) {
@@ -47,5 +44,10 @@ export class ViewComponent implements OnInit {
       this.gridManager?.pause();
     else
       this.gridManager?.interactiveMode();
+  }
+
+  reload() {
+    this.computeDescription(this.layout && this.layout.description || '');
+    this.gridManager?.reload();
   }
 }
