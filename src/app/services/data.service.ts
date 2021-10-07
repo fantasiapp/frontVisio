@@ -40,6 +40,7 @@ export class DataService {
       console.log("Updated data received : ", response)
       if(response !== {}) {
         DataExtractionHelper.updateData(response);
+        this.update.next();
         this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((response) => console.log("Ack response : ", response))
       }
     });
