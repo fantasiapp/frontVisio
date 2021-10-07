@@ -612,9 +612,18 @@ export class PDV{
     return PDV.reSlice(pdvs, addConditions);
   }
 
-  static computeCiblage(slice: {[key:string]:number}, enduit = false){
+  static computeCiblage(slice: {[key:string]:number}, enduit = false, dn =false){
     let pdvs = this.sliceTree(slice, true)[0];
     let ciblage = 0;
+    if (dn){
+      for (let pdv of pdvs){
+        let target = pdv.targetP2cd;
+        if (isNaN(target)) target = 0;
+        let toAdd = (target > 0) ? 1: 0;
+        ciblage += toAdd;
+      }
+      return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
+    }
     if (enduit){
       for (let pdv of pdvs){
         if (pdv.targetFinition) ciblage += pdv.getPotential();
