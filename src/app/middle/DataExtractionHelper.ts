@@ -1,5 +1,5 @@
 import { PDV } from "./Slice&Dice";
-import {Node} from "./Node"
+import {Node, Tree} from "./Node"
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -458,6 +458,14 @@ class DataExtractionHelper{
     let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
     if (relevantLevel[0] == 'Région') return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'volP2CD')/1000).toString(), ' km², ');  
     return "";  
+  }
+
+  static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {
+    let values = Object.values(slice),
+      node = tree.root;
+    for ( let id of values )
+      node = node.goChild(id);
+    return node;
   }
 };
 
