@@ -68,6 +68,7 @@ export class DataService {
     .subscribe((updateResponse) => {
       console.log("Response obtained : ", updateResponse)
     });
+    DataExtractionHelper.updateData(data);
     return this.response;
   }
 }

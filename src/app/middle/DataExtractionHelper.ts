@@ -237,7 +237,7 @@ class DataExtractionHelper{
       
       //Build trees !!! CUSTOM THIS
       DataExtractionHelper.setData(this.data)
-      PDV.load()
+      PDV.load(true)
   }
 
   static getPDVFields() {
