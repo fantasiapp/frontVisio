@@ -32,7 +32,12 @@ export class HistoRowComponent extends BasicWidget {
     this.properties.description = [
       ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
     ];
-    this.properties.arguments[0] = [this.properties.arguments[0], 'ensemble'];
+
+    //HACK because back doesn't send like this
+    if ( !Array.isArray(this.properties.arguments[0]) ) {
+      this.properties.arguments[0] = [this.properties.arguments[0], 'ensemble'];
+    }
+    
     this.rubixAxis = this.properties.arguments[0][0];
     this.rubixArgument = this.properties.description[0][1];
   }
@@ -123,7 +128,7 @@ export class HistoRowComponent extends BasicWidget {
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
-          self.addRubixCondition(e.target.innerHTML);
+          self.addRubixCondition(e.target.textContent);
           self.update();
         });
       },
