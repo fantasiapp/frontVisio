@@ -19,7 +19,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
-  private transitionDuration = 250;
+  private transitionDuration = 0;
   private needles?: d3Selection;
   private barHeights: number[] = [];
   private barTargets: number[] = [];
@@ -73,7 +73,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   createGraph(data: any) {
     let self = this;
     this.data = data;
-    console.log("data : ", data)
     super.createGraph(data, {
       onresized: () => {
         this.renderTargetContainer({data: null, target: this.barTargets});
@@ -83,6 +82,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         self.rectHeight = rect.height;
         self.chart = this;
         self.renderTargetContainer(data);
+        this.config('onrendered', null);
       },
       transition: {
         duration: this.transitionDuration
@@ -95,7 +95,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     super.updateGraph(data);
     //wait for animation
     this.schedule.queue(() => {
-      this.getNeedleGroup()!.remove();
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
@@ -181,6 +180,5 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   changeValue(newValue :number, inputId: number, fullEvent: any) {
     this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
-    this.updateGraph(this.data)
   }
 }

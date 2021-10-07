@@ -71,6 +71,7 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
 
   private createComponents() {
     this.ref.clear();
+    this.instances.length = 0;
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
       if ( !desc ) throw '[GridManager -- createComponents]: Unknown component.';
@@ -112,11 +113,25 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  ngOnDestroy() {
+  clear() {
     while ( this.ref.length )
       this.ref.remove();
     
     this.instances.length = 0;
+  }
+
+  reload() {
+    this.clear();
+    this.createComponents();
+  }
+
+  update() {
+    for ( let component of this.instances )
+      component.update();
+  }
+
+  ngOnDestroy() {
+    this.clear();
   }
 
   private computeLayout() {

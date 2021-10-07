@@ -273,6 +273,7 @@ export class PDV{
 
   // Il faudra penser à delete la requête de la ram après l'avoir utilisée
   static load(loadTrees = true){
+    this.instances.clear(); //<- clear before
     this.createIndexMapping();
     for (let [id, data] of Object.entries(DataExtractionHelper.get('pdvs'))){
       let intId = parseInt(id);

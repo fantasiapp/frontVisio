@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { loadAll, getGeoTree } from '../middle/Slice&Dice';
+import { loadAll, getGeoTree, PDV } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
 
@@ -24,6 +24,12 @@ export class FiltersStatesService {
         this.$load.next(0 as never);
         this.$load.complete();
       }
+    });
+
+    this.dataservice.update.subscribe((_) => {
+      let type = this.navigation.tree?.type || null;
+      //doesn't notify further because it's not needed
+      this.navigation.setTree(PDV.geoTree.type == type ? PDV.geoTree : PDV.tradeTree);
     });
   }
 
@@ -97,14 +103,19 @@ export class FiltersStatesService {
     
     if ( this.navigation.currentLevel ) {
       /* Rework this */
-      let path = this.navigation.getCurrent()._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
-        acc[level[0]]=level[1];
-        return acc;
-      }, {});
+      
 
       if ( emit )
-        this.$path.next(path);
+        this.$path.next(this.getPath(currentState.States));
     }
+  }
+
+  private getPath(States: any) {
+    let path = States._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
+      acc[level[0]]=level[1];
+      return acc;
+    }, {});
+    return path;
   }
 
   public reset(t: Tree) {
@@ -114,12 +125,13 @@ export class FiltersStatesService {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
     };
+    let States = this.navigation.getCurrent();
     const currentState = {
-      States: this.navigation.getCurrent(),
+      States
     };
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
-    this.$path.next({});
+    this.$path.next(this.getPath(States));
   }
 
   canSub() {
