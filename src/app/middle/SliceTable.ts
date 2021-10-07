@@ -81,7 +81,7 @@ export class SliceTable {
             return this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()['Siniat']
         },
         'totalSales': (pdv: any) => {
-            return Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => entry[0] === 'Siniat' ? totalSales : totalSales + entry[1], 0)
+            return Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)
         },
         'graph': (pdv: any) => {
             let p2cdSales: any =  {};
