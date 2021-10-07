@@ -621,7 +621,7 @@ export class PDV{
         let toAdd = (target > 0) ? 1: 0;
         ciblage += toAdd;
       }
-      return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' PdVs.');
+      return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
     }
     if (enduit){
       for (let pdv of pdvs){
