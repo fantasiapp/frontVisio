@@ -17,6 +17,7 @@ export class InfoBarComponent {
   opened: boolean = false;
 
   quiting: boolean = false;
+  errorAdInput: boolean = false;
 
   @ViewChild('comments', {static: false, read: ElementRef})
   private comment?: ElementRef;
@@ -174,10 +175,16 @@ export class InfoBarComponent {
   }
 
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
+    if(Number.isNaN(+this.gridFormatted[i][j])) {
+      this.gridFormatted[i][j] = Math.floor(this.grid[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      this.errorAdInput = true;
+      return;
+    }
+    this.errorAdInput = false;
+  
     this.grid[i][j] = +this.gridFormatted[i][j];
     this.gridFormatted[i][j] = Math.floor(+this.gridFormatted[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     this.updateSum(i,j)
-    console.log("grrid: ", this.grid)
 
     for(let sale of this._pdv!.attribute('sales')) {
       if(i === this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]] && j === this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]) {

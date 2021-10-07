@@ -92,6 +92,7 @@
         <div class="main">
             <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
             <!-- <p>information sur la point de vente</p> -->
+            <div *ngIf="errorAdInput" class="invalidValue">Veuillez entrer une valeur valide (nombre décimal xxx.xx)</div>
             <div class="content">
                 <div class="grid">
                     <div class="first row">
