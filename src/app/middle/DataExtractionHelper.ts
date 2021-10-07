@@ -1,4 +1,4 @@
-import { PDV } from "./Slice&Dice";
+import { PDV, SliceDice } from "./Slice&Dice";
 import {Node, Tree} from "./Node"
 
 const paramsCompute = {
@@ -375,93 +375,78 @@ class DataExtractionHelper{
   }
 
   static computeDescription(slice:any, description:string[]){
-    let descriptionCopy = description.slice();
+    let descriptionCopy = description.slice();    
+    let relevantNode = DataExtractionHelper.followSlice(slice);
     if (descriptionCopy.length == 1) return descriptionCopy[0];
     for (let i = 0; i < descriptionCopy.length; i++){
       if (descriptionCopy[i] == '') continue;
-      if (descriptionCopy[i][0] == '@') descriptionCopy[i] = DataExtractionHelper.treatDescIndicator(slice, descriptionCopy[i]) as string;
+      if (descriptionCopy[i][0] == '@') descriptionCopy[i] = DataExtractionHelper.treatDescIndicator(relevantNode, descriptionCopy[i]) as string;
     }
     return descriptionCopy.reduce((str:string, acc: string) => str + acc, "");
   }
 
   // à faire
-  static treatDescIndicator(slice:any, str:string):string{
-    if (str == "@ciblageP2CD") return PDV.computeCiblage(slice);
-    if (str == "@ciblageP2CDdn") return PDV.computeCiblage(slice, false, true);
-    if (str == "@ciblageEnduit") return PDV.computeCiblage(slice, true);
-    if (str == '@DRV') return DataExtractionHelper.getObjectifDrv(slice);
-    if (str == '@DRVdn') return DataExtractionHelper.getObjectifDrv(slice, true);
-    if (str == "@objectifP2CD") return DataExtractionHelper.getObjectif(slice);
-    if (str == "@objectifP2CDdn") return DataExtractionHelper.getObjectif(slice, false, true);
-    if (str == "@objectifEnduit") return DataExtractionHelper.getObjectif(slice, true);
-    if (str == "@objectifSiege") return DataExtractionHelper.getObjectifSiege(slice);
-    if (str == "@objectifSiegeDn") return DataExtractionHelper.getObjectifSiege(slice, true);
+  static treatDescIndicator(node:any, str:string):string{
+    if (str == "@ciblageP2CD") return PDV.computeCiblage(node);
+    if (str == "@ciblageP2CDdn") return PDV.computeCiblage(node, false, true);
+    if (str == "@ciblageEnduit") return PDV.computeCiblage(node, true);
+    if (str == '@DRV') return DataExtractionHelper.getObjectifDrv(node);
+    if (str == '@DRVdn') return DataExtractionHelper.getObjectifDrv(node, true);
+    if (str == "@objectifP2CD") return DataExtractionHelper.getObjectif(node);
+    if (str == "@objectifP2CDdn") return DataExtractionHelper.getObjectif(node, false, true);
+    if (str == "@objectifEnduit") return DataExtractionHelper.getObjectif(node, true);
+    if (str == "@objectifSiege") return DataExtractionHelper.getObjectifSiege(node);
+    if (str == "@objectifSiegeDn") return DataExtractionHelper.getObjectifSiege(node, true);
     return "";
   }
 
-  static getObjectif(slice:any, enduit = false, dn = false){
+  static getObjectif(node:any, enduit = false, dn = false){
+    console.log('-->', node.label)
     if (dn){
-      if (Object.keys(slice).length == 0) return "";
-      let listSlice = Object.entries(slice) as [string, number][];
-      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-      if (relevantLevel[0] !== 'Secteur') return "";    
-      return 'Objectif: '.concat(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'dnP2CD').toString(), ' PdVs, ');
+      if (node.label == 'France') return "";
+      if (node.label !== 'Secteur') return "";    
+      return 'Objectif: '.concat(DataExtractionHelper.getTarget(node.label, node.id, 'dnP2CD').toString(), ' PdVs, ');
     }
     if (enduit){
-      if (Object.keys(slice).length == 0) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volFinition')/1000).toString(), ' T, ');
-      let listSlice = Object.entries(slice) as [string, number][];
-      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-      return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'volFinition')/1000).toString(), ' T, ');
+      if (node.label == 'France') return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volFinition')/1000).toString(), ' T, ');
+      return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
     }      
-    if (Object.keys(slice).length == 0) return "";
-    let listSlice = Object.entries(slice) as [string, number][];
-    let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-    if (relevantLevel[0] !== 'Secteur') return "";    
-    return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'volP2CD')/1000).toString(), ' km², ');
+    if (node.label == 'France') return "";
+    if (node.label !== 'Secteur') return "";     
+    return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volP2CD')/1000).toString(), ' km², ');
   }
 
-  static getObjectifDrv(slice:any, dn=false){
+  static getObjectifDrv(node:any, dn=false){
     if (dn){
-      if (Object.keys(slice).length == 0) return 'DRV: '.concat(DataExtractionHelper.getTarget('nationalByAgent', 0, 'dnP2CD').toString(), ' PdVs, ');
-      let listSlice = Object.entries(slice) as [string, number][];
-      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-      if (relevantLevel[0] == 'Région'){
-        let hight = PDV.geoTree.attributes['labels'].indexOf('Région');
-        let drvNode = PDV.geoTree.getNodesAtHeight(hight).filter(node => node.id == relevantLevel[1])[0];
-        let agentNodes = drvNode.children;
+      if (node.label == 'France') return 'DRV: '.concat(DataExtractionHelper.getTarget('nationalByAgent', 0, 'dnP2CD').toString(), ' PdVs, ');
+      if (node.label == 'Région'){
+        let agentNodes = node.children;
         return 'DRV: '.concat(agentNodes.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, 'dnP2CD')).reduce((acc:number, value:number) => acc + value, 0).toString(), ' PdVs, ');
       }
       return "";
     }
-    if (Object.keys(slice).length == 0) return 'DRV: '.concat(Math.round(DataExtractionHelper.getTarget('nationalByAgent', 0, 'volP2CD')/1000).toString(), ' km², ');
-    let listSlice = Object.entries(slice) as [string, number][];
-    let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-    if (relevantLevel[0] == 'Région'){
-      let hight = PDV.geoTree.attributes['labels'].indexOf('Région');
-      let drvNode = PDV.geoTree.getNodesAtHeight(hight).filter(node => node.id == relevantLevel[1])[0];
-      let agentNodes = drvNode.children;
+    if (node.label == 'France') return 'DRV: '.concat(Math.round(DataExtractionHelper.getTarget('nationalByAgent', 0, 'volP2CD')/1000).toString(), ' km², ');
+    if (node.label == 'Région'){
+      let agentNodes = node.children;
       return 'DRV: '.concat(Math.round(agentNodes.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, 'volP2CD')).reduce((acc:number, value:number) => acc + value, 0)/1000).toString(), ' km², ');
     }
     return "";
   }
 
-  static getObjectifSiege(slice:any, dn=false):string{
+  static getObjectifSiege(node:any, dn=false):string{
     if (dn){
-      if (Object.keys(slice).length == 0) return 'Objectif Siège: '.concat(DataExtractionHelper.getTarget('national', 0, "dnP2CD").toString(), ' PdVs, ');
-      let listSlice = Object.entries(slice) as [string, number][];
-      let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-      if (relevantLevel[0] == 'Région') return 'Objectif Siège: '.concat(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], "dnP2CD").toString(), ' PdVs, ');
+      if (node.label == 'France') return 'Objectif Siège: '.concat(DataExtractionHelper.getTarget('national', 0, "dnP2CD").toString(), ' PdVs, ');
+      if (node.label == 'Région') return 'Objectif Siège: '.concat(DataExtractionHelper.getTarget(node.label, node.id, "dnP2CD").toString(), ' PdVs, ');
       return "";  
     }
-    if (Object.keys(slice).length == 0) return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volP2CD')/1000).toString(), ' km², ');
-    let listSlice = Object.entries(slice) as [string, number][];
-    let relevantLevel: [string, number] = listSlice[listSlice.length - 1];
-    if (relevantLevel[0] == 'Région') return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], 'volP2CD')/1000).toString(), ' km², ');  
+    if (node.label == 'France') return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volP2CD')/1000).toString(), ' km², ');
+    if (node.label == 'Région') return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volP2CD')/1000).toString(), ' km², ');  
     return "";  
   }
 
   static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {
-    let values = Object.values(slice),
+    let keys = Object.keys(slice).sort((u, v) => PDV.heightOf(tree, u) - PDV.heightOf(tree, v));
+    let values = keys.map(key => slice[key]),
       node = tree.root;
     for ( let id of values )
       node = node.goChild(id);

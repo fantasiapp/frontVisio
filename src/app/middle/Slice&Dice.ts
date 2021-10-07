@@ -580,8 +580,8 @@ export class PDV{
     return PDV.reSlice(pdvs, addConditions);
   }
 
-  static computeCiblage(slice: {[key:string]:number}, enduit = false, dn =false){
-    let pdvs = this.sliceTree(slice, true)[0];
+  static computeCiblage(node: Node, enduit = false, dn =false){
+    let pdvs = PDV.childrenOfNode(node);
     let ciblage = 0;
     if (dn){
       for (let pdv of pdvs){
@@ -618,6 +618,11 @@ export class PDV{
 
   static heightOf(tree: Tree, label: string){
     return tree.attributes['labels'].indexOf(label);
+  }
+
+  static childrenOfNode(node: Node | PDV):PDV[]{
+    if ( node instanceof PDV ) return [node];
+    return node.children.map((child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
   }
 
   static getLeaves(tree: Tree, node: Node | PDV, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
@@ -745,12 +750,9 @@ class SliceDice{
       else targetName = "volP2CD";
       if(typeof(sum) == 'number'){
         let targetValue:number;      
-        if (Object.keys(slice).length == 0) targetValue = DataExtractionHelper.getTarget("", 0, targetName);
-        else{
-          let listSlice = Object.entries(slice) as [string, number][];
-          let relevantLevel: [string, number] = listSlice[listSlice.length - 1]; //On considère que le dernier niveau est en dernier
-          targetValue = DataExtractionHelper.getTarget(relevantLevel[0], relevantLevel[1], targetName);
-        }
+        let node = DataExtractionHelper.followSlice(slice);      
+        if (node.label == 'France') targetValue = DataExtractionHelper.getTarget("", 0, targetName); // faire une seule ligne avec ça
+        else targetValue = DataExtractionHelper.getTarget(node.label, node.id, targetName);        
         rodPosition = 360 * (targetValue + targetsStartingPoint) / sum;
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
