@@ -53,7 +53,7 @@ export class HistoColumnComponent extends BasicWidget {
               <div class="tooltip-tail"></div>
             </div>
           `;
-        },
+        }, //barely works
         position: (data, width, height, element, pos) => {
           let axisPadding = 20;
           let maxBottom = this.rectHeight - 30; //30 css padding          

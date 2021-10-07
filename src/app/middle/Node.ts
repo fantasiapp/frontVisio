@@ -119,9 +119,10 @@ export class Tree {
     return this.attributes['labels'].length;
   }
   
-  getNodesAtHeight(height: number): any[]{
+  getNodesAtHeight(height: number): any[] {
+    if ( height < 0 ) { console.trace(); throw 'No height < 0.'; };
     let depthCallback = (currentHeight: number, height: number, result: any): any[] => {
-      if (currentHeight >= height) return [result];
+      if (currentHeight == height) return [result];
       return result.children.map((node: any) => depthCallback(currentHeight+1, height, node)).flat();
     };
     return depthCallback(0, height, this.root);

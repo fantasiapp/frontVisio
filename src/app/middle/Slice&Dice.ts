@@ -607,8 +607,8 @@ export class PDV{
     return [pdvs, dictChildren];
   }
 
-  static sliceMap(slice: {[key:string]:number}, addConditions:[string, any][]){
-    let pdvs = this.sliceTree(slice, true)[0];
+  static sliceMap(slice: {[key:string]:number}, addConditions:[string, any][], geoTree: boolean = true){
+    let pdvs = this.sliceTree(slice, geoTree)[0];
     return PDV.reSlice(pdvs, addConditions);
   }
 
