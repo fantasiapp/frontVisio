@@ -19,7 +19,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
-  private transitionDuration = 250;
+  private transitionDuration = 0;
   private needles?: d3Selection;
   private barHeights: number[] = [];
   private barTargets: number[] = [];
@@ -82,6 +82,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         self.rectHeight = rect.height;
         self.chart = this;
         self.renderTargetContainer(data);
+        this.config('onrendered', null);
       },
       transition: {
         duration: this.transitionDuration
