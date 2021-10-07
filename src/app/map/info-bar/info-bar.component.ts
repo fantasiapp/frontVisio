@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { of } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
@@ -19,8 +19,8 @@ export class InfoBarComponent {
   quiting: boolean = false;
   errorAdInput: boolean = false;
 
-  @ViewChild('comments', {static: false, read: ElementRef})
-  private comment?: ElementRef;
+  @ViewChildren('comments')
+  private comments?: QueryList<ElementRef>;
   
   @Input()
   set pdv(value: PDV | undefined) {
@@ -132,8 +132,6 @@ export class InfoBarComponent {
       this.gridFormatted[i][j] = Math.floor(+sale[this.SALES_VOLUME_ID!]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
       this.updateSum(i,j)
     }
-
-
   }
 
   updateSum(row: number, i: number) {
@@ -165,7 +163,10 @@ export class InfoBarComponent {
   }
 
   changeComment() { //PB : newValue isn't a number
-    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = this.comment!.nativeElement.innerText;
+    let ref = this.comments!.get(0); //<- the current text area is the first in view
+    if ( !ref ) return;
+    console.log(ref.nativeElement.value);
+    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
     this.hasChanged = true;
   }
 

@@ -43,6 +43,10 @@
                     </ul>
                 </div>
             </div>
+            <div class="comments">
+                <span>Commentaires :</span>
+                <textarea (change)="changeComment()" #comments>{{ pdv ? pdv!.getCommentTarget() : '' }}</textarea>
+            </div>
         </div>
     </ng-container>
 
@@ -81,9 +85,9 @@
                     </ul>
                 </div>
             </div>
-            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
+            <div class="comments">
                 <span>Commentaires :</span>
-                <textarea #comments (change)="changeComment()"></textarea>
+                <textarea (change)="changeComment()" #comments>{{ pdv ? pdv!.getCommentTarget() : '' }}</textarea>
             </div>
         </div>
     </ng-container>
@@ -114,12 +118,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div [style.display]="currentIndex < 2 ? 'initial' : 'none'" class="comments">
-                <span>Commentaires :</span>
-                <textarea (change)="changeComment()" #comments>
-                    {{ pdv ? pdv!.getCommentTarget() : '' }}
-                </textarea>
             </div>
         </div>
     </ng-container>
