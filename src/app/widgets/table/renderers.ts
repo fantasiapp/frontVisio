@@ -28,7 +28,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" hidden="!params.data.redistributedEnduit">`,
+    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" [hidden]="!params.data.redistributedEnduit">`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -62,7 +62,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxP2cd" [hidden]="params.data.clientProspect != 'Client'" disabled>`,
+    template: `<input type="checkbox" [(checked)]="params.value" [hidden]="params.data.clientProspect != 'Client'" disabled>`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -85,13 +85,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     agInit(params: ICellRendererParams): void {
       this.params = params;
     }
-    checkedHandler(event: any) {
-      let checked = event.target.checked;
-      let colId = this.params.column.colId;
-      this.params.node.setDataValue(colId, checked);
-      
-      if(checked) this.sliceTable.updateTotalTarget(this.params.data.potential)
-      else this.sliceTable.updateTotalTarget(-this.params.data.potential)
+
+    refresh(params: ICellRendererParams) {
+      console.log("Refresh")
+      return false;
     }
   }
 

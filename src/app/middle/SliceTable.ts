@@ -32,8 +32,9 @@ export class SliceTable {
                 ],
             'navIds': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
-            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => { if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[3]>0 && params.data.target[5] != 'r'}}}, {field: 'pointFeu', flex: 0.35}],
-            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
+            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] === 'g'}}}, {field: 'pointFeu', flex: 0.35}],
+            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {return params.data.siniatSales > 30000}}, {field: 'pointFeu', flex: 0.35}],
+            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
             'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
@@ -75,7 +76,7 @@ export class SliceTable {
         }
     }
 
-    private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
+    private customField: {[name: string]: (pdv: any) => {} | null}  = { //the way to compute them
         'siniatSales': (pdv: any) => {
             return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
                 .includes(sale[1]) && sale[2] === 1))
@@ -123,10 +124,8 @@ export class SliceTable {
         'checkboxEnduit': (pdv: any) => {
                 return false;
         },
-        'checkboxP2cd': (pdv: any) => {
-            if(!pdv['target']) return false;
-            return pdv['target'][DataExtractionHelper.TARGET_VOLUME_ID] > 0 && pdv['target'][DataExtractionHelper.TARGET_LIGHT_ID] !== 'r'
-        },
+        'checkboxP2cd': (pdv: any) => null,
+
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
             if(array[0] === 1) return DataExtractionHelper.get('clientProspect')[1]
@@ -173,9 +172,12 @@ export class SliceTable {
                 for(let index = 0; index < Object.keys(allColumns).length; index ++) {
                     let field = allColumns[index]
                     if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
-                    else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
+                    else if(this.tableConfig[type]['specificColumns'].includes(field)) {
+                        let customValue = this.customField[field](pdv);
+                        if(customValue !== null) newPdv[field] = customValue;
+                    }
                     else {
-                        newPdv[field] = pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), field)!]
+                        newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
                     }
                 }
                 pdvsAsList.push(newPdv);

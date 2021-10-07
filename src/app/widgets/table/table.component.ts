@@ -46,7 +46,6 @@ export class TableComponent extends BasicWidget {
   gridApi: any;
   columnApi: any;
   onGridReady = (params: any) => {
-    console.log("ready")
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
@@ -103,6 +102,8 @@ export class TableComponent extends BasicWidget {
     this.pinnedRow = data[1][0]; //Hardest part
     groupInfos = data[3][0];
     hiddenGroups = {}
+
+    this.gridApi.refreshCells()
   }
 
   updateGroups(id: string) {
