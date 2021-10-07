@@ -174,6 +174,11 @@ export class InfoBarComponent {
   }
 
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
+    this.grid[i][j] = +this.gridFormatted[i][j];
+    this.gridFormatted[i][j] = Math.floor(+this.gridFormatted[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.updateSum(i,j)
+    console.log("grrid: ", this.grid)
+
     for(let sale of this._pdv!.attribute('sales')) {
       if(i === this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]] && j === this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]) {
         sale[this.SALES_VOLUME_ID!] = this.grid[i][j];
