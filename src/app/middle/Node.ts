@@ -100,8 +100,10 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
 export class Tree {
   attributes: {[key:string]: any[]}     //height -> attribute dictionnary
   root: any;
+  type: any;
 
   constructor(extractor: TreeExtractionHelper){
+    this.type = extractor;
     this.attributes = {}
     //compute the data field
     if ( typeof extractor.data === 'string' )
@@ -117,7 +119,8 @@ export class Tree {
     return this.attributes['labels'].length;
   }
   
-  getNodesAtHeight(height: number): any[]{
+  getNodesAtHeight(height: number): any[] {
+    if ( height < 0 ) { console.trace(); throw 'No height < 0.'; };
     let depthCallback = (currentHeight: number, height: number, result: any): any[] => {
       if (currentHeight == height) return [result];
       return result.children.map((node: any) => depthCallback(currentHeight+1, height, node)).flat();

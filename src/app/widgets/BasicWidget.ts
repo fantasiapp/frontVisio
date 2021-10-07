@@ -25,7 +25,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
 
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
-    super();    
+    super();
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
     this.subscription = combineLatest([filtersService.$path, this.ready!]).subscribe(([path, _]) => {
       this.subscription!.unsubscribe();
@@ -174,28 +174,3 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     return str;
   }
 };
-
-/* Experimental feature */
-/* Eventually use it to put tooltips correctly */
-export class MouseLogger {
-  static window: Window = window;
-  static mouseMoveEvent: MouseEvent | null = null;
-  static mouseDownEvent: MouseEvent | null = null;
-  
-  static start() {
-    this.window.addEventListener('mousemove', (e) => {
-      this.mouseMoveEvent = e;
-    });
-
-    this.window.addEventListener('mousedown', (e) => {
-      this.mouseDownEvent = e;
-    });
-  }
-
-  static findCoordinatesOn(element: Element) {
-    return this.mouseMoveEvent ?
-      d3.pointer(this.mouseMoveEvent, element) : [0, 0];
-  } 
-};
-
-MouseLogger.start();

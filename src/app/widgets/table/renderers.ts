@@ -62,7 +62,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkbox" [hidden]="params.data.clientProspect != 'Client'" disabled>`,
+    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxP2cd" [hidden]="params.data.clientProspect != 'Client'" disabled>`,
     styles:  [`:host {
         display: flex;
         justify-content: center;

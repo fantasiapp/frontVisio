@@ -35,7 +35,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   filterDict: any = {};
 
   set criteria(value: any[]) {
-    let pdvs = PDV.sliceMap(this.path, []);
+    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree === PDV.geoTree);
     this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
     this.filterDict = PDV.countForFilter(pdvs);
     this.update();
@@ -75,7 +75,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.subscription = combineLatest([this.filtersService.$path, this.filtersService.$load, this.ready]).subscribe(([path, _, __]) => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
-        let pdvs = PDV.sliceMap(this.path, []);
+        let pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree === PDV.geoTree);
         this.pdvs = PDV.reSlice(pdvs, this._criteria);
         this.filterDict = PDV.countForFilter(pdvs);
         this.update();
@@ -240,7 +240,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       idx += step;
       if ( idx < this.markers.length )
         setTimeout(f, 0);
-    }, this.markers.length > 2000 ? this.markers.length / 10 : 0);
+    }, this.markers.length > 2000 ? this.markers.length / 20 : 0);
     //if number is too big, wait for the animation
   }
 
@@ -297,7 +297,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       let lat = pdv.attribute('latitude'),
         lng = pdv.attribute('longitude'),
         industrie = pdv.property('industrie'),
-        icon = MapComponent.icons[industrie] ? MapComponent.icons[industrie] : MapComponent.icons['default'];
+        icon = builder.get([industrie, +(pdv.property('clientProspect') == 3), +pdv.attribute('pointFeu'), pdv.attribute('segmentMarketing')]);
       
       return {
         position: new google.maps.LatLng(lat, lng),
@@ -315,29 +315,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.displayMarkers();
   };
 
-  static createSVGIcon(keys: any = {}) {
-    let {
-      width = 30,
-      height = 30,
-      strokeWidth = 1,
-      fill='red',
-      circleStroke='black',
-      lineStroke='black'
-    } = keys;
-  
-    return {
-      url: 'data:image/svg+xml,' + encodeURIComponent(`
-        <svg width='${width}' height='${height}' version='1.1' xmlns='http://www.w3.org/2000/svg'>
-            <circle cy='10' cx='15' r='8' stroke='${circleStroke}' stroke-width='1' fill='${fill}'></circle>
-            <line x1='15' y1='18' x2='15' y2='30' stroke='${lineStroke}' stroke-width='${strokeWidth}'></line>
-        </svg>
-      `),
-      scaledSize: new google.maps.Size(width, height)
-    };
-  };
-
-  static icons: any = {};
-
   static round(x: number, threshold: number = 0.5): number {
     let int = Math.floor(x),
       frac = x - int;
@@ -349,9 +326,127 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.subscription?.unsubscribe();
   }
-}
+};
 
-Object.entries({1: '#A61F7D', 2: '#0056A6', 3: '#67CFFE'})
-  .reduce((acc: any, [key, color]) => {acc[key] = MapComponent.createSVGIcon({fill: color}); return acc;}, MapComponent.icons);
+class MapIconBuilder {
+  defaultValues: any;
+  axes: any[];
+  axesNames: string[];
+  icons: any;
 
-MapComponent.icons['default'] = MapComponent.createSVGIcon({fill: '#888888'});
+  constructor(defaultValues: any) {
+    this.defaultValues = defaultValues;
+    this.axes = [];
+    this.axesNames = [];
+    this.icons = {'data': {}};
+  }
+
+  createIcon(values: any) {
+    let width = this.getPropertyOf(values, 'width'),
+      height = this.getPropertyOf(values, 'height'),
+      stroke = this.getPropertyOf(values, 'stroke'),
+      strokeWidth = this.getPropertyOf(values, 'strokeWidth'),
+      fill = this.getPropertyOf(values, 'fill');
+    
+    return {
+      url: 'data:image/svg+xml,' + encodeURIComponent(`
+        <svg width='${width}' height='${height}' version='1.1' xmlns='http://www.w3.org/2000/svg'>
+          ${values.head ? values.head(this, values) : `<circle cy='10' cx='15' r='8' stroke='${stroke}' stroke-width='1' fill='${fill}'></circle>`}
+          ${values.body ? values.body(this, values) : `<line x1='15' y1='18' x2='15' y2='30' stroke='${stroke}' stroke-width='${strokeWidth}'></line>`}
+          ${values.feet ? values.feet(this, values) : ``}
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(width, height)
+    }
+  }
+
+  getPropertyOf(object: any, key: string) {
+    return (object && object[key]) || this.defaultValues[key];
+  }
+
+  axis(name: string, axis: any) {
+    this.axesNames.push(name);
+    this.axes.push(axis);
+    return this;
+  }
+
+  generate() {
+    this._generateData();
+    this._generateIcons();
+  }
+
+  get(path: string[]) {
+    let dict = this.icons;
+    for ( let i = 0; i < this.axesNames.length; i++ ) {
+      let name = this.axesNames[i] + '.' + path[i];
+      if ( dict[name] )
+      dict = dict[name];
+      else
+      return null;
+    }
+    
+    return dict.icon;
+  }
+
+  private _generateData(previousDict=this.icons, height:number=0) {
+    if ( height >= this.axesNames.length ) return;
+    let axisName = this.axesNames[height];
+    let data = this.axes[height];
+
+    for ( let item of data ) {
+      let key = axisName + '.' + item[0];
+      previousDict[key] = {'data': {...previousDict['data'], ...item[1]}}; 
+      this._generateData(previousDict[key], height+1);
+    }
+  }
+
+  private _generateIcons(previousDict=this.icons, height:number=0) {
+    if ( height >= this.axesNames.length ) return;
+    let keys = Object.getOwnPropertyNames(previousDict);
+    for ( let key of keys ) {
+      if ( !previousDict[key].data ) continue
+      previousDict[key].icon = this.createIcon(previousDict[key]['data']);
+      this._generateIcons(previousDict[key], height+1);
+    }
+  }
+
+  static circle(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
+    return `<circle cy='10' cx='15' r='8' stroke='${stroke}' stroke-width='1' fill='${fill}'></circle>`
+  }
+
+  static square(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
+    return `<rect x='8' y='3' width='14' height='14' stroke='${stroke}' stroke-width='1' fill='${fill}'></rect>`
+  }
+
+  static diamond(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
+    return `<rect transform='rotate(45, 15, 10)' x='8' y='3' width='14' height='14' fill='${fill}' stroke='${stroke}' stroke-width='1'></rect>`
+  }
+
+  static fire(builder: MapIconBuilder, {strokeFeet = builder.getPropertyOf(null, 'stroke')}: any) {
+    return `<circle cx='15' cy='26' r='4' stroke='${strokeFeet}' stroke-width='1' fill='#FF0000'></circle>`;
+  }
+};
+
+let builder = new MapIconBuilder({
+  width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
+});
+
+builder.axis('id', [
+  ['1', {fill: '#A61F7D'}],
+  ['2', {fill: '#0056A6'}],
+  ['3', {fill: '#67CFFE'}],
+  ['4', {fill: '#888888'}],
+]).axis('cp', [
+  ['0', {}],
+  ['1', {fill: '#FF0000'}]
+]).axis('pf', [
+  ['1', {strokeFeet: 'none', feet: MapIconBuilder.fire}], //<- draw fire
+  ['0', {}]
+]).axis('sm', [
+  ['8', {head: MapIconBuilder.circle}],
+  ['7', {head: MapIconBuilder.square}],
+  ['6', {head: MapIconBuilder.diamond}],
+  ['9', {head: MapIconBuilder.circle}]
+]).generate();
+
+console.log(builder.icons);

@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
@@ -18,7 +19,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
-  private transitionDuration = 250;
+  private transitionDuration = 0;
   private needles?: d3Selection;
   private barHeights: number[] = [];
   private barTargets: number[] = [];
@@ -60,7 +61,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .attr('value', 0)
+        .attr('value', (d) => +DataExtractionHelper.get("targetLevelDrv")[Object.keys(DataExtractionHelper.get('drv'))[d]][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTargetLevelDrv'), this.data.updateTargetName)!])
+        // .attr('value', (d) => d)
         .attr('type', 'number')
         .on('change', (event) => {console.log("change : ", event.target.value), this.changeValue(event.target.value, event.target.__data__, event)})
         .style('width', (this.barWidth.toFixed(1)) + 'px')
@@ -71,15 +73,16 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   createGraph(data: any) {
     let self = this;
     this.data = data;
-    console.log("data : ", data)
     super.createGraph(data, {
       onresized: () => {
         this.renderTargetContainer({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
+        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
         self.chart = this;
-        (<any>window).chart = this;
         self.renderTargetContainer(data);
+        this.config('onrendered', null);
       },
       transition: {
         duration: this.transitionDuration
@@ -92,7 +95,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     super.updateGraph(data);
     //wait for animation
     this.schedule.queue(() => {
-      this.getNeedleGroup()!.remove();
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
@@ -178,6 +180,5 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   changeValue(newValue :number, inputId: number, fullEvent: any) {
     this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
-    this.updateGraph(this.data)
   }
 }

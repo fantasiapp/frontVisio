@@ -11,10 +11,20 @@ export class Navigation{
   currentDashboard?: Dashboard;
 
   setTree(t: Tree){
-    //!HACK
-    this.tree = t ? t : new Tree(NavigationExtractionHelper);
-    this.currentLevel = this.tree.root;
-    this.currentDashboard = this.currentLevel!.dashboards[0];
+    let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null, dashboardIndex: number, sameType = this.tree?.type === t.type;
+    if ( path )
+      dashboardIndex = this.currentLevel!.dashboards.findIndex(dashboard => dashboard.id == this.currentDashboard?.id);
+
+      this.tree = t ? t : new Tree(NavigationExtractionHelper);
+      this.currentLevel = this.tree.root;
+      this.currentDashboard = this.currentLevel!.dashboards[0];
+
+      if ( sameType && path  ) {
+        for ( let id of path )
+          this.currentLevel = this.currentLevel!.goChild(id);
+        
+        this.currentDashboard = this.currentLevel!.dashboards[dashboardIndex!] || this.currentLevel?.dashboards[0];
+      }
   }
 
   getArray(dataType: 'level' | 'dashboard'): any{

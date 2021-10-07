@@ -29,9 +29,13 @@
 }
 
 .option {
-    display: inline-block;
-    width: calc(100% - 50px);
     height: 30px;
+    flex: 1;
+}
+
+.count {
+    text-align: center;
+    font-weight: 300;
 }
 
 .checkboxed {
@@ -39,6 +43,9 @@
     padding-left: 10px;
     cursor: pointer;
     user-select: none;
+    display: flex;
+    width: 100%;
+    flex-flow: row nowrap;
 }
 
 /* Hide the browser's default checkbox */
@@ -56,6 +63,7 @@
     height: 25px;
     width: 25px;
     background-color: #eee;
+    margin-left: 15px;
 }
 
 /* On mouse-over, add a grey background color */

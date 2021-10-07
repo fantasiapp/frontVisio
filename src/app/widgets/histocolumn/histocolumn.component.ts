@@ -22,6 +22,7 @@ export class HistoColumnComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
+  protected rectHeight: number = 0;
   createGraph({data, colors}: any, opt: {} = {}) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
@@ -30,6 +31,7 @@ export class HistoColumnComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
     
+    let self = this;
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
@@ -51,6 +53,14 @@ export class HistoColumnComponent extends BasicWidget {
               <div class="tooltip-tail"></div>
             </div>
           `;
+        }, //barely works
+        position: (data, width, height, element, pos) => {
+          let axisPadding = 20;
+          let maxBottom = this.rectHeight - 30; //30 css padding          
+          return {
+            top: Math.max(axisPadding, Math.min(maxBottom, pos.y - height/2 + axisPadding)),
+            left: (pos.xAxis || pos.x) + 20
+          };
         }
       },
       bar: {
@@ -89,6 +99,10 @@ export class HistoColumnComponent extends BasicWidget {
         item: {
           onclick() {}
         },
+      },
+      onrendered() {
+        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
       },
       transition: {
         duration: 250
