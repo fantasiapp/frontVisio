@@ -44,7 +44,7 @@ export class DataService {
     });
   }
 
-  private dataToUpdate:{'targetLevelAgentP2CD': {[id: number]: number[]}, 'targetLevelAgentFinition': {[id: number]: number[]}, 'targetLevelDrv': {[id: number]: number[]}, 'pdvs': {[id: number]: any}} = {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': {}}
+  private dataToUpdate:{'targetLevelAgentP2CD': {[id: number]: number[]}, 'targetLevelAgentFinition': {[id: number]: number[]}, 'targetLevelDrv': {[id: number]: number[]}, 'pdvs': {[id: number]: any}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {}}
   emptyData : {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {[id: number]: any}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
 
   public updatePdv(pdv: any[], id: number) {
