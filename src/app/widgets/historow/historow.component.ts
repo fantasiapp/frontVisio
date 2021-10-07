@@ -123,7 +123,7 @@ export class HistoRowComponent extends BasicWidget {
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
-          self.addRubixCondition(e.target.innerHTML);
+          self.addRubixCondition(e.target.textContent);
           self.update();
         });
       },
