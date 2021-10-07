@@ -129,7 +129,10 @@ class DataExtractionHelper{
   static TARGET_VOLUME_ID: number;
   static TARGET_FINITION_ID: number;
   static TARGET_LIGHT_ID: number;
-  static TARGET_COMMENT_ID: number
+  static TARGET_COMMENT_ID: number;
+  static SALE_INDUSTRY_ID: number;
+  static SALE_PRODUCT_ID: number;
+  static SALE_VOLUME_ID: number;  
   static TARGET_ID: any;
   static SALES_ID: any;
   static SALE_ID: any;
@@ -178,7 +181,9 @@ class DataExtractionHelper{
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
     this.SALES_ID = this.getKeyByValue(this.data['structurePdvs'], 'sales');
     this.SALE_ID = this.getKeyByValue(this.data['structurePdvs'], 'sale');
-
+    this.SALE_INDUSTRY_ID = this.data["structureSales"].indexOf("industry");
+    this.SALE_PRODUCT_ID = this.data["structureSales"].indexOf("product");
+    this.SALE_VOLUME_ID = this.data["structureSales"].indexOf("volume");
     
     //trades have less info that geo
     
