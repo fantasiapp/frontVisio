@@ -92,15 +92,13 @@ export class InfoBarComponent {
       this.gridFormatted = new Array(this.industries.length+1);
       for ( let i = 0; i < this.grid.length; i++ ) {
         this.grid[i] = new Array(this.products.length).fill(0);
-        this.gridFormatted[i] = new Array(this.products.length).fill(0);
+        this.gridFormatted[i] = new Array(this.products.length).fill('');
       }
       for(let i = 0; i<this.industries.length; i++)
         this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
       for(let i = 0; i<this.products.length-1; i++)
         this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
     });
-
-    
   }
 
   //make variable
@@ -130,7 +128,7 @@ export class InfoBarComponent {
   }
 
   loadGrid() {
-    for(let sale of this._pdv!.attribute('sales')) {
+    for(let sale of this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString()))) {
       let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
       this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
       this.gridFormatted[i][j] = this.formatNumberToString(sale[this.SALES_VOLUME_ID!]);
@@ -159,6 +157,7 @@ export class InfoBarComponent {
   }
 
   formatNumberToString(n: number) {
+    if(n===0) return ''
     return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
 
