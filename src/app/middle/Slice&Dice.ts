@@ -763,7 +763,7 @@ class SliceDice{
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1, axis2);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
-    let rodPosition = undefined;
+    let rodPosition = undefined, targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let targetName:string;
@@ -781,13 +781,17 @@ class SliceDice{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
+        targetLevel['ids'] = elemIds;
         let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName);
         for (let i = 0; i < targetValues.length; i++) rodPosition[i] = (targetValues[i] + targetsStartingPoint[i]) / sum[i];
       }
-      this.updateTargetName = targetName;
+      targetLevel['volumeIdentifier'] = targetName;
+      if(node.label === 'France') {targetLevel['name'] = 'targetLevelDrv'; targetLevel['structure'] = 'structureTargetLevelDrv';}
+      if(node.label === 'Région') {targetLevel['name'] = 'targetLevelAgentP2CD'; targetLevel['structure'] = 'structureTargetAgentP2CD';}
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, node: DataExtractionHelper.followSlice(slice), updateTargetName: this.updateTargetName};
+    
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, targetLevel: targetLevel};
   }
 
   getIndustriesReverseDict(){
@@ -808,10 +812,10 @@ class SliceDice{
   //   return acc + (this.geoTree ? 0 : 1);
   // }
 
-  updateTargetLevelDrv(id: number, value: number, updateTargetName: string) {
-    let newTargetLevelDrv: number[] = DataExtractionHelper.get('targetLevelDrv')[Object.keys(DataExtractionHelper.get('drv'))[id]]
-    newTargetLevelDrv[+DataExtractionHelper.get('structureTargetLevelDrv').indexOf(updateTargetName)] = +value;
-    this.dataService.updateTargetLevelDrv(newTargetLevelDrv, +Object.keys(DataExtractionHelper.get('drv'))[id]);
+  updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, volumeid: number, targetLevelStructure: string) {
+    let newTargetLevel: number[] = DataExtractionHelper.get(targetLevelName)[targetLevelId]
+    newTargetLevel[+DataExtractionHelper.get(targetLevelStructure).indexOf(volumeid)] = +newValue;
+    this.dataService.updateTargetLevel(newTargetLevel, targetLevelName, +targetLevelId);
   }
 };
 

@@ -29,7 +29,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private barWidth: number = 0;
   inputIsOpen: boolean = false;
   private data?: any;
-  
+
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
@@ -61,7 +61,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .attr('value', (d) => +DataExtractionHelper.get("targetLevelDrv")[Object.keys(DataExtractionHelper.get('drv'))[d]][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTargetLevelDrv'), this.data.updateTargetName)!])
+        .attr('value', (d) => DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])])
         // .attr('value', (d) => d)
         .attr('type', 'number')
         .on('change', (event) => {console.log("change : ", event.target.value), this.changeValue(event.target.value, event.target.__data__, event)})
@@ -73,6 +73,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   createGraph(data: any) {
     let self = this;
     this.data = data;
+    console.log("TargetLevel: ", this.data.targetLevel, "structure : ", this.data.targetLevel['structure'], "DEH : ", DataExtractionHelper.get(this.data.targetLevel['structure']))
     super.createGraph(data, {
       onresized: () => {
         this.renderTargetContainer({data: null, target: this.barTargets});
@@ -179,7 +180,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   changeValue(newValue :number, inputId: number, fullEvent: any) {
-    // this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
-    console.log("Node: ", this.data.node)
+    this.sliceDice.updateTargetLevel(newValue, this.data.targetLevel['name'], this.data.targetLevel['ids'][inputId], this.data.targetLevel['volumeIdentifier'], this.data.targetLevel['structure'])
   }
 }
