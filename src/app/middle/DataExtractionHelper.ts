@@ -214,35 +214,32 @@ class DataExtractionHelper{
 
   static updateData(data: {'targetLevelAgentP2CD': {[id: number]: number[]}, 'targetLevelAgentFinition': {[id: number]: number[]}, 'targetLevelDrv': {[id: number]: number[]}, 'pdvs': {[id: number]: any}}) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
-      console.log("Back updated, now update middle")
-      // Check how deletions are managed 
-
-
-      //update this.pdv
-      let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
-      for(let newPdv of Object.values(data.pdvs)) {
-        for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
-          if((oldPdv as any)[idCode] === newPdv[idCode]) {
-            this.data.pdvs[oldPdvId] = newPdv;
+    console.log("Back updated, now update middle")
+    // Check how deletions are managed 
+    //update this.pdv
+    let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
+    for(let newPdv of Object.values(data.pdvs)) {
+      for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
+        if((oldPdv as any)[idCode] === newPdv[idCode]) {
+          this.data.pdvs[oldPdvId] = newPdv;
+          break;
+        }
+      }
+    }
+  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
+    for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
+      for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
+        for(let oldTargetId of Object.keys(this.data[targetType])) {
+          if(newTargetId === oldTargetId) {
+            this.data[targetType][newTargetId] = newTarget;
             break;
           }
         }
       }
-  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
-      for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
-        for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
-          for(let oldTargetId of Object.keys(this.data[targetType])) {
-            if(newTargetId === oldTargetId) {
-              this.data[targetType][newTargetId] = newTarget;
-              break;
-            }
-          }
-        }
-      }
-      
-      //Build trees !!! CUSTOM THIS
-      DataExtractionHelper.setData(this.data)
-      PDV.load(true)
+    }      
+    //Build trees !!! CUSTOM THIS
+    DataExtractionHelper.setData(this.data)
+    PDV.load(true)
   }
 
   static getPDVFields() {
@@ -329,6 +326,7 @@ class DataExtractionHelper{
     if (field == 'ciblage') return ciblage;
     if (field == 'pointFeuFilter') return pointFeuFilter;
     if (field == 'industriel') return industriel;
+    if (field == 'segmentDnEnduitTargetVisits') return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget); // A terme il faut rajouter le dernier
     if (field == 'segmentMarketingFilter') return segmentMarketingFilter;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
@@ -374,6 +372,7 @@ class DataExtractionHelper{
     return ids.map((id:number) => DataExtractionHelper.getTarget(level, id, targetName));
   }
 
+  // Il faudrait peut-être mettre tout ce que qui traite de la description dans un autre fichier
   static computeDescription(slice:any, description:string[]){
     let descriptionCopy = description.slice();    
     let relevantNode:Node = DataExtractionHelper.followSlice(slice);
@@ -385,7 +384,7 @@ class DataExtractionHelper{
     return descriptionCopy.reduce((str:string, acc: string) => str + acc, "");
   }
 
-  static treatDescIndicator(node:any, str:string):string{
+  private static treatDescIndicator(node:any, str:string):string{
     if (str == "@ciblageP2CD") return DataExtractionHelper.getCiblage(node);
     if (str == "@ciblageP2CDdn") return DataExtractionHelper.getCiblage(node, false, true);
     if (str == "@ciblageEnduit") return DataExtractionHelper.getCiblage(node, true);
@@ -399,14 +398,14 @@ class DataExtractionHelper{
     return "";
   }
 
-  static getCiblage(node:any, enduit=false, dn=false){
+  private static getCiblage(node:any, enduit=false, dn=false){
     let ciblage:number = +PDV.computeCiblage(node, enduit, dn);
     if (enduit) return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' T.');
     else if (dn) return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
     else return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².');
   }
 
-  static getObjectif(node:any, enduit=false, dn=false){
+  private static getObjectif(node:any, enduit=false, dn=false){
     if (enduit) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
     if (node.label !== 'Secteur') return "";
     let targetName = dn ? 'dnP2CD': 'volP2CD';
@@ -415,7 +414,7 @@ class DataExtractionHelper{
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)/1000).toString(), ' km², ');
   }
 
-  static getObjectifDrv(node:any, dn=false){
+  private static getObjectifDrv(node:any, dn=false){
     if (!(node.label == 'France' || node.label == 'Région')) return "";
     let targetName = dn ? "dnP2CD": 'volP2CD', targetDrv:number;
     if (node.label == 'France') targetDrv = DataExtractionHelper.getTarget('nationalByAgent', 0, targetName);
@@ -423,7 +422,7 @@ class DataExtractionHelper{
     return (dn) ? 'DRV: '.concat(targetDrv!.toString(), ' PdVs, '): 'DRV: '.concat((Math.round(targetDrv!)/1000).toString(), ' km², ');
   }
 
-  static getObjectifSiege(node:any, dn=false):string{
+  private static getObjectifSiege(node:any, dn=false):string{
     if (!(node.label == 'France' || node.label == 'Région')) return "";
     let targetName = dn ? "dnP2CD": 'volP2CD';
     let targetSiege =  DataExtractionHelper.getTarget(node.label, node.id, targetName);
