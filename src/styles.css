@@ -176,19 +176,22 @@ app-historow .bb-xgrid {
 
 @media (max-width: 1366px) {
     :root {
-        --x-axis-font-size: 9px;
+        --x-axis-font-size: 10px;
+        --legend-font-size: 10px;
     }
 }
 
-@media (min-width: 1366px) {
+@media (min-width: 1366px) and (max-width: 1920px) {
     :root {
-        --x-axis-font-size: 13px;
+        --x-axis-font-size: 12px;
+        --legend-font-size: 12px;
     }
 }
 
 @media (min-width: 1920px) {
     :root {
         --x-axis-font-size: 15px;
+        --legend-font-size: 14px;
     }
 }
 
@@ -239,4 +242,8 @@ g.simple-needle line {
 
 .bb-shape.bb-shape.bb-line {
     stroke-width: 3px;
+}
+
+.bb-legend-item {
+    font-size: var(--legend-font-size);
 }

@@ -17,7 +17,6 @@ export class PieTargetComponent extends SimplePieComponent {
   private needle?: d3Selection;
   private needleTranslate: [number, number] = [0, 0];
   private needleRotate: number = 0;
-//  private data?: any[]; //store data reference, use it to draw needle
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -83,7 +82,6 @@ export class PieTargetComponent extends SimplePieComponent {
       .attr('y2', 0);
   }
 
-  // 🛑 this is the mission of the middle 🛑
   computeNeedlePosition(data: any): number {
     return (data ? data.target : this.needleRotate)+90;
   }

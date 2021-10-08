@@ -16,13 +16,12 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   protected sliceDice: SliceDice;
   protected chart: Chart | null = null;
   /* Styling */
-  protected tileHeight: number = 16;
+  static legendItemHeight: number = 12;
   protected dynamicDescription: boolean = false;
   //protected savedData: {[key:number]: any} = {};
 
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
-
 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
@@ -174,3 +173,25 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     return str;
   }
 };
+
+//perhaps will be useful
+let timeoutId: any = null;
+let windowResize = (e: Event) => {
+  let width = window.innerWidth, result;
+  if ( width < 1366 )
+    result = 12;
+  else if ( width < 1920 )
+    result = 14;
+  else
+    result = 16;
+  
+  BasicWidget.legendItemHeight = result;
+  timeoutId = null;
+};
+
+(window as any).addEventListener('resize', (e: Event) => {
+  if ( timeoutId )
+    clearTimeout(timeoutId);
+  
+  timeoutId = setTimeout(windowResize, 100, [e]);
+});

@@ -46,7 +46,7 @@
     }
 }
 
-@media (max-width: 1920px) {
+@media (min-width: 1367px) and (max-width: 1920px) {
     :host {
         font-size: 20px;
     }
@@ -377,12 +377,15 @@ p {
     background: white;
 }
 
-.total.row > * {
-    background: #eee;
+.total.row * {
+    background-color: #333 !important;
+    font-weight: 500 !important;
+    font-size: 1em;
+    color: white;
 }
 
-.total.row .first.cell {
-    font-size: 1.1em;
+.total.row .cell input {
+    background-color: #333 !important;
 }
 
 .grid .row {
@@ -430,6 +433,10 @@ p {
     box-shadow: none;
     border-radius: 0;
     height: 100%;
+}
+
+.grid .row input:disabled {
+    background-color: #f7f7f7;
 }
 
 .first.row .cell:not(.empty) {

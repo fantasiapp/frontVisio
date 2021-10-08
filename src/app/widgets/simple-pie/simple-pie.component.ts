@@ -63,19 +63,22 @@ export class SimplePieComponent extends BasicWidget {
       legend: {
         item: {
           onclick() {},
-          tile: {height: this.tileHeight}
+          tile: {height: BasicWidget.legendItemHeight}
         },
         position: 'inset',
         inset: {
           anchor: 'bottom-right',
-          y: 5 + (data.length) * this.tileHeight
+          y: 10 + (data.length) * BasicWidget.legendItemHeight
         }
       },
       transition: {
         duration: 250
       },
+      onresized: () => {
+        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+      },
       // add opt
       ...opt
     });
   }
-}
+};

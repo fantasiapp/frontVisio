@@ -47,7 +47,7 @@ export class HistoColumnComponent extends BasicWidget {
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
           return `
             <div class="histocolumn-tooltip tooltip">
-              ${d.map((data: any) => `
+              ${d.filter((data: any) => data.value > 0.5).map((data: any) => `
                 <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
               `).join('<br/>')}
               <div class="tooltip-tail"></div>
@@ -56,7 +56,8 @@ export class HistoColumnComponent extends BasicWidget {
         }, //barely works
         position: (data, width, height, element, pos) => {
           let axisPadding = 20;
-          let maxBottom = this.rectHeight - 30; //30 css padding          
+          let maxBottom = this.rectHeight - 30; //30 css padding
+          console.log({axisPadding, maxBottom, pos});         
           return {
             top: Math.max(axisPadding, Math.min(maxBottom, pos.y - height/2 + axisPadding)),
             left: (pos.xAxis || pos.x) + 20
@@ -118,11 +119,12 @@ export class HistoColumnComponent extends BasicWidget {
     };
 
     let currentItems = Object.keys(this.chart!.xs()),
-    newItems = data.slice(1).map((d: any[]) => d[0]),
-    newCategories = data[0].slice(1);
+      newItems = data.slice(1).map((d: any[]) => d[0]),
+      newCategories = data[0].slice(1);
+      
     this.schedule.queue(() => {
       this.chart!.load({
-        columns: data.slice(1),
+        columns: data,
         categories: newCategories,
         unload: currentItems.filter(x => !newItems.includes(x)),
         done: () => {
