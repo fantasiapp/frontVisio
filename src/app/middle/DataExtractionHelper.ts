@@ -376,7 +376,7 @@ class DataExtractionHelper{
 
   static computeDescription(slice:any, description:string[]){
     let descriptionCopy = description.slice();    
-    let relevantNode = DataExtractionHelper.followSlice(slice);
+    let relevantNode:Node = DataExtractionHelper.followSlice(slice);
     if (descriptionCopy.length == 1) return descriptionCopy[0];
     for (let i = 0; i < descriptionCopy.length; i++){
       if (descriptionCopy[i] == '') continue;
@@ -386,9 +386,9 @@ class DataExtractionHelper{
   }
 
   static treatDescIndicator(node:any, str:string):string{
-    if (str == "@ciblageP2CD") return PDV.computeCiblage(node);
-    if (str == "@ciblageP2CDdn") return PDV.computeCiblage(node, false, true);
-    if (str == "@ciblageEnduit") return PDV.computeCiblage(node, true);
+    if (str == "@ciblageP2CD") return DataExtractionHelper.getCiblage(node);
+    if (str == "@ciblageP2CDdn") return DataExtractionHelper.getCiblage(node, false, true);
+    if (str == "@ciblageEnduit") return DataExtractionHelper.getCiblage(node, true);
     if (str == '@DRV') return DataExtractionHelper.getObjectifDrv(node);
     if (str == '@DRVdn') return DataExtractionHelper.getObjectifDrv(node, true);
     if (str == "@objectifP2CD") return DataExtractionHelper.getObjectif(node);
@@ -399,7 +399,14 @@ class DataExtractionHelper{
     return "";
   }
 
-  static getObjectif(node:any, enduit = false, dn = false){
+  static getCiblage(node:any, enduit=false, dn=false){
+    let ciblage:number = PDV.computeCiblage(node, enduit, dn);
+    if (enduit) return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' T.');
+    else if (dn) return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
+    else return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².');
+  }
+
+  static getObjectif(node:any, enduit=false, dn=false){
     if (enduit) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
     if (node.label !== 'Secteur') return "";
     let targetName = dn ? 'dnP2CD': 'volP2CD';

@@ -580,29 +580,28 @@ export class PDV{
     return PDV.reSlice(pdvs, addConditions);
   }
 
-  static computeCiblage(node: Node, enduit = false, dn =false){
-    let pdvs = PDV.childrenOfNode(node);
-    let ciblage = 0;
+  static computeCiblage(node: Node, enduit=false, dn=false): number{
+    let pdvs = PDV.childrenOfNode(node), ciblage = 0;
     if (dn){
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
         if (isNaN(target)) target = 0;
         let toAdd = (target > 0) ? 1: 0;
         ciblage += toAdd;
-      }
-      return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
+      };
     }
-    if (enduit){
+    else if (enduit){
       for (let pdv of pdvs)
         if (pdv.targetFinition) ciblage += pdv.getPotential();
-      return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' T.');
     }
-    for (let pdv of pdvs){
-      let target = pdv.targetP2cd;
-      if (isNaN(target)) target = 0;
-      ciblage += target;
+    else {
+      for (let pdv of pdvs){
+        let target = pdv.targetP2cd;
+        if (isNaN(target)) target = 0;
+        ciblage += target;
+      };
     }
-    return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².');
+    return ciblage;
   }
 
   getPotential(){
