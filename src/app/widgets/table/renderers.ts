@@ -56,8 +56,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
       let colId = this.params.column.colId;
       this.params.node.setDataValue(colId, checked);
       
-      if(checked) this.sliceTable.updateTotalTarget(this.params.data.potential)
-      else this.sliceTable.updateTotalTarget(-this.params.data.potential)
+      if(this.params.data.potential > 0) {
+        if(checked) this.sliceTable.updateTotalTarget(this.params.data.potential)
+        else this.sliceTable.updateTotalTarget(-this.params.data.potential)
+      }
     }
   }
   
