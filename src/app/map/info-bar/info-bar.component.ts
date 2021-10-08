@@ -45,6 +45,7 @@ export class InfoBarComponent {
   products: string[] = [];//PDV.getProducts() as string[];
   grid: number[][] = [];
   gridFormatted: string[][] = [];
+  salesColors: string[] = [];
   targetClass: any = {
     'r': false,
     'g': false,
@@ -132,6 +133,7 @@ export class InfoBarComponent {
       this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
       this.gridFormatted[i][j] = this.formatNumberToString(sale[this.SALES_VOLUME_ID!]);
       this.updateSum(i,j)
+      this.salesColors = this._pdv!.salesColors;
     }
   }
 

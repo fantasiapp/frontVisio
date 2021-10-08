@@ -265,6 +265,30 @@ export class PDV{
     return target[DataExtractionHelper.TARGET_FINITION_ID]
   }
 
+  get salesColors(): string[]{
+    let nbIndustries = (DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').length
+
+    if(this.attribute('sale') === false || this.attribute('onlySiniat') === true) return new Array(nbIndustries).fill('black')
+    let colors = new Array(nbIndustries).fill('red'), isAdOpen = DataExtractionHelper.get('params')['isAdOpen'], sales = this.attribute('sales');
+    if(!sales) return colors;
+    for(let index = 0; index < sales.length ; index ++) {
+      if(isAdOpen === true && Math.floor(Date.now()/1000) - 15778476 > sales[index][DataExtractionHelper.SALES_DATE_ID]) colors[index] = 'orange'
+      else colors[index] = 'black'
+    }
+    return colors
+  }
+
+  get color(): string{
+    let isAdOpen = DataExtractionHelper.get('params')['isAdOpen'], sales = this.attribute('sales');
+    if(!sales) return 'red'
+    if(isAdOpen) {
+      for(let sale of sales) {
+        if(Math.floor(Date.now()/1000) - 15778476 > sale[DataExtractionHelper.SALES_DATE_ID]) return 'orange'
+      }
+    }
+    return 'black'
+  }
+
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
       this.load(false);
