@@ -787,7 +787,7 @@ class SliceDice{
       this.updateTargetName = targetName;
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, updateTargetName: this.updateTargetName};
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, node: DataExtractionHelper.followSlice(slice), updateTargetName: this.updateTargetName};
   }
 
   getIndustriesReverseDict(){
@@ -810,7 +810,6 @@ class SliceDice{
 
   updateTargetLevelDrv(id: number, value: number, updateTargetName: string) {
     let newTargetLevelDrv: number[] = DataExtractionHelper.get('targetLevelDrv')[Object.keys(DataExtractionHelper.get('drv'))[id]]
-    console.log("targetLevelDrv : ", newTargetLevelDrv, " DataExtractionHelper.get('structureTargetLevelDrv') : ", DataExtractionHelper.get('structureTargetLevelDrv'), "this.updateTargetName : ", updateTargetName, "DataExtractionHelper.get('structureTargetLevelDrv').indexOf(this.updateTargetName) : ", DataExtractionHelper.get('structureTargetLevelDrv').indexOf(updateTargetName))
     newTargetLevelDrv[+DataExtractionHelper.get('structureTargetLevelDrv').indexOf(updateTargetName)] = +value;
     this.dataService.updateTargetLevelDrv(newTargetLevelDrv, +Object.keys(DataExtractionHelper.get('drv'))[id]);
   }

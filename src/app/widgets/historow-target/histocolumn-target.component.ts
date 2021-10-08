@@ -179,6 +179,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   changeValue(newValue :number, inputId: number, fullEvent: any) {
-    this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
+    // this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
+    console.log("Node: ", this.data.node)
   }
 }
