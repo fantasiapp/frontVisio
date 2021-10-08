@@ -30,6 +30,8 @@ export class InfoBarComponent {
     this.currentIndex = 0;
     this.pdvChange.emit(value);
     if ( value ) {
+      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
+      InfoBarComponent.pdvId = value.id;
       let target = value!.getLightTarget();
       this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
     } 
@@ -129,7 +131,7 @@ export class InfoBarComponent {
   loadGrid() {
     for(let sale of this._pdv!.attribute('sales')) {
       let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
-      this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
+      this.grid[i][j] = +sale[this.SALES_VOLUME_ID!];
       this.gridFormatted[i][j] = Math.floor(+sale[this.SALES_VOLUME_ID!]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
       this.updateSum(i,j)
     }
@@ -221,6 +223,4 @@ export class InfoBarComponent {
     this.dataService.updatePdv(newPdv, InfoBarComponent.pdvId);
     this.hasChanged = false;
   }
-
-
 }

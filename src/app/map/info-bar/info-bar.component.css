@@ -33,6 +33,7 @@
     box-shadow: -2px 0 3px 0px #aaa;
     border-radius: 3px;
     overflow: auto;
+    user-select: none;
 }
 
 :host(.opened) {
