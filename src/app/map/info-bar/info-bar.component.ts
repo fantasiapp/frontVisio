@@ -150,10 +150,6 @@ export class InfoBarComponent {
     return sum;
   }
 
-  formatVolume(x: number): string {
-    return BasicWidget.format(x, 3);
-  }
-
   formatStringToNumber(s: string): number {
     return +(s.replace(/\s/g, "").replace(/,/g, '.')); //deletes spaces and replaces , by .
   }
