@@ -2,7 +2,7 @@
     width: 90%;
     position: absolute;
     display: flex;
-    top : 70px;
+    top : 60px;
     z-index: 0;
     justify-content: space-between;
 }

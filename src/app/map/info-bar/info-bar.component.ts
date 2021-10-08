@@ -131,7 +131,7 @@ export class InfoBarComponent {
   loadGrid() {
     for(let sale of this._pdv!.attribute('sales')) {
       let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
-      this.grid[i][j] = +sale[this.SALES_VOLUME_ID!];
+      this.grid[i][j] = sale ? +sale[this.SALES_VOLUME_ID!] : 0;
       this.gridFormatted[i][j] = Math.floor(+sale[this.SALES_VOLUME_ID!]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
       this.updateSum(i,j)
     }
