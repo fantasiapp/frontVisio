@@ -99,6 +99,15 @@ const segmentMarketingFilter = {
   "4": "Non documenté"
 }
 
+const segmentDnEnduitTargetVisits = {
+  "1": "P2CD + Enduit",
+  "2": "Cible P2CD + Enduit",
+  "3": "Enduit hors P2CD",
+  "4": "Cible Enduit hors P2CD",
+  "5": "Pur prospect",
+  "6": "Cible Pur Prospect"
+}
+
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -335,7 +344,7 @@ class DataExtractionHelper{
     if (field == 'ciblage') return ciblage;
     if (field == 'pointFeuFilter') return pointFeuFilter;
     if (field == 'industriel') return industriel;
-    if (field == 'segmentDnEnduitTargetVisits') return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget); // A terme il faut rajouter le dernier
+    if (field == 'segmentDnEnduitTargetVisits') return segmentDnEnduitTargetVisits;
     if (field == 'segmentMarketingFilter') return segmentMarketingFilter;
     if (field == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);

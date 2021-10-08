@@ -348,7 +348,7 @@ export class PDV{
 
   //Assez sale pour le moment, il faut factoriser avec le code d'en dessous après
   private computeVisits(indicator:string){
-    let axe : string[]= Object.values(DataExtractionHelper.get('segmentDnEnduitTargetVisit')),
+    let axe : string[]= Object.values(DataExtractionHelper.get('segmentDnEnduitTargetVisits')),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
       associatedIndex[axe[i]] = i;
@@ -369,9 +369,12 @@ export class PDV{
     let saleP2cd = totalSiniatP2cd > 0.1 * totalP2cd, // Ca c'est hardCodé, il faut le rattacher à params
       saleEnduit = totalEnduit > 0,
       toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : ((this.attribute("nbVisits") > 0) ? totalEnduit: 0); //Dans le cas où on demande le volume on pourrait peut-être mettre nbVisits*totalEnduit
-    if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = toAdd;
+    if (saleP2cd && saleEnduit){
+      if (this.targetFinition) dnEnduit[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
+      dnEnduit[associatedIndex["P2CD + Enduit"]] = toAdd;
+    }
     else if (saleEnduit){
-      if (this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = toAdd;
+      if (this.targetFinition) dnEnduit[associatedIndex["Cible Enduit hors P2CD"]] = toAdd;
       else dnEnduit[associatedIndex["Enduit hors P2CD"]] = toAdd;
     } else{
       if (this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = toAdd;
