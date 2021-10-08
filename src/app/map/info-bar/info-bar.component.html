@@ -114,7 +114,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0"/>
+                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style]="salesColors[j]"/>
                         </div>
                     </div>
                 </div>
