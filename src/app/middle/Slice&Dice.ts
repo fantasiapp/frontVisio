@@ -791,10 +791,11 @@ class SliceDice{
       targetLevel['volumeIdentifier'] = targetName;
       if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
       if(node.label === 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
-      targetLevel['structure'] = 'structure' + targetLevel['name'].toUpperCase() + targetLevel['name'].slice(1)
+      targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;
     
+    console.log("target : ", target, "targetLevel : ", targetLevel)
     return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, targetLevel: targetLevel};
   }
 
