@@ -346,7 +346,6 @@ class DataExtractionHelper{
   }                          
 
   static getTarget(level='national', id:number, targetType:string){
-    console.log('-->', level)
     if (level == 'Secteur'){
       if (targetType == 'volFinition'){
         let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentFinition").indexOf(targetType);
@@ -386,7 +385,6 @@ class DataExtractionHelper{
     return descriptionCopy.reduce((str:string, acc: string) => str + acc, "");
   }
 
-  // à faire
   static treatDescIndicator(node:any, str:string):string{
     if (str == "@ciblageP2CD") return PDV.computeCiblage(node);
     if (str == "@ciblageP2CDdn") return PDV.computeCiblage(node, false, true);
@@ -402,37 +400,22 @@ class DataExtractionHelper{
   }
 
   static getObjectif(node:any, enduit = false, dn = false){
-    if (dn){
-      if (node.label == 'France') return "";
-      if (node.label !== 'Secteur') return "";    
-      return 'Objectif: '.concat(DataExtractionHelper.getTarget(node.label, node.id, 'dnP2CD').toString(), ' PdVs, ');
-    }
-    if (enduit){
-      if (node.label == 'France') return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volFinition')/1000).toString(), ' T, ');
-      return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
-    }      
-    if (node.label == 'France') return "";
-    if (node.label !== 'Secteur') return "";     
-    return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volP2CD')/1000).toString(), ' km², ');
+    if (enduit) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
+    if (node.label !== 'Secteur') return "";
+    let targetName = dn ? 'dnP2CD': 'volP2CD';
+    console.log('-->', node.label, node.id);
+    let objective = DataExtractionHelper.getTarget(node.label, node.id, targetName);
+    return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)/1000).toString(), ' km², ');
   }
 
   static getObjectifDrv(node:any, dn=false){
-    if (dn){
-      if (node.label == 'France') return 'DRV: '.concat(DataExtractionHelper.getTarget('nationalByAgent', 0, 'dnP2CD').toString(), ' PdVs, ');
-      if (node.label == 'Région'){
-        let agentNodes = node.children;
-        return 'DRV: '.concat(agentNodes.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, 'dnP2CD')).reduce((acc:number, value:number) => acc + value, 0).toString(), ' PdVs, ');
-      }
-      return "";
-    }
-    if (node.label == 'France') return 'DRV: '.concat(Math.round(DataExtractionHelper.getTarget('nationalByAgent', 0, 'volP2CD')/1000).toString(), ' km², ');
-    if (node.label == 'Région'){
-      let agentNodes = node.children;
-      return 'DRV: '.concat(Math.round(agentNodes.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, 'volP2CD')).reduce((acc:number, value:number) => acc + value, 0)/1000).toString(), ' km², ');
-    }
-    return "";
+    if (!(node.label == 'France' || node.label == 'Région')) return "";
+    let targetName = dn ? "dnP2CD": 'volP2CD', targetDrv:number;
+    if (node.label == 'France') targetDrv = DataExtractionHelper.getTarget('nationalByAgent', 0, targetName);
+    if (node.label == 'Région') targetDrv = node.children.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, targetName)).reduce((acc:number, value:number) => acc + value, 0);
+    return (dn) ? 'DRV: '.concat(targetDrv!.toString(), ' PdVs, '): 'DRV: '.concat((Math.round(targetDrv!)/1000).toString(), ' km², ');
   }
-  
+
   static getObjectifSiege(node:any, dn=false):string{
     if (!(node.label == 'France' || node.label == 'Région')) return "";
     let targetName = dn ? "dnP2CD": 'volP2CD';
