@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
-import { Observable, Observer, of } from 'rxjs';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Observable, Observer, Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV } from 'src/app/middle/Slice&Dice';
@@ -10,24 +11,21 @@ import { PDV } from 'src/app/middle/Slice&Dice';
   styleUrls: ['./account-info.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AccountInfoComponent {
+export class AccountInfoComponent implements OnInit, OnDestroy {
   @HostListener('mouseover')
   openDropDown() {
-    this.dropped = true;
-    if ( this.dropdown )
-      this.dropdown.nativeElement.style.display = 'block';
+    this.mouseEvent.next(true);
   }
 
   @HostListener('mouseout')
   closeDropDown() {
-    this.dropped = false;
+    this.mouseEvent.next(false);
   }
 
   @HostListener('transitionend')
   onTransitionEnd() {
-    if ( !this.dropped && this.dropdown ) {
-      this.dropdown.nativeElement.style.display = 'none';
-    }
+    if ( !this.dropped )
+      this.dropdown!.nativeElement.style.visibility = 'hidden';
   }
 
   @ViewChild('dropdown', {static: true, read: ElementRef})
@@ -36,8 +34,28 @@ export class AccountInfoComponent {
   @Input()
   name: string = '';
   dropped: boolean = false;
+  private mouseEvent: Subject<boolean> = new Subject();
+  private subscription!: Subscription;
 
-  constructor(private filtersService: FiltersStatesService, private auth: AuthService) { }
+  constructor(private filtersService: FiltersStatesService, private auth: AuthService) {}
+
+  ngOnInit() {
+    this.subscription = this.mouseEvent.pipe(debounceTime(0)).subscribe(dropped => {
+      let dropdownStyle = this.dropdown!.nativeElement.style;
+      if ( dropped && !this.dropped ) {
+        dropdownStyle.visibility = 'visible';
+        dropdownStyle.opacity = 1;
+      } else if ( !dropped && this.dropped ) {
+        dropdownStyle.opacity = 0;
+      }
+      
+      this.dropped = dropped;
+    })
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
 
   getShortName() {
     let l = this.name.split(' ');

@@ -1,7 +1,7 @@
 <div class="resume">
     {{ getShortName() | titlecase }} <div class="toggle-dropdown"><img src="assets/icon-option.svg"/></div>
 </div>
-<div class="dropdown" [style.opacity]="dropped ? 1 : 0" #dropdown>
+<div class="dropdown" #dropdown>
     <div class="profile">
         {{ name | uppercase }}
         <span class="profile-description">Profil {{ getProfileType() | async | lowercase }}</span>

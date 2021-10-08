@@ -53,7 +53,7 @@
 }
 
 .dropdown {
-    transition: opacity 100ms ease-out 0s;
+    transition: opacity 200ms ease-out 0s;
     position: absolute;
     top: var(--initial-height);
     right: 0;
@@ -64,6 +64,8 @@
     border: 5px;
     z-index: 999999999;
     width: 300px;
+    visibility: hidden;
+    opacity: 0;
 }
 
 .dropdown > * {
