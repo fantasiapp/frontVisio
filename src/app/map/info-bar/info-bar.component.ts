@@ -130,7 +130,7 @@ export class InfoBarComponent {
     for(let sale of this._pdv!.attribute('sales')) {
       let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
       this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
-      this.gridFormatted[i][j] = Math.floor(+sale[this.SALES_VOLUME_ID!]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      this.gridFormatted[i][j] = this.formatNumberToString(sale[this.SALES_VOLUME_ID!]);
       this.updateSum(i,j)
     }
   }
@@ -141,18 +141,27 @@ export class InfoBarComponent {
       sum += this.grid[j+1][i] | 0;
     }
     this.grid[0][i] = sum;
-    this.gridFormatted[0][i] = Math.floor(sum).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[0][i] = this.formatNumberToString(sum);
     diff = this.grid[row][0] + this.grid[row][1] + this.grid[row][2] - this.grid[row][3];
     this.grid[row][3] += diff;
     this.grid[0][3] += diff;
-    this.gridFormatted[row][3] = Math.floor(this.grid[row][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-    this.gridFormatted[0][3] = Math.floor(this.grid[0][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[row][3] = this.formatNumberToString(this.grid[row][3]);
+    this.gridFormatted[0][3] = this.formatNumberToString(this.grid[0][3]);
     return sum;
   }
 
-  formatVolume(x: number) {
+  formatVolume(x: number): string {
     return BasicWidget.format(x, 3);
   }
+
+  formatStringToNumber(s: string): number {
+    return +(s.replace(/\s/g, "").replace(/,/g, '.')); //deletes spaces and replaces , by .
+  }
+
+  formatNumberToString(n: number) {
+    return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  }
+
   changeRedistributed() {
     this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;
@@ -177,15 +186,16 @@ export class InfoBarComponent {
   }
 
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
+    this.gridFormatted[i][j] = this.formatStringToNumber(this.gridFormatted[i][j]).toString();
     if(Number.isNaN(+this.gridFormatted[i][j])) {
-      this.gridFormatted[i][j] = Math.floor(this.grid[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      this.gridFormatted[i][j] = this.formatNumberToString(this.grid[i][j]);
       this.errorAdInput = true;
       return;
     }
     this.errorAdInput = false;
   
     this.grid[i][j] = +this.gridFormatted[i][j];
-    this.gridFormatted[i][j] = Math.floor(+this.gridFormatted[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[i][j] = this.formatNumberToString(this.grid[i][j]);
     this.updateSum(i,j)
 
     for(let sale of this._pdv!.attribute('sales')) {
