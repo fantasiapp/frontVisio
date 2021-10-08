@@ -400,7 +400,7 @@ class DataExtractionHelper{
   }
 
   static getCiblage(node:any, enduit=false, dn=false){
-    let ciblage:number = PDV.computeCiblage(node, enduit, dn);
+    let ciblage:number = +PDV.computeCiblage(node, enduit, dn);
     if (enduit) return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' T.');
     else if (dn) return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
     else return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².');

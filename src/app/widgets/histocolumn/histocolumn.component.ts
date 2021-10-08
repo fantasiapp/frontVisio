@@ -119,11 +119,12 @@ export class HistoColumnComponent extends BasicWidget {
     };
 
     let currentItems = Object.keys(this.chart!.xs()),
-    newItems = data.slice(1).map((d: any[]) => d[0]),
-    newCategories = data[0].slice(1);
+      newItems = data.slice(1).map((d: any[]) => d[0]),
+      newCategories = data[0].slice(1);
+      
     this.schedule.queue(() => {
       this.chart!.load({
-        columns: data.slice(1),
+        columns: data,
         categories: newCategories,
         unload: currentItems.filter(x => !newItems.includes(x)),
         done: () => {

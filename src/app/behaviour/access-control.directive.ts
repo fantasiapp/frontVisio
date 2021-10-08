@@ -3,16 +3,14 @@ import { Navigation } from '../middle/Navigation';
 import { PDV } from '../middle/Slice&Dice';
 
 @Directive({
-  selector: '[accessControl]',
+  selector: '[agentOnly]',
 })
-export class AccessControlDirective implements AfterViewInit {
+export class AgentOnlyDirective implements AfterViewInit {
 
-  constructor(private el: ElementRef, private navigation: Navigation) { }
-
+  constructor(private el: ElementRef) { }
 
   ngAfterViewInit() {
     let accountLabel = PDV.geoTree.root.label;
-    console.log(accountLabel)
     if ( accountLabel !== 'Secteur' )
       this.el.nativeElement.disabled = true; 
   }

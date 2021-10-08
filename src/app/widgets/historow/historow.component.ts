@@ -165,7 +165,7 @@ export class HistoRowComponent extends BasicWidget {
     
     this.schedule.queue(() => {
       this.chart!.load({
-        columns: data.slice(1),
+        columns: data,
         categories: newCategories,
         unload: currentItems.filter(x => !newItems.includes(x)),
         done: () => {

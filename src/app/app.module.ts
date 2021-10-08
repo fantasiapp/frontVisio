@@ -45,7 +45,8 @@ import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
 import { MapFiltersComponent } from './map/map-filters/map-filters.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
-import { AccessControlDirective } from './behaviour/access-control.directive';
+import { AgentOnlyDirective } from './behaviour/access-control.directive';
+import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { AccessControlDirective } from './behaviour/access-control.directive';
     InfoBarComponent,
     MapFiltersComponent,
     MapSelectComponent,
-    AccessControlDirective
+    AgentOnlyDirective,
+    RootLevelOnlyDirective
   ],
   imports: [
     BrowserModule,

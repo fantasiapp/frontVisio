@@ -19,7 +19,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
-  private transitionDuration = 0;
+  private transitionDuration = 250;
   private needles?: d3Selection;
   private barHeights: number[] = [];
   private barTargets: number[] = [];
@@ -92,6 +92,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   updateGraph(data: any) {
     //remove all
+    this.getNeedleGroup()?.remove();
     super.updateGraph(data);
     //wait for animation
     this.schedule.queue(() => {
@@ -99,7 +100,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         this.createNeedles(data);
         this.schedule.next();
       }, this.transitionDuration);
-      
     });
   }
 
