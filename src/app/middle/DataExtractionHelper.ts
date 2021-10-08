@@ -346,6 +346,7 @@ class DataExtractionHelper{
   }                          
 
   static getTarget(level='national', id:number, targetType:string){
+    console.log('-->', level)
     if (level == 'Secteur'){
       if (targetType == 'volFinition'){
         let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentFinition").indexOf(targetType);
@@ -401,7 +402,6 @@ class DataExtractionHelper{
   }
 
   static getObjectif(node:any, enduit = false, dn = false){
-    console.log('-->', node.label)
     if (dn){
       if (node.label == 'France') return "";
       if (node.label !== 'Secteur') return "";    
@@ -432,16 +432,12 @@ class DataExtractionHelper{
     }
     return "";
   }
-
+  
   static getObjectifSiege(node:any, dn=false):string{
-    if (dn){
-      if (node.label == 'France') return 'Objectif Siège: '.concat(DataExtractionHelper.getTarget('national', 0, "dnP2CD").toString(), ' PdVs, ');
-      if (node.label == 'Région') return 'Objectif Siège: '.concat(DataExtractionHelper.getTarget(node.label, node.id, "dnP2CD").toString(), ' PdVs, ');
-      return "";  
-    }
-    if (node.label == 'France') return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget('national', 0, 'volP2CD')/1000).toString(), ' km², ');
-    if (node.label == 'Région') return 'Objectif Siège: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volP2CD')/1000).toString(), ' km², ');  
-    return "";  
+    if (!(node.label == 'France' || node.label == 'Région')) return "";
+    let targetName = dn ? "dnP2CD": 'volP2CD';
+    let targetSiege =  DataExtractionHelper.getTarget(node.label, node.id, targetName);
+    return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdVs, '): 'Objectif Siège: '.concat((Math.round(targetSiege)/1000).toString(), ' km², ');
   }
 
   static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {
