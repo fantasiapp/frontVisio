@@ -1,5 +1,4 @@
 import { Directive, ElementRef, AfterViewInit } from '@angular/core';
-import { Navigation } from '../middle/Navigation';
 import { PDV } from '../middle/Slice&Dice';
 
 @Directive({

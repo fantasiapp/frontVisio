@@ -121,7 +121,8 @@ export class InfoBarComponent {
 
   requestQuit() {
     //show the quit bar
-    this.quiting = true;
+    if ( this.hasChanged )
+      this.quiting = true;
   }
 
   setPage(index: number) {

@@ -59,9 +59,7 @@
       </button>
     </div>
     <div class="search-div">
-      <button class="button" (click)="logOut()">
-        <img class="button-img" src="assets/Log out.svg" alt="déconnecter" />
-      </button>
+      <account-info [name]="(getName() | async) || '...'"></account-info>
     </div>
   </div>
 </div>
