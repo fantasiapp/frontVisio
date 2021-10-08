@@ -45,8 +45,9 @@ import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
 import { MapFiltersComponent } from './map/map-filters/map-filters.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
-import { AgentOnlyDirective } from './behaviour/access-control.directive';
+import { AgentOnlyDirective } from './behaviour/agent-only.directive';
 import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
+import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
     MapFiltersComponent,
     MapSelectComponent,
     AgentOnlyDirective,
-    RootLevelOnlyDirective
+    RootLevelOnlyDirective,
+    AccountInfoComponent
   ],
   imports: [
     BrowserModule,

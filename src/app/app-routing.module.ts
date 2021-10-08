@@ -10,6 +10,7 @@ import { PublicPageComponent } from './public-page/public-page.component';
 import { GridManager } from './grid/grid-manager/grid-manager.component';
 import { MapComponent } from './map/map.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
+import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
 //import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
@@ -32,8 +33,8 @@ const routes: Routes = [
     canActivate:[AuthGuard],
   },
   {
-    path: 'select',
-    component: MapSelectComponent
+    path: 'account',
+    component: AccountInfoComponent
   }
 ];
 

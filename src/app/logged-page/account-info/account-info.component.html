@@ -1,0 +1,18 @@
+<div class="resume">
+    {{ getShortName() | titlecase }} <div class="toggle-dropdown"><img src="assets/icon-option.svg"/></div>
+</div>
+<div class="dropdown" [style.opacity]="dropped ? 1 : 0" #dropdown>
+    <div class="profile">
+        {{ name | uppercase }}
+        <span class="profile-description">Profil {{ getProfileType() | async | lowercase }}</span>
+    </div>
+    <ul class="details">
+        <li><img src="assets/access-denied.png"/> Saisie de l'AD : <span class="value">{{ getADStatus() }}</span></li>
+        <li><img src="assets/version.png"/> Version de l'Appli : <span class="value">{{ getAppVersion() }}</span></li>
+        <li><img src="assets/referenciel.png"/> Version Référenciel : <span class="value">{{ getRefValue() }}</span></li>
+        <li><img src="assets/updated.png"/> Mise à jour : <span class="value">{{ getLastUpdateDate() }}</span></li>
+    </ul>
+    <div class="logout">
+        <button class="logout button" (click)="logout()">Se Déconnecter</button>
+    </div>
+</div>

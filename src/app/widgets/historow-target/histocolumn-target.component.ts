@@ -92,6 +92,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   updateGraph(data: any) {
     //remove all
+    if ( this.inputIsOpen )
+      this.toggleTargetControl();
     this.getNeedleGroup()?.remove();
     super.updateGraph(data);
     //wait for animation
