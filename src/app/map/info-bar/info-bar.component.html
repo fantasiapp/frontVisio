@@ -123,12 +123,6 @@
     </ng-container>
 </ng-container>
 
-
-<div *ngIf="currentIndex == 2" class="validation">
-    <button>Annuler</button>
-    <button>Valider</button>
-</div>
-
 <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
 <img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2" (click)="setPage(currentIndex + 1)"/>
 
