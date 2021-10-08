@@ -2,6 +2,7 @@ import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} 
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService } from '../services/data.service';
+import { min } from 'rxjs/operators';
 
 
 // peut-être à mettre dans un fichier de config
@@ -754,6 +755,28 @@ export class PDV{
     return dictResult;
   }
 
+  static computeJauge(slice:any, indicator:string): [string, number][]{
+    let pdvs = PDV.childrenOfNode(DataExtractionHelper.followSlice(slice));
+    switch(indicator){
+      case 'simple': {
+        let totalVisits = 0,
+          cibleVisits = 1000; // Hardcodé, il faudra prendre la valeur au back plus tard
+        for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
+        return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), totalVisits / cibleVisits]];
+      };
+      case 'target': {
+        let totalVisits = 0,
+          totalCibleVisits = 0;
+        for (let pdv of pdvs){
+          totalVisits += pdv.attribute("nbVisits");
+          if (pdv.targetFinition) totalCibleVisits += pdv.attribute("nbVisits");
+        }
+        return [[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), totalCibleVisits / totalVisits]];
+      };
+      default: return [['', Math.random()]];
+    }
+  }
+
   getVolumeTarget() : number{
     let target = this.attribute('target');
     if (target == undefined) return 0;
@@ -793,6 +816,8 @@ class SliceDice{
        groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
     }
+    if (axis1 == "visits") return {data: PDV.computeJauge(slice, indicator='simple'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
+    if (axis1 == "targetedVisits") return {data: PDV.computeJauge(slice, indicator='target'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
     let km2 = (indicator !== 'dn') ? true : false;
     dataWidget.basicTreatement(km2);
@@ -813,14 +838,14 @@ class SliceDice{
         let targetValue:number;      
         if (node.label == 'France') targetValue = DataExtractionHelper.getTarget("", 0, targetName); // faire une seule ligne avec ça
         else targetValue = DataExtractionHelper.getTarget(node.label, node.id, targetName);        
-        rodPosition = 360 * (targetValue + targetsStartingPoint) / sum;
+        rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
         let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName);
-        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = (targetValues[i] + targetsStartingPoint[i]) / sum[i];
+        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
       }
       targetLevel['volumeIdentifier'] = targetName;
       if(node.label === 'France') {targetLevel['name'] = 'targetLevelDrv'; targetLevel['structure'] = 'structureTargetLevelDrv';}
