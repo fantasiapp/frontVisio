@@ -9,7 +9,8 @@ const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clie
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
   enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
   industrieAxis = ['industrie', 'industrieTarget'],
-  clientProspectAxis = ['clientProspect', 'clientProspectTarget'];
+  clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
+  visitAxis = ['segmentDnEnduitTargetVisits'];
 
 const attributesToCountForFilters = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin'];
 
@@ -332,7 +333,8 @@ export class PDV{
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
 
-  public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, target=false): (number | number[]){
+  public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, target=false, visit=false): (number | number[]){
+    if (visit) return this.computeVisits(indicator);
     if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target);
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
@@ -341,6 +343,40 @@ export class PDV{
     let total = p2cdSales.reduce((acc, sale) => acc + sale.volume, 0);
     if (enduit) return this.computeEnduit(target, relevantSales, total);
     return total;
+  }
+
+  //Assez sale pour le moment, il faut factoriser avec le code d'en dessous après
+  private computeVisits(indicator:string){
+    let axe : string[]= Object.values(DataExtractionHelper.get('segmentDnEnduitTargetVisit')),
+      associatedIndex :{[key: string]: number}= {};
+    for (let i = 0; i < axe.length; i++)
+      associatedIndex[axe[i]] = i;
+    let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+      salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+      siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+      dnEnduit = new Array(5).fill(0), // A terme normalement il y en a 6
+      totalP2cd = 0,
+      totalSiniatP2cd = 0,
+      totalEnduit = 0;
+    for (let sale of this.sales){
+      if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) totalEnduit += sale.volume;
+      else if (sale.type == 'p2cd'){
+        totalP2cd += sale.volume;
+        if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
+      }
+    }
+    let saleP2cd = totalSiniatP2cd > 0.1 * totalP2cd, // Ca c'est hardCodé, il faut le rattacher à params
+      saleEnduit = totalEnduit > 0,
+      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : ((this.attribute("nbVisits") > 0) ? totalEnduit: 0); //Dans le cas où on demande le volume on pourrait peut-être mettre nbVisits*totalEnduit
+    if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = toAdd;
+    else if (saleEnduit){
+      if (this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = toAdd;
+      else dnEnduit[associatedIndex["Enduit hors P2CD"]] = toAdd;
+    } else{
+      if (this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = toAdd;
+      else dnEnduit[associatedIndex["Pur prospect"]] = toAdd;
+    }
+    return dnEnduit
   }
 
   private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
@@ -352,7 +388,7 @@ export class PDV{
       let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-        dnEnduit = (target) ? new Array(5).fill(0): new Array(3).fill(0),
+        dnEnduit = new Array(5).fill(axe.length),
         totalP2cd = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
@@ -363,7 +399,7 @@ export class PDV{
           if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
         }
       }
-      let saleP2cd = totalSiniatP2cd > 0.1 * totalP2cd;
+      let saleP2cd = totalSiniatP2cd > 0.1 * totalP2cd; // Ca c'est hardCodé, il faut le rattacher à params
       if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
       else if (saleEnduit){
         if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
@@ -463,17 +499,18 @@ export class PDV{
       let irregular: string = 'no';
       if (nonRegularAxis.includes(axis1)) irregular = 'line';
       else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-      let byIndustries, enduit, clientProspect, target;
+      let byIndustries, enduit, clientProspect, target, visit;
       if (irregular == 'line' || irregular == 'col')
           byIndustries = industrieAxis.includes(axis1) || industrieAxis.includes(axis2),
           enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
           clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
-          target = targetAxis.includes(axis1) || targetAxis.includes(axis2);
+          target = targetAxis.includes(axis1) || targetAxis.includes(axis2),
+          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
       for (let pdv of newPdvs){
         if (pdv.attribute('available') && pdv.attribute('sale')){
           if (irregular == 'no') dataWidget.addOnCase(pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
-          else if (irregular == 'line') dataWidget.addOnColumn(pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
-          else if (irregular == 'col') dataWidget.addOnRow(pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target) as number[]);
+          else if (irregular == 'line') dataWidget.addOnColumn(pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target, visit) as number[]);
+          else if (irregular == 'col') dataWidget.addOnRow(pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target, visit) as number[]);
         }
       }
     }
@@ -751,7 +788,7 @@ class SliceDice{
        groupsAxis1 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
     }
-    if (typeof(groupsAxis2) === 'number'){
+    if (typeof(groupsAxis2) === 'number'){ // On peut peut-être essayer de la regrouper avec le truc du haut
       let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis2][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
        groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
