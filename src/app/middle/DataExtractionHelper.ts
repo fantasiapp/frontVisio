@@ -364,10 +364,10 @@ class DataExtractionHelper{
   static getTarget(level='national', id:number, targetType:string){
     if (level == 'Secteur'){
       if (targetType == 'volFinition'){
-        let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentFinition").indexOf(targetType);
+        let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelAgentFinition").indexOf(targetType);
         return DataExtractionHelper.get("targetLevelAgentFinition")[id][targetTypeId];
       }
-      let targetTypeId:number = DataExtractionHelper.get("structureTargetAgentP2CD").indexOf(targetType);
+      let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelAgentP2CD").indexOf(targetType);
       return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
     }
     let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetType);
