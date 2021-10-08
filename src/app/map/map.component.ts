@@ -280,7 +280,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
 
     this.map!.setZoom(zoom || 13);
-
     this.map!.panTo(
       new google.maps.LatLng(
         center[0] || 48.52,
@@ -298,7 +297,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         lng = pdv.attribute('longitude'),
         industrie = pdv.property('industrie'),
         icon = builder.get([industrie, +(pdv.property('clientProspect') == 3), +pdv.attribute('pointFeu'), pdv.attribute('segmentMarketing')]);
-      
+
+      if ( !icon ) throw 'Cannot find icon, maybe ids change';
       return {
         position: new google.maps.LatLng(lat, lng),
         icon,

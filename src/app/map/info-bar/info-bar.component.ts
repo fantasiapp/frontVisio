@@ -30,6 +30,8 @@ export class InfoBarComponent {
     this.currentIndex = 0;
     this.pdvChange.emit(value);
     if ( value ) {
+      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
+      InfoBarComponent.pdvId = value.id;
       let target = value!.getLightTarget();
       this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
     } 
@@ -229,6 +231,4 @@ export class InfoBarComponent {
     this.dataService.updatePdv(newPdv, InfoBarComponent.pdvId);
     this.hasChanged = false;
   }
-
-
 }

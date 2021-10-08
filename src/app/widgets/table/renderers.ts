@@ -62,7 +62,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<input type="checkbox" [(checked)]="params.value" [hidden]="params.data.clientProspect != 'Client'" disabled>`,
+    template: `<input type="checkbox" [(checked)]="params.value" [hidden]="params.data.clientProspect === 'Client'" disabled>`,
     styles:  [`:host {
         display: flex;
         justify-content: center;
@@ -84,11 +84,6 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }
     agInit(params: ICellRendererParams): void {
       this.params = params;
-    }
-
-    refresh(params: ICellRendererParams) {
-      console.log("Refresh")
-      return false;
     }
   }
 

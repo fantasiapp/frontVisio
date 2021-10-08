@@ -45,6 +45,7 @@ import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
 import { MapFiltersComponent } from './map/map-filters/map-filters.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
+import { AccessControlDirective } from './behaviour/access-control.directive';
 
 @NgModule({
   declarations: [
@@ -80,7 +81,8 @@ import { MapSelectComponent } from './map/map-select/map-select.component';
     HistocurveComponent,
     InfoBarComponent,
     MapFiltersComponent,
-    MapSelectComponent
+    MapSelectComponent,
+    AccessControlDirective
   ],
   imports: [
     BrowserModule,

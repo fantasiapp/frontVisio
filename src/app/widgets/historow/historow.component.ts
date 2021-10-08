@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar, Chart} from 'billboard.js';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
 
 @Component({
@@ -16,7 +17,8 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
-  private rubixArgument?: [string, number];
+  private rubixAxis?: string;
+  private rubixArgument?: [string, number[]][];
 
   @ViewChild('description', {read: ElementRef})
   protected description!: ElementRef;
@@ -30,6 +32,13 @@ export class HistoRowComponent extends BasicWidget {
     this.properties.description = [
       ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
     ];
+
+    //HACK because back doesn't send like this
+    if ( !Array.isArray(this.properties.arguments[0]) ) {
+      this.properties.arguments[0] = [this.properties.arguments[0], 'ensemble'];
+    }
+    
+    this.rubixAxis = this.properties.arguments[0][0];
     this.rubixArgument = this.properties.description[0][1];
   }
 
@@ -118,9 +127,29 @@ export class HistoRowComponent extends BasicWidget {
       },
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
+        this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
+          self.addRubixCondition(e.target.textContent);
+          self.update();
+        });
       },
       ...opt
     });
+  }
+
+  addRubixCondition(name: string) {
+    let type = this.properties.arguments[0][0];
+    if ( this.rubixAxis === type ) {
+      let set = DataExtractionHelper.get(type),
+        keyId = DataExtractionHelper.getKeyByValue(set, name),
+        id;
+      if ( !keyId ) throw `${name} not found in ${type}.`;
+      id = parseInt(keyId);
+      this.rubixAxis = this.properties.arguments[0][1];
+      this.rubixArgument!.push([type, [id]]);
+    } else {
+      this.rubixAxis = this.properties.arguments[0][0];
+      this.rubixArgument!.pop();
+    }
   }
 
   //wait on delays
@@ -148,7 +177,7 @@ export class HistoRowComponent extends BasicWidget {
 
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], true, false, this.rubixArgument!];
+    return [this.path, this.rubixAxis!, args[1], args[2], args[3], args[4], args[5], true, false, this.rubixArgument!];
   }
 
   updateCondition(e: Event) {
