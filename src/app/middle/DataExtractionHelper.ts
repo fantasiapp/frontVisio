@@ -370,8 +370,8 @@ class DataExtractionHelper{
     return target;
   }
 
-  static getListTarget(ids: number[], targetName:string){
-    return ids.map((id:number) => DataExtractionHelper.getTarget('Région', id, targetName));
+  static getListTarget(level:string, ids: number[], targetName:string){
+    return ids.map((id:number) => DataExtractionHelper.getTarget(level, id, targetName));
   }
 
   static computeDescription(slice:any, description:string[]){

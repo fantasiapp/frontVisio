@@ -747,17 +747,17 @@ class SliceDice{
       else if (indicator == 'dn') targetName = "dnP2CD";
       else if (finition) targetName = "volFinition";
       else targetName = "volP2CD";
+      let node = DataExtractionHelper.followSlice(slice);      
       if(typeof(sum) == 'number'){
         let targetValue:number;      
-        let node = DataExtractionHelper.followSlice(slice);      
         if (node.label == 'France') targetValue = DataExtractionHelper.getTarget("", 0, targetName); // faire une seule ligne avec ça
         else targetValue = DataExtractionHelper.getTarget(node.label, node.id, targetName);        
         rodPosition = 360 * (targetValue + targetsStartingPoint) / sum;
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
-        let agentIds = new Array(dataWidget.columnsTitles.length).fill(0);
-        for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) agentIds[j] = id;
-        let targetValues = DataExtractionHelper.getListTarget(agentIds, targetName);
+        let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
+        for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
+        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName);
         for (let i = 0; i < targetValues.length; i++) rodPosition[i] = (targetValues[i] + targetsStartingPoint[i]) / sum[i];
       }
       this.updateTargetName = targetName;
