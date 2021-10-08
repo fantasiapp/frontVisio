@@ -260,15 +260,22 @@ export class PDV{
   }
 
   get salesColors(): string[]{
-    let nbIndustries = (DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').length
+    let industriesNames: any = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]);
+    let nbIndustries: any = industriesNames.length;
+    let industriesIdsToNames: any = DataExtractionHelper.get('industrie')!;
+
+    console.log("industriesNames : ", industriesNames)
 
     if(this.attribute('sale') === false || this.attribute('onlySiniat') === true) return new Array(nbIndustries).fill('black')
     let colors = new Array(nbIndustries).fill('red'), isAdOpen = DataExtractionHelper.get('params')['isAdOpen'], sales = this.attribute('sales');
     if(!sales) return colors;
-    for(let index = 0; index < sales.length ; index ++) {
-      if(isAdOpen === true && Math.floor(Date.now()/1000) - 15778476 > sales[index][DataExtractionHelper.SALES_DATE_ID]) colors[index] = 'orange'
-      else colors[index] = 'black'
+    for(let sale of sales) {
+      if(isAdOpen === true && Math.floor(Date.now()/1000) - 15778476 > sale[DataExtractionHelper.SALES_DATE_ID]) colors[industriesNames.indexOf(industriesIdsToNames[sale[DataExtractionHelper.SALES_INDUSTRY_ID]])] = 'orange'
+      else {
+        colors[industriesNames.indexOf(industriesIdsToNames[sale[DataExtractionHelper.SALES_INDUSTRY_ID]])] = 'black'
+      }
     }
+    console.log("c", colors)
     return colors
   }
 
