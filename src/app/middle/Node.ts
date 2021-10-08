@@ -99,8 +99,8 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
 
 export class Tree {
   attributes: {[key:string]: any[]}     //height -> attribute dictionnary
-  root: any;
-  type: any;
+  root: Node;
+  type: TreeExtractionHelper;
 
   constructor(extractor: TreeExtractionHelper){
     this.type = extractor;

@@ -1,18 +1,27 @@
-import { Directive, ElementRef } from '@angular/core';
-import { Navigation } from '../middle/Navigation';
+import { Directive, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { FiltersStatesService } from '../filters/filters-states.service';
 import { PDV } from '../middle/Slice&Dice';
 
 @Directive({
   selector: '[rootLevelOnly]'
 })
-export class RootLevelOnlyDirective {
+export class RootLevelOnlyDirective implements OnInit, OnDestroy {
 
-  constructor(private el: ElementRef, private navigation: Navigation) { }
+  constructor(private el: ElementRef, private filtersService: FiltersStatesService) { }
 
-  ngAfterViewInit() {
-    console.log(this.el.nativeElement);
-    let isRoot = this.navigation.currentLevel == PDV.geoTree.root;
-    if ( !isRoot )
-      this.el.nativeElement.display = 'none';
+  subscription: Subscription | null = null;
+
+  ngOnInit() {
+    this.subscription = this.filtersService.stateSubject.subscribe(({States}) => {
+      if ( States.level.label != PDV.geoTree.root.label )
+        this.el.nativeElement.style.display = 'none';
+      else
+        this.el.nativeElement.style.display = 'initial';
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
 }

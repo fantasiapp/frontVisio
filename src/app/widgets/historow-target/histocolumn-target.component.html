@@ -2,7 +2,7 @@
     <h2>{{properties.title}}</h2>
     <p>{{properties.description}}</p>
 </div>
-<button class="open-target-control" [class.validate]="inputIsOpen" (click)="toggleTargetControl()" #openTargetControl rootLevelOnly>
+<button class="open-target-control" rootLevelOnly [class.validate]="inputIsOpen" (click)="toggleTargetControl()" #openTargetControl>
     <img src="assets/icon pen.svg"/>
 </button>
 <div class="container" #content></div>
