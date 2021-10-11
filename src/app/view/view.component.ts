@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
@@ -10,7 +11,7 @@ import { DataService } from '../services/data.service';
   styleUrls: ['./view.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ViewComponent {
+export class ViewComponent implements OnDestroy {
 
   public layout: (Layout & {id: number}) | null = null;
   private mapVisible: boolean = false;
@@ -18,10 +19,12 @@ export class ViewComponent {
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
 
+  subscription: Subscription;
+
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService) {
-    filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
+    this.subscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
       if ( this.layout?.id !== dashboard.id ) {
-        console.log('[ViewComponent]: Layout(.id) changed.')
+        console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.')
         this.layout = dashboard;
       }
     });
@@ -32,9 +35,10 @@ export class ViewComponent {
   }
 
   computeDescription(description: string | string[]) {
-    if ( Array.isArray(description) )
-      return DataExtractionHelper.computeDescription(this.filtersService.$path.value, description);
-    return description;
+    let compute = Array.isArray(description) && (description.length > 1 || description[0][0] === '@')
+    if ( compute )
+      return DataExtractionHelper.computeDescription(this.filtersService.$path.value, description as string[]);
+    return description[0] || description;
   }
 
   mapIsVisible(val: boolean) {
@@ -54,5 +58,9 @@ export class ViewComponent {
   update() {
     this.computeDescription(this.layout && this.layout.description || '');
     this.gridManager?.update();
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }

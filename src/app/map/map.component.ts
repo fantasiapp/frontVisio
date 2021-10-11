@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { AsyncSubject, combineLatest, Subscription } from 'rxjs';
 import { FiltersStatesService } from '../filters/filters-states.service';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { BasicWidget } from '../widgets/BasicWidget';
 
@@ -431,22 +432,23 @@ let builder = new MapIconBuilder({
   width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
 });
 
+
 builder.axis('id', [
-  ['1', {fill: '#A61F7D'}],
-  ['2', {fill: '#0056A6'}],
-  ['3', {fill: '#67CFFE'}],
-  ['4', {fill: '#888888'}],
+  [1, {fill: '#A61F7D'}],
+  [2, {fill: '#0056A6'}],
+  [3, {fill: '#67CFFE'}],
+  [4, {fill: '#888888'}],
 ]).axis('cp', [
-  ['0', {}],
-  ['1', {fill: '#FF0000'}]
+  [0, {}],
+  [1, {fill: '#FF0000'}]
 ]).axis('pf', [
-  ['1', {strokeFeet: 'none', feet: MapIconBuilder.fire}], //<- draw fire
-  ['0', {}]
+  [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}], //<- draw fire later, now it's a circle
+  [0, {}]
 ]).axis('sm', [
-  ['8', {head: MapIconBuilder.circle}],
-  ['7', {head: MapIconBuilder.square}],
-  ['6', {head: MapIconBuilder.diamond}],
-  ['9', {head: MapIconBuilder.circle}]
+  [8, {head: MapIconBuilder.circle}],
+  [7, {head: MapIconBuilder.square}],
+  [6, {head: MapIconBuilder.diamond}],
+  [9, {head: MapIconBuilder.circle}]
 ]).generate();
 
 console.log(builder.icons);
