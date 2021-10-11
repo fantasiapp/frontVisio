@@ -5,8 +5,6 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 
 import bb, {bar} from 'billboard.js';
-import { SequentialSchedule } from '../Schedule';
-
 
 @Component({
   selector: 'app-histocolumn',
@@ -23,6 +21,33 @@ export class HistoColumnComponent extends BasicWidget {
   }
 
   protected rectHeight: number = 0;
+  private maxValue: number = 0;
+
+  private computeMax(data: any) {
+    let max = 0;
+    for ( let i = 1; i < data[0].length; i++ ) {
+      let acc = 0;
+      for ( let j = 1; j < data.length; j++ )
+        acc += data[j][i];
+      
+      if ( acc > max )
+        max = acc;
+    }
+    return Math.round(max);
+  }
+
+  private getTickValues() {
+    let power = Math.floor(Math.log10(this.maxValue)),
+      exp = Math.pow(10, power),
+      leadingCoefficient = Math.ceil(this.maxValue / exp),
+      goodValue = leadingCoefficient * exp; //1 -> 9
+    
+    let ticks = [0, goodValue / 5, goodValue * 2/5, goodValue * 3/5, goodValue * 4/5, goodValue].filter(x => x <= this.maxValue);
+    if ( (this.maxValue - ticks[ticks.length - 1])/this.maxValue >= 0.1 )
+      ticks.push(this.maxValue);
+    return ticks;
+  }
+
   createGraph({data, colors}: any, opt: {} = {}) {
     //temporary code to print no data⚠️
     if ( !(data.length - 1) || !(data[0].length - 1) )
@@ -31,9 +56,11 @@ export class HistoColumnComponent extends BasicWidget {
     if ( data[0][0] != 'x' )
       console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
     
+
     let self = this;
+    this.maxValue = this.computeMax(data);
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    this.chart = bb.generate({
+    this.chart = (window as any).chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
@@ -87,6 +114,12 @@ export class HistoColumnComponent extends BasicWidget {
               return '';
             }
           }
+        },
+        y: {
+          tick: {
+            count: 6,
+            values: this.getTickValues()
+          }
         }
       },
       grid: {
@@ -121,7 +154,9 @@ export class HistoColumnComponent extends BasicWidget {
     let currentItems = Object.keys(this.chart!.xs()),
       newItems = data.slice(1).map((d: any[]) => d[0]),
       newCategories = data[0].slice(1);
-      
+    
+    this.maxValue = this.computeMax(data);
+    (this.chart as any).internal.config.axis_y_tick_values = this.getTickValues();
     this.schedule.queue(() => {
       this.chart!.load({
         columns: data,
