@@ -32,6 +32,7 @@ export class InfoBarComponent {
     if ( value ) {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
+      this.target=this._pdv!.attribute('target')
       let target = value!.getLightTarget();
       this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
       this.loadGrid()
@@ -74,6 +75,7 @@ export class InfoBarComponent {
   }
 
   private _pdv: PDV | undefined;
+  target?: any;
   static valuesSave: any[] = [];
   static pdvId: number = 0;
   redistributed?: boolean;
@@ -170,27 +172,36 @@ export class InfoBarComponent {
     if(n===0) return ''
     return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
+  
+  initializeTarget() {
+    return [Math.floor(Date.now()/1000), false, false, 0, false, "r", ""]
+  }
+
 
   changeRedistributed() {
-    this._pdv!.attribute('target', true)[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target', true)[this.TARGET_REDISTRIBUTED_ID]
+    if(!this.target) this.target = this.initializeTarget()
+    this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;
   }
 
   changeTargetP2CD(newTargetP2cd: any) { //PB : newValue isn't a number
-    this._pdv!.attribute('target', true)[this.TARGET_VOLUME_ID] = +newTargetP2cd;
+    if(!this.target) this.target = this.initializeTarget()
+    this.target[this.TARGET_VOLUME_ID] = +newTargetP2cd;
     this.hasChanged = true;
   }
 
   changeComment() { //PB : newValue isn't a number
     let ref = this.comments!.get(0); //<- the current text area is the first in view
     if ( !ref ) return;
+    if(!this.target) this.target = this.initializeTarget()
     console.log(ref.nativeElement.value);
-    this._pdv!.attribute('target', true)[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
+    this.target[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
     this.hasChanged = true;
   }
 
   changeLight(newLightValue: string) {
-    this._pdv!.attribute('target', true)[this.TARGET_LIGHT_ID] = newLightValue
+    if(!this.target) this.target = this.initializeTarget()
+    this.target[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
   }
 

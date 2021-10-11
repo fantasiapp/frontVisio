@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection, pie } from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
@@ -9,7 +9,8 @@ import { SimplePieComponent } from '../simple-pie/simple-pie.component';
 @Component({
   selector: 'app-pie-target',
   templateUrl: '../widget-template.html',
-  styleUrls: ['./pie-target.component.css']
+  styleUrls: ['./pie-target.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PieTargetComponent extends SimplePieComponent {
   @ViewChild('content', {read: ElementRef})
@@ -42,8 +43,8 @@ export class PieTargetComponent extends SimplePieComponent {
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + (data.length) * BasicWidget.legendItemHeight);
-        this.createNeedle({data: null, target: this.needleRotate})
+        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
+        requestAnimationFrame(_ => this.createNeedle({data: null, target: this.needleRotate - 90}))
       },
       onrendered(this: Chart) {
         self.createNeedle(data);
@@ -86,7 +87,7 @@ export class PieTargetComponent extends SimplePieComponent {
   }
 
   computeNeedlePosition(data: any): number {
-    return (data ? data.target : this.needleRotate)+90;
+    return data.target + 90;
   }
 
   updateGraph(data: any[]) {

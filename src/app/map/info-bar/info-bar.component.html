@@ -72,18 +72,18 @@
 
                 <div class="eval">
                     <ul>
-                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget()" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD/></li>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="target[TARGET_VOLUME_ID]" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'r' ? 'red' : 'lightgray'}" (click)="changeLight('r')"></div>
-                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'o' ? 'orange' : 'lightgray'}" (click)="changeLight('o')"></div>
-                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'g' ? 'green' : 'lightgray'}" (click)="changeLight('g')"></div>
+                            <div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}" (click)="changeLight('r')"></div>
+                            <div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}" (click)="changeLight('o')"></div>
+                            <div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}" (click)="changeLight('g')"></div>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="comments">
                 <span>Commentaires :</span>
-                <textarea (change)="changeComment()" #comments>{{ pdv ? pdv!.getCommentTarget() : '' }}</textarea>
+                <textarea (change)="changeComment()" #comments>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
             </div>
         </div>
     </ng-container>
@@ -110,7 +110,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j]" accessControl agentOnly/>
+                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j]" agentOnly [logged]="'infobar.' + industry + '.' + product"/>
                         </div>
                     </div>
                 </div>

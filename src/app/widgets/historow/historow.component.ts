@@ -44,6 +44,32 @@ export class HistoRowComponent extends BasicWidget {
 
   private axisPadding: number = 120;
   private rectWidth: number = 0;
+  private maxValue: number = 0;
+
+  private computeMax(data: any) {
+    let max = 0;
+    for ( let i = 1; i < data[0].length; i++ ) {
+      let acc = 0;
+      for ( let j = 1; j < data.length; j++ )
+        acc += data[j][i];
+      
+      if ( acc > max )
+        max = acc;
+    }
+    return Math.round(max);
+  }
+
+  private getTickValues() {
+    let power = Math.floor(Math.log10(this.maxValue)),
+      exp = Math.pow(10, power),
+      leadingCoefficient = Math.ceil(this.maxValue / exp),
+      goodValue = leadingCoefficient * exp; //1 -> 9
+    
+    let ticks = [0, goodValue / 5, goodValue * 2/5, goodValue * 3/5, goodValue * 4/5, goodValue].filter(x => x <= this.maxValue);
+    if ( (this.maxValue - ticks[ticks.length - 1])/this.maxValue >= 0.1 )
+      ticks.push(this.maxValue);
+    return ticks;
+  }
 
   createGraph({data, colors}: any, opt: {} = {}) {
     //temporary code to print no data⚠️
@@ -54,8 +80,9 @@ export class HistoRowComponent extends BasicWidget {
       console.log('[HistoRowComponent]: Rendering inaccurate format because `x` axis is unspecified.')
 
     let self = this;
+    this.maxValue = this.computeMax(data);
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    (window as any).chart = this.chart = bb.generate({
+    this.chart = bb.generate({
       bindto: this.content.nativeElement,
       padding: {
         left: this.axisPadding
@@ -106,6 +133,12 @@ export class HistoRowComponent extends BasicWidget {
                 return category;
               return '';
             }
+          }
+        },
+        y: {
+          tick: {
+            count: 6,
+            values: this.getTickValues()
           }
         },
         rotated: true
@@ -163,6 +196,8 @@ export class HistoRowComponent extends BasicWidget {
         newItems = data.slice(1).map((d: any[]) => d[0]),
         newCategories = data[0].slice(1);
     
+    this.maxValue = this.computeMax(data);
+    (this.chart as any).internal.config.axis_y_tick_values = this.getTickValues();
     this.schedule.queue(() => {
       this.chart!.load({
         columns: data,

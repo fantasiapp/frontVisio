@@ -523,14 +523,8 @@ export class PDV{
     }
   }
 
-  attribute(name: string, generate = false){
-    let returnValue = this.values[PDV.index(name)];
-    if(name=="target" && !returnValue && generate) returnValue = this.initializeTarget;
-    return returnValue
-  }
-
-  initializeTarget() {
-    return [Math.floor(Date.now()/1000), false, false, 0, false, "r", ""]
+  attribute(name: string){
+        return this.values[PDV.index(name)];
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
@@ -791,19 +785,19 @@ export class PDV{
 
   getVolumeTarget() : number{
     let target = this.attribute('target');
-    if (target == undefined) return 0;
+    if (!target) return 0;
     return target[DataExtractionHelper.TARGET_VOLUME_ID]
   }
 
   getLightTarget(){
     let target = this.attribute('target');
-    if (target == undefined) return "";
+    if (!target) return "";
     return target[DataExtractionHelper.TARGET_LIGHT_ID]
   }
 
   getCommentTarget(){
     let target = this.attribute('target');
-    if (target == undefined) return "";
+    if (!target) return "";
     return target[DataExtractionHelper.TARGET_COMMENT_ID]
   }
 };
