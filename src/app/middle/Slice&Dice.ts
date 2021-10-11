@@ -350,6 +350,7 @@ export class PDV{
 
   //Assez sale pour le moment, il faut factoriser avec le code d'en dessous après
   private computeVisits(indicator:string){
+    console.log('nombre de visites sur le pdv', this.attribute("nbVisits"));
     let axe : string[]= Object.values(DataExtractionHelper.get('segmentDnEnduitTargetVisits')),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
@@ -425,20 +426,20 @@ export class PDV{
         resultTemplate[associatedIndex["Potentiel ciblé"]] = 1;
         return resultTemplate; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
       }
-      if (this.sales.length === 0){
-        resultTemplate[associatedIndex["Non documenté"]] = 1;
-        return resultTemplate;
-      }
       let totalP2cd = 0,
-        siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-        clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
-        siniatP2cd = 0;
+      siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+      clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
+      siniatP2cd = 0;
       for (let sale of this.sales)
         if (sale.type == 'p2cd'){
           totalP2cd += sale.volume;
           if (sale.industryId == siniatId) siniatP2cd += sale.volume;
         }
-      if (siniatP2cd > clientProspectLimit * totalP2cd){
+      if (totalP2cd === 0){
+        resultTemplate[associatedIndex["Non documenté"]] = 1;
+        return resultTemplate;
+      }
+      if (siniatP2cd > 0.094 * totalP2cd){
         resultTemplate[associatedIndex["Client"]] = 1;
         return resultTemplate;
       }
