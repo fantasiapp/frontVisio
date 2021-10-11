@@ -14,10 +14,11 @@ export class LoggedDirective implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    let event = LoggerService.eventOf(this.ref.nativeElement.type);
     this.oldValue = this.ref.nativeElement.value;
-    this.ref.nativeElement.addEventListener(event, (e: Event) => {
-      this.logger.push([this.name, this.oldValue, this.ref.nativeElement.value]);
+    LoggerService.bind(this.ref.nativeElement, (e: Event, callback: any) => {
+      let newValue = this.ref.nativeElement.value;
+      this.logger.add(...callback(this.name, newValue, this.oldValue));
+      this.oldValue = newValue;
     });
   }
 };

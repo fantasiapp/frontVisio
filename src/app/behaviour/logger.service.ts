@@ -14,11 +14,18 @@ export class LoggerService {
       this.logs = [];
       this.save();
     }
+
+    (window as any).logger = this;
   }
 
   push(message: string | string[]) {
-    console.log('pushing', message);
     this.logs.push(message);
+    return this;
+  }
+
+  add(...rest: any[]) {
+    console.log('>', rest);
+    this.push(rest);
     return this;
   }
 
@@ -41,9 +48,34 @@ export class LoggerService {
     return this;
   }
 
+  static CHANGE = 0;
+  static SET = 1;
+  static CLICK = 2;
+
+  static bind(element: any, listener: (event: Event, callback: any) => void) {
+    let type = element.type, [event, eventType, callback] = LoggerService.eventOf(type);
+    element.addEventListener(event, (e: Event) => {
+      listener(e, callback);
+    });
+  }
+
+  static change(topic: string, newValue: any, oldValue: any) {
+    return [topic, LoggerService.CHANGE, oldValue, newValue];
+  }
+
+  static click(topic: string) {
+    return [topic, LoggerService.CLICK];
+  }
+
+  static set(topic: string, value: any) {
+    return [topic, LoggerService.SET, value];
+  }
+
   static eventOf(type: string) {
     if ( type == 'submit' )
-      return 'click';
-    return 'change';
+      return ['click', LoggerService.CLICK, LoggerService.click];
+    else if ( type == 'password' )
+      return ['change', LoggerService.SET, LoggerService.set]
+    return ['change', LoggerService.CHANGE, LoggerService.change];
   }
 }
