@@ -76,7 +76,7 @@ export class SimplePieComponent extends BasicWidget {
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + (data.length) * BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
       },
       // add opt
       ...opt
