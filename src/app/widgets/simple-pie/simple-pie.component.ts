@@ -45,7 +45,7 @@ export class SimplePieComponent extends BasicWidget {
               <div class="tooltip-tail"></div>
             </div>
           `;
-        },
+        }
       },
       //remove labels on slices
       pie: {
@@ -77,7 +77,6 @@ export class SimplePieComponent extends BasicWidget {
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_inset_y', 10 + (data.length) * BasicWidget.legendItemHeight);
-        (window as any).chart = this.chart!;
       },
       // add opt
       ...opt

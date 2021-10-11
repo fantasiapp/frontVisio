@@ -82,9 +82,8 @@ export class HistoColumnComponent extends BasicWidget {
           `;
         }, //barely works
         position: (data, width, height, element, pos) => {
-          let axisPadding = 20;
+          let axisPadding = 0;
           let maxBottom = this.rectHeight - 30; //30 css padding
-          // console.log({axisPadding, maxBottom, pos});         
           return {
             top: Math.max(axisPadding, Math.min(maxBottom, pos.y - height/2 + axisPadding)),
             left: (pos.xAxis || pos.x) + 20
