@@ -3,12 +3,13 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse
 import { Observable, of, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { AuthService } from "../connection/auth.service";
+import { DataService } from "../services/data.service";
 
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor{
 
-    constructor(private auth: AuthService) {}
+    constructor(private auth: AuthService, private dataService: DataService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
@@ -31,6 +32,8 @@ export class ErrorInterceptor implements HttpInterceptor{
                     errorMsg = `Error Code: ${error.status},  Message: ${error.message}`;
                   }
                   console.log(errorMsg);
+                  if(req.method === "POST" && req.urlWithParams.includes("action=update"))
+                      this.dataService.storeRequest(req.body);
                   return throwError(errorMsg);
                 })
               );
