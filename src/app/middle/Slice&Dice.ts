@@ -439,7 +439,7 @@ export class PDV{
         resultTemplate[associatedIndex["Non documenté"]] = 1;
         return resultTemplate;
       }
-      if (siniatP2cd > 0.094 * totalP2cd){
+      if (siniatP2cd > 0.09 * totalP2cd){
         resultTemplate[associatedIndex["Client"]] = 1;
         return resultTemplate;
       }
