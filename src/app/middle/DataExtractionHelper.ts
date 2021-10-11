@@ -223,7 +223,7 @@ class DataExtractionHelper{
 
   static updateData(data: {[name: string]: {[id: number]: number[]}}) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
-    console.log("Back updated, now update middle")
+
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')

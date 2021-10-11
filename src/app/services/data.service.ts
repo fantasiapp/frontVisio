@@ -39,7 +39,7 @@ export class DataService {
   public requestUpdateData() {
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
     .subscribe((response : any) => {
-      console.log("Updated data received : ", response)
+      // console.log("Updated data received : ", response)
       if(response !== {}) {
         DataExtractionHelper.updateData(response);
         this.update.next();
@@ -67,11 +67,11 @@ export class DataService {
 
 
   public updateData(data: {[name: string]: {[id: number]: number[]}}): Observable<Object|null> {
-    console.log("Sending data to back for update : ", data)
+    // console.log("Sending data to back for update : ", data)
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}})
     .subscribe((updateResponse) => {
-      console.log("Response obtained : ", updateResponse);
+      // console.log("Response obtained : ", updateResponse);
     });
     DataExtractionHelper.updateData(data);
     this.update.next();
