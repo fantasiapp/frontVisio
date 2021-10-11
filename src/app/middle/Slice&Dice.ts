@@ -2,11 +2,10 @@ import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} 
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService } from '../services/data.service';
-import { min } from 'rxjs/operators';
 
 
 // peut-être à mettre dans un fichier de config
-const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
+const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget'],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
   enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
   industrieAxis = ['industrie', 'industrieTarget'],
@@ -358,7 +357,7 @@ export class PDV{
     let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-      dnEnduit = new Array(5).fill(0), // A terme normalement il y en a 6
+      dnEnduit = new Array(6).fill(0),
       totalP2cd = 0,
       totalSiniatP2cd = 0,
       totalEnduit = 0;
@@ -859,8 +858,6 @@ class SliceDice{
       targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;
-    
-    console.log("target : ", target, "targetLevel : ", targetLevel)
     return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, targetLevel: targetLevel};
   }
 

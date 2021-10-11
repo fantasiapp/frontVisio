@@ -100,12 +100,12 @@ const segmentMarketingFilter = {
 }
 
 const segmentDnEnduitTargetVisits = {
-  "1": "P2CD + Enduit",
-  "2": "Cible P2CD + Enduit",
-  "3": "Enduit hors P2CD",
-  "4": "Cible Enduit hors P2CD",
-  "5": "Pur prospect",
-  "6": "Cible Pur Prospect"
+  1: "P2CD + Enduit",
+  2: "Cible P2CD + Enduit",
+  3: "Enduit hors P2CD",
+  4: "Cible Enduit hors P2CD",
+  5: "Pur prospect",
+  6: "Cible Pur Prospect"
 }
 
 
