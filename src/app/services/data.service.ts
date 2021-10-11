@@ -46,7 +46,7 @@ export class DataService {
     });
   }
 
-  private dataToUpdate:{'targetLevelAgentP2CD': {[id: number]: number[]}, 'targetLevelAgentFinition': {[id: number]: number[]}, 'targetLevelDrv': {[id: number]: number[]}, 'pdvs': {[id: number]: any}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {}}
+  private dataToUpdate:{[name: string]: {[id: number]: number[]}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {}}
   emptyData : {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {[id: number]: any}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
 
   update: Subject<never> = new Subject;
@@ -57,14 +57,14 @@ export class DataService {
     this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {}};
   }
 
-  updateTargetLevelDrv(targetLevelDrv: number[], id: number) {
-    this.dataToUpdate['targetLevelDrv'][id] = targetLevelDrv;
+  updateTargetLevel(targetLevel: number[], targetLevelName: string, id: number) {
+    this.dataToUpdate[targetLevelName][id] = targetLevel;
     this.updateData(this.dataToUpdate);
     this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {}};
   }
 
 
-  public updateData(data: {'targetLevelAgentP2CD': {[id: number]: number[]}, 'targetLevelAgentFinition': {[id: number]: number[]}, 'targetLevelDrv': {[id: number]: number[]}, 'pdvs': {[id: number]: any}}): Observable<Object|null> {
+  public updateData(data: {[name: string]: {[id: number]: number[]}}): Observable<Object|null> {
     console.log("Sending data to back for update : ", data)
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}})
