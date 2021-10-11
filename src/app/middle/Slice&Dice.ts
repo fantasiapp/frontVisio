@@ -523,8 +523,14 @@ export class PDV{
     }
   }
 
-  attribute(name: string){
-    return this.values[PDV.index(name)];
+  attribute(name: string, generate = false){
+    let returnValue = this.values[PDV.index(name)];
+    if(name=="target" && !returnValue && generate) returnValue = this.initializeTarget;
+    return returnValue
+  }
+
+  initializeTarget() {
+    return [Math.floor(Date.now()/1000), false, false, 0, false, "r", ""]
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
@@ -856,7 +862,8 @@ class SliceDice{
       }
       targetLevel['volumeIdentifier'] = targetName;
       if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
-      if(node.label === 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
+      else if(node.label === 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
+      else targetLevel['name'] = 'targetLevel'
       targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;

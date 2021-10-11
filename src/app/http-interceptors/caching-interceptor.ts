@@ -33,7 +33,7 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
     }    
 
     isCacheable(req: HttpRequest<any>) {
-        if (req.method === 'GET') {
+        if (req.method === 'GET' && req.urlWithParams.includes("action=dashboard")) {
             return true;
         }
         return false;

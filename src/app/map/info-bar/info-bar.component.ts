@@ -34,6 +34,7 @@ export class InfoBarComponent {
       InfoBarComponent.pdvId = value.id;
       let target = value!.getLightTarget();
       this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
+      this.loadGrid()
     } 
   }
 
@@ -127,7 +128,6 @@ export class InfoBarComponent {
 
   setPage(index: number) {
     this.currentIndex = index % this.pages.length;
-    if(index === 2) this.loadGrid()
   }
 
   loadGrid() {
@@ -138,6 +138,13 @@ export class InfoBarComponent {
       this.updateSum(i,j)
       this.salesColors = this._pdv!.salesColors;
     }
+  }
+
+  onKey(event: any) {
+    if(event.keyCode === 37) console.log("Left")
+    if(event.keyCode === 38) console.log("Up")
+    if(event.keyCode === 39) console.log("Right")
+    if(event.keyCode === 40) console.log("Down")
   }
 
   updateSum(row: number, i: number) {
@@ -165,12 +172,12 @@ export class InfoBarComponent {
   }
 
   changeRedistributed() {
-    this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
+    this._pdv!.attribute('target', true)[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target', true)[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;
   }
 
   changeTargetP2CD(newTargetP2cd: any) { //PB : newValue isn't a number
-    this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = +newTargetP2cd;
+    this._pdv!.attribute('target', true)[this.TARGET_VOLUME_ID] = +newTargetP2cd;
     this.hasChanged = true;
   }
 
@@ -178,12 +185,12 @@ export class InfoBarComponent {
     let ref = this.comments!.get(0); //<- the current text area is the first in view
     if ( !ref ) return;
     console.log(ref.nativeElement.value);
-    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
+    this._pdv!.attribute('target', true)[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
     this.hasChanged = true;
   }
 
   changeLight(newLightValue: string) {
-    this._pdv!.attribute('target')[this.TARGET_LIGHT_ID] = newLightValue
+    this._pdv!.attribute('target', true)[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
   }
 
