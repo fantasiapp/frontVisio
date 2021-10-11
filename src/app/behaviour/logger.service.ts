@@ -40,4 +40,10 @@ export class LoggerService {
     }
     return this;
   }
+
+  static eventOf(type: string) {
+    if ( type == 'submit' )
+      return 'click';
+    return 'change';
+  }
 }

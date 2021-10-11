@@ -6,7 +6,7 @@ import { LoggerService } from './logger.service';
 })
 export class LoggedDirective implements AfterViewInit {
 
-  @Input('logged') name: string = 'GENERIC';
+  @Input('logged') name: string = 'default';
   oldValue: any;
 
   constructor(private logger: LoggerService, private ref: ElementRef) {
@@ -14,8 +14,9 @@ export class LoggedDirective implements AfterViewInit {
   }
 
   ngAfterViewInit() {
+    let event = LoggerService.eventOf(this.ref.nativeElement.type);
     this.oldValue = this.ref.nativeElement.value;
-    this.ref.nativeElement.addEventListener('change', (e: Event) => {
+    this.ref.nativeElement.addEventListener(event, (e: Event) => {
       this.logger.push([this.name, this.oldValue, this.ref.nativeElement.value]);
     });
   }
