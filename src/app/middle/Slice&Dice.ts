@@ -767,7 +767,7 @@ export class PDV{
         let totalVisits = 0,
           cibleVisits = 2000; // Hardcodé, il faudra prendre la valeur au back plus tard
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
-        return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), Math.min(totalVisits / cibleVisits, 1)]];
+        return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]];
       };
       case 'target': {
         let totalVisits = 0,
@@ -776,9 +776,9 @@ export class PDV{
           totalVisits += pdv.attribute("nbVisits");
           if (pdv.targetFinition) totalCibleVisits += pdv.attribute("nbVisits");
         }
-        return [[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), totalCibleVisits / totalVisits]];
+        return [[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]];
       };
-      default: return [['', Math.random()]];
+      default: return [['', 100 * Math.random()]];
     }
   }
 
