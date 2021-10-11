@@ -49,6 +49,8 @@ import { AgentOnlyDirective } from './behaviour/agent-only.directive';
 import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
 import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
 import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
+import { LoggerService } from './behaviour/logger.service';
+import { LoggedDirective } from './behaviour/logged.directive';
 
 @NgModule({
   declarations: [
@@ -88,7 +90,8 @@ import { DescriptionWidgetComponent } from './widgets/description-widget/descrip
     AgentOnlyDirective,
     RootLevelOnlyDirective,
     AccountInfoComponent,
-    DescriptionWidgetComponent
+    DescriptionWidgetComponent,
+    LoggedDirective
   ],
   imports: [
     BrowserModule,
@@ -106,7 +109,7 @@ import { DescriptionWidgetComponent } from './widgets/description-widget/descrip
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable],
+  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable, LoggerService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
