@@ -55,6 +55,7 @@ export class LoggerService {
   static bind(element: any, listener: (event: Event, callback: any) => void) {
     let type = element.type, [event, eventType, callback] = LoggerService.eventOf(type);
     element.addEventListener(event, (e: Event) => {
+      if ( !e.isTrusted ) return; //we only want user events
       listener(e, callback);
     });
   }
