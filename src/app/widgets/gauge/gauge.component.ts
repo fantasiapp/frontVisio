@@ -79,14 +79,13 @@ export class GaugeComponent extends BasicWidget {
     d3.select(this.ref.nativeElement).select('.title').text(data[0][0]);
   }
 
-  updateGraph({data, title}: any) {
-    console.log(d3.select(this.ref.nativeElement).select('.title'));
+  updateGraph({data}: any) {
     this.schedule.queue(() => {
       d3.select(this.ref.nativeElement).select('.title').text(data[0][0]);
       let newId = data;
       let oldId = this.chart!.data()[0].id;
       this.chart?.load({
-        columns: [[newId, Math.random()*100 | 0]],
+        columns: data,
         unload: newId == oldId ? false : [oldId],
         done: () => {
           this.schedule.next();

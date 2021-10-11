@@ -35,7 +35,7 @@ export class ViewComponent implements OnDestroy {
   }
 
   computeDescription(description: string | string[]) {
-    let compute = Array.isArray(description) && (description.length > 1 || description[0][0] === '@')
+    let compute = Array.isArray(description) && description.length >= 1;
     if ( compute )
       return DataExtractionHelper.computeDescription(this.filtersService.$path.value, description as string[]);
     return description[0] || description;

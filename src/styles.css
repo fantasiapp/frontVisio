@@ -95,13 +95,25 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     --tooltip-padding: 5px;
     --tooltip-border-radius: 4px;
     --tooltip-font-family: inherit;
-    --tooltip-font-size: 14px;
+    --tooltip-font-size: 12px;
     --tooltip-color: white;
     --tooltip-background-color: rgba(0, 0, 0, 0.8);
 
     --tooltip-tail-base: 30px;
     --tooltip-tail-factor: 0.4;
     --tooltip-tail-border-radius: 2px;
+}
+  
+@media (min-width: 1367px) and (max-width: 1500px) {
+    :root {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 1500px) {
+    :root {
+        font-size: 15px;
+    }
 }
 
 .tooltip {
