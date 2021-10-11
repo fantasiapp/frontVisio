@@ -3,12 +3,13 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse
 import { Observable, of, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { AuthService } from "../connection/auth.service";
+import { UpdateRequestQueueService } from "../services/update-request-queue.service";
 
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor{
 
-    constructor(private auth: AuthService) {}
+    constructor(private auth: AuthService, private requestQueue: UpdateRequestQueueService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
@@ -32,7 +33,7 @@ export class ErrorInterceptor implements HttpInterceptor{
                   }
                   console.log(errorMsg);
                   return throwError(errorMsg);
-                })
+                }),
               );
     }
 

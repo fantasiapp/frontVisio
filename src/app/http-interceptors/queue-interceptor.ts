@@ -1,21 +1,27 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { of } from 'rxjs';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
-import { RequestQueueService } from '../services/request-queue.service';
+import { UpdateRequestQueueService } from '../services/update-request-queue.service';
 
 @Injectable()
 export class QueueInterceptor implements HttpInterceptor{
 
-    constructor(private queueService: RequestQueueService) {}
+    constructor(private queueService: UpdateRequestQueueService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
-            if(req.urlWithParams.includes("action=update") && req.method === "POST") {  
-                console.log("intercepted")
-                return this.queueService.intercept(req, next);
+            if(!navigator.onLine) {
+                if(req.urlWithParams.includes("action=update") && req.method === "POST") {  
+                    console.log("intercepted")
+                    this.queueService.storeRequest(req.body);
+                    return of();
+                }
+            } else {
+                this.queueService.empty()
             }
-
             return next.handle(req);
+
     }
 
 }

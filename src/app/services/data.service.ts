@@ -68,16 +68,12 @@ export class DataService {
   }
 
 
-  public updateData(data: {[name: string]: {[id: number]: number[]}}): Observable<Object|null> {
+  public updateData(data: {[name: string]: {[id: number]: number[]}}) {
     // console.log("Sending data to back for update : ", data)
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}})
-    .subscribe((updateResponse) => {
-      // console.log("Response obtained : ", updateResponse);
-    });
     DataExtractionHelper.updateData(data);
     this.update.next();
-    return this.response;
   }
 
   public sendLog(data: any) {
@@ -89,7 +85,7 @@ export class DataService {
   }
 
   public beginUpdateThread() {
-    this.updateSubscriber = interval(10000)
+    this.updateSubscriber = interval(DataExtractionHelper.get('params')['delayBetweenUpdate'])
     .subscribe(() => {this.requestUpdateData()})
   }
 
