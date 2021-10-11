@@ -17,6 +17,7 @@ export class DataService {
   
   response = new BehaviorSubject<Object|null>(null);
   updateSubscriber: any;
+  private lastUpdateDate: Date = new Date;
 
   public requestData(): Observable<Object|null> {
     (
@@ -45,6 +46,7 @@ export class DataService {
         this.update.next();
         this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((response) => console.log("Ack response : ", response))
       }
+      this.lastUpdateDate = new Date;
     });
   }
 
@@ -93,5 +95,9 @@ export class DataService {
 
   public endUpdateThread() {
     this.updateSubscriber.unsubscribe()
+  }
+
+  getLastUpdateDate() {
+    return this.lastUpdateDate;
   }
 }

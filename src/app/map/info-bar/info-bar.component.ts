@@ -33,8 +33,6 @@ export class InfoBarComponent {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
       this.target=this._pdv!.attribute('target')
-      let target = value!.getLightTarget();
-      this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
       this.loadGrid()
     } 
   }
@@ -50,11 +48,6 @@ export class InfoBarComponent {
   grid: number[][] = [];
   gridFormatted: string[][] = [];
   salesColors: string[] = [];
-  targetClass: any = {
-    'r': false,
-    'g': false,
-    'o': false
-  };
 
   TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
   TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
