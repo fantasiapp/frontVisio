@@ -122,6 +122,8 @@ export class InfoBarComponent {
     //show the quit bar
     if ( this.hasChanged )
       this.quiting = true;
+    else
+      this.pdv = undefined; //force quit
   }
 
   setPage(index: number) {

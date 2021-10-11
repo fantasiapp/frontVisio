@@ -11,6 +11,7 @@ import { GridManager } from './grid/grid-manager/grid-manager.component';
 import { MapComponent } from './map/map.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
 import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
+import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
 //import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
@@ -33,8 +34,8 @@ const routes: Routes = [
     canActivate:[AuthGuard],
   },
   {
-    path: 'account',
-    component: AccountInfoComponent
+    path: 'description',
+    component: DescriptionWidgetComponent
   }
 ];
 

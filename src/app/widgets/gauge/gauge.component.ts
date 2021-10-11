@@ -31,7 +31,7 @@ export class GaugeComponent extends BasicWidget {
         left: this.padding, top: this.padding, bottom: this.padding, right: this.padding
       },
       data: {
-        columns: [['Généralistes', Math.floor(100*Math.random())]],
+        columns: data,
         type: gauge(),
         order: null
       },
@@ -79,9 +79,8 @@ export class GaugeComponent extends BasicWidget {
   }
 
   updateGraph({data}: any) {
-    let names = ['Généralistes', 'Multi Spécialistes', 'Purs Spécialistes', 'Autres'];
     this.schedule.queue(() => {
-      let newId = names[4*Math.random() | 0];
+      let newId = data;
       let oldId = this.chart!.data()[0].id;
       this.chart?.load({
         columns: [[newId, Math.random()*100 | 0]],

@@ -48,6 +48,7 @@ import { MapSelectComponent } from './map/map-select/map-select.component';
 import { AgentOnlyDirective } from './behaviour/agent-only.directive';
 import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
 import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
+import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
 
 @NgModule({
   declarations: [
@@ -86,7 +87,8 @@ import { AccountInfoComponent } from './logged-page/account-info/account-info.co
     MapSelectComponent,
     AgentOnlyDirective,
     RootLevelOnlyDirective,
-    AccountInfoComponent
+    AccountInfoComponent,
+    DescriptionWidgetComponent
   ],
   imports: [
     BrowserModule,

@@ -1,7 +1,7 @@
 :host {
   display: grid;
-  column-gap: 20px;
-  row-gap: 20px;
+  column-gap: 15px;
+  row-gap: 15px;
   /* tune this */
   margin: 165px 5% 0;
   height: calc(100% - 180px);
@@ -10,19 +10,21 @@
 
 @media (max-width: 1366px) {
   :host {
-      font-size: 14px;
+    font-size: 14px;
   }
 }
 
-@media (min-width: 1367px) and (max-width: 1920px) {
+@media (min-width: 1367px) and (max-width: 1500px) {
   :host {
-      font-size: 18px;
+    font-size: 18px;
   }
 }
 
-@media (min-width: 1920px) {
+@media (min-width: 1500px) {
   :host {
-      font-size: 20px;
+    font-size: 20px;
+    column-gap: 20px;
+    row-gap: 20px;
   }
 }
 
