@@ -137,6 +137,13 @@ export class InfoBarComponent {
     }
   }
 
+  onKey(event: any) {
+    if(event.keyCode === 37) console.log("Left")
+    if(event.keyCode === 38) console.log("Up")
+    if(event.keyCode === 39) console.log("Right")
+    if(event.keyCode === 40) console.log("Down")
+  }
+
   updateSum(row: number, i: number) {
     let sum = 0, diff;
     for ( let j = 0; j < this.grid.length-1; j++ ) {
