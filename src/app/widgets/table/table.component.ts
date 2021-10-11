@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, HostBinding } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
@@ -16,6 +16,7 @@ import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
   providers: [SliceDice],
 })
 export class TableComponent extends BasicWidget {
+
   @ViewChild('title', {static: false, read: ElementRef})
   private titleContainer?: ElementRef;
 
@@ -51,7 +52,6 @@ export class TableComponent extends BasicWidget {
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
-
       })
   }
   gridObservable = new Observable();
@@ -96,13 +96,12 @@ export class TableComponent extends BasicWidget {
 
   updateGraph(data: any[]): void {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
-    this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
     this.updateTitle()
     this.pinnedRow = data[1][0]; //Hardest part
     groupInfos = data[3][0];
     hiddenGroups = {}
-
+    this.gridApi.setRowData(data[1])
     this.gridApi.refreshCells()
   }
 
@@ -242,11 +241,13 @@ export class TableComponent extends BasicWidget {
     }
   }
 
+  sideDivRight: string = "-60%";
   showInfo: boolean = false;
   infoData: any = {}
   showInfoOnClick(data: any = {}) {
-    if(this.showInfo) {this.showInfo = false; return}
+    if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "-60%";    return}
     this.showInfo = true
+    this.sideDivRight = "0%";
     this.infoData = {
       'name': data.name,
       'enseigne': data.enseigne,
@@ -283,11 +284,13 @@ export class TableComponent extends BasicWidget {
 
   doesExternalFilterPass(node: any) {
     if(node.data.groupRow == true) return true;
-    try {
-      return !hiddenGroups[node.data[groupInfos.field]] === true;
-    } catch {
-      return true;
-    }
+    return !hiddenGroups[node.data[groupInfos.field]] === true;
+
+    // try {
+    //   return !hiddenGroups[node.data[groupInfos.field]] === true;
+    // } catch {
+    //   return true;
+    // }
   }
 }
 

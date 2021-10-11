@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
 
 @Injectable({
@@ -18,7 +19,7 @@ export class AuthService {
   isLoggedIn = new BehaviorSubject<boolean>(false);
   errorCode: number = 0
 
-  constructor(private http: HttpClient, private router: Router, private localStorageService: LocalStorageService) {
+  constructor(private http: HttpClient, private router: Router, private localStorageService: LocalStorageService, private dataService: DataService) {
     this.token = this.localStorageService.get("token") || '';
   }
 
@@ -65,6 +66,7 @@ export class AuthService {
 
   logoutFromServer() {
     setTimeout(() => {
+      this.dataService.endUpdateThread();
       this.localStorageService.clear();
       this.isLoggedIn.next(false)
       this.router.navigate(['login']);
