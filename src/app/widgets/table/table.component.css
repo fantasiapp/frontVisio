@@ -27,15 +27,18 @@ span {
 .side-div {
     display: flex;
     flex-direction: column;
-    padding: 2em 5em;
+    /* padding: 2em 5em; */
     position: absolute;
     height: 100%;
-    width: 50%;
     background-color: white;
     top: 0;
-    right: 0;
+    right: -60%;
+    width: 60%;
     box-shadow: -2px 0 4px grey;
+    overflow: scroll;
+    transition: right 200ms ease-out 0s;
 }
+
 
 .side-div img{
     position: absolute;
@@ -46,6 +49,13 @@ span {
 
 .side-div div {
     flex-grow: 1;
+}
+
+.side-div div:first-of-type {
+    padding-top: 2em;
+}
+.side-div>div {
+    padding-left: 3em;
 }
 
 .side-div .checkbox-div {
@@ -60,7 +70,7 @@ span {
 }
 
 
-.vertical-bar {
+.vertical-bar{
     min-width: 2px;
     max-width: 2px;
     height: 60%;

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, HostBinding } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
@@ -16,6 +16,7 @@ import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
   providers: [SliceDice],
 })
 export class TableComponent extends BasicWidget {
+
   @ViewChild('title', {static: false, read: ElementRef})
   private titleContainer?: ElementRef;
 
@@ -242,11 +243,13 @@ export class TableComponent extends BasicWidget {
     }
   }
 
+  sideDivRight: string = "-60%";
   showInfo: boolean = false;
   infoData: any = {}
   showInfoOnClick(data: any = {}) {
-    if(this.showInfo) {this.showInfo = false; return}
+    if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "-60%";    return}
     this.showInfo = true
+    this.sideDivRight = "0%";
     this.infoData = {
       'name': data.name,
       'enseigne': data.enseigne,

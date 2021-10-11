@@ -31,7 +31,7 @@
 
 <info-bar [style.margin-top]="0"  [style.height]="'100%'" [(pdv)]="pdv"></info-bar>
 
-<div *ngIf="showInfo" class="side-div">
+<div [style.right] = "sideDivRight" class="side-div">
     <img src="assets/x icon.svg" (click)="showInfoOnClick()"/>
     <div>
         <div>
