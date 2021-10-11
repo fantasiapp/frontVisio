@@ -23,6 +23,7 @@ export class FiltersStatesService {
         this.reset(defaultTree);
         this.$load.next(0 as never);
         this.$load.complete();
+        this.dataservice.beginUpdateThread();
       }
     });
 

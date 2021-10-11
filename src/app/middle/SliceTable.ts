@@ -300,33 +300,6 @@ export class SliceTable {
         return pdvAsList;
     }
 
-    updatePdv(pdv: any, redistributed = false) { //We check here fields that may have been updated : target.redistributed, target.targetFinition
-        let newPdv = this.pdvFromObjectToList(pdv);
-        let newTarget;
-        if(!pdv['target']) {
-            newTarget = {
-                0:formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', 'en-US'),
-                1:redistributed,
-                2:false,
-                3:0,
-                4:pdv['checkboxEnduit'],
-                5:'g',
-                6:""
-            }
-        } else {
-            newTarget = pdv['target'];
-            newTarget[DataExtractionHelper.TARGET_DATE_ID] = formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', this.locale);
-            newTarget[DataExtractionHelper.TARGET_FINITION_ID] = pdv.checkboxEnduit;
-            newTarget[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = redistributed;
-
-        }
-
-        newPdv[DataExtractionHelper.TARGET_ID] = newTarget;
-        console.log("newPdv : ", newPdv)
-        this.dataService.updatePdv(newPdv, pdv.instanceId);
-    }
-
-
     // updateData() {
     //     this.dataService.requestUpdateData()
     //     .subscribe((updatedData) => {

@@ -67,7 +67,6 @@ export class LoginPageComponent implements OnInit {
             sessionStorage.getItem('originalPath') || 'logged',
           ]);
         }, 6000)
-        this.dataservice.beginUpdateThread();
       }
     }
   }

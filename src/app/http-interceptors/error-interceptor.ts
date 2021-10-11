@@ -1,15 +1,14 @@
 import { Injectable } from "@angular/core";
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { Observable, of, throwError } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { catchError, tap } from "rxjs/operators";
 import { AuthService } from "../connection/auth.service";
-import { UpdateRequestQueueService } from "../services/update-request-queue.service";
 
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor{
 
-    constructor(private auth: AuthService, private requestQueue: UpdateRequestQueueService) {}
+    constructor(private auth: AuthService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
@@ -33,7 +32,7 @@ export class ErrorInterceptor implements HttpInterceptor{
                   }
                   console.log(errorMsg);
                   return throwError(errorMsg);
-                }),
+                })
               );
     }
 
