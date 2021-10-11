@@ -394,7 +394,7 @@ export class PDV{
       let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-        dnEnduit = new Array(5).fill(axe.length),
+        dnEnduit = new Array(axe.length).fill(0),
         totalP2cd = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
@@ -765,9 +765,9 @@ export class PDV{
     switch(indicator){
       case 'simple': {
         let totalVisits = 0,
-          cibleVisits = 1000; // Hardcodé, il faudra prendre la valeur au back plus tard
+          cibleVisits = 2000; // Hardcodé, il faudra prendre la valeur au back plus tard
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
-        return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), totalVisits / cibleVisits]];
+        return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), Math.min(totalVisits / cibleVisits, 1)]];
       };
       case 'target': {
         let totalVisits = 0,
