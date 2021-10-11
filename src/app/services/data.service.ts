@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { typeofExpr } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, interval } from 'rxjs';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { map } from 'rxjs/internal/operators/map';
@@ -16,6 +16,8 @@ export class DataService {
   constructor(private http : HttpClient) {}
   
   response = new BehaviorSubject<Object|null>(null);
+  updateSubscriber: any;
+
   public requestData(): Observable<Object|null> {
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
@@ -74,5 +76,22 @@ export class DataService {
     DataExtractionHelper.updateData(data);
     this.update.next();
     return this.response;
+  }
+
+  public sendLog(data: any) {
+    console.log("Sending data to back for logs : ", data)
+    this.http.post(environment.backUrl + '/visioServer/data/', data)
+    .subscribe((response) => {
+      console.log("Log response : ", response)
+    })
+  }
+
+  public beginUpdateThread() {
+    this.updateSubscriber = interval(10000)
+    .subscribe(() => {this.requestUpdateData()})
+  }
+
+  public endUpdateThread() {
+    this.updateSubscriber.unsubscribe()
   }
 }
