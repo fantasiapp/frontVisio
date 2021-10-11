@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import {bar, bb, line} from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
@@ -8,7 +8,8 @@ import { BasicWidget } from '../BasicWidget';
 @Component({
   selector: 'app-histocurve',
   templateUrl: '../widget-template.html',
-  styleUrls: ['./histocurve.component.css']
+  styleUrls: ['./histocurve.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HistocurveComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})

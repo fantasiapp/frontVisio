@@ -7,12 +7,10 @@
 }
 
 .description {
-    display: flex;
     width: 90%;
     position: absolute;
     top: 125px;
     font-size: 14px;
     font-weight: 300;
     font-size: 14px;
-    justify-content: flex-start;
 }
