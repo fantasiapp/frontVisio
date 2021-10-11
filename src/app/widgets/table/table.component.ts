@@ -97,13 +97,12 @@ export class TableComponent extends BasicWidget {
 
   updateGraph(data: any[]): void {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
-    this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
     this.updateTitle()
     this.pinnedRow = data[1][0]; //Hardest part
     groupInfos = data[3][0];
     hiddenGroups = {}
-
+    this.gridApi.setRowData(data[1])
     this.gridApi.refreshCells()
   }
 
