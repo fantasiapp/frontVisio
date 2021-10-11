@@ -368,12 +368,12 @@ export class PDV{
         if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
       }
     }
-    let saleP2cd = totalSiniatP2cd > 0.1 * totalP2cd, // Ca c'est hardCodé, il faut le rattacher à params
+    let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd,
       saleEnduit = totalEnduit > 0,
-      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : ((this.attribute("nbVisits") > 0) ? totalEnduit: 0); //Dans le cas où on demande le volume on pourrait peut-être mettre nbVisits*totalEnduit
+      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : this.attribute("nbVisits") * totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"];
     if (saleP2cd && saleEnduit){
       if (this.targetFinition) dnEnduit[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
-      dnEnduit[associatedIndex["P2CD + Enduit"]] = toAdd;
+      else dnEnduit[associatedIndex["P2CD + Enduit"]] = toAdd;
     }
     else if (saleEnduit){
       if (this.targetFinition) dnEnduit[associatedIndex["Cible Enduit hors P2CD"]] = toAdd;
@@ -405,7 +405,7 @@ export class PDV{
           if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
         }
       }
-      let saleP2cd = totalSiniatP2cd > 0.1 * totalP2cd; // Ca c'est hardCodé, il faut le rattacher à params
+      let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
       if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
       else if (saleEnduit){
         if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
@@ -765,7 +765,7 @@ export class PDV{
     switch(indicator){
       case 'simple': {
         let totalVisits = 0,
-          cibleVisits = 2000; // Hardcodé, il faudra prendre la valeur au back plus tard
+          cibleVisits = 1820; // Hardcodé, il faudra prendre la valeur au back plus tard
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
         return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]];
       };
@@ -823,8 +823,9 @@ class SliceDice{
     }
     if (axis1 == "visits") return {data: PDV.computeJauge(slice, indicator='simple'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
     if (axis1 == "targetedVisits") return {data: PDV.computeJauge(slice, indicator='target'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
+    if (axis1 == "avancementAD") return {data: PDV.computeJauge(slice, indicator='AD'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
-    let km2 = (indicator !== 'dn') ? true : false;
+    let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false;
     dataWidget.basicTreatement(km2);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     let sum = dataWidget.getSum();
