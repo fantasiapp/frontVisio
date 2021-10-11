@@ -52,7 +52,6 @@ export class TableComponent extends BasicWidget {
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
-
       })
   }
   gridObservable = new Observable();
@@ -285,11 +284,13 @@ export class TableComponent extends BasicWidget {
 
   doesExternalFilterPass(node: any) {
     if(node.data.groupRow == true) return true;
-    try {
-      return !hiddenGroups[node.data[groupInfos.field]] === true;
-    } catch {
-      return true;
-    }
+    return !hiddenGroups[node.data[groupInfos.field]] === true;
+
+    // try {
+    //   return !hiddenGroups[node.data[groupInfos.field]] === true;
+    // } catch {
+    //   return true;
+    // }
   }
 }
 
