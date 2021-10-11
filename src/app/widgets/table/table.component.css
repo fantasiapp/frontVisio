@@ -51,8 +51,8 @@ span {
     flex-grow: 1;
 }
 
-.side-div div:first-of-type {
-    padding-top: 2em;
+.side-div>div:first-of-type {
+    padding-top: 3em;
 }
 .side-div>div {
     padding-left: 3em;
