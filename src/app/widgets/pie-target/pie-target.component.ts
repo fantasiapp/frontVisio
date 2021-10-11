@@ -3,6 +3,7 @@ import { Chart, d3Selection, pie } from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { BasicWidget } from '../BasicWidget';
 import { SimplePieComponent } from '../simple-pie/simple-pie.component';
 
 @Component({
@@ -40,6 +41,8 @@ export class PieTargetComponent extends SimplePieComponent {
         order: null
       },
       onresized: () => {
+        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 10 + (data.length) * BasicWidget.legendItemHeight);
         this.createNeedle({data: null, target: this.needleRotate})
       },
       onrendered(this: Chart) {
