@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { Logger } from 'ag-grid-community';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
@@ -35,10 +35,16 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   canSetTargets: boolean = true;
   private data?: any;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService, protected cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
     this.targetService.targetChange.subscribe(value => {
+      if ( this.inputIsOpen ) this.toggleTargetControl();
       this.canSetTargets = !this.canSetTargets;
+      let data = this.updateData() as any;
+      if ( this.needles )
+        this.createNeedles(data);
+      
+      this.cd.detectChanges();
     });
   }
 

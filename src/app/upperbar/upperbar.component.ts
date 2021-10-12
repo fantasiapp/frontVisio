@@ -42,6 +42,7 @@ export class UpperbarComponent implements OnInit {
   isFilterVisible = false;
   searchModel: string = '';
   searchDebounceId!: number;
+  updating: boolean = false;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
 
   @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
@@ -92,6 +93,11 @@ export class UpperbarComponent implements OnInit {
         observer.next(PDV.geoTree.root.name || 'national');
       });
     });
+  }
+
+  call() {
+    console.log('alright')
+    this.updating = false;
   }
 
   toggleMap() {
