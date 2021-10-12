@@ -1,6 +1,6 @@
 <div class="container-filters">
   <div class="title left-aligned">
-    {{ this.levelLabel }}
+    {{ levelLabel }}
   </div>
   <div class="path left-aligned">
     {{ path }}
@@ -32,7 +32,7 @@
           [ngClass]="{ selected: levName === this.levelName }"
           (click)="updateState(idLev + 1, undefined, undefined)"
           (dblclick)="updateStateClose(idLev + 1, undefined, undefined)"
-          [logged]="'level.' + levName"
+          [logged]="'level.' + levelLabel + '.' + levName"
         >
           {{ levName }}
         </button></ng-container>
