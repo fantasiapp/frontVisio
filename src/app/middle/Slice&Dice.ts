@@ -356,7 +356,6 @@ export class PDV{
 
   //Assez sale pour le moment, il faut factoriser avec le code d'en dessous après
   private computeVisits(indicator:string){
-    console.log('nombre de visites sur le pdv', this.attribute("nbVisits"));
     let axe : string[]= Object.values(DataExtractionHelper.get('segmentDnEnduitTargetVisits')),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
