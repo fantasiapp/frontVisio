@@ -1,5 +1,8 @@
 select {
     outline: none !important;
     border: none !important;
+    font-family: 'Roboto' !important;
+    font-weight: 300;
+    font-size: 0.8em;
     text-align: center;
 }

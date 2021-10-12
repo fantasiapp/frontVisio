@@ -202,8 +202,8 @@ app-historow .bb-xgrid {
 
 @media (min-width: 1500px) {
     :root {
-        --x-axis-font-size: 15px;
-        --legend-font-size: 14.5px;
+        --x-axis-font-size: 14px;
+        --legend-font-size: 13.5px;
     }
 }
 

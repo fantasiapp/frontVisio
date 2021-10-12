@@ -44,10 +44,14 @@ export class PieTargetComponent extends SimplePieComponent {
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
+        this.chart!.flush();
         requestAnimationFrame(_ => this.createNeedle({data: null, target: this.needleRotate - 90}))
       },
       onrendered(this: Chart) {
+        self.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        self.chart!.config('legend_inset_y', 10 + self.chart!.data().length * BasicWidget.legendItemHeight);
         self.createNeedle(data);
+        self.chart!.flush();
         this.config('onrendered', null);
       }
     });

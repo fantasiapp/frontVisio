@@ -48,7 +48,14 @@ export class MapFiltersComponent {
 
     return Object.keys(result).filter(key => result[key]).map(key =>
       [key, DataExtractionHelper.get(criterion)[key]]
-    ).map(([key, index]) => [key|0, index, result[key] as number]);
+    ).sort((a, b) => {
+      let firstIsBigger = a[1] >= b[1],
+        secondIsBigger = b[1] >= a[1];
+      if ( firstIsBigger )
+        if ( secondIsBigger ) return 0;
+        else return 1;
+      else return -1;
+    }).map(([key, index]) => [key|0, index, result[key] as number]);
   }
 
   someCriteriaChange(idx: number, criteria: any) {

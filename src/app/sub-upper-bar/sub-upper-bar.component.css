@@ -1,6 +1,6 @@
 @media (max-width: 1366px) {
     :host {
-        font-size: 15px;
+        font-size: 16px;
     }
   }
   
@@ -36,11 +36,11 @@ select{
     opacity: 1;
 }
 .dash{
-    font-size: 1.5em;
+    font-size: 1.4em;
     font-weight: 500;
 }
 .level{
     padding-top: 10px;
     font-weight: 400;
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
