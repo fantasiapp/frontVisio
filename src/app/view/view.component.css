@@ -14,3 +14,21 @@
     font-weight: 300;
     font-size: 14px;
 }
+
+@media (max-width: 1366px) {
+    .description {
+        top: 125px;
+    }
+}
+
+@media (min-width: 1366px) and (max-width: 1920px) {
+    .description {
+        top: 135px;
+    }
+}
+
+@media (min-width: 1500px) {
+    .description {
+        top: 140px;
+    }
+}
