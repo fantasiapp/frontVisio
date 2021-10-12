@@ -141,6 +141,49 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
 
   @Component({
+    template: `
+          <div id="arrowDiv" (click)="changeDisplay()">
+            <img [style.transform] ="arrowRotation" src="assets/arrow_right.svg"/>
+          </div>
+          <p>{{ displayValue }}</p>`,
+      styles:  [`:host {
+        display: flex;
+      }`,
+    `img {
+      transition: all .3s ease-in;
+      width: 1.5em;
+      position: absolute;
+      left: 10px;
+      top: 5px;
+    }`,
+    `p {
+      position: absolute;
+      left: 40px;
+    }`,
+    `div#arrowDiv {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 10;
+  }`]
+  })
+  export class AddArrowCellRenderer extends DefaultCellRenderer {
+    regrouped: boolean = false;
+    displayValue: string = "";
+    arrowRotation: string = "rotate(-0.25turn)";
+    agInit(params: ICellRendererParams): void {
+      this.displayValue = params.value['name'] + ' PdV : ' + params.value['number']
+    }
+    changeDisplay() {
+      this.regrouped = !this.regrouped;
+      if(this.regrouped) this.arrowRotation = "rotate(0.25turn)"
+      else this.arrowRotation = "rotate(-0.25turn)"
+    }
+  }
+
+  @Component({
     template: `<img src="assets/! icon.svg"/>`,
     styles:  [`:host {
         display: flex;

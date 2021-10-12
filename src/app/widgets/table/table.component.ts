@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 
@@ -69,6 +69,7 @@ export class TableComponent extends BasicWidget {
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
     infoCellRenderer: InfoCellRenderer,
+    addArrowCellRenderer: AddArrowCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -129,10 +130,9 @@ export class TableComponent extends BasicWidget {
         for(let cd of data){
           switch (cd.field) {
             case 'name':
-
-              cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow) return params.value['name'] + ' PdV : ' + params.value['number']
-                return params.value;
+              cd.cellRendererSelector = function (params: any) {
+                if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
+                return;
               }
               break;
             case 'siniatSales':
