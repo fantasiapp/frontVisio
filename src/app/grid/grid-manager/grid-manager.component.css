@@ -16,13 +16,13 @@
 
 @media (min-width: 1367px) and (max-width: 1500px) {
   :host {
-    font-size: 18px;
+    font-size: 17px;
   }
 }
 
 @media (min-width: 1500px) {
   :host {
-    font-size: 20px;
+    font-size: 19px;
     column-gap: 20px;
     row-gap: 20px;
   }

@@ -83,7 +83,6 @@ export class SimplePieComponent extends BasicWidget {
         this.chart!.config('onrendered', null);
       },
       onresized: () => {
-        console.log('set tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
         this.chart!.flush();
