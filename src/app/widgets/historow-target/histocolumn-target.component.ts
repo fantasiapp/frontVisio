@@ -78,7 +78,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
             let oldValue = this.getTargetValue(idx),
               target = e.target as any,
               newValue = parseInt(target.value);
-            this.logger.add(...callback('target.control', oldValue, newValue));
+            this.logger.add(...callback('target.control.' + this.data.data[0][1+idx], oldValue, newValue));
             this.changeValue(target.value, target.__data__, e)
           });
         });
@@ -98,7 +98,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         self.rectHeight = rect.height;
         self.chart = this;
         self.renderTargetContainer(data);
-        this.config('onrendered', null);
       },
       transition: {
         duration: this.transitionDuration
@@ -108,9 +107,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   updateGraph(data: any) {
     //remove all
-    if ( this.inputIsOpen )
-      this.toggleTargetControl();
     this.getNeedleGroup()?.remove();
+    this.data = data;
     super.updateGraph(data);
     //wait for animation
     this.schedule.queue(() => {
@@ -188,12 +186,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     //make target control just in case
     this.renderTargetControl()
       .classed('target-control-opened', this.inputIsOpen);
-  }
-
-  doTargetControl() {
-    console.log('[HistoRowTargetComponent]: Target control validated:\nRespect+.');
-    //close
-    this.toggleTargetControl();
   }
 
   changeValue(newValue :number, inputId: number, fullEvent: any) {

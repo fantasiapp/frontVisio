@@ -23,6 +23,8 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('description', {read: ElementRef})
   protected description!: ElementRef;
 
+  public axisLabelLength: number = 10;
+
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
@@ -129,10 +131,12 @@ export class HistoRowComponent extends BasicWidget {
           tick: {
             autorotate: true,
             format(index: number, category: string) {
+              console.log(category);
               if ( index < this.categories().length )
-                return category;
+                return category.length >= self.axisLabelLength+3 ? category.slice(0, self.axisLabelLength - 3) + '...' : category;
               return '';
-            }
+            },
+            tooltip: true
           }
         },
         y: {

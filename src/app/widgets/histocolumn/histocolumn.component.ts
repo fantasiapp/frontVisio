@@ -16,6 +16,8 @@ export class HistoColumnComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
+  public axisLabelLength: number = 10;
+
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
@@ -109,9 +111,10 @@ export class HistoColumnComponent extends BasicWidget {
             autorotate: true,
             format(index: number, category: string) {
               if ( index < this.categories().length )
-                return category;
+              return category.length >= self.axisLabelLength+3 ? category.slice(0, self.axisLabelLength - 3) + '...' : category;
               return '';
-            }
+            },
+            tooltip: true
           }
         },
         y: {

@@ -7,10 +7,17 @@ import { PDV } from '../middle/Slice&Dice';
 export class AgentOnlyDirective implements AfterViewInit {
 
   constructor(private el: ElementRef) { }
+  private _allowed?: boolean;
+
+  public get allowed(): boolean {
+    return this._allowed ? true : false;
+  }
 
   ngAfterViewInit() {
-    let accountLabel = PDV.geoTree.root.label;
-    if ( accountLabel !== 'Secteur' )
-      this.el.nativeElement.disabled = true; 
+    if ( !this._allowed )
+      this._allowed = PDV.geoTree.root.label === 'Secteur';
+    this.el.nativeElement.disabled = this._allowed; 
   }
+  
+
 }
