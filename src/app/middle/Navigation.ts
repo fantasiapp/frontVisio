@@ -38,7 +38,7 @@ export class Navigation{
       }: {name: [], id: [], label:[]};
 
       let superLevel = (currentLevel.parent && !currentLevel.parent.parent) ? {
-        name: 'dashboards', id: 0, label: 'Dashboards'
+        name: 'National', id: 0, label: 'National'
       } : {name: currentLevel.parent?.name, id: currentLevel.parent?.id, label: currentLevel.parent?.label};
 
 

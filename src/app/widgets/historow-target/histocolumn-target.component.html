@@ -2,7 +2,7 @@
     <h2>{{properties.title}}</h2>
     <p>{{properties.description}}</p>
 </div>
-<button class="open-target-control" rootLevelOnly [class.validate]="inputIsOpen" (click)="toggleTargetControl()" #openTargetControl>
+<button class="open-target-control" rootLevelOnly [class.validate]="inputIsOpen" [style.display]="canSetTargets ? 'block' : 'hidden'" (click)="toggleTargetControl()" #openTargetControl>
     <img src="assets/icon pen.svg"/>
 </button>
 <div class="container" #content></div>

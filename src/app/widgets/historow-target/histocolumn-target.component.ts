@@ -6,6 +6,7 @@ import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { TargetService } from '../description-widget/description-service.service';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
 //❌
@@ -31,10 +32,14 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private marginX: number = 0;
   private barWidth: number = 0;
   inputIsOpen: boolean = false;
+  canSetTargets: boolean = true;
   private data?: any;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService) {
     super(ref, filtersService, sliceDice);
+    this.targetService.targetChange.subscribe(value => {
+      this.canSetTargets = !this.canSetTargets;
+    });
   }
 
   private newTargetControl() { 
@@ -119,8 +124,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     });
   }
 
-  private createNeedles({data, target}: any) {
-    this.barTargets = target;
+  private createNeedles(allData: any) {
+    let data = allData.data;
+    let target = this.barTargets = this.canSetTargets ? allData.target : allData.ciblage;
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 

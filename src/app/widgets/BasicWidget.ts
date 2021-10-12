@@ -156,13 +156,12 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   }
 
   static getLegendItemHeight(width: number) {
-    console.log('picking height for', width);
     if ( width < 1366 )
-      return 13;
+      return 12;
     else if ( width < 1500 )
-      return 15;
+      return 14;
     else
-      return 17;
+      return 16;
   }
 
   static format(q: number, n: number = 3): string {
@@ -189,7 +188,6 @@ let timeoutId: any = null;
 let windowResize = (e: Event) => {
   let width = window.innerWidth;
   BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(width);
-  console.log('> item size', BasicWidget.legendItemHeight);
   timeoutId = null;
 };
 
