@@ -117,10 +117,10 @@ class DataWidget{
     }
   }
   
-  basicTreatement(km2 = false){
+  basicTreatement(km2 = false, sortLines=true){
     if (km2) this.m2ToKm2();
     this.removeZeros();
-    this.sortLines();
+    if (sortLines) this.sortLines();
   }
   
   formatWidget(transpose:boolean){
@@ -647,6 +647,10 @@ export class PDV{
     let pdvs = this.sliceTree(slice, geoTree)[0];
     return PDV.reSlice(pdvs, addConditions);
   }
+  
+  static ComputeListCiblage(nodes: Node[]){
+    return nodes.map(node => PDV.computeCiblage(node));
+  }
 
   static computeCiblage(node: Node, enduit=false, dn=false): number{
     let pdvs = PDV.childrenOfNode(node), ciblage = 0;
@@ -826,13 +830,16 @@ class SliceDice{
     if (axis1 == "targetedVisits") return {data: PDV.computeJauge(slice, indicator='target'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
     if (axis1 == "avancementAD") return {data: PDV.computeJauge(slice, indicator='AD'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
-    let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false;
-    dataWidget.basicTreatement(km2);
+    let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false,
+      sortLines = percent !== 'classic';
+    dataWidget.basicTreatement(km2, sortLines);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1, axis2);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
-    let rodPosition = undefined, targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
+    let rodPosition = undefined, 
+      rodPositionForCiblage = undefined,
+      targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let targetName:string;
@@ -848,11 +855,16 @@ class SliceDice{
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
+        rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
-        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName);
-        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName),
+          ciblageValues = PDV.ComputeListCiblage(node.children as Node[]);
+        for (let i = 0; i < targetValues.length; i++){
+          rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+          rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+        }
       }
       targetLevel['volumeIdentifier'] = targetName;
       if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
@@ -861,7 +873,7 @@ class SliceDice{
       targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, targetLevel: targetLevel};
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage};
   }
 
   getIndustriesReverseDict(){
