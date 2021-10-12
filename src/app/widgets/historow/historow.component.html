@@ -1,6 +1,6 @@
 <div [style.display]="properties.title? 'flex' : 'none'" class="props">
     <h2>{{properties.title}}</h2>
-    <select #description (change)="updateCondition($event)">   
+    <select #description (change)="updateCondition($event)" [logged]="'historow.segmentMarketing'">   
         <option *ngFor="let entry of properties.description; let i = index" [value]="i">
             {{entry[0]}}
         </option>

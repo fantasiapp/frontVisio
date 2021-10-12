@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { Logger } from 'ag-grid-community';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
@@ -6,6 +6,7 @@ import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { TargetService } from '../description-widget/description-service.service';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
 //❌
@@ -31,10 +32,20 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private marginX: number = 0;
   private barWidth: number = 0;
   inputIsOpen: boolean = false;
+  canSetTargets: boolean = true;
   private data?: any;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService, protected cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
+    this.targetService.targetChange.subscribe(value => {
+      if ( this.inputIsOpen ) this.toggleTargetControl();
+      this.canSetTargets = !this.canSetTargets;
+      let data = this.updateData() as any;
+      if ( this.needles )
+        this.createNeedles(data);
+      
+      this.cd.detectChanges();
+    });
   }
 
   private newTargetControl() { 
@@ -78,7 +89,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
             let oldValue = this.getTargetValue(idx),
               target = e.target as any,
               newValue = parseInt(target.value);
-            this.logger.add(...callback('target.control', oldValue, newValue));
+            this.logger.add(...callback('target.control.' + this.data.data[0][1+idx], oldValue, newValue));
             this.changeValue(target.value, target.__data__, e)
           });
         });
@@ -88,16 +99,17 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   createGraph(data: any) {
     let self = this;
     this.data = data;
-    console.log("TargetLevel: ", this.data.targetLevel, "structure : ", this.data.targetLevel['structure'], "DEH : ", DataExtractionHelper.get(this.data.targetLevel['structure']))
     super.createGraph(data, {
-      onresized: () => {
-        this.renderTargetContainer({data: null, target: this.barTargets});
+      onresized(this: Chart) {
+        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
+        self.renderTargetContainer({data: null, target: self.barTargets});
       },
       onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
         self.rectHeight = rect.height;
         self.chart = this;
-        self.renderTargetContainer(data);
+        self.renderTargetContainer(data); //initial render
         this.config('onrendered', null);
       },
       transition: {
@@ -107,13 +119,11 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   updateGraph(data: any) {
-    //remove all
-    if ( this.inputIsOpen )
-      this.toggleTargetControl();
-    this.getNeedleGroup()?.remove();
-    super.updateGraph(data);
     //wait for animation
+    super.updateGraph(data); //queue first
+    this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
+      this.data = data;
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
@@ -121,8 +131,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     });
   }
 
-  private createNeedles({data, target}: any) {
-    this.barTargets = target;
+  private createNeedles(allData: any) {
+    let data = allData.data;
+    let target = this.barTargets = this.canSetTargets ? allData.target : allData.ciblage;
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 
@@ -131,7 +142,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let main = this.chart!.$.main.select('.bb-chart-bars') as d3Selection;
     let mainRect: DOMRect = main.node().getBoundingClientRect();
     let bars = this.chart!.$.bar.bars;
-    let barsNumber = data && data[0].length - 1 || this.barHeights.length;
+    let barsNumber = data && data[0].length - 1;
     this.barHeights = new Array(barsNumber).fill(0);
 
     let offsetX = 0, offsetY = 0, width = 0;
@@ -142,7 +153,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         width = rect.width;
     });
     
-    //n * width + 2*(n-1)*offset = mainRect.width
+    //n * width + 2*n*offset = mainRect.width
     this.barWidth = width;
     this.offsetX = offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
     this.offsetY = offsetY = (gridRect.height - mainRect.height) + 2;
@@ -188,12 +199,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     //make target control just in case
     this.renderTargetControl()
       .classed('target-control-opened', this.inputIsOpen);
-  }
-
-  doTargetControl() {
-    console.log('[HistoRowTargetComponent]: Target control validated:\nRespect+.');
-    //close
-    this.toggleTargetControl();
   }
 
   changeValue(newValue :number, inputId: number, fullEvent: any) {

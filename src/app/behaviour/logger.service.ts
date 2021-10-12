@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { LocalStorageService } from "../services/local-storage.service";
 
 @Injectable()
@@ -35,6 +35,10 @@ export class LoggerService {
 
   clear() {
     this.logs.length = 0;
+  }
+
+  delete() {
+    this.logs.length = 0;
     this.localStorage.set('logs', '[]');
   }
 
@@ -53,7 +57,7 @@ export class LoggerService {
   static CLICK = 2;
 
   static bind(element: any, listener: (event: Event, callback: any) => void) {
-    let type = element.type, [event, eventType, callback] = LoggerService.eventOf(type);
+    let type = element.type, [event, eventType, callback] = LoggerService.eventOf(element, type);
     element.addEventListener(event, (e: Event) => {
       if ( !e.isTrusted ) return; //we only want user events
       listener(e, callback);
@@ -72,8 +76,8 @@ export class LoggerService {
     return [topic, LoggerService.SET, value];
   }
 
-  static eventOf(type: string) {
-    if ( type == 'submit' )
+  static eventOf(element: any, type?: string) {
+    if ( type == 'submit' || type == 'range' || element.tagName == 'OPTION' || !type )
       return ['click', LoggerService.CLICK, LoggerService.click];
     else if ( type == 'password' )
       return ['change', LoggerService.SET, LoggerService.set]

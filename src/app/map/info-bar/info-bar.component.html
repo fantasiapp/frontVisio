@@ -72,18 +72,18 @@
 
                 <div class="eval">
                     <ul>
-                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="target[TARGET_VOLUME_ID]" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD/></li>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="target[TARGET_VOLUME_ID]" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD agentOnly/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                            <div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}" (click)="changeLight('r')"></div>
-                            <div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}" (click)="changeLight('o')"></div>
-                            <div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}" (click)="changeLight('g')"></div>
+                            <button (click)="changeLight('r')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
+                            <button (click)="changeLight('o')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
+                            <button (click)="changeLight('g')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="comments">
                 <span>Commentaires :</span>
-                <textarea (change)="changeComment()" #comments>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
+                <textarea (change)="changeComment()" #comments agentOnly>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
             </div>
         </div>
     </ng-container>
