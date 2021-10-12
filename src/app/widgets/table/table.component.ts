@@ -235,6 +235,9 @@ export class TableComponent extends BasicWidget {
     
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
+      let arrowImg = document.getElementById(event['node'].rowIndex.toString());
+      if(arrowImg?.style.transform == "rotate(-0.25turn)") arrowImg!.style.transform = "rotate(0.25turn)";
+      else arrowImg!.style.transform = "rotate(-0.25turn)"
     }
     if(event['column']['colId'] === 'checkboxEnduit') {
       this.updateTitle()
