@@ -49,15 +49,16 @@ export class InfoBarComponent {
   gridFormatted: string[][] = [];
   salesColors: string[] = [];
 
-  TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
-  TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
-  TARGET_VOLUME_ID = DataExtractionHelper.TARGET_VOLUME_ID;
-  TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
-  TARGET_LIGHT_ID = DataExtractionHelper.TARGET_LIGHT_ID;
-  SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
-  SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')
-  SALES_VOLUME_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'volume')
-  SALES_DATE_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'date')
+  SALES_INDUSTRY_ID;
+  SALES_PRODUCT_ID;
+  SALES_VOLUME_ID;
+  SALES_DATE_ID;
+  TARGET_VOLUME_ID;
+  TARGET_LIGHT_ID;
+  TARGET_REDISTRIBUTED_ID;
+  TARGET_SALE_ID;
+  TARGET_COMMENT_ID;
+
 
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
@@ -78,7 +79,17 @@ export class InfoBarComponent {
   }
 
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService) {
-    console.log('[InfobarComponent]: On');
+    console.log('[InfobarComponent]: On')
+    this.SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
+    this.SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')
+    this.SALES_VOLUME_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'volume')
+    this.SALES_DATE_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'date')
+    this.TARGET_VOLUME_ID = DataExtractionHelper.TARGET_VOLUME_ID;
+    this.TARGET_LIGHT_ID = DataExtractionHelper.TARGET_LIGHT_ID;
+    this.TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
+    this.TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
+    this.TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
+
     
     filtersState.$load.subscribe(() => {
       this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
@@ -126,10 +137,13 @@ export class InfoBarComponent {
   }
 
   loadGrid() {
+    // console.log("Id retenus : ", this.productIdToIndex)
+    // console.log("Sales totales : ", this._pdv!.attribute("sales"))
+    // console.log("Sales retenues : ", this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())))
     for(let sale of this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString()))) {
-      let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
-      this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
-      this.gridFormatted[i][j] = this.formatNumberToString(sale[this.SALES_VOLUME_ID!]);
+      let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
+      this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]
+      this.gridFormatted[i][j] = this.formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
       this.updateSum(i,j)
       this.salesColors = this._pdv!.salesColors;
     }
@@ -173,7 +187,7 @@ export class InfoBarComponent {
 
   changeRedistributed() {
     if(!this.target) this.target = this.initializeTarget()
-    this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
+    this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;
   }
 
