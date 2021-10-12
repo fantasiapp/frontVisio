@@ -34,7 +34,7 @@ export class InfoBarComponent {
       InfoBarComponent.pdvId = value.id;
       this.redistributedDisabled = !value.attribute('redistributed')
       this.target=this._pdv!.attribute('target')
-      this.redistributedChecked = this.target ? this.target[this.TARGET_REDISTRIBUTED_ID] : true;
+      this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.loadGrid()
       console.log("values : ", this._pdv!.getValues())
     }
@@ -188,13 +188,12 @@ export class InfoBarComponent {
   }
   
   initializeTarget() {
-    return [Math.floor(Date.now()/1000), false, false, 0, false, "r", ""]
+    return [Math.floor(Date.now()/1000), true, false, 0, false, "r", ""]
   }
 
 
   changeRedistributed() {
-    console.log("Click red")
-
+    this.redistributedChecked = !this.redistributedChecked
     if(!this.target) this.target = this.initializeTarget()
     this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;
