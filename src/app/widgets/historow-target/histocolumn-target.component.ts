@@ -99,16 +99,18 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   createGraph(data: any) {
     let self = this;
     this.data = data;
-    console.log("TargetLevel: ", this.data.targetLevel, "structure : ", this.data.targetLevel['structure'], "DEH : ", DataExtractionHelper.get(this.data.targetLevel['structure']))
     super.createGraph(data, {
-      onresized: () => {
-        this.renderTargetContainer({data: null, target: this.barTargets});
+      onresized(this: Chart) {
+        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
+        self.renderTargetContainer({data: null, target: self.barTargets});
       },
       onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
         self.rectHeight = rect.height;
         self.chart = this;
-        self.renderTargetContainer(data);
+        self.renderTargetContainer(data); //initial render
+        this.config('onrendered', null);
       },
       transition: {
         duration: this.transitionDuration
@@ -117,12 +119,11 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   updateGraph(data: any) {
-    //remove all
-    this.getNeedleGroup()?.remove();
-    this.data = data;
-    super.updateGraph(data);
     //wait for animation
+    super.updateGraph(data); //queue first
+    this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
+      this.data = data;
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
@@ -141,7 +142,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let main = this.chart!.$.main.select('.bb-chart-bars') as d3Selection;
     let mainRect: DOMRect = main.node().getBoundingClientRect();
     let bars = this.chart!.$.bar.bars;
-    let barsNumber = data && data[0].length - 1 || this.barHeights.length;
+    let barsNumber = data && data[0].length - 1;
     this.barHeights = new Array(barsNumber).fill(0);
 
     let offsetX = 0, offsetY = 0, width = 0;
@@ -152,7 +153,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         width = rect.width;
     });
     
-    //n * width + 2*(n-1)*offset = mainRect.width
+    //n * width + 2*n*offset = mainRect.width
     this.barWidth = width;
     this.offsetX = offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
     this.offsetY = offsetY = (gridRect.height - mainRect.height) + 2;

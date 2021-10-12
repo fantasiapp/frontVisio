@@ -163,12 +163,17 @@ label{
     15% { transform: translate(-50%, -50%) scale(1.1); }
     30% { transform: translate(-50%, -50%) scale(1); }
     31% { transform: translate(-50%, -50%) rotate(0); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    100% { transform: translate(-50%, -50%) rotate(-360deg); }
+    
 }
 
 .updatable.updating {
     animation-name: update_fullturn;
-    animation-duration: 500ms;
+    animation-duration: 400ms;
     animation-delay: 0s;
     animation-timing-function: ease-in-out;
+}
+
+.updatable {
+    opacity: 1 !important;
 }

@@ -18,6 +18,7 @@
       <option
         *ngFor="let dashName of listDashboard.name; let idPos = index"
         [value]="this.listDashboard.id[idPos]"
+        [logged]="'dashboard.' + dashName"
       >
         {{ dashName }}
       </option>
@@ -31,6 +32,7 @@
           [ngClass]="{ selected: levName === this.levelName }"
           (click)="updateState(idLev + 1, undefined, undefined)"
           (dblclick)="updateStateClose(idLev + 1, undefined, undefined)"
+          [logged]="'level.' + levName"
         >
           {{ levName }}
         </button></ng-container>
@@ -48,13 +50,14 @@
         (dblclick)="
           updateStateClose(undefined, this.listDashboard.id[idPos], undefined)
         "
+        [logged]="'dashboard.' + dashboardName"  
       >
         {{ dashboardName }}
       </button>
     </div>
   </ng-container>
   <div class="navigate">
-    <div class="box-nav1">
+    <div class="box-nav1" [logged]="'navigation.superlevel'">
       <img
         src="assets/super.svg"
         class="navigate-button1"
@@ -64,7 +67,7 @@
       <br />
       {{ superLevel.label }}
     </div>
-    <div class="box-nav2" [style.display]="canSub() ? 'initial' : 'none'" [ngClass]="{ disabled: subLevels == viewList }">
+    <div class="box-nav2" [style.display]="canSub() ? 'initial' : 'none'" [ngClass]="{ disabled: subLevels == viewList }" [logged]="'navigation.sublevel'">
       <img
         src="assets/sub.svg"
         class="navigate-button2"

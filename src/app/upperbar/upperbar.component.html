@@ -19,6 +19,7 @@
       class="input-range"
       [value]="sldValue"
       (click)="toggle();"
+      [logged]="'navigation.view'"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
@@ -40,7 +41,7 @@
           (onCrossClick)="!$event.length && toggleSearch()"
         ></app-search-field
       ></span>
-      <button class="button search" (click)="toggleSearch()">
+      <button class="button search" (click)="toggleSearch()" [logged]="'navigation.toggle_search'">
         <img
           class="button-img"
           src="assets/Rechercher.svg"
@@ -50,11 +51,11 @@
     </div>
     <div class="search-div">
       <button class="button" (click)="updateData()">
-        <img class="button-img updatable" (click)="updating = true" (animationend)="call()" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
+        <img class="button-img updatable" (click)="updating = true" (animationend)="onAnimationEnd()" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
       </button>
     </div>
     <div class="search-div">
-      <button class="button" (click)="toggleMap()">
+      <button class="button" (click)="toggleMap()" [logged]="'navigation.toggle_map'">
         <img class="button-img" [src]="mapComponent?.shown ? 'assets/icon retourne en mode dashboard.svg' : 'assets/map.svg'" alt="Carte" />
       </button>
     </div>

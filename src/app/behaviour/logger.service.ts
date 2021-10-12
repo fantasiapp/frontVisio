@@ -72,8 +72,8 @@ export class LoggerService {
     return [topic, LoggerService.SET, value];
   }
 
-  static eventOf(type: string) {
-    if ( type == 'submit' )
+  static eventOf(type?: string) {
+    if ( type == 'submit' || type == 'range' || !type )
       return ['click', LoggerService.CLICK, LoggerService.click];
     else if ( type == 'password' )
       return ['change', LoggerService.SET, LoggerService.set]

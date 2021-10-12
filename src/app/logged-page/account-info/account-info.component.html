@@ -13,6 +13,6 @@
         <li><img src="assets/Mise a jour .svg"/> Mise à jour : <span class="value">{{ getLastUpdateDate() }}</span></li>
     </ul>
     <div class="logout">
-        <button class="logout button" (click)="logout()">Se Déconnecter</button>
+        <button class="logout button" (click)="logout()" [logged]="'account.disconnect'">Se Déconnecter</button>
     </div>
 </div>

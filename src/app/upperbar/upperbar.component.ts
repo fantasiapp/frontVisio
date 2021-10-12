@@ -95,8 +95,7 @@ export class UpperbarComponent implements OnInit {
     });
   }
 
-  call() {
-    console.log('alright')
+  onAnimationEnd() {
     this.updating = false;
   }
 
