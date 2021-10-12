@@ -32,9 +32,12 @@ export class InfoBarComponent {
     if ( value ) {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
+      this.redistributedDisabled = !value.attribute('redistributed')
       this.target=this._pdv!.attribute('target')
+      this.redistributedChecked = this.target ? this.target[this.TARGET_REDISTRIBUTED_ID] : true;
       this.loadGrid()
-    } 
+      console.log("values : ", this._pdv!.getValues())
+    }
   }
 
   @Output()
@@ -58,6 +61,9 @@ export class InfoBarComponent {
   TARGET_REDISTRIBUTED_ID;
   TARGET_SALE_ID;
   TARGET_COMMENT_ID;
+
+  redistributedDisabled: boolean = false;
+  redistributedChecked: boolean = false;
 
 
   industryIdToIndex : {[industryId: number]: number} = {}
@@ -187,6 +193,8 @@ export class InfoBarComponent {
 
 
   changeRedistributed() {
+    console.log("Click red")
+
     if(!this.target) this.target = this.initializeTarget()
     this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;

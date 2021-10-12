@@ -236,6 +236,7 @@ class DataExtractionHelper{
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
+    console.log("Dict pdvs : ", data.pdvs)
     for(let newPdv of Object.values(data.pdvs)) {
       for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
         if((oldPdv as any)[idCode] === newPdv[idCode]) {
