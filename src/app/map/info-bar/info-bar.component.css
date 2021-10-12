@@ -214,8 +214,7 @@ span.bolder {
 }
 
 .comments {
-    margin-top: 65px;
-    margin-bottom: var(--pdv-title-margin-y);
+    margin: 10px 0;
 }
 
 .comments textarea {
@@ -329,6 +328,14 @@ p {
 
 .eval ul li {
     margin: var(--pdv-fields-margin-y) 0;
+}
+
+.eval ul li button {
+    background: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
 }
 
 .eval.g .circle:nth-of-type(1) {

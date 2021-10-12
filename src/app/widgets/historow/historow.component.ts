@@ -5,6 +5,7 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar, Chart} from 'billboard.js';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import { LoggerService } from 'src/app/behaviour/logger.service';
 
 
 @Component({
@@ -23,7 +24,9 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('description', {read: ElementRef})
   protected description!: ElementRef;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
+  public axisLabelLength: number = 10;
+
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService) {
     super(ref, filtersService, sliceDice);
   }
 
@@ -42,7 +45,7 @@ export class HistoRowComponent extends BasicWidget {
     this.rubixArgument = this.properties.description[0][1];
   }
 
-  private axisPadding: number = 120;
+  private axisPadding: number = 90;
   private rectWidth: number = 0;
   private maxValue: number = 0;
 
@@ -130,9 +133,11 @@ export class HistoRowComponent extends BasicWidget {
             autorotate: true,
             format(index: number, category: string) {
               if ( index < this.categories().length )
-                return category;
+                return category.length >= self.axisLabelLength+3 ? category.slice(0, self.axisLabelLength - 3) + '...' : category;
               return '';
-            }
+            },
+            tooltip: true,
+            multiline: false
           }
         },
         y: {
@@ -161,7 +166,7 @@ export class HistoRowComponent extends BasicWidget {
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
-          self.addRubixCondition(e.target.textContent);
+          self.addRubixCondition(this.categories()[e.target.__data__.index]);
           self.update();
         });
       },
@@ -179,9 +184,11 @@ export class HistoRowComponent extends BasicWidget {
       id = parseInt(keyId);
       this.rubixAxis = this.properties.arguments[0][1];
       this.rubixArgument!.push([type, [id]]);
+      this.logger.add('historow.enseigne', LoggerService.SET, name)
     } else {
-      this.rubixAxis = this.properties.arguments[0][0];
+      this.rubixAxis = type;
       this.rubixArgument!.pop();
+      this.logger.add('historow.enseigne', LoggerService.SET, '');
     }
   }
 
