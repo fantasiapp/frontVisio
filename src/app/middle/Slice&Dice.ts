@@ -117,10 +117,10 @@ class DataWidget{
     }
   }
   
-  basicTreatement(km2 = false){
+  basicTreatement(km2 = false, sortLines=true){
     if (km2) this.m2ToKm2();
     this.removeZeros();
-    this.sortLines();
+    if (sortLines) this.sortLines();
   }
   
   formatWidget(transpose:boolean){
@@ -826,8 +826,9 @@ class SliceDice{
     if (axis1 == "targetedVisits") return {data: PDV.computeJauge(slice, indicator='target'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
     if (axis1 == "avancementAD") return {data: PDV.computeJauge(slice, indicator='AD'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
-    let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false;
-    dataWidget.basicTreatement(km2);
+    let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false,
+      sortLines = percent !== 'classic';
+    dataWidget.basicTreatement(km2, sortLines);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1, axis2);
