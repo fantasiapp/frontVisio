@@ -146,6 +146,7 @@ export class InfoBarComponent {
       this.gridFormatted[i][j] = this.formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
       this.updateSum(i,j)
       this.salesColors = this._pdv!.salesColors;
+      this.salesColors[0] = 'black'
     }
   }
 
@@ -220,7 +221,7 @@ export class InfoBarComponent {
       return;
     }
     this.errorAdInput = false;
-  
+    this.salesColors[i-1] = 'black'
     this.grid[i][j] = +this.gridFormatted[i][j];
     this.gridFormatted[i][j] = this.formatNumberToString(this.grid[i][j]);
     this.updateSum(i,j)
