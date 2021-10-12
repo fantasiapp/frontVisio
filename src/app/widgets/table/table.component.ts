@@ -218,19 +218,7 @@ export class TableComponent extends BasicWidget {
     return data;
   }
 
-  onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') {
-      this.pdv = this.sliceTable.getPdvInstance(event['data'])
-      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
-      InfoBarComponent.pdvId = event['data'].instanceId;
-      this.selectedPdv = event['data'];
-    }
-    if(event['column']['colId'] === 'info') {
-      this.selectedPdv = event['data'];
-      this.showInfoOnClick(this.selectedPdv);
-      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
-    }
-    
+  onCellClicked(event: any) {    
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {
@@ -238,10 +226,23 @@ export class TableComponent extends BasicWidget {
       let arrowImg = document.getElementById(event['node'].rowIndex.toString());
       if(arrowImg?.style.transform == "rotate(-0.25turn)") arrowImg!.style.transform = "rotate(0.25turn)";
       else arrowImg!.style.transform = "rotate(-0.25turn)"
+    } else {
+      if(event['column']['colId'] === 'edit') {
+        this.pdv = this.sliceTable.getPdvInstance(event['data'])
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+        InfoBarComponent.pdvId = event['data'].instanceId;
+        this.selectedPdv = event['data'];
+      }
+      if(event['column']['colId'] === 'info') {
+        this.selectedPdv = event['data'];
+        this.showInfoOnClick(this.selectedPdv);
+        this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
+      }
+      if(event['column']['colId'] === 'checkboxEnduit') {
+        this.updateTitle()
+      }
     }
-    if(event['column']['colId'] === 'checkboxEnduit') {
-      this.updateTitle()
-    }
+
   }
 
   sideDivRight: string = "-60%";
