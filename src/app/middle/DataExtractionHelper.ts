@@ -1,5 +1,6 @@
 import { PDV, SliceDice } from "./Slice&Dice";
 import {Node, Tree} from "./Node"
+import { LocalStorageService } from "../services/local-storage.service";
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -257,6 +258,9 @@ class DataExtractionHelper{
       }
     }      
     //Build trees !!! CUSTOM THIS
+
+    let localStorageService: LocalStorageService = new LocalStorageService();
+    localStorageService.set('data', this.data)
     DataExtractionHelper.setData(this.data);
     PDV.load(true);
   }
