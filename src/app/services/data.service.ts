@@ -34,8 +34,6 @@ export class DataService {
   
   response = new BehaviorSubject<Object|null>(null);
   updateSubscriber: any;
-  private lastUpdateDate: Date = new Date;
-  private updateQueue : any[] = [];
 
   public requestData(): Observable<Object|null> {
     (
@@ -52,6 +50,7 @@ export class DataService {
       .subscribe((data) => {
         this.response.next(data);
         this.sendQueuedDataToUpdate();
+        this.setLastUpdateDate(+ (data as any).timestamp)
       });
     return this.response;
   }
@@ -65,13 +64,13 @@ export class DataService {
         } else {
           DataExtractionHelper.updateData(response);
           this.update.next();
-          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe()
+          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe(() => this.setLastUpdateDate(+response.timestamp)
+          )
         }
         
         this.sendQueuedDataToUpdate();
         // this.sendLogs()
       }
-      this.lastUpdateDate = new Date;
     });
   }
 
@@ -130,8 +129,11 @@ export class DataService {
     this.updateSubscriber.unsubscribe()
   }
 
+  setLastUpdateDate(timestamp: number) {
+    this.localStorage.set('lastUpdateTimestamp', timestamp.toString())
+  }
   getLastUpdateDate() {
-    return this.lastUpdateDate;
+    return new Date(+this.localStorage.get('lastUpdateTimestamp'));
   }
 
   queueUpdate(dict: UpdateData) {
