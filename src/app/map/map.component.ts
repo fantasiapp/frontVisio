@@ -457,5 +457,3 @@ builder.axis('id', [
   [6, {head: MapIconBuilder.diamond}],
   [9, {head: MapIconBuilder.circle}]
 ]).generate();
-
-console.log(builder.icons);

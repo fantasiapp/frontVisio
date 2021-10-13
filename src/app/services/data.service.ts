@@ -9,20 +9,21 @@ import { environment } from 'src/environments/environment';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { LocalStorageService } from './local-storage.service';
 import { catchError } from "rxjs/operators";
-import { Snapshot } from '../behaviour/logger.service';
+import { Snapshot, structureSnapshot } from '../behaviour/logger.service';
 
 export const enum UpdateFields {
   targetLevelAgentP2CD = "targetLevelAgentP2CD",
   targetLevelAgentFinition = "targetLevelAgentFinition",
   targetLevelDrv = "targetLevelDrv",
-  pdvs = "pdvs"
+  pdvs = "pdvs",
+  logs = "logs"
 }
 
 export type UpdateData = {
-  [key in UpdateFields]: { [id: number]: any[]; };
+  [key in UpdateFields]: { [id: number]: any[]; } | any[][];
 };
 
-const emptyData : UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
+const emptyData : UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []}
 
 
 @Injectable({
@@ -57,7 +58,7 @@ export class DataService {
   }
 
   public requestUpdateData() {
-    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.get('lastUpdateTimestamp') || "0"}})
+    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.get('lastUpdateTimestamp') || DataExtractionHelper.get('timestamp')}})
     .subscribe((response : any) => {
       if(response !== {}) {
         if(response.message) {
@@ -65,12 +66,11 @@ export class DataService {
         } else {
           DataExtractionHelper.updateData(response);
           this.update.next();
-          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe(() => this.setLastUpdateDate(response.timestamp)
+          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
           )
         }
         
         this.sendQueuedDataToUpdate();
-        // this.sendLogs()
       }
     });
   }
@@ -112,20 +112,12 @@ export class DataService {
     }
   }
   public queueSnapshot(snapshot: Snapshot) {
-    let logsToSend = JSON.parse((this.localStorage.get('logsToSend')) || '[]') as any[][];
-    logsToSend.push(Object.values(snapshot));
-    this.localStorage.set('logsToSend', JSON.stringify(logsToSend));
+    this.queuedDataToUpdate = JSON.parse((this.localStorage.get('queuedDataToUpdate'))) as UpdateData || emptyData;
+    let snapshotAsList: any[] = []
+    for(let field of structureSnapshot) snapshotAsList.push((<any>snapshot)[field]);
+    (this.queuedDataToUpdate['logs'] as any[][]).push(snapshotAsList)
+    this.localStorage.set('queuedDataToUpdate', JSON.stringify(this.queuedDataToUpdate));
   }
-  private sendLogs() {
-    let logs = this.localStorage.get('logsToSend');
-    if(logs)
-    this.http.post(environment.backUrl + '/visioServer/data/', logs)
-    .subscribe((response) => {
-      console.log("Log response : ", response)
-      this.localStorage.remove('logsToSend')
-    })
-  }
-
   public beginUpdateThread() {
     this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000)
     // this.updateSubscriber = interval(10000)

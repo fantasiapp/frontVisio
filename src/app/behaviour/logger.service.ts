@@ -13,6 +13,7 @@ export type Snapshot = {
   targetControl: boolean;
   connected: boolean;
 };
+export const structureSnapshot: string[] =  ['view', 'year', 'path', 'dashboard', 'pdv', 'mapVisible', 'mapFilters', 'targetControl', 'connected']
 
 @Injectable({
   providedIn: 'root'
