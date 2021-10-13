@@ -57,7 +57,7 @@ export class DataService {
   }
 
   public requestUpdateData() {
-    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.get('lastUpdateTimestamp')}})
+    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.get('lastUpdateTimestamp') || "0"}})
     .subscribe((response : any) => {
       if(response !== {}) {
         if(response.message) {
@@ -112,8 +112,8 @@ export class DataService {
     }
   }
   public queueSnapshot(snapshot: Snapshot) {
-    let logsToSend = JSON.parse((this.localStorage.get('logsToSend')) || '[]') as Snapshot[];
-    logsToSend.push(snapshot);
+    let logsToSend = JSON.parse((this.localStorage.get('logsToSend')) || '[]') as any[][];
+    logsToSend.push(Object.values(snapshot));
     this.localStorage.set('logsToSend', JSON.stringify(logsToSend));
   }
   private sendLogs() {
