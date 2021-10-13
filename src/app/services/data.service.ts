@@ -133,7 +133,7 @@ export class DataService {
     this.localStorage.set('lastUpdateTimestamp', timestamp.toString())
   }
   getLastUpdateDate() {
-    return new Date(+this.localStorage.get('lastUpdateTimestamp'));
+    return new Date(+this.localStorage.get('lastUpdateTimestamp')*1000);
   }
 
   queueUpdate(dict: UpdateData) {
