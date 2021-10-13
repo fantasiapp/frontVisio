@@ -39,7 +39,6 @@ export class DescriptionWidgetComponent implements OnDestroy {
   }
 
   get volume() {
-    console.log('a new volume');
     return BasicWidget.format(this.values[1 - this.currentSelection][0]);
   }
 
