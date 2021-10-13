@@ -34,7 +34,7 @@ export class ErrorInterceptor implements HttpInterceptor{
                   }
                   console.log(errorMsg);
                   if(req.method === "POST" && req.urlWithParams.includes("action=update"))
-                      this.dataService.storeRequest(req.body);
+                      this.dataService.queueUpdate(req.body);
                   return throwError(errorMsg);
                 })
               );

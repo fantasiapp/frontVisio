@@ -1,6 +1,7 @@
 import { PDV, SliceDice } from "./Slice&Dice";
 import {Node, Tree} from "./Node"
 import { LocalStorageService } from "../services/local-storage.service";
+import { UpdateData } from "../services/data.service";
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -231,7 +232,7 @@ class DataExtractionHelper{
     TradeExtrationHelper.height = this.tradeHeight;
   }
 
-  static updateData(data: {[name: string]: {[id: number]: number[]}}) {
+  static updateData(data: UpdateData) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
 
     // Check how deletions are managed 
