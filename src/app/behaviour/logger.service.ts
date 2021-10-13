@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { Navigation } from "../middle/Navigation";
 import { PDV } from "../middle/Slice&Dice";
+import { DataService } from "../services/data.service";
 
 export type Snapshot = {
   view: number;
@@ -21,7 +21,7 @@ export class LoggerService {
 
   private snapshot: Snapshot = defaultSnapshot;
 
-  constructor() {
+  constructor(private dataService: DataService) {
     (window as any).logger = this;
   }
 
@@ -77,7 +77,7 @@ export class LoggerService {
   }
 
   actionComplete() {
-    
+    this.dataService.queueSnapshot(this.snapshot)
   }
 
   static events = {
