@@ -7,11 +7,11 @@ export type Snapshot = {
   year: number;
   path: number[];
   dashboard: number;
-  widget?: number;
   pdv?: number;
   mapVisible: boolean;
   mapFilters?: [number, number[]][];
   targetControl: boolean;
+  connected: boolean;
 };
 
 @Injectable({
@@ -66,10 +66,18 @@ export class LoggerService {
         this.snapshot.targetControl = data;
         break;
       
+      case LoggerService.events.DISCONNECT:
+        this.snapshot.connected = data;
+        break;
+      
       default:
         console.warn('[LoggerService]: unknown event number', event);
         break;
     }
+  }
+
+  actionComplete() {
+    
   }
 
   static events = {
@@ -80,7 +88,8 @@ export class LoggerService {
     PDV_SELECTED: 4,
     MAP_STATE_CHANGED: 5,
     MAP_FILTERS_CHANGED: 6,
-    TARGET_CONTROL_OPENED: 7
+    TARGET_CONTROL_OPENED: 7,
+    DISCONNECT: 8
   };
 
   static values = {
@@ -98,5 +107,6 @@ const defaultSnapshot: Snapshot = {
   dashboard: 0,
   mapVisible: false,
   mapFilters: [],
-  targetControl: false
+  targetControl: false,
+  connected: true
 };
