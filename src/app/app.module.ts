@@ -50,7 +50,6 @@ import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
 import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
 import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
 import { LoggerService } from './behaviour/logger.service';
-import { LoggedDirective } from './behaviour/logged.directive';
 
 @NgModule({
   declarations: [
@@ -90,8 +89,7 @@ import { LoggedDirective } from './behaviour/logged.directive';
     AgentOnlyDirective,
     RootLevelOnlyDirective,
     AccountInfoComponent,
-    DescriptionWidgetComponent,
-    LoggedDirective
+    DescriptionWidgetComponent
   ],
   imports: [
     BrowserModule,

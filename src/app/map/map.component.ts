@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { AsyncSubject, combineLatest, Subscription } from 'rxjs';
+import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
@@ -40,6 +41,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
     this.filterDict = PDV.countForFilter(pdvs);
     this.update();
+    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this._criteria);
   }
   
   selectedPDV?: PDV;
@@ -49,10 +51,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   hide() {
     this.hidden = true;
     this.subscription?.unsubscribe();
+    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
   }
   show() {
     this.interactiveMode();
     this.hidden = false;
+    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, true);
   }
   
   get shown() { return !this.hidden; }
@@ -65,7 +69,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   markerTimeout: any = 0;
   subscription?: Subscription;
 
-  constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
+  constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef, private logger: LoggerService) {
     console.log('[MapComponent]: On');
     this.initializeInfowindow();
     if ( this.shown )

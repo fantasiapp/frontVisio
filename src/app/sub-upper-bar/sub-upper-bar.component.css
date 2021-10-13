@@ -1,22 +1,3 @@
-@media (max-width: 1366px) {
-    :host {
-        font-size: 16px;
-    }
-  }
-  
-  @media (min-width: 1367px) and (max-width: 1500px) {
-    :host {
-        font-size: 18px;
-    }
-  }
-  
-  @media (min-width: 1500px) {
-    :host {
-        font-size: 20px;
-    }
-  }
-  
-
 .container{
     width: 90%;
     position: absolute;
@@ -34,13 +15,33 @@ select{
     background: #FFFFFF 0% 0% no-repeat padding-box;
     border-radius: 5px;
     opacity: 1;
+    font-family: inherit;
+    font-weight: 300;
 }
 .dash{
-    font-size: 1.4em;
+    font-size: 1.3em;
     font-weight: 500;
 }
 .level{
     padding-top: 10px;
     font-weight: 400;
-    font-size: 1.1em;
+    font-size: 1em;
+}
+
+@media (max-width: 1366px) {
+    :host {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 1367px) and (max-width: 1500px) {
+    :host {
+        font-size: 17px;
+    }
+}
+
+@media (min-width: 1500px) {
+    :host {
+        font-size: 19px;
+    }
 }

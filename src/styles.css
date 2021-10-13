@@ -4,7 +4,7 @@
 
 @import "~ag-grid-community/dist/styles/ag-grid.css";
 @import "~ag-grid-community/dist/styles/ag-theme-alpine.css";
-
+@import "./normalize.css";
 
 .main-container{
     background: #F7F7F7 0% 0% no-repeat padding-box;
@@ -12,6 +12,8 @@
 *{
     font-family: Roboto;
 }
+
+/* very annonying styles, i have to cancel them everywhere I use an input */
 input[type=text]:hover, input[type=password]:hover{
     background: #FFFFFF 0% 0% no-repeat padding-box;
     /* box-shadow: inset 0px 3px 6px #00000029; */
@@ -62,6 +64,19 @@ select:-webkit-autofill:hover{
     outline: none;
     border: 0.4000000059604645px solid #707070;
 }
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield !important;
+}
+
 *select{
     font-family: Roboto;
     width: 234px;
@@ -186,30 +201,10 @@ app-historow .bb-xgrid {
     color: #aaa;
 }
 
-@media (max-width: 1366px) {
-    :root {
-        --x-axis-font-size: 10px;
-        --legend-font-size: 10px;
-    }
-}
-
-@media (min-width: 1366px) and (max-width: 1920px) {
-    :root {
-        --x-axis-font-size: 12px;
-        --legend-font-size: 11.5px;
-    }
-}
-
-@media (min-width: 1500px) {
-    :root {
-        --x-axis-font-size: 14px;
-        --legend-font-size: 13.5px;
-    }
-}
-
 /* font-size on axis */
 .bb-axis.bb-axis-x .tick text {
     font-size: var(--x-axis-font-size);
+    font-weight: 300;
 }
 
 .bb-legend-background {
@@ -258,4 +253,26 @@ g.simple-needle line {
 
 .bb-legend-item {
     font-size: var(--legend-font-size);
+    font-weight: 300;
+}
+
+@media (max-width: 1366px) {
+    :root {
+        --x-axis-font-size: 10px;
+        --legend-font-size: 10px;
+    }
+}
+
+@media (min-width: 1366px) and (max-width: 1920px) {
+    :root {
+        --x-axis-font-size: 12px;
+        --legend-font-size: 11px;
+    }
+}
+
+@media (min-width: 1500px) {
+    :root {
+        --x-axis-font-size: 13px;
+        --legend-font-size: 12px;
+    }
 }
