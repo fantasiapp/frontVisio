@@ -428,7 +428,6 @@ class DataExtractionHelper{
     if (enduit) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
     if (node.label !== 'Secteur') return "";
     let targetName = dn ? 'dnP2CD': 'volP2CD';
-    console.log('-->', node.label, node.id);
     let objective = DataExtractionHelper.getTarget(node.label, node.id, targetName);
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)/1000).toString(), ' km², ');
   }
