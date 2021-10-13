@@ -20,7 +20,10 @@
     box-sizing: border-box;
     width: 150px;
     margin: 3px 0;
+    display: flex;
+    flex-direction: row;
 }
+
 
 .main ul:first-child li:not(:last-child) {
     margin-right: 20px;
@@ -40,9 +43,8 @@
     transform: scale(0.5, 1);
 }
 
-.main ul .value {
+.main ul li .value {
     display: inline-block;
-    width: 50px;
-    text-align: right;
+    flex: 1;
+    text-align: center;
 }
-
