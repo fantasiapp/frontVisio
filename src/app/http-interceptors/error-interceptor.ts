@@ -30,6 +30,7 @@ export class ErrorInterceptor implements HttpInterceptor{
                   else {
                     console.log('Server-side error');
                     errorMsg = `Error Code: ${error.status},  Message: ${error.message}`;
+                    if(error.status == 401) this.auth.logoutFromServer()
                   }
                   console.log(errorMsg);
                   if(req.method === "POST" && req.urlWithParams.includes("action=update"))

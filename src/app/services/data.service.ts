@@ -57,8 +57,8 @@ export class DataService {
     });
   }
 
-  private dataToUpdate:{[name: string]: {[id: number]: number[]}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {}}
-  emptyData : {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {[id: number]: any}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
+  private dataToUpdate:{[name: string]: {[id: number]: any[]}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {}}
+  emptyData : {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv': {}, 'pdvs': {[id: number]: any[]}} = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
 
   update: Subject<never> = new Subject;
 
@@ -75,7 +75,7 @@ export class DataService {
   }
 
 
-  public updateData(data: {[name: string]: {[id: number]: number[]}}) {
+  public updateData(data: {[name: string]: {[id: number]: any[]}}) {
     console.log("Sending data to back for update : ", data)
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe()
@@ -83,7 +83,7 @@ export class DataService {
     this.update.next();
   }
 
-  public sendStoredData(data: {[name: string]: {[id: number]: number[]}}) {
+  public sendStoredData(data: {[name: string]: {[id: number]: any[]}}) {
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}})
   }
