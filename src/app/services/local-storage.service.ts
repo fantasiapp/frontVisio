@@ -16,7 +16,6 @@ export class LocalStorageService {
   }
 
   set(key: string, value: string): void {
-    console.log("New storage after set ", this.localStorage)
     this.localStorage.setItem(key, value);
   }
 

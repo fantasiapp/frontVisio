@@ -114,7 +114,7 @@ export class DataService {
   public queueSnapshot(snapshot: Snapshot) {
     this.queuedDataToUpdate = JSON.parse((this.localStorage.get('queuedDataToUpdate'))) as UpdateData || emptyData;
     let snapshotAsList: any[] = []
-    for(let field of structureSnapshot) {snapshotAsList.push((<any>snapshot)[field]); console.log("field : ", field)}
+    for(let field of structureSnapshot) snapshotAsList.push((<any>snapshot)[field]);
     (this.queuedDataToUpdate['logs'] as any[][]).push(snapshotAsList)
     this.localStorage.set('queuedDataToUpdate', JSON.stringify(this.queuedDataToUpdate));
   }
