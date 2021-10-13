@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { LocalStorageService } from './local-storage.service';
 import { catchError } from "rxjs/operators";
+import { Snapshot } from '../behaviour/logger.service';
 
 export const enum UpdateFields {
   targetLevelAgentP2CD = "targetLevelAgentP2CD",
@@ -21,8 +22,7 @@ export type UpdateData = {
   [key in UpdateFields]: { [id: number]: any[]; };
 };
 
-
-
+const emptyData : UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
 
 
 @Injectable({
@@ -70,27 +70,26 @@ export class DataService {
         }
         
         this.sendQueuedDataToUpdate();
-        // this.sendLogs()
+        this.sendLogs()
       }
     });
   }
 
-  emptyData : UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
-  private dataToUpdate:UpdateData = this.emptyData;
-  private queuedDataToUpdate: UpdateData = this.emptyData;
+  private dataToUpdate:UpdateData = emptyData;
+  private queuedDataToUpdate: UpdateData = emptyData;
 
   update: Subject<never> = new Subject;
 
   public updatePdv(pdv: any[], id: number) {
     this.dataToUpdate['pdvs'][id] = pdv;
     this.sendDataToUpdate(this.dataToUpdate);
-    this.dataToUpdate = this.emptyData;
+    this.dataToUpdate = emptyData;
   }
 
   updateTargetLevel(targetLevel: number[], targetLevelName: UpdateFields, id: number) {
     this.dataToUpdate[targetLevelName][id] = targetLevel;
     this.sendDataToUpdate(this.dataToUpdate);
-    this.dataToUpdate = this.emptyData;
+    this.dataToUpdate = emptyData;
   }
 
   // public updateData(data: UpdateData) { //then sends immediate changes to the back, and the logs, sends the queuedData to the back 
@@ -107,16 +106,23 @@ export class DataService {
     this.queuedDataToUpdate = JSON.parse(this.localStorage.get('queuedDataToUpdate')) as UpdateData;
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
-      , {params : {"action" : "update"}}).subscribe((response: any) => {this.localStorage.remove('queuedDataToUpdate'); this.queuedDataToUpdate = this.emptyData;})
+      , {params : {"action" : "update"}}).subscribe((response: any) => {this.localStorage.remove('queuedDataToUpdate'); this.queuedDataToUpdate = emptyData;})
       DataExtractionHelper.updateData(this.queuedDataToUpdate);
       this.update.next();    
     }
   }
-
-  private sendLogs(data: any) {
-    this.http.post(environment.backUrl + '/visioServer/data/', data)
+  public queueSnapshot(snapshot: Snapshot) {
+    let logsToSend = JSON.parse((this.localStorage.get('logsToSend')) || '[]') as Snapshot[];
+    logsToSend.push(snapshot);
+    this.localStorage.set('logsToSend', JSON.stringify(logsToSend));
+  }
+  private sendLogs() {
+    let logs = this.localStorage.get('logsToSend');
+    if(logs)
+    this.http.post(environment.backUrl + '/visioServer/data/', logs)
     .subscribe((response) => {
       console.log("Log response : ", response)
+      this.localStorage.remove('logsToSend')
     })
   }
 
@@ -140,7 +146,7 @@ export class DataService {
 
   queueUpdate(dict: UpdateData) {
     this.queuedDataToUpdate = JSON.parse(this.localStorage.get('queuedDataToUpdate')) as UpdateData;
-    if(!this.queuedDataToUpdate) this.queuedDataToUpdate = this.emptyData;
+    if(!this.queuedDataToUpdate) this.queuedDataToUpdate = emptyData;
     for(let [field, updates] of Object.entries(dict)) {
       for(let [id, update] of Object.entries(updates)) {
         this.queuedDataToUpdate[field as UpdateFields][+id] = update;
