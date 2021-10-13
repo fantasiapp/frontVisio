@@ -40,24 +40,6 @@
     right: 0;
 }
 
-@media (max-width: 1366px) {
-    :host {
-        font-size: 16px;
-    }
-}
-
-@media (min-width: 1367px) and (max-width: 1920px) {
-    :host {
-        font-size: 20px;
-    }
-}
-
-@media (min-width: 1920px) {
-    :host {
-        font-size: 22px;
-    }
-}
-
 
 ul, hr {
     margin: 0;
@@ -559,4 +541,34 @@ input[type=number] {
     color: red;
     font-weight: 300;
     font-style: italic;
+}
+
+@media (max-width: 1367px) {
+    :host {
+        font-size: 16px;
+    }
+
+    .button {
+        font-size: 14px !important;
+    }
+}
+
+@media (min-width: 1367px) and (max-width: 1500px) {
+    :host {
+        font-size: 18px;
+    }
+
+    .button {
+        font-size: 15px !important;
+    }
+}
+
+@media (min-width: 1500px) {
+    :host {
+        font-size: 20px;
+    }
+
+    .button {
+        font-size: 16px !important;
+    }
 }
