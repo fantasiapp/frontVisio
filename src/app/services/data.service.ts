@@ -51,7 +51,7 @@ export class DataService {
         this.response.next(data);
         this.update.next();
         this.sendQueuedDataToUpdate();
-        this.setLastUpdateDate(+ (data as any).timestamp)
+        this.setLastUpdateDate((data as any).timestamp)
       });
     return this.response;
   }
@@ -65,12 +65,12 @@ export class DataService {
         } else {
           DataExtractionHelper.updateData(response);
           this.update.next();
-          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe(() => this.setLastUpdateDate(+response.timestamp)
+          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe(() => this.setLastUpdateDate(response.timestamp)
           )
         }
         
         this.sendQueuedDataToUpdate();
-        this.sendLogs()
+        // this.sendLogs()
       }
     });
   }
@@ -136,8 +136,8 @@ export class DataService {
     this.updateSubscriber.unsubscribe()
   }
 
-  setLastUpdateDate(timestamp: number) {
-    this.localStorage.set('lastUpdateTimestamp', timestamp.toString())
+  setLastUpdateDate(timestamp: string) {
+    this.localStorage.set('lastUpdateTimestamp', timestamp)
   }
   getLastUpdateDate() {
     let lastUpdateTimestamp: number = +this.localStorage.get('lastUpdateTimestamp')*1000 || 0
