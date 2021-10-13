@@ -945,8 +945,7 @@ class SliceDice{
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1, axis2);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
-    let rodPosition = undefined, 
-      rodPositionForCiblage = undefined,
+    let rodPosition = undefined, rodPositionForCiblage = undefined,
       targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
@@ -963,15 +962,18 @@ class SliceDice{
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
-        rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
-        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName),
-          ciblageValues = PDV.ComputeListCiblage(node.children as Node[], indicator == 'dn');
-        for (let i = 0; i < targetValues.length; i++){
-          rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
-          rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName);
+        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+        if (node.label == 'France' && (targetName == "dnP2CD" || targetName == "volP2CD")){
+          let drvNodes: Node[] = node.children as Node[];
+          let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
+          let ciblageValues = agentNodesMatrix.map((agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, targetName)).reduce((acc:number, value:number) => acc + value, 0));
+          console.log(ciblageValues)
+          rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
+          for (let i = 0; i < targetValues.length; i++) rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
         }
       }
       targetLevel['volumeIdentifier'] = targetName;
@@ -981,7 +983,13 @@ class SliceDice{
       targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage};
+    return {data: dataWidget.formatWidget(transpose), 
+      sum: sum, 
+      target: rodPosition, 
+      colors: colors, 
+      targetLevel: targetLevel, 
+      ciblage: rodPositionForCiblage
+    }
   }
 
   getIndustriesReverseDict(){
