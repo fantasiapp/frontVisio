@@ -164,7 +164,7 @@ class DataExtractionHelper{
 
   static setData(d: any){
     this.data = d;
-    console.log("[DataExtractionHelper] this.data : ", this.data)
+    console.log("[DataExtractionHelper] this.data updated")
     let structure = this.data['structureLevel'];
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
@@ -238,7 +238,6 @@ class DataExtractionHelper{
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
-    console.log("Dict pdvs : ", data.pdvs)
     for(let newPdv of Object.values(data.pdvs)) {
       for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
         if((oldPdv as any)[idCode] === newPdv[idCode]) {
