@@ -59,25 +59,25 @@ export class DataService {
   public requestUpdateData() {
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
     .subscribe((response : any) => {
-      console.log("New data from the back : ", response)
       if(response !== {}) {
         if(response.message) {
           console.debug("Empty update")
         } else {
           DataExtractionHelper.updateData(response);
           this.update.next();
-          this.sendQueuedDataToUpdate();
-          // this.sendLogs()
-          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((response) => console.log("Ack response : ", response))
+          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe()
         }
-        }
+        
+        this.sendQueuedDataToUpdate();
+        // this.sendLogs()
+      }
       this.lastUpdateDate = new Date;
     });
   }
 
   emptyData : UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}}
   private dataToUpdate:UpdateData = this.emptyData;
-  private queuedDataToUpdate:UpdateData = this.emptyData;
+  private queuedDataToUpdate: UpdateData = this.emptyData;
 
   update: Subject<never> = new Subject;
 
@@ -98,7 +98,6 @@ export class DataService {
   // }
 
   private sendDataToUpdate(data: UpdateData) {
-    console.log("Sending data to back for update : ", data)
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
     DataExtractionHelper.updateData(data);
@@ -106,17 +105,15 @@ export class DataService {
   }
   private sendQueuedDataToUpdate() {
     this.queuedDataToUpdate = JSON.parse(this.localStorage.get('queuedDataToUpdate')) as UpdateData;
-    console.log("Sending queued data to back for update : ", this.queuedDataToUpdate)
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
-      , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) {this.localStorage.remove('queuedDataToUpdate'); this.queuedDataToUpdate = this.emptyData;}})
+      , {params : {"action" : "update"}}).subscribe((response: any) => {this.localStorage.remove('queuedDataToUpdate'); this.queuedDataToUpdate = this.emptyData;})
       DataExtractionHelper.updateData(this.queuedDataToUpdate);
       this.update.next();    
     }
   }
 
   private sendLogs(data: any) {
-    console.log("Sending data to back for logs : ", data)
     this.http.post(environment.backUrl + '/visioServer/data/', data)
     .subscribe((response) => {
       console.log("Log response : ", response)
@@ -138,7 +135,8 @@ export class DataService {
   }
 
   queueUpdate(dict: UpdateData) {
-    console.log("newly stored update request : ", dict)
+    this.queuedDataToUpdate = JSON.parse(this.localStorage.get('queuedDataToUpdate')) as UpdateData;
+    if(!this.queuedDataToUpdate) this.queuedDataToUpdate = this.emptyData;
     for(let [field, updates] of Object.entries(dict)) {
       for(let [id, update] of Object.entries(updates)) {
         this.queuedDataToUpdate[field as UpdateFields][+id] = update;
