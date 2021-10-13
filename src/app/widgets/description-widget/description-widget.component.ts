@@ -33,6 +33,8 @@ export class DescriptionWidgetComponent implements OnDestroy {
         this.cd.markForCheck();
       }),
       dataservice.update.subscribe(_ => {
+        this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.$path.value);
+        this.cd.markForCheck();
         //do something when it updates
       })
     )
