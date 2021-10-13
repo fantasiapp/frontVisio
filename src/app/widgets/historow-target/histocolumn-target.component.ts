@@ -137,7 +137,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private createNeedles(allData: any) {
     let data = allData.data;
     let target = this.barTargets = this.canSetTargets ? allData.target : allData.ciblage;
-    console.log(target);
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 

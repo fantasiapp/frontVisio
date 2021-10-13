@@ -92,4 +92,8 @@
     column-gap: 20px;
     row-gap: 20px;
   }
+
+  :host::ng-deep * .props p {
+    font-weight: 400;
+  }
 }
