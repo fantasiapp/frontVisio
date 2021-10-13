@@ -26,7 +26,6 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
                 tap(stateEvent => {
                     if(stateEvent instanceof HttpResponse) {
                         this.localStorageService.set("data", JSON.stringify(stateEvent.body))
-                        console.log("Newly cached data : ", stateEvent.body);
                     }
                 })
         )

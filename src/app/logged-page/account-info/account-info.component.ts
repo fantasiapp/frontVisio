@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Observable, Observer, Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { LoggerService } from 'src/app/behaviour/logger.service';
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
@@ -39,7 +40,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   private mouseEvent: Subject<boolean> = new Subject();
   private subscription!: Subscription;
 
-  constructor(private filtersService: FiltersStatesService, private auth: AuthService, private dataService: DataService) {}
+  constructor(private filtersService: FiltersStatesService, private auth: AuthService, private dataService: DataService, private logger: LoggerService) {}
 
   ngOnInit() {
     this.subscription = this.mouseEvent.pipe(debounceTime(0)).subscribe(dropped => {
@@ -91,6 +92,8 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    this.logger.handleEvent(LoggerService.events.DISCONNECT, false);
+    this.logger.actionComplete();
     this.auth.logoutFromServer();
   }
 }

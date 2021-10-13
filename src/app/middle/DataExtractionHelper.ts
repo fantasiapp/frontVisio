@@ -164,7 +164,7 @@ class DataExtractionHelper{
 
   static setData(d: any){
     this.data = d;
-    console.log("[DataExtractionHelper] this.data : ", this.data)
+    console.log("[DataExtractionHelper] this.data updated")
     let structure = this.data['structureLevel'];
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
@@ -238,7 +238,6 @@ class DataExtractionHelper{
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
-    console.log("Dict pdvs : ", data.pdvs)
     for(let newPdv of Object.values(data.pdvs)) {
       for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
         if((oldPdv as any)[idCode] === newPdv[idCode]) {
@@ -433,7 +432,6 @@ class DataExtractionHelper{
     if (enduit) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
     if (node.label !== 'Secteur') return "";
     let targetName = dn ? 'dnP2CD': 'volP2CD';
-    console.log('-->', node.label, node.id);
     let objective = DataExtractionHelper.getTarget(node.label, node.id, targetName);
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)/1000).toString(), ' km², ');
   }
@@ -451,6 +449,27 @@ class DataExtractionHelper{
     let targetName = dn ? "dnP2CD": 'volP2CD';
     let targetSiege =  DataExtractionHelper.getTarget(node.label, node.id, targetName);
     return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdVs, '): 'Objectif Siège: '.concat((Math.round(targetSiege)/1000).toString(), ' km², ');
+  }
+
+  static computeDescriptionWidget(slice:any): [number, number, number][]{
+    let relevantNode:Node = DataExtractionHelper.followSlice(slice) as Node,
+      ciblage = PDV.computeCiblage(relevantNode);
+    let objectiveWidget: [number, number, number] = [
+      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, "volP2CD")).reduce((acc, value) => acc + value, 0),
+      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
+      0],
+      ciblageWidget: [number, number, number] = [0, 0, 0];
+    objectiveWidget[2] = 0.1 * ciblage / objectiveWidget[0]; // on divise par 10 car on fait *100 pour mettre en % et /1000 pour tout mettre en km2
+    if (relevantNode.label == 'France'){
+      let agentNodes = (relevantNode.children as Node[]).map(drvNode => drvNode.children as Node[]).reduce((acc: Node[], list: Node[]) => acc.concat(list), []);
+      ciblageWidget = [
+        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "volP2CD")).reduce((acc, value) => acc + value, 0),
+        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
+        0]
+        ciblageWidget[2] = 0.1 * ciblage / ciblageWidget[0]; 
+    }
+    console.log('-->', objectiveWidget)
+    return [objectiveWidget, ciblageWidget];
   }
 
   static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {

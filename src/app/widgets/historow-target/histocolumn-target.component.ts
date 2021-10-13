@@ -38,6 +38,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   get inputIsOpen() { return this._inputIsOpen; }
   set inputIsOpen(val: boolean) {
     this.logger.handleEvent(LoggerService.events.TARGET_CONTROL_OPENED, val);
+    this.logger.actionComplete();
     this._inputIsOpen = val;
   }
 
@@ -168,7 +169,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
     this.needles
       .selectAll('line')
-      .data(<number[]>target.slice(0, barsNumber))
+      .data(<number[]>(target || []).slice(0, barsNumber))
       .enter()
       .append('line')
       .attr('x1', function(d, i) {

@@ -42,6 +42,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.filterDict = PDV.countForFilter(pdvs);
     this.update();
     this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this._criteria);
+    this.logger.actionComplete();
   }
   
   selectedPDV?: PDV;
@@ -52,11 +53,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.hidden = true;
     this.subscription?.unsubscribe();
     this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
+    this.logger.actionComplete();
   }
   show() {
     this.interactiveMode();
     this.hidden = false;
     this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, true);
+    this.logger.actionComplete();
   }
   
   get shown() { return !this.hidden; }
@@ -454,5 +457,3 @@ builder.axis('id', [
   [6, {head: MapIconBuilder.diamond}],
   [9, {head: MapIconBuilder.circle}]
 ]).generate();
-
-console.log(builder.icons);
