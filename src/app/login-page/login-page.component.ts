@@ -82,7 +82,13 @@ export class LoginPageComponent implements OnInit {
 
   ngOnInit(): void {
     if(this.authService.getStayConnected()) {
-      this.logInObserver.next(true);
+      this.userValid = true
+      this.dataservice.requestData().subscribe(val => {
+        sessionStorage.setItem('data', JSON.stringify(val))
+        });
+      this.router.navigate([
+        sessionStorage.getItem('originalPath') || 'logged',
+      ]);
       this.authService.isLoggedIn.next(true);
     }
   }

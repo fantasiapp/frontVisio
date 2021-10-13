@@ -231,6 +231,12 @@ class DataWidget{
       return startingPoints
     }        
   }
+
+  private removeNegativeValues(){
+    for(let i = 0; i < this.rowsTitles.length; i++)
+      for(let j = 0; j < this.columnsTitles.length; j++)
+        if (this.data[i][j] < 0) this.data[i][j] = 0;
+  }
 }
 
 class Sale {
@@ -350,7 +356,6 @@ export class PDV{
 
   //Assez sale pour le moment, il faut factoriser avec le code d'en dessous après
   private computeVisits(indicator:string){
-    console.log('nombre de visites sur le pdv', this.attribute("nbVisits"));
     let axe : string[]= Object.values(DataExtractionHelper.get('segmentDnEnduitTargetVisits')),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
@@ -467,24 +472,56 @@ export class PDV{
     return diced;
   }
 
+  // private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
+  //   let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
+  //     associatedIndex :{[key: string]: number}= {};
+  //   for (let i = 0; i < axe.length; i++)
+  //     associatedIndex[axe[i]] = i;
+
+  //   let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+  //     salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+  //     totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+  //     diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
+  //   let growthConquestLimit = DataExtractionHelper.get('paramsCompute')['growthConquestLimit'] * totalEnduit;
+  //   for (let sale of relevantSales){
+  //     if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+  //     else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
+  //   }
+  //   let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+  //   let other = Math.max(totalEnduit - salsiPlusPregy, 0)
+  //   if (salsiPlusPregy > growthConquestLimit){
+  //     if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = other;
+  //     else diced[associatedIndex["Croissance"]] = other; 
+  //   }
+  //   else{
+  //     if (target && this.targetFinition) diced[associatedIndex["Cible Conquête"]] = other;
+  //     else diced[associatedIndex["Conquête"]] = other;
+  //   }
+  //   return diced;
+  // }
+
   private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
     let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
       associatedIndex[axe[i]] = i;
-
     let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
       totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
-    let growthConquestLimit = DataExtractionHelper.get('paramsCompute')['growthConquestLimit'] * totalEnduit;
     for (let sale of relevantSales){
       if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
       else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
     }
     let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
-    let other = Math.max(totalEnduit - salsiPlusPregy, 0)
-    if (salsiPlusPregy > growthConquestLimit){
+    let other = Math.max(totalEnduit - salsiPlusPregy, 0);
+    let dnEnduit = this.getValue('dn', false, true) as number[];
+    // if (this.clientProspect() == 'Client'){
+    if (dnEnduit[1] == 1){
+      if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = other;
+      else diced[associatedIndex["Croissance"]] = other; 
+    }
+    else if (dnEnduit[2] == 1){
       if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = other;
       else diced[associatedIndex["Croissance"]] = other; 
     }
@@ -494,6 +531,77 @@ export class PDV{
     }
     return diced;
   }
+
+  // private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
+  //   let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
+  //     associatedIndex :{[key: string]: number}= {};
+  //   for (let i = 0; i < axe.length; i++)
+  //     associatedIndex[axe[i]] = i;
+  //   let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+  //     salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+  //     totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+  //     diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
+  //   for (let sale of relevantSales){
+  //     if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+  //     else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
+  //   }
+  //   let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+  //   let other = Math.max(totalEnduit - salsiPlusPregy, 0);
+  //   let dnEnduit = this.getValue('dn', false, true) as number[];
+  //   let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd'),
+  //     siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+  //     siniatP2cd = 0;
+  //   for (let sale of p2cdSales)
+  //     if (sale.industryId == siniatId) siniatP2cd += sale.volume;
+  //   let otherForSiniatClient = Math.max(siniatP2cd * 0.36 - salsiPlusPregy, 0);
+  //   // if (this.clientProspect() == 'Client'){
+  //   if (dnEnduit[1] == 1){
+  //     if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = otherForSiniatClient;
+  //     else diced[associatedIndex["Croissance"]] = otherForSiniatClient; 
+  //   }
+  //   else if (dnEnduit[2] == 1){
+  //     if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = other;
+  //     else diced[associatedIndex["Croissance"]] = other; 
+  //   }
+  //   else{
+  //     if (target && this.targetFinition) diced[associatedIndex["Cible Conquête"]] = other;
+  //     else diced[associatedIndex["Conquête"]] = other;
+  //   }
+  //   return diced;
+  // }
+
+  // private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
+  //   let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
+  //     associatedIndex :{[key: string]: number}= {};
+  //   for (let i = 0; i < axe.length; i++)
+  //     associatedIndex[axe[i]] = i;
+  //   let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
+  //     salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
+  //     totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+  //     diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
+  //   // let growthConquestLimit = DataExtractionHelper.get('paramsCompute')['growthConquestLimit'] * totalEnduit;
+  //   for (let sale of relevantSales){
+  //     if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+  //     else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
+  //   }
+  //   let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+  //   let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd'),
+  //     siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+  //     siniatP2cd = 0;
+  //   for (let sale of p2cdSales)
+  //     if (sale.industryId == siniatId) siniatP2cd += sale.volume;   
+  //   let growthConquestLimit = siniatP2cd * 0.36;
+  //   let other = Math.max(totalEnduit - salsiPlusPregy, 0)
+  //   if (salsiPlusPregy > growthConquestLimit){
+  //     if (target && this.targetFinition) diced[associatedIndex["Cible Croissance"]] = other;
+  //     else diced[associatedIndex["Croissance"]] = other; 
+  //   }
+  //   else{
+  //     if (target && this.targetFinition) diced[associatedIndex["Cible Conquête"]] = other;
+  //     else diced[associatedIndex["Conquête"]] = other;
+  //   }
+  //   return diced;
+  // }
 
   static findById(id: number): PDV | undefined {
     return this.instances.get(id);

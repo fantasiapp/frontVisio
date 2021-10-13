@@ -36,7 +36,7 @@
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="!pdv.attribute('redistributed') || !pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" [disabled]="!pdv.attribute('redistributed')">
+                                <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="redistributedDisabled">
                                 <span class="checkmark"></span>
                             </label>
                         </li>
@@ -110,7 +110,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j]" agentOnly [logged]="'infobar.' + industry + '.' + product"/>
+                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j]" accessControl agentOnly/>
                         </div>
                     </div>
                 </div>

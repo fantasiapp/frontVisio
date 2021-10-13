@@ -43,6 +43,7 @@ export class DataService {
   public requestUpdateData() {
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
     .subscribe((response : any) => {
+      console.log("New data from the back : ", response)
       if(response !== {}) {
         if(response.message) {
           console.debug("Empty update")

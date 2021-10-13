@@ -5,7 +5,7 @@ import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 
@@ -69,6 +69,7 @@ export class TableComponent extends BasicWidget {
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
     infoCellRenderer: InfoCellRenderer,
+    addArrowCellRenderer: AddArrowCellRenderer,
   };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
@@ -129,10 +130,9 @@ export class TableComponent extends BasicWidget {
         for(let cd of data){
           switch (cd.field) {
             case 'name':
-
-              cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow) return params.value['name'] + ' PdV : ' + params.value['number']
-                return params.value;
+              cd.cellRendererSelector = function (params: any) {
+                if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
+                return;
               }
               break;
             case 'siniatSales':
@@ -218,27 +218,31 @@ export class TableComponent extends BasicWidget {
     return data;
   }
 
-  onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') {
-      this.pdv = this.sliceTable.getPdvInstance(event['data'])
-      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
-      InfoBarComponent.pdvId = event['data'].instanceId;
-      this.selectedPdv = event['data'];
-    }
-    if(event['column']['colId'] === 'info') {
-      this.selectedPdv = event['data'];
-      this.showInfoOnClick(this.selectedPdv);
-      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
-    }
-    
+  onCellClicked(event: any) {    
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
+      let arrowImg = document.getElementById(event['node'].rowIndex.toString());
+      if(arrowImg?.style.transform == "rotate(-0.25turn)") arrowImg!.style.transform = "rotate(0.25turn)";
+      else arrowImg!.style.transform = "rotate(-0.25turn)"
+    } else {
+      if(event['column']['colId'] === 'edit') {
+        this.pdv = this.sliceTable.getPdvInstance(event['data'])
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+        InfoBarComponent.pdvId = event['data'].instanceId;
+        this.selectedPdv = event['data'];
+      }
+      if(event['column']['colId'] === 'info') {
+        this.selectedPdv = event['data'];
+        this.showInfoOnClick(this.selectedPdv);
+        this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
+      }
+      if(event['column']['colId'] === 'checkboxEnduit') {
+        this.updateTitle()
+      }
     }
-    if(event['column']['colId'] === 'checkboxEnduit') {
-      this.updateTitle()
-    }
+
   }
 
   sideDivRight: string = "-60%";
