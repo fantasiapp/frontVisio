@@ -62,12 +62,13 @@ export class SimpleDonutComponent extends BasicWidget {
       legend: {
         item: {
           onclick() {},
-          tile: {height: BasicWidget.legendItemHeight}
+          tile: { }
         },
         position: 'inset',
         inset: {
-          anchor: 'bottom-right',
-          y: 10 + (data[0].length) * BasicWidget.legendItemHeight
+          anchor: 'bottom-left',
+          y: 10 + data.length * BasicWidget.legendItemHeight,
+          x: 20
         }
       },
       transition: {
@@ -75,15 +76,14 @@ export class SimpleDonutComponent extends BasicWidget {
       },
       onrendered: () => {
         //initial rendering bug
+        this.chart!.config('onrendered', null);
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
-        this.chart!.config('onrendered', null);
-        this.chart!.flush();
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + (this.chart!.data().length) * BasicWidget.legendItemHeight);
-        this.chart!.flush();
+        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
+        //this.chart!.flush();
       },
       ...opt
     });

@@ -197,3 +197,7 @@ let windowResize = (e: Event) => {
   
   timeoutId = setTimeout(windowResize, 100, [e]);
 });
+
+(window as any).addEventListener('load', (e: Event) => {
+  BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(window.innerWidth);
+})

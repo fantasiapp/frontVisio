@@ -8,25 +8,6 @@
   font-size: 20px;
 }
 
-@media (max-width: 1366px) {
-  :host {
-    font-size: 15px;
-  }
-}
-
-@media (min-width: 1367px) and (max-width: 1500px) {
-  :host {
-    font-size: 17px;
-  }
-}
-
-@media (min-width: 1500px) {
-  :host {
-    font-size: 19px;
-    column-gap: 20px;
-    row-gap: 20px;
-  }
-}
 
 :host::ng-deep > * {
   display: flex;
@@ -82,4 +63,28 @@
 :host::ng-deep > * .container {
   flex: 1;
   overflow: hidden;
+}
+
+@media (max-width: 1366px) {
+  :host {
+    font-size: 14px;
+  }
+
+  :host::ng-deep * .props h2 {
+    font-weight: 500;
+  }
+}
+
+@media (min-width: 1367px) and (max-width: 1500px) {
+  :host {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1500px) {
+  :host {
+    font-size: 18px;
+    column-gap: 20px;
+    row-gap: 20px;
+  }
 }

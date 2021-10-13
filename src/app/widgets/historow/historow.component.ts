@@ -24,7 +24,7 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('description', {read: ElementRef})
   protected description!: ElementRef;
 
-  public axisLabelLength: number = 12;
+  public axisLabelLength: number = 10;
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService) {
     super(ref, filtersService, sliceDice);
