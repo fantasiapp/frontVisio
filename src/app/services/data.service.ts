@@ -56,7 +56,7 @@ export class DataService {
   }
 
   public requestUpdateData() {
-    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request"}})
+    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.get('lastUpdateTimestamp')}})
     .subscribe((response : any) => {
       if(response !== {}) {
         if(response.message) {
@@ -100,7 +100,7 @@ export class DataService {
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
     DataExtractionHelper.updateData(data);
-    this.update.next();    
+    this.update.next();
   }
   private sendQueuedDataToUpdate() {
     this.queuedDataToUpdate = JSON.parse(this.localStorage.get('queuedDataToUpdate')) as UpdateData;
