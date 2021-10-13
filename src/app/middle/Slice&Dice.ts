@@ -792,7 +792,7 @@ export class PDV{
         }
         return [[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]];
       };
-      default: return [['', 100 * Math.random()]];
+      default: return [['  ', 100 * Math.random()]];
     }
   }
 
