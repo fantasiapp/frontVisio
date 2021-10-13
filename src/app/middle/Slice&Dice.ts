@@ -756,8 +756,8 @@ export class PDV{
     return PDV.reSlice(pdvs, addConditions);
   }
   
-  static ComputeListCiblage(nodes: Node[]){
-    return nodes.map(node => PDV.computeCiblage(node));
+  static ComputeListCiblage(nodes: Node[], dn:boolean){
+    return nodes.map(node => dn ? PDV.computeCiblage(node, false, dn): PDV.computeCiblage(node, false, dn)/1000);
   }
 
   static computeCiblage(node: Node, enduit=false, dn=false): number{
@@ -968,7 +968,7 @@ class SliceDice{
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
         let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName),
-          ciblageValues = PDV.ComputeListCiblage(node.children as Node[]);
+          ciblageValues = PDV.ComputeListCiblage(node.children as Node[], indicator == 'dn');
         for (let i = 0; i < targetValues.length; i++){
           rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
           rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);

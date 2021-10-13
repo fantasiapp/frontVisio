@@ -20,7 +20,8 @@ ul li {
     list-style-type: none;
 }
 span {
-    font-weight: 500;
+    font-weight: 400;
+    font-size: 0.8em;
 }
 
 
@@ -45,6 +46,11 @@ span {
     right: 15px;
     top: 15px;
     width: 10px;
+}
+
+.side-div h2 {
+    font-weight : 400;
+    font-size: 1.20em;
 }
 
 .side-div div {
