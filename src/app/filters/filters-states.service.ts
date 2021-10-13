@@ -6,6 +6,7 @@ import { Navigation } from '../middle/Navigation';
 import { loadAll, getGeoTree, PDV } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
+import { LoggerService } from '../behaviour/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -98,17 +99,16 @@ export class FiltersStatesService {
       States: this.navigation.getCurrent(),
     };
 
-    if ( emit )
+    if ( emit ) {
       this.stateSubject.next(currentState);
       this.arraySubject.next(currentArrays);
-    
-    if ( this.navigation.currentLevel ) {
-      /* Rework this */
-      
-
-      if ( emit )
-        this.$path.next(this.getPath(currentState.States));
+      this.$path.next(this.getPath(currentState.States));
     }
+    // if ( this.navigation.currentLevel ) {
+    //   /* Rework this */
+    //   if ( emit )
+    //     this.$path.next(this.getPath(currentState.States));
+    // }
   }
 
   private getPath(States: any) {

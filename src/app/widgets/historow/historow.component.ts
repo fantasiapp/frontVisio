@@ -5,7 +5,6 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar, Chart} from 'billboard.js';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
-import { LoggerService } from 'src/app/behaviour/logger.service';
 
 
 @Component({
@@ -26,7 +25,7 @@ export class HistoRowComponent extends BasicWidget {
 
   public axisLabelLength: number = 10;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
 
@@ -184,11 +183,9 @@ export class HistoRowComponent extends BasicWidget {
       id = parseInt(keyId);
       this.rubixAxis = this.properties.arguments[0][1];
       this.rubixArgument!.push([type, [id]]);
-      this.logger.add('historow.enseigne', LoggerService.SET, name)
     } else {
       this.rubixAxis = type;
       this.rubixArgument!.pop();
-      this.logger.add('historow.enseigne', LoggerService.SET, '');
     }
   }
 

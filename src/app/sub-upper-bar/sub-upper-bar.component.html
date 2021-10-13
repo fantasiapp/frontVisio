@@ -4,9 +4,9 @@
     <div class="level">Résultat {{ path }} {{ currentYear ? '(MÀJ ' + currentYear + ')' : '' }}</div>
   </div>
   <div class="select-year" style="width: 134px">
-    <select >
-      <option>Année 2021</option>
-      <option>Année 2020</option>
+    <select (change)="onYearChange($event)">
+      <option value="1">Année 2021</option>
+      <option value="0">Année 2020</option>
     </select>
   </div>
 </div>

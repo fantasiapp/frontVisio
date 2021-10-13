@@ -68,7 +68,7 @@ export class SimplePieComponent extends BasicWidget {
         position: 'inset',
         inset: {
           anchor: 'bottom-left',
-          y: 10 + data.length * BasicWidget.legendItemHeight,
+          y: 10 + (data.length - 0.5) * BasicWidget.legendItemHeight,
           x: 20
         }
       },
@@ -79,12 +79,12 @@ export class SimplePieComponent extends BasicWidget {
         //initial rendering bug
         this.chart!.config('onrendered', null);
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 10 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
         //this.chart!.flush();
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 10 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
         //this.chart!.flush();
       },
       // add opt

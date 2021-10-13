@@ -12,6 +12,8 @@
 *{
     font-family: Roboto;
 }
+
+/* very annonying styles, i have to cancel them everywhere I use an input */
 input[type=text]:hover, input[type=password]:hover{
     background: #FFFFFF 0% 0% no-repeat padding-box;
     /* box-shadow: inset 0px 3px 6px #00000029; */
@@ -62,6 +64,19 @@ select:-webkit-autofill:hover{
     outline: none;
     border: 0.4000000059604645px solid #707070;
 }
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield !important;
+}
+
 *select{
     font-family: Roboto;
     width: 234px;
