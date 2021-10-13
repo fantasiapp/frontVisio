@@ -62,30 +62,30 @@ export class SimplePieComponent extends BasicWidget {
       //disable clicks on legend
       legend: {
         item: {
-          onclick() {}
+          onclick() {},
+          tile: { }
         },
         position: 'inset',
         inset: {
-          anchor: 'bottom-right',
-          y: 10 + data[0].length * BasicWidget.legendItemHeight,
-          x: 10
-        },
-        padding: 10
+          anchor: 'bottom-left',
+          y: 15 + (data.length - 0.5) * BasicWidget.legendItemHeight,
+          x: 20
+        }
       },
       transition: {
         duration: 250
       },
       onrendered: () => {
         //initial rendering bug
-        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
-        this.chart!.flush();
         this.chart!.config('onrendered', null);
+        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 15 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
+        //this.chart!.flush();
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
-        this.chart!.flush();
+        this.chart!.config('legend_inset_y', 15 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
+        //this.chart!.flush();
       },
       // add opt
       ...opt

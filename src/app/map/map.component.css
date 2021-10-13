@@ -1,14 +1,14 @@
 :host {
   box-sizing: border-box;
   width: 100vw;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 50px);
   padding: 30px;
   display: flex;
   flex-flow: column nowrap;
   z-index: 9;
   background: #f7f7f7;
   position: absolute;
-  top: 60px;
+  top: 50px;
 }
 
 .map-container {

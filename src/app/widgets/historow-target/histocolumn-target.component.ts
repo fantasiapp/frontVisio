@@ -31,9 +31,16 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private offsetY: number = 0;
   private marginX: number = 0;
   private barWidth: number = 0;
-  inputIsOpen: boolean = false;
+  _inputIsOpen: boolean = false;
   canSetTargets: boolean = true;
   private data?: any;
+
+  get inputIsOpen() { return this._inputIsOpen; }
+  set inputIsOpen(val: boolean) {
+    this.logger.handleEvent(LoggerService.events.TARGET_CONTROL_OPENED, val);
+    this.logger.actionComplete();
+    this._inputIsOpen = val;
+  }
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService, protected cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
@@ -84,15 +91,11 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         .attr('type', 'number')
         .style('width', (this.barWidth.toFixed(1)) + 'px')
         .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px')
-        .nodes().forEach((node, idx) => {
-          LoggerService.bind(node, (e: Event, callback: any) => {
-            let oldValue = this.getTargetValue(idx),
-              target = e.target as any,
-              newValue = parseInt(target.value);
-            this.logger.add(...callback('target.control.' + this.data.data[0][1+idx], oldValue, newValue));
-            this.changeValue(target.value, target.__data__, e)
-          });
-        });
+        .on('change', (e: Event) => {
+          let input = e.target as any,
+            target = input.value | 0;
+          this.changeValue(target, input.__data__, e);
+        })
     return container;
   }
 
@@ -121,8 +124,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   updateGraph(data: any) {
     //wait for animation
     super.updateGraph(data); //queue first
-    this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
+      this.getNeedleGroup()?.remove();
       this.data = data;
       setTimeout(() => {
         this.createNeedles(data);
@@ -134,6 +137,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private createNeedles(allData: any) {
     let data = allData.data;
     let target = this.barTargets = this.canSetTargets ? allData.target : allData.ciblage;
+    console.log(target);
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 
@@ -166,7 +170,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
     this.needles
       .selectAll('line')
-      .data(<number[]>target.slice(0, barsNumber))
+      .data(<number[]>(target || []).slice(0, barsNumber))
       .enter()
       .append('line')
       .attr('x1', function(d, i) {

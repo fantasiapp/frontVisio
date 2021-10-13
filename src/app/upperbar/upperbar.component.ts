@@ -110,6 +110,6 @@ export class UpperbarComponent implements OnInit {
   }
 
   updateData() {
-    this.dataService.requestUpdateData()
+    this.dataService.requestData();
   }
 }

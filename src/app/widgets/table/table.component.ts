@@ -104,6 +104,7 @@ export class TableComponent extends BasicWidget {
     hiddenGroups = {}
     this.gridApi.setRowData(data[1])
     this.gridApi.refreshCells()
+    console.log("UpdateGraph")
   }
 
   updateGroups(id: string) {

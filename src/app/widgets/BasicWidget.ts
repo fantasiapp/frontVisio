@@ -90,45 +90,42 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     let data;
     //let pathId = this.sliceDice.pathId(this.path);
     //if ( this.savedData[pathId] ) {
-      //  console.log('data already here')
-      //  data = this.savedData[pathId]
-      //} else {
-        //  console.log('fetching data');
-        data = this.sliceDice.getWidgetData(...this.getDataArguments());
-        //  this.savedData[this.sliceDice.pathId(this.path)] = data;
-        //}
-        
-        // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
-        if ( this.dynamicDescription ) {
-          this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
-          this.setSubtitle(this.properties.description);
-        }; return data;
-      }
-      
-      setTitle(title: string) {
-        d3.select(this.ref.nativeElement).select('div:nth-of-type(1) h2').text(title);
-      }
-      
-      setSubtitle(subtitle: string) {
-        d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
-      }
-      
-      update() {
-        this.updateGraph(this.updateData());
-      }
-      
-      ngOnDestroy() {
-        d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
-        this.subscription?.unsubscribe();
-        if ( this.ref )
-        d3.select(this.ref.nativeElement).selectAll('div > *').remove();
-        // if ( this.chart )
-        //   this.chart.destroy();
-      }
-      
-      noData(content: ElementRef) {
-        console.log('[BasicWidget -- noData]: No data is supplied, this is most probably a error.');
-        
+  //  console.log('data already here')
+  //  data = this.savedData[pathId]
+  //} else {
+    //  console.log('fetching data');
+    data = this.sliceDice.getWidgetData(...this.getDataArguments());
+    //  this.savedData[this.sliceDice.pathId(this.path)] = data;
+    //}
+    
+    // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
+    if ( this.dynamicDescription ) {
+      this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
+      this.setSubtitle(this.properties.description);
+    }; return data;
+  }
+  
+  setTitle(title: string) {
+    d3.select(this.ref.nativeElement).select('div:nth-of-type(1) h2').text(title);
+  }
+  
+  setSubtitle(subtitle: string) {
+    d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
+  }
+  
+  update() {
+    this.updateGraph(this.updateData());
+  }
+  
+  ngOnDestroy() {
+    d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
+    this.subscription?.unsubscribe();
+    if ( this.ref )
+    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
+  }
+  
+  noData(content: ElementRef) {
+    console.log('[BasicWidget -- noData]: No data is supplied, this is most probably a error.');
     d3.select(content.nativeElement).select('div > svg').remove();
     content.nativeElement.innerHTML = `
     <div class="nodata">Il n'y a pas de données.</div>
@@ -169,7 +166,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     let base = Math.pow(10, n);
     let str = '';
 
-    if ( p == 0 )
+    if ( Math.floor(q) == 0 )
       return q.toFixed(1).toString();
 
     while (p >= base) {
@@ -188,6 +185,7 @@ let timeoutId: any = null;
 let windowResize = (e: Event) => {
   let width = window.innerWidth;
   BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(width);
+  console.log(width, '>', BasicWidget.legendItemHeight);
   timeoutId = null;
 };
 
@@ -197,3 +195,7 @@ let windowResize = (e: Event) => {
   
   timeoutId = setTimeout(windowResize, 100, [e]);
 });
+
+(window as any).addEventListener('load', (e: Event) => {
+  BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(window.innerWidth);
+})

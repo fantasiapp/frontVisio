@@ -22,7 +22,7 @@ export interface Layout {
   providers: [WidgetManagerService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridManager implements OnInit, AfterViewInit, OnChanges {
+export class GridManager implements AfterViewInit, OnChanges {
   //default layout
   private $layout: Layout = defaultLayout;
 
@@ -94,8 +94,6 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     }
     this.cd.detectChanges();
   }
-
-  ngOnInit(): void { }
 
   interactiveMode() {
     for ( let i = 0; i < this.instances.length; i++ ) {

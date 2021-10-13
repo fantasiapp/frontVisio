@@ -1,7 +1,7 @@
 import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
-import { DataService } from '../services/data.service';
+import { DataService, UpdateFields } from '../services/data.service';
 
 
 // peut-être à mettre dans un fichier de config
@@ -914,7 +914,7 @@ class SliceDice{
   updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, volumeid: number, targetLevelStructure: string) {
     let newTargetLevel: number[] = DataExtractionHelper.get(targetLevelName)[targetLevelId]
     newTargetLevel[+DataExtractionHelper.get(targetLevelStructure).indexOf(volumeid)] = +newValue;
-    this.dataService.updateTargetLevel(newTargetLevel, targetLevelName, +targetLevelId);
+    this.dataService.updateTargetLevel(newTargetLevel, targetLevelName as UpdateFields, +targetLevelId);
   }
 };
 

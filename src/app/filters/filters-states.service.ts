@@ -3,9 +3,10 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { loadAll, getGeoTree, PDV } from '../middle/Slice&Dice';
+import { loadAll, PDV } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
+import { LoggerService } from '../behaviour/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,18 +20,17 @@ export class FiltersStatesService {
       if (data) {
         DataExtractionHelper.setData(data);
         loadAll();
-        let defaultTree = getGeoTree();
+        let type = this.navigation.tree?.type || null, defaultTree;
+        if ( !type || type == PDV.geoTree.type ) 
+          defaultTree = PDV.geoTree;
+        else
+          defaultTree = PDV.tradeTree;
+        
         this.reset(defaultTree);
         this.$load.next(0 as never);
         this.$load.complete();
         this.dataservice.beginUpdateThread();
       }
-    });
-
-    this.dataservice.update.subscribe((_) => {
-      let type = this.navigation.tree?.type || null;
-      //doesn't notify further because it's not needed
-      this.navigation.setTree(PDV.geoTree.type == type ? PDV.geoTree : PDV.tradeTree);
     });
   }
 
@@ -98,17 +98,16 @@ export class FiltersStatesService {
       States: this.navigation.getCurrent(),
     };
 
-    if ( emit )
+    if ( emit ) {
       this.stateSubject.next(currentState);
       this.arraySubject.next(currentArrays);
-    
-    if ( this.navigation.currentLevel ) {
-      /* Rework this */
-      
-
-      if ( emit )
-        this.$path.next(this.getPath(currentState.States));
+      this.$path.next(this.getPath(currentState.States));
     }
+    // if ( this.navigation.currentLevel ) {
+    //   /* Rework this */
+    //   if ( emit )
+    //     this.$path.next(this.getPath(currentState.States));
+    // }
   }
 
   private getPath(States: any) {
