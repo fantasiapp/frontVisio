@@ -51,6 +51,7 @@ export class DataService {
       )
       .subscribe((data) => {
         this.response.next(data);
+        this.sendQueuedDataToUpdate();
       });
     return this.response;
   }
@@ -105,7 +106,7 @@ export class DataService {
   }
   private sendQueuedDataToUpdate() {
     this.queuedDataToUpdate = JSON.parse(this.localStorage.get('queuedDataToUpdate')) as UpdateData;
-    console.log("Sending data to back for update : ", this.queuedDataToUpdate)
+    console.log("Sending queued data to back for update : ", this.queuedDataToUpdate)
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
       , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) {this.localStorage.remove('queuedDataToUpdate'); this.queuedDataToUpdate = this.emptyData;}})
