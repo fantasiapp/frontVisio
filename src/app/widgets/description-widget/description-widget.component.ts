@@ -1,4 +1,4 @@
-import { EventEmitter, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, Output, QueryList, ViewChildren } from '@angular/core';
+import { EventEmitter, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, Output, QueryList, ViewChildren, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { combineAll } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
@@ -25,11 +25,12 @@ export class DescriptionWidgetComponent implements OnDestroy {
 
   subscriptions: Subscription[] = [];
 
-  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private targetService: TargetService) {
+  constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private targetService: TargetService) {
     this.subscriptions.push(
       filtersService.$path.subscribe(path => {
-        this.values = DataExtractionHelper.computeDescriptionWidget(path);
         //do something with path
+        this.values = DataExtractionHelper.computeDescriptionWidget(path);
+        this.cd.markForCheck();
       }),
       dataservice.update.subscribe(_ => {
         //do something when it updates
@@ -38,6 +39,7 @@ export class DescriptionWidgetComponent implements OnDestroy {
   }
 
   get volume() {
+    console.log('a new volume');
     return BasicWidget.format(this.values[1 - this.currentSelection][0]);
   }
 

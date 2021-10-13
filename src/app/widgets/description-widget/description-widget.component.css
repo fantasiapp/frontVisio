@@ -24,6 +24,10 @@
     flex-direction: row;
 }
 
+.configs li {
+    justify-content: flex-end;
+}
+
 
 .main ul:first-child li:not(:last-child) {
     margin-right: 20px;
