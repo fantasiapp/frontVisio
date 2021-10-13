@@ -169,7 +169,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     let base = Math.pow(10, n);
     let str = '';
 
-    if ( p == 0 )
+    if ( Math.floor(q) == 0 )
       return q.toFixed(1).toString();
 
     while (p >= base) {
