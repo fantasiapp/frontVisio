@@ -67,7 +67,10 @@ export class AuthService {
   logoutFromServer() {
     setTimeout(() => {
       this.dataService.endUpdateThread();
-      this.localStorageService.clear();
+      this.localStorageService.remove("data");
+      this.localStorageService.remove("token");
+      this.localStorageService.remove("stayConnected");
+
       this.isLoggedIn.next(false)
       this.router.navigate(['login']);
     }, 1000);

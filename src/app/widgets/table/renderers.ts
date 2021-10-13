@@ -146,17 +146,17 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
           <p>{{ displayValue }}</p>`,
       styles:  [`:host {
         display: flex;
+        flex-direction: row;
+        height: 100%;
       }`,
     `img {
       transition: all .3s ease-in;
-      width: 1.5em;
-      position: absolute;
-      left: 10px;
-      top: 5px;
+      flex: 0;
+      width: 1em;
     }`,
     `p {
-      position: absolute;
-      left: 40px;
+      flex: 1;
+      margin-left: 1em;
     }`]
   })
   export class AddArrowCellRenderer extends DefaultCellRenderer {

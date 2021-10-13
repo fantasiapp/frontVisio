@@ -10,7 +10,6 @@
           type="text"
           placeholder="Saisir votre identifiant"
           formControlName="username"
-          [logged]="'login.username'"
         />
         
       </div>
@@ -23,7 +22,6 @@
           type="password"
           placeholder="Saisir votre mot de passe"
           formControlName="password"
-          [logged]="'login.password'"
         />
       </div>
       <div class="stay-connected" [hidden]="showErrorMessage">
@@ -34,7 +32,7 @@
       <div class="error-message" *ngIf="showErrorMessage === 404">Le serveur visio n'est pas opérationnel. Veuillez contacter Pascale Doreillac</div>
       <div class="error-message" *ngIf="showErrorMessage === 500">Le serveur rencontre une difficulté imprévue. Veuillez contacter Pascale Doreillac</div>
       <div class="error-message" *ngIf="showErrorMessage === 0">Une erreur non traitée est survenue. Veuillez contacter Pascale Doreillac</div>
-      <button id="continueButton" type="submit" [logged]="'login.submit'">Se connecter</button>
+      <button id="continueButton" type="submit">Se connecter</button>
     </div>
   </form>
 </div>

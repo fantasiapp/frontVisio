@@ -1,86 +1,112 @@
-import { Injectable, OnDestroy } from "@angular/core";
-import { LocalStorageService } from "../services/local-storage.service";
+import { Injectable } from "@angular/core";
+import { PDV } from "../middle/Slice&Dice";
+import { DataService } from "../services/data.service";
 
-@Injectable()
+export type Snapshot = {
+  view: number;
+  year: number;
+  path: number[];
+  dashboard: number;
+  pdv?: number;
+  mapVisible: boolean;
+  mapFilters?: [number, number[]][];
+  targetControl: boolean;
+  connected: boolean;
+};
+
+@Injectable({
+  providedIn: 'root'
+})
 export class LoggerService {
 
-  private logs: (string | string[])[];
+  private snapshot: Snapshot = defaultSnapshot;
 
-  constructor(private localStorage: LocalStorageService) {
-    let oldLogs = this.localStorage.get('logs');
-    if ( oldLogs ) {
-      this.logs = JSON.parse(oldLogs);
-    } else {
-      this.logs = [];
-      this.save();
-    }
-
+  constructor(private dataService: DataService) {
     (window as any).logger = this;
   }
 
-  push(message: string | string[]) {
-    this.logs.push(message);
-    return this;
+  reset() {
+    this.snapshot = defaultSnapshot;
   }
 
-  add(...rest: any[]) {
-    console.log('>', rest);
-    this.push(rest);
-    return this;
-  }
-
-  save() {
-    this.localStorage.set('logs', JSON.stringify(this.logs));
-  }
-
-  clear() {
-    this.logs.length = 0;
-  }
-
-  delete() {
-    this.logs.length = 0;
-    this.localStorage.set('logs', '[]');
-  }
-
-  log(count = Infinity) {
-    for ( let i = this.logs.length-1; i >= 0; i++ ) {
-      console.log(this.logs[i]);
-      count--;
-      if ( !count )
+  handleEvent(event: number, data: any = undefined) {
+    switch ( event ) {
+      case LoggerService.events.NAVIGATION_TREE_CHANGED:
+        if ( data.type == PDV.geoTree.type )
+          this.snapshot.view = LoggerService.values.NAVIGATION_GEO_TREE;
+        else
+          this.snapshot.view = LoggerService.values.NAVIGATION_TRADE_TREE;
+        break;
+      
+      case LoggerService.events.NAVIGATION_PATH_CHANGED:
+        this.snapshot.path = (data as number[])
+        break;
+      
+      case LoggerService.events.NAVIGATION_DASHBOARD_CHANGED:
+        this.snapshot.dashboard = (data as number);
+        break;
+      
+      case LoggerService.events.DATA_YEAR_CHANGED:
+        this.snapshot.year = data;
+        break;
+      
+      case LoggerService.events.PDV_SELECTED:
+        this.snapshot.pdv = data;
+        break;
+        
+      case LoggerService.events.MAP_STATE_CHANGED:
+        this.snapshot.mapVisible = data;
+        break;
+      
+      case LoggerService.events.MAP_FILTERS_CHANGED:
+        this.snapshot.mapFilters = data;
+        break;
+      
+      case LoggerService.events.TARGET_CONTROL_OPENED:
+        this.snapshot.targetControl = data;
+        break;
+      
+      case LoggerService.events.DISCONNECT:
+        this.snapshot.connected = data;
+        break;
+      
+      default:
+        console.warn('[LoggerService]: unknown event number', event);
         break;
     }
-    return this;
   }
 
-  static CHANGE = 0;
-  static SET = 1;
-  static CLICK = 2;
-
-  static bind(element: any, listener: (event: Event, callback: any) => void) {
-    let type = element.type, [event, eventType, callback] = LoggerService.eventOf(element, type);
-    element.addEventListener(event, (e: Event) => {
-      if ( !e.isTrusted ) return; //we only want user events
-      listener(e, callback);
-    });
+  actionComplete() {
+    this.dataService.queueSnapshot(this.snapshot)
   }
 
-  static change(topic: string, newValue: any, oldValue: any) {
-    return [topic, LoggerService.CHANGE, oldValue, newValue];
-  }
+  static events = {
+    NAVIGATION_TREE_CHANGED: 0,
+    NAVIGATION_PATH_CHANGED: 1,
+    NAVIGATION_DASHBOARD_CHANGED: 2,
+    DATA_YEAR_CHANGED: 3,
+    PDV_SELECTED: 4,
+    MAP_STATE_CHANGED: 5,
+    MAP_FILTERS_CHANGED: 6,
+    TARGET_CONTROL_OPENED: 7,
+    DISCONNECT: 8
+  };
 
-  static click(topic: string) {
-    return [topic, LoggerService.CLICK];
-  }
-
-  static set(topic: string, value: any) {
-    return [topic, LoggerService.SET, value];
-  }
-
-  static eventOf(element: any, type?: string) {
-    if ( type == 'submit' || type == 'range' || element.tagName == 'OPTION' || !type )
-      return ['click', LoggerService.CLICK, LoggerService.click];
-    else if ( type == 'password' )
-      return ['change', LoggerService.SET, LoggerService.set]
-    return ['change', LoggerService.CHANGE, LoggerService.change];
-  }
+  static values = {
+    NAVIGATION_GEO_TREE: 0,
+    NAVIGATION_TRADE_TREE: 1,
+    DATA_YEAR_CURRENT: 1,
+    DATA_YEAR_LAST: 0
+  };
 }
+
+const defaultSnapshot: Snapshot = {
+  view: LoggerService.values.NAVIGATION_GEO_TREE,
+  year: LoggerService.values.DATA_YEAR_CURRENT,
+  path: [],
+  dashboard: 0,
+  mapVisible: false,
+  mapFilters: [],
+  targetControl: false,
+  connected: true
+};

@@ -20,13 +20,13 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         const storedResponse = JSON.parse(this.localStorageService.get("data"));
         const stayConnected = this.localStorageService.get("stayConnected");
         if(storedResponse && stayConnected) {
-            return of(new HttpResponse<any>(storedResponse));
+            return of(new HttpResponse<any>({'body': storedResponse}));
         }
         return next.handle(req).pipe(
                 tap(stateEvent => {
                     if(stateEvent instanceof HttpResponse) {
-                        this.localStorageService.set("data", JSON.stringify(stateEvent))
-                        console.log("Newly cached data : ", stateEvent);
+                        this.localStorageService.set("data", JSON.stringify(stateEvent.body))
+                        console.log("Newly cached data : ", stateEvent.body);
                     }
                 })
         )
