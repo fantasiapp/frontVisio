@@ -453,6 +453,26 @@ class DataExtractionHelper{
     return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdVs, '): 'Objectif Siège: '.concat((Math.round(targetSiege)/1000).toString(), ' km², ');
   }
 
+  static computeDescriptionWidget(slice:any): [number, number, number][]{
+    let relevantNode:Node = DataExtractionHelper.followSlice(slice) as Node,
+      ciblage = PDV.computeCiblage(relevantNode);
+    let objectiveWidget: [number, number, number] = [
+      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, "volP2CD")).reduce((acc, value) => acc + value, 0),
+      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
+      0],
+      ciblageWidget: [number, number, number] = [0, 0, 0];
+    objectiveWidget[2] = 100 * ciblage / objectiveWidget[0];
+    if (relevantNode.label == 'France'){
+      let agentNodes = (relevantNode.children as Node[]).map(drvNode => drvNode.children as Node[]).reduce((acc: Node[], list: Node[]) => acc.concat(list), []);
+      ciblageWidget = [
+        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "volP2CD")).reduce((acc, value) => acc + value, 0),
+        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
+        0]
+        ciblageWidget[2] = 100 * ciblage / ciblageWidget[0];
+    }
+    return [objectiveWidget, ciblageWidget];
+  }
+
   static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {
     let keys = Object.keys(slice).sort((u, v) => PDV.heightOf(tree, u) - PDV.heightOf(tree, v));
     let values = keys.map(key => slice[key]),
