@@ -58,7 +58,7 @@ export class AuthService {
 
   setStayConnected(val: boolean) {
     this.localStorageService.set("stayConnected", val? "true" : '');
-    this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, val);
+    this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!val);
     this.logger.actionComplete();
     
   }
