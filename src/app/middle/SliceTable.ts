@@ -84,14 +84,16 @@ export class SliceTable {
             return Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)
         },
         'graph': (pdv: any) => {
-            let p2cdSales: any =  {};
-            let enduitSales: any =  {};
-            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reverse()) {
-                p2cdSales[entry[0]] = {'value': entry[1], 'color': this.getColor('industry', entry[0])}
+            let p2cdSales: any =  {}; let p2cdRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()
+            let enduitSales: any =  {}; let enduitRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)
+            p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
+            for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
+                p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': this.getColor('industry', industry)}
             }
-            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)).reverse()) {
-                enduitSales[entry[0]] = {'value': entry[1], 'color': this.getColor('indFinition', entry[0])}
+            for(let industry of ['Pregy', 'Salsi', 'Autres']) {
+                enduitSales[industry] = {'value': enduitRaw[industry], 'color': this.getColor('indFinition', industry)}
             }
+            console.log("enduitRaw : ", enduitRaw)
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {
@@ -261,17 +263,20 @@ export class SliceTable {
     }
 
     getColor(axis: string, enseigne: string): string {
-        if(axis === 'industry' && enseigne === 'Siniat')
-            return '#c12793';
-        if(axis === 'industry' && enseigne === 'Autres')
-            return '#888888';
-        if(axis === 'indFinition' && enseigne === 'Autres')
-            return '#5b5b5b';
-        for(let array of Object.values(DataExtractionHelper.get('labelForGraph'))) {
-            if ((array as any)[0] === axis && (array as any)[1] === enseigne) return (array as any)[2]
+        let hardCodedColors: {[key: string]: {[key: string]: string}} = {
+            'industry': {
+            'Siniat': '#A61F7D',
+            'Placo': '#0056A6',
+            'Knauf': '#67D0FF',
+            'Autres': '#888888',
+            },
+            'indFinition': {
+            'Pregy': '#7B145C',
+            'Salsi': '#D00000',
+            'Autres': '#DEDEDE'
+            }
         }
-
-        return 'black'
+        return hardCodedColors[axis][enseigne];
     }
   
     pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau

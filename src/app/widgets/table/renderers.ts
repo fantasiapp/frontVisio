@@ -128,7 +128,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
             </div>
         </div>
         <div *ngIf="displayGraph === false" [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%', 'height': '100%', 'padding': '2% 0 2% 0'}">
-          <span [ngStyle]="{'background-color': '#EFEFEF', 'flex-grow': '1'}"></span>
+          <span [ngStyle]="{'background-color': '#F0F0F0', 'flex-grow': '1'}"></span>
         </div>`,
     styles:  [`:host {
         display: flex;
@@ -145,7 +145,6 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
         this.p2cd = Object.values(params.value['p2cd']);
         this.enduit = Object.values(params.value['enduit']);
         if(params.data.sales.length) this.displayGraph = true;
-        console.log("sales : ", params.data.sales.length, "displayGraph : ", this.displayGraph)
         if (params.data.potential < 0) this.overflow = 10;
     }
   }
