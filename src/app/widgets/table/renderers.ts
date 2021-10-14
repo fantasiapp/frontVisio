@@ -142,29 +142,23 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
 
   @Component({
     template: `
-          <img [id]="rowId" [style.transform]="initialRotation" src="assets/arrow_right.svg"/>
-          <p>{{ displayValue }}</p>`,
+          <img [id]="rowId" src="assets/flèche .svg"/>`,
       styles:  [`:host {
         display: flex;
-        flex-direction: row;
-        height: 100%;
+        justify-content: center;
+        align-items: center;
+        top: 25%;
+        left: 25%;
+        position: relative;
       }`,
     `img {
       transition: all .3s ease-in;
-      flex: 0;
-      width: 1em;
-    }`,
-    `p {
-      flex: 1;
-      margin-left: 1em;
     }`]
   })
   export class AddArrowCellRenderer extends DefaultCellRenderer {
-    displayValue: string = "";
     rowId: string = "";
     initialRotation: string = "rotate(-0.25turn)"
     agInit(params: ICellRendererParams): void {
-      this.displayValue = params.value['name'] + ' PdV : ' + params.value['number']
       this.rowId = params.node.rowIndex!.toString()
     }
   }

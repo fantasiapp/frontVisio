@@ -104,7 +104,6 @@ export class TableComponent extends BasicWidget {
     hiddenGroups = {}
     this.gridApi.setRowData(data[1])
     this.gridApi.refreshCells()
-    console.log("UpdateGraph")
   }
 
   updateGroups(id: string) {
@@ -131,8 +130,8 @@ export class TableComponent extends BasicWidget {
         for(let cd of data){
           switch (cd.field) {
             case 'name':
-              cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
+              cd.valueFormatter = function (params: any) {
+                if(params.data.groupRow === true) return params.value['name'] + ' PdV : ' + params.value['number']
                 return;
               }
               break;
@@ -167,7 +166,7 @@ export class TableComponent extends BasicWidget {
 
             case 'checkboxEnduit':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
                 return {component : 'checkboxEnduitCellRenderer'};
               }
 
@@ -175,7 +174,7 @@ export class TableComponent extends BasicWidget {
             
             case 'pointFeu':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
                 return {component : 'pointFeuCellRenderer'};
               }
               break;
@@ -224,9 +223,9 @@ export class TableComponent extends BasicWidget {
     
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
-      let arrowImg = document.getElementById(event['node'].rowIndex.toString());
-      if(arrowImg?.style.transform == "rotate(-0.25turn)") arrowImg!.style.transform = "rotate(0.25turn)";
-      else arrowImg!.style.transform = "rotate(-0.25turn)"
+      // let arrowImg = document.getElementById(event['node'].rowIndex.toString());
+      // if(arrowImg?.style.transform == "rotate(-0.25turn)") arrowImg!.style.transform = "rotate(0.25turn)";
+      // else arrowImg!.style.transform = "rotate(-0.25turn)"
     } else {
       if(event['column']['colId'] === 'edit') {
         this.pdv = this.sliceTable.getPdvInstance(event['data'])

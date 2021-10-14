@@ -204,7 +204,7 @@ export class SliceTable {
         }
         for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
             let column : any = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': visibleColumn.colSpan ? visibleColumn.colSpan : (params: any) => 1}
-            if(column.field === 'potential') column.colSpan = (params : any) => {return params.data.groupRow === true ? 3 : 1; };
+            if(column.field === 'potential') column.colSpan = (params : any) => {return params.data.groupRow === true ? 2 : 1; };
             if(visibleColumn.valueGetter) column.valueGetter = visibleColumn.valueGetter; 
             columnDefs.push(column);
         }
