@@ -43,7 +43,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
     this.filterDict = PDV.countForFilter(pdvs);
     this.update();
-    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this._criteria);
+    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this._criteria.length ? this._criteria : undefined);
     this.logger.actionComplete();
   }
   

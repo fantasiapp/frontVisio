@@ -15,7 +15,7 @@ export class FiltersStatesService {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
   tree?: Tree;
-  constructor(private navigation: Navigation, private dataservice : DataService) {
+  constructor(private navigation: Navigation, private dataservice : DataService, private logger: LoggerService) {
     this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
@@ -89,14 +89,21 @@ export class FiltersStatesService {
     superlevel?: boolean,
     emit: boolean = true
   ) {
+
     this.navigation.setCurrent(levelId, dashboardId, superlevel);
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
     };
+    const States = this.navigation.getCurrent();
     const currentState = {
-      States: this.navigation.getCurrent(),
+      States
     };
+
+    //the path is auto computed, the only interesting thing "logwise" that can change is the dashboard
+    console.log('filtersState.updateState')
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
+    this.logger.actionComplete();
 
     if ( emit ) {
       this.stateSubject.next(currentState);
@@ -121,6 +128,7 @@ export class FiltersStatesService {
   public reset(t: Tree) {
     this.tree = t;
     this.navigation.setTree(t);
+
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
@@ -129,6 +137,10 @@ export class FiltersStatesService {
     const currentState = {
       States
     };
+
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
+    this.logger.actionComplete();
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
     this.$path.next(this.getPath(States));

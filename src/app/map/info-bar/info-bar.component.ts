@@ -35,6 +35,7 @@ export class InfoBarComponent {
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.loadGrid()
     }
+    console.log(value?.id);
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
     this.logger.actionComplete();
   }
