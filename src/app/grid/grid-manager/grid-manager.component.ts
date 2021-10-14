@@ -128,6 +128,11 @@ export class GridManager implements AfterViewInit, OnChanges {
       component.update();
   }
 
+  refresh() { //mainly a transition without animation
+    for ( let component of this.instances )
+      component.refresh();
+  }
+
   ngOnDestroy() {
     this.clear();
   }

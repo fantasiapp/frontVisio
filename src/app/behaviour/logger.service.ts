@@ -10,8 +10,8 @@ export type Snapshot = {
   pdv?: number;
   mapVisible: boolean;
   mapFilters?: [number, number[]][];
-  targetControl: boolean;
-  connected: boolean;
+  widgetParams: number[];
+  stayConnected: boolean;
 };
 export const structureSnapshot: string[] =  ['view', 'year', 'path', 'dashboard', 'pdv', 'mapVisible', 'mapFilters', 'targetControl', 'connected']
 
@@ -63,12 +63,18 @@ export class LoggerService {
         this.snapshot.mapFilters = data;
         break;
       
-      case LoggerService.events.TARGET_CONTROL_OPENED:
-        this.snapshot.targetControl = data;
+      case LoggerService.events.WIDGET_PARAMS_ADDED:
+        this.snapshot.widgetParams.push(data);
         break;
       
-      case LoggerService.events.DISCONNECT:
-        this.snapshot.connected = data;
+      case LoggerService.events.WIDGET_PARAMS_REMOVED:
+        let idx = this.snapshot.widgetParams.indexOf(data);
+        if ( idx < 0 ) break;
+        this.snapshot.widgetParams.splice(idx, 1);
+        break;
+      
+      case LoggerService.events.STAY_CONNECTED:
+        this.snapshot.stayConnected = data;
         break;
       
       default:
@@ -89,8 +95,9 @@ export class LoggerService {
     PDV_SELECTED: 4,
     MAP_STATE_CHANGED: 5,
     MAP_FILTERS_CHANGED: 6,
-    TARGET_CONTROL_OPENED: 7,
-    DISCONNECT: 8
+    WIDGET_PARAMS_ADDED: 7,
+    WIDGET_PARAMS_REMOVED: 8,
+    STAY_CONNECTED: 9
   };
 
   static values = {
@@ -108,6 +115,6 @@ const defaultSnapshot: Snapshot = {
   dashboard: 0,
   mapVisible: false,
   mapFilters: [],
-  targetControl: false,
-  connected: true
+  widgetParams: [],
+  stayConnected: false
 };

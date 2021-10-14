@@ -30,7 +30,7 @@ export class ViewComponent implements OnDestroy {
     });
 
     dataservice.update.subscribe((_) => {
-      this.update();
+      this.refresh(); //seamless transition
     });
   }
 
@@ -58,6 +58,11 @@ export class ViewComponent implements OnDestroy {
   update() {
     this.computeDescription(this.layout && this.layout.description || '');
     this.gridManager?.update();
+  }
+
+  refresh() {
+    this.computeDescription(this.layout && this.layout.description || '');
+    this.gridManager?.refresh();
   }
 
   ngOnDestroy() {
