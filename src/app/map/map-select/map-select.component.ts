@@ -82,7 +82,7 @@ export class MapSelectComponent implements OnChanges {
   protected minHeight = 40; //height for title only
   protected contentPadding = 30;
   protected lineHeight = 30;
-  private dropped = false;
+  dropped = false;
 
   @HostBinding('style.height')
   get height() {

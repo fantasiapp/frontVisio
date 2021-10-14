@@ -69,10 +69,19 @@
     position: relative;
 }
 
-.toggle img {
+.toggle div {
+    box-sizing: border-box;
     position: absolute;
     top: 30%; left: 50%;
     transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    padding: 5px 0;
+    box-shadow: 0 1px 10px 0 #ccc;
+}
+
+.toggle div img {
+    vertical-align: middle;
 }
 
 .close {
@@ -118,4 +127,13 @@
     border-bottom: 1px solid #7f7f7f;
     outline: none !important;
     width: 250px;
+}
+
+.cover {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(247, 247, 247, 0.5);
+    z-index: -1;
 }

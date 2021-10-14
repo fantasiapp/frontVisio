@@ -65,7 +65,7 @@ export class AuthService {
   getStayConnected(): boolean {
     if(this.localStorageService.get("data") && this.localStorageService.get("token")) {
       let logged = this.localStorageService.get("stayConnected");
-      this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, logged);
+      this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!logged);
       this.logger.actionComplete();
       return logged;
     } else { return false;}

@@ -1,11 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { of } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { DataService } from 'src/app/services/data.service';
-import * as d3 from 'd3';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 
 @Component({
