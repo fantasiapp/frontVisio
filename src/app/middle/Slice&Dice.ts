@@ -2,6 +2,7 @@ import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} 
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
+import { first } from 'rxjs/operators';
 
 
 // peut-être à mettre dans un fichier de config
@@ -232,10 +233,15 @@ class DataWidget{
     }        
   }
 
-  private removeNegativeValues(){
-    for(let i = 0; i < this.rowsTitles.length; i++)
-      for(let j = 0; j < this.columnsTitles.length; j++)
-        if (this.data[i][j] < 0) this.data[i][j] = 0;
+  numberToBool(){
+    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0));
+    let firstLine: boolean[] = [];
+    for (let j = 0; j < this.rowsTitles.length; j++) firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
+    for (let i = 0; i < this.rowsTitles.length; i++)
+      extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
+    for (let [id, i] of Object.entries(this.idToI)) if (i !== undefined) this.idToI[+id] = i + 1;  
+    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) this.idToI[+id] = j + 1;   
   }
 }
 
@@ -889,6 +895,17 @@ class SliceDice{
       colors: colors, 
       targetLevel: targetLevel, 
       ciblage: rodPositionForCiblage
+    }    
+  }
+
+  rubiksCubeCheck(slice:any, indicator: string, percent:string){
+    let sortLines = percent !== 'classic';
+    let dataWidget = PDV.getData(slice, "enseigne", "segmentMarketing", indicator.toLowerCase(), this.geoTree, []);
+    dataWidget.basicTreatement(false, sortLines);
+    return {
+      boolMatrix: dataWidget.numberToBool(),
+      enseigneIndexes: dataWidget.idToI,
+      segmentMarketingIndexes: dataWidget.idToJ
     }
   }
 
