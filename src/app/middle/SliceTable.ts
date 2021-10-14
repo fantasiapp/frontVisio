@@ -223,6 +223,20 @@ export class SliceTable {
         return this.titleData;
     }
 
+
+    changeTargetTargetFinition(pdv: {[field: string]: any}) {
+        if(pdv['potential'] > 0) {
+            if(pdv['checkboxEnduit']) {
+                this.updateTotalTarget(pdv['potential'])
+                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = pdv['potential']
+            } else {
+                this.updateTotalTarget(-pdv['potential'])
+                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = 0
+            }
+            // this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
+        }
+    }
+
     updateTotalTarget(increment: number) {
         this.titleData[1]+=increment
     }

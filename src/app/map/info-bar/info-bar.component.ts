@@ -262,7 +262,6 @@ export class InfoBarComponent {
 
   updatePdv(pdv: PDV) { //Field that may be changed here : target.commentTargetP2CD, target.redistributed, target.greenLight, target.targetP2CD
     let newPdv = this.pdvFromPDVToList(pdv);
-    console.log("[InfoBar] newPdv : ", newPdv)
     this.dataService.updatePdv(newPdv, InfoBarComponent.pdvId);
     this.hasChanged = false;
   }
