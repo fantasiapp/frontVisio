@@ -688,8 +688,7 @@ export class PDV{
   getPotential(){
     let p2cdSalesRaw = this.displayIndustrieSaleVolumes();
     let siniatSale = p2cdSalesRaw['Siniat'];
-    let totalSale = Object.entries(p2cdSalesRaw).filter(([industry, _]) => {!['Siniat', 'Placo', 'Knauf'].includes(industry)})
-      .reduce((total: number, [_, value]: [string, number]) => total + value, 0)
+    let totalSale = Object.entries(p2cdSalesRaw).reduce((total: number, [_, value]: [string, number]) => total + value, 0)
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
     let pregySale = enduitSalesRaw['Pregy'];
     let salsiSale = enduitSalesRaw['Salsi'];
