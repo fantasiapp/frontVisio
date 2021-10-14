@@ -9,7 +9,7 @@
     <ul class="details">
         <li><img [src]="getADStatus() ? 'assets/AD ouvert.svg' : 'assets/AD Fermée.svg'"/> Saisie de l'AD : <span class="value">{{ getADStatus() ? 'Ouverte' : 'Fermée' }}</span></li>
         <li><img src="assets/Version appli.svg"/> Version de l'Appli : <span class="value">{{ getAppVersion() }}</span></li>
-        <li><img src="assets/Version referentiel .svg"/> Version Référenciel : <span class="value">{{ getRefValue() }}</span></li>
+        <li><img src="assets/Version referentiel .svg"/> Version Référentiel : <span class="value">{{ getRefValue() }}</span></li>
         <li><img src="assets/Mise a jour .svg"/> Mise à jour : <span class="value">{{ getLastUpdateDate() }}</span></li>
     </ul>
     <div class="logout">

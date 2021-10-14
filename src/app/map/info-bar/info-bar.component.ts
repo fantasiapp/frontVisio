@@ -1,11 +1,9 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { of } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { DataService } from 'src/app/services/data.service';
-import * as d3 from 'd3';
+import { LoggerService } from 'src/app/behaviour/logger.service';
 
 @Component({
   selector: 'info-bar',
@@ -33,11 +31,12 @@ export class InfoBarComponent {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
       this.redistributedDisabled = !value.attribute('redistributed')
-      this.target=this._pdv!.attribute('target')
+      this.target = this._pdv!.attribute('target')
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.loadGrid()
-      console.log("values : ", this._pdv!.getValues())
     }
+    this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
+    this.logger.actionComplete();
   }
 
   @Output()
@@ -84,7 +83,7 @@ export class InfoBarComponent {
     return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
   }
 
-  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService) {
+  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
     console.log('[InfobarComponent]: On')
     this.SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
     this.SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')

@@ -15,6 +15,20 @@
     color: #151D21;
     height: 20px;
     cursor: pointer;
+    transform-origin: 50% 50%;
+    position: relative;
+}
+
+.name .dropicon {
+    position: absolute;
+    top: 17px;
+    right: 30px;
+    cursor: pointer;
+    transition: transform 100ms ease-out 0s;
+}
+
+.name.dropped .dropicon {
+    transform: rotate(180deg);
 }
 
 .container {

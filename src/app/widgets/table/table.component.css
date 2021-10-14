@@ -33,7 +33,7 @@ span {
     height: 100%;
     background-color: white;
     top: 0;
-    right: -60%;
+    right: calc(-60% - 5px);
     width: 60%;
     box-shadow: -2px 0 4px grey;
     overflow: scroll;

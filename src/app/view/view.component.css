@@ -23,12 +23,12 @@
 
 @media (min-width: 1366px) and (max-width: 1500px) {
     .description {
-        font-size: 16px;
+        font-size: 15px;
     }
 }
 
 @media (min-width: 1500px) {
     .description {
-        font-size: 18px;
+        font-size: 16px;
     }
 }

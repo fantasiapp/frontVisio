@@ -37,7 +37,10 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   get inputIsOpen() { return this._inputIsOpen; }
   set inputIsOpen(val: boolean) {
-    this.logger.handleEvent(LoggerService.events.TARGET_CONTROL_OPENED, val);
+    let event: number = val ? LoggerService.events.WIDGET_PARAMS_ADDED : LoggerService.events.WIDGET_PARAMS_REMOVED,
+      id: number = parseInt(DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('widget'), 'histoColumnTarget')!);
+    
+    this.logger.handleEvent(event, id);
     this.logger.actionComplete();
     this._inputIsOpen = val;
   }
@@ -124,14 +127,24 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   updateGraph(data: any) {
     //wait for animation
     super.updateGraph(data); //queue first
+    this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
-      this.getNeedleGroup()?.remove();
       this.data = data;
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
       }, this.transitionDuration);
     });
+  }
+
+  //override the update method, the make target move immediately
+  refresh() {
+    let data = this.data = this.updateData(), oldDuration = this.transitionDuration;
+    this.getNeedleGroup()?.remove();
+    this.transitionDuration = 0;
+    super.updateGraph(data); //immediate update
+    this.createNeedles(data); //maybe setTimeout
+    this.transitionDuration = oldDuration;
   }
 
   private createNeedles(allData: any) {

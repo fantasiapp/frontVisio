@@ -40,7 +40,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   private mouseEvent: Subject<boolean> = new Subject();
   private subscription!: Subscription;
 
-  constructor(private filtersService: FiltersStatesService, private auth: AuthService, private dataService: DataService, private logger: LoggerService) {}
+  constructor(private filtersService: FiltersStatesService, private auth: AuthService, private dataService: DataService) {}
 
   ngOnInit() {
     this.subscription = this.mouseEvent.pipe(debounceTime(0)).subscribe(dropped => {
@@ -92,8 +92,6 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.logger.handleEvent(LoggerService.events.DISCONNECT, false);
-    this.logger.actionComplete();
     this.auth.logoutFromServer();
   }
 }

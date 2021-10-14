@@ -5,6 +5,8 @@ import { FiltersStatesService } from '../filters/filters-states.service';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { BasicWidget } from '../widgets/BasicWidget';
+import { MapFiltersComponent } from './map-filters/map-filters.component';
+import { InfoBarComponent } from './info-bar/info-bar.component';
 
 type MarkerType = {
   pdv: PDV;
@@ -55,6 +57,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
     this.logger.actionComplete();
   }
+
   show() {
     this.interactiveMode();
     this.hidden = false;
@@ -287,13 +290,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     let std = Math.sqrt(variance[0] + variance[1]);
     let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
 
-    this.map!.setZoom(zoom || 13);
-    this.map!.panTo(
-      new google.maps.LatLng(
-        center[0] || 48.52,
-        center[1] || 2.19
-      )
-    );
+    requestAnimationFrame(() => {
+      this.map!.setZoom(zoom || 13);
+      this.map!.panTo(
+        new google.maps.LatLng(
+          center[0] || 48.52,
+          center[1] || 2.19
+        )
+      );
+    });
   }
 
   private addMarkersFromPDVs() {
@@ -457,5 +462,3 @@ builder.axis('id', [
   [6, {head: MapIconBuilder.diamond}],
   [9, {head: MapIconBuilder.circle}]
 ]).generate();
-
-console.log(builder.icons);
