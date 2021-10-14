@@ -93,7 +93,6 @@ export class SliceTable {
             for(let industry of ['Pregy', 'Salsi', 'Autres']) {
                 enduitSales[industry] = {'value': enduitRaw[industry], 'color': this.getColor('indFinition', industry)}
             }
-            console.log("enduitRaw : ", enduitRaw)
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {
@@ -273,7 +272,7 @@ export class SliceTable {
             'indFinition': {
             'Pregy': '#7B145C',
             'Salsi': '#D00000',
-            'Autres': '#DEDEDE'
+            'Autres': '#B0B0B0'
             }
         }
         return hardCodedColors[axis][enseigne];

@@ -114,21 +114,18 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
 
   @Component({
     template: `
-        <div *ngIf="displayGraph === true" [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%', 'height': '100%', 'padding': '2% 0 2% 0'}">
-            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1'}">
+        <div [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%', 'height': '100%', 'padding': '2% 0 2% 0'}">
+            <div [ngStyle]="{'background-color': defaultColor, 'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1'}">
                 <div *ngFor="let sale of p2cd" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0'}">
                     <span *ngIf="sale.value"></span>
                 </div>
             </div>
 
-            <div [ngStyle]="{'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1', 'width': 100+overflow+'%'}">
+            <div [ngStyle]="{'background-color': defaultColor, 'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1', 'width': 100+overflow+'%'}">
                 <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
                 <span *ngIf="sale.value"></span>
                 </div>
             </div>
-        </div>
-        <div *ngIf="displayGraph === false" [ngStyle]="{'display': 'flex', 'flex-direction': 'column', 'align-content': 'flex-start', 'width': '100%', 'height': '100%', 'padding': '2% 0 2% 0'}">
-          <span [ngStyle]="{'background-color': '#F0F0F0', 'flex-grow': '1'}"></span>
         </div>`,
     styles:  [`:host {
         display: flex;
@@ -140,11 +137,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     p2cd?: {[name: string]: number}[];
     enduit?: {[name: string]: number}[];
     overflow: number = 0;
-    displayGraph: boolean = false;
+    defaultColor = '#F0F0F0';
     agInit(params: ICellRendererParams): void {
         this.p2cd = Object.values(params.value['p2cd']);
         this.enduit = Object.values(params.value['enduit']);
-        if(params.data.sales.length) this.displayGraph = true;
         if (params.data.potential < 0) this.overflow = 10;
     }
   }
