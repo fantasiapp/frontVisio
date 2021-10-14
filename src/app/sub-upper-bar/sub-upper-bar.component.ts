@@ -39,7 +39,7 @@ export class SubUpperBarComponent implements OnInit {
   }
 
   onYearChange(e: Event) {
-    this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, (e.target as any).value | 0);
+    this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, !!(e.target as any).value);
     this.logger.actionComplete();
   }
 }
