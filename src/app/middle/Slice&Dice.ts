@@ -750,17 +750,17 @@ export class PDV{
   displayIndustrieSaleVolumes(enduit = false){
     if (enduit){
       let industriesSalevolume = this.getValue('enduit', true) as number[],
+        totalP2cd = this.getValue('p2cd') as number,
         dictResult:{[key:string]:number} = {},
         pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         industrieAxis = DataExtractionHelper.get('industrie'),
         listIndustries = Object.values(industrieAxis);
-      dictResult['Autres'] = 0;
-      for (let i = 0; i < industriesSalevolume.length; i++){
-        if (listIndustries[i] == industrieAxis[pregyId]) dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
-        else if (listIndustries[i] == industrieAxis[salsiId]) dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
-        else dictResult['Autres'] += industriesSalevolume[i];
-      }
+        for (let i = 0; i < industriesSalevolume.length; i++){
+          if (listIndustries[i] == industrieAxis[pregyId]) dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
+          else if (listIndustries[i] == industrieAxis[salsiId]) dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
+        }
+        dictResult['Autres'] = Math.max(totalP2cd * 0.36 - dictResult[industrieAxis[pregyId]] - dictResult[industrieAxis[salsiId]], 0);
       return dictResult;
     }
     let industriesSalevolume = this.getValue('p2cd', true) as number[],
