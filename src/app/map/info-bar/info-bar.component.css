@@ -21,7 +21,7 @@
     height: calc(100% - var(--info-bar-margin-y) - var(--navigation-height));
     padding: var(--info-bar-padding-y) var(--info-bar-padding-x);
     top: 10px;
-    right: calc(-1*var(--info-bar-width));
+    right: calc(-1*var(--info-bar-width) - 5px);
     background: white;
     z-index: 9999;
     margin-top: var(--info-bar-margin-y);
