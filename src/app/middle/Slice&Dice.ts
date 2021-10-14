@@ -434,7 +434,7 @@ export class PDV{
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
       let resultTemplate = new Array(axe.length).fill(0);
-      if (target && this.targetP2cd > 0){
+      if (target && this.targetP2cd > 0 && this.getLightTarget() !== 'r'){
         resultTemplate[associatedIndex["Potentiel ciblé"]] = 1;
         return resultTemplate; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
       }
@@ -466,7 +466,7 @@ export class PDV{
     keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
     for (let sale of relevantSales)
       diced[idIndustries[sale.industryId]] += sale.volume;    
-    if (target && this.targetP2cd > 0){
+    if (target && this.targetP2cd > 0 && this.getLightTarget() !== 'r'){
       let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
         sumExceptSiniat = 0;
       for (let i = 0; i < diced.length; i++)
@@ -673,7 +673,7 @@ export class PDV{
     if (dn){
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
-        if (isNaN(target)) target = 0;
+        if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
         let toAdd = (target > 0) ? 1: 0;
         ciblage += toAdd;
       };
@@ -685,7 +685,7 @@ export class PDV{
     else {
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
-        if (isNaN(target)) target = 0;
+        if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
         ciblage += target;
       };
     }
