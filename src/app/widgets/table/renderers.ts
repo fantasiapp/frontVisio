@@ -13,35 +13,37 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
 }
    
   @Component({
-    template: `<img src="assets/edit.svg"/>`,
+    template: `<div><img src="assets/edit.svg"/></div>`,
     styles:  [`:host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        top: 25%;
-        left: 25%;
-        position: relative;
-      }`]
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`]
   })
   export class EditCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {}
   }
   
   @Component({
-    template: `<input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" [hidden]="!params.data.redistributedEnduit">`,
+    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" [hidden]="!params.data.redistributedEnduit"></div>`,
     styles:  [`:host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        top: 25%;
-        left: 25%;
-        position: relative;
-      }
-      input {
-        transform: scale(1.3);
-      }
-      
-      `]
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`,
+    `input {
+      transform: scale(1.3);
+    }`]
   })
   export class CheckboxEnduitCellRenderer extends DefaultCellRenderer {
     params: any;
@@ -64,20 +66,20 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<input type="checkbox" [(checked)]="params.value" [hidden]="params.data.clientProspect === 'Client'" disabled>`,
+    template: `<div><input type="checkbox" [(checked)]="params.value" [hidden]="params.data.clientProspect === 'Client'" disabled></div>`,
     styles:  [`:host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        top: 25%;
-        left: 25%;
-        position: relative;
-      }
-      input {
-        transform: scale(1.3);
-      }
-      
-      `]
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`,
+    `input {
+      transform: scale(1.3);
+    }`]
   })
   export class CheckboxP2cdCellRenderer extends DefaultCellRenderer {
     params: any;
@@ -90,14 +92,16 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    template: `<img *ngIf="show" src="assets/feu.svg">`,
+    template: `<div><img *ngIf="show" src="assets/feu.svg"></div>`,
     styles:  [`:host {
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      top: 25%;
-      left: 25%;
-      position: relative;
     }`]
 
   })
@@ -141,19 +145,22 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    template: `
-          <img [id]="rowId" src="assets/flèche .svg"/>`,
+    template: `<div>
+                <img [id]="rowId" src="assets/flèche .svg"/>
+              </div>`,
       styles:  [`:host {
+        flex: 1;
+        display: flex;
+      }`,
+      `div {
+        flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
-        top: 25%;
-        left: 25%;
-        position: relative;
       }`,
-    `img {
-      transition: all .2s ease-in;
-    }`]
+      `img {
+        transition: all .2s ease-in;
+      }`]
   })
   export class AddArrowCellRenderer extends DefaultCellRenderer {
     rowId: string = "";
@@ -163,15 +170,17 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    template: `<img src="assets/! icon.svg"/>`,
+    template: `<div><img src="assets/! icon.svg"/></div>`,
     styles:  [`:host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        top: 25%;
-        left: 25%;
-        position: relative;
-      }`]
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`]
   })
   export class InfoCellRenderer extends DefaultCellRenderer {
     agInit(params: ICellRendererParams): void {}
