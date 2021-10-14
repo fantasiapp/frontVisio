@@ -64,6 +64,7 @@ export class DataService {
         if(response.message) {
           console.debug("Empty update")
         } else {
+          console.log("Updates received from back : ", response)
           DataExtractionHelper.updateData(response);
           this.update.next();
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)

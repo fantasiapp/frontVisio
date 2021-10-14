@@ -74,6 +74,7 @@ export class HistoColumnComponent extends BasicWidget {
       tooltip: {
         grouped: false,
         contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
+          d.reverse();
           return `
             <div class="histocolumn-tooltip tooltip">
               ${d.filter((data: any) => data.value > 0.5).map((data: any) => `

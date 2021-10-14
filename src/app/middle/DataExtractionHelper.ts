@@ -238,23 +238,13 @@ class DataExtractionHelper{
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), 'code')
-    for(let newPdv of Object.values(data.pdvs)) {
-      for(let [oldPdvId, oldPdv] of Object.entries(this.data.pdvs)) {
-        if((oldPdv as any)[idCode] === newPdv[idCode]) {
-          this.data.pdvs[oldPdvId] = newPdv;
-          break;
-        }
-      }
+    for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
+          this.data.pdvs[newPdvId] = newPdv;
     }
   //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
     for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
       for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
-        for(let oldTargetId of Object.keys(this.data[targetType])) {
-          if(newTargetId === oldTargetId) {
             this.data[targetType][newTargetId] = newTarget;
-            break;
-          }
-        }
       }
     }      
     //Build trees !!! CUSTOM THIS

@@ -100,12 +100,6 @@ export class InfoBarComponent {
       this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
       this.products = PDV.getProducts() as string[];
       this.products.splice(3, this.products.length, 'P2CD')
-      this.grid = new Array(this.industries.length + 1);
-      this.gridFormatted = new Array(this.industries.length+1);
-      for ( let i = 0; i < this.grid.length; i++ ) {
-        this.grid[i] = new Array(this.products.length).fill(0);
-        this.gridFormatted[i] = new Array(this.products.length).fill('');
-      }
       for(let i = 0; i<this.industries.length; i++)
         this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
       for(let i = 0; i<this.products.length-1; i++)
@@ -145,6 +139,12 @@ export class InfoBarComponent {
     // console.log("Id retenus : ", this.productIdToIndex)
     // console.log("Sales totales : ", this._pdv!.attribute("sales"))
     // console.log("Sales retenues : ", this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())))
+    this.grid = new Array(this.industries.length + 1);
+    this.gridFormatted = new Array(this.industries.length+1);
+    for ( let i = 0; i < this.grid.length; i++ ) {
+      this.grid[i] = new Array(this.products.length).fill(0);
+      this.gridFormatted[i] = new Array(this.products.length).fill('');
+    }
     for(let sale of this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString()))) {
       let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
       this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]

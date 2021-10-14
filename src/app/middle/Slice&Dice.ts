@@ -680,7 +680,7 @@ export class PDV{
     }
     else if (enduit){
       for (let pdv of pdvs)
-        if (pdv.targetFinition) ciblage += pdv.getPotential();
+        if (pdv.targetFinition) ciblage += Math.max(pdv.getPotential(), 0);
     }
     else {
       for (let pdv of pdvs){
@@ -699,7 +699,7 @@ export class PDV{
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
     let pregySale = enduitSalesRaw['Pregy'];
     let salsiSale = enduitSalesRaw['Salsi'];
-    return Math.max(siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale, 0);
+    return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale;
   }
 
   static heightOf(tree: Tree, label: string){
