@@ -26,8 +26,12 @@
 
 .configs li {
     justify-content: flex-end;
+    user-select: none !important;
 }
 
+.configs label, .configs label [type='radio'] {
+    cursor: pointer;
+}
 
 .main ul:first-child li:not(:last-child) {
     margin-right: 20px;

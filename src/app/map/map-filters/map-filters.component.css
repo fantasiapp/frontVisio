@@ -119,3 +119,12 @@
     outline: none !important;
     width: 250px;
 }
+
+.cover {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(247, 247, 247, 0.5);
+    z-index: -1;
+}

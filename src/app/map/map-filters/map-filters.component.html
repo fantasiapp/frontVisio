@@ -14,3 +14,5 @@
 <div *ngIf="!opened" class="toggle" (click)="opened = !opened">
     <img src="assets/Filtre.svg"/>
 </div>
+
+<div class="cover" [style.display]="opened ? 'block' : 'none'"></div>
