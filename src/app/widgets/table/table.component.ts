@@ -223,9 +223,9 @@ export class TableComponent extends BasicWidget {
     
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
-      // let arrowImg = document.getElementById(event['node'].rowIndex.toString());
-      // if(arrowImg?.style.transform == "rotate(-0.25turn)") arrowImg!.style.transform = "rotate(0.25turn)";
-      // else arrowImg!.style.transform = "rotate(-0.25turn)"
+      let arrowImg = document.getElementById(event['node'].data.name.name);
+      if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
+      else arrowImg!.style.transform = "rotate(-0.5turn)"
     } else {
       if(event['column']['colId'] === 'edit') {
         this.pdv = this.sliceTable.getPdvInstance(event['data'])

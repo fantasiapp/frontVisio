@@ -152,14 +152,13 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
         position: relative;
       }`,
     `img {
-      transition: all .3s ease-in;
+      transition: all .2s ease-in;
     }`]
   })
   export class AddArrowCellRenderer extends DefaultCellRenderer {
     rowId: string = "";
-    initialRotation: string = "rotate(-0.25turn)"
     agInit(params: ICellRendererParams): void {
-      this.rowId = params.node.rowIndex!.toString()
+      this.rowId = params.node.data.name.name
     }
   }
 
