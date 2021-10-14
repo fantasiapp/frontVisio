@@ -2,6 +2,7 @@ import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} 
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
+import { first } from 'rxjs/operators';
 
 
 // peut-être à mettre dans un fichier de config
@@ -232,10 +233,16 @@ class DataWidget{
     }        
   }
 
-  private removeNegativeValues(){
-    for(let i = 0; i < this.rowsTitles.length; i++)
-      for(let j = 0; j < this.columnsTitles.length; j++)
-        if (this.data[i][j] < 0) this.data[i][j] = 0;
+  numberToBool(){
+    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0));
+    let firstLine: boolean[] = [];
+    for (let j = 0; j < this.rowsTitles.length; j++) firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
+    for (let i = 0; i < this.rowsTitles.length; i++)
+      extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
+    for (let [id, i] of Object.entries(this.idToI)) if (i !== undefined) this.idToI[+id] = i + 1;  
+    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) this.idToI[+id] = j + 1;   
+    return extendedBoolMatrix
   }
 }
 
@@ -427,7 +434,7 @@ export class PDV{
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
       let resultTemplate = new Array(axe.length).fill(0);
-      if (target && this.targetP2cd > 0){
+      if (target && this.targetP2cd > 0 && this.getLightTarget() !== 'r'){
         resultTemplate[associatedIndex["Potentiel ciblé"]] = 1;
         return resultTemplate; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
       }
@@ -459,7 +466,7 @@ export class PDV{
     keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
     for (let sale of relevantSales)
       diced[idIndustries[sale.industryId]] += sale.volume;    
-    if (target && this.targetP2cd > 0){
+    if (target && this.targetP2cd > 0 && this.getLightTarget() !== 'r'){
       let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
         sumExceptSiniat = 0;
       for (let i = 0; i < diced.length; i++)
@@ -666,19 +673,19 @@ export class PDV{
     if (dn){
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
-        if (isNaN(target)) target = 0;
+        if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
         let toAdd = (target > 0) ? 1: 0;
         ciblage += toAdd;
       };
     }
     else if (enduit){
       for (let pdv of pdvs)
-        if (pdv.targetFinition) ciblage += pdv.getPotential();
+        if (pdv.targetFinition) ciblage += Math.max(pdv.getPotential(), 0);
     }
     else {
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
-        if (isNaN(target)) target = 0;
+        if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
         ciblage += target;
       };
     }
@@ -692,7 +699,7 @@ export class PDV{
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
     let pregySale = enduitSalesRaw['Pregy'];
     let salsiSale = enduitSalesRaw['Salsi'];
-    return Math.max(siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale, 0);
+    return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale;
   }
 
   static heightOf(tree: Tree, label: string){
@@ -889,6 +896,17 @@ class SliceDice{
       colors: colors, 
       targetLevel: targetLevel, 
       ciblage: rodPositionForCiblage
+    }    
+  }
+
+  rubiksCubeCheck(slice:any, indicator: string, percent:string){
+    let sortLines = percent !== 'classic';
+    let dataWidget = PDV.getData(slice, "enseigne", "segmentMarketing", indicator.toLowerCase(), this.geoTree, []);
+    dataWidget.basicTreatement(false, sortLines);
+    return {
+      boolMatrix: dataWidget.numberToBool(),
+      enseigneIndexes: dataWidget.idToI,
+      segmentMarketingIndexes: dataWidget.idToJ
     }
   }
 

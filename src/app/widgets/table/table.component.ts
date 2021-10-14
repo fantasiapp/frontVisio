@@ -267,6 +267,7 @@ export class TableComponent extends BasicWidget {
       'pregyEnduitSales': Math.round(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'salsiEnduitSales': Math.round(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'potential': Math.round(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalSiniatEnduitSales': Math.round(data.potential + data.graph.enduit['Salsi'].value + data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalEnduitSales': Math.round(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
     };
   }
