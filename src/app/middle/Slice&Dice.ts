@@ -242,6 +242,7 @@ class DataWidget{
       extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
     for (let [id, i] of Object.entries(this.idToI)) if (i !== undefined) this.idToI[+id] = i + 1;  
     for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) this.idToI[+id] = j + 1;   
+    return extendedBoolMatrix
   }
 }
 
