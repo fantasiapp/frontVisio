@@ -459,16 +459,18 @@ class DataExtractionHelper{
       (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
       0],
       ciblageWidget: [number, number, number] = [0, 0, 0];
-    objectiveWidget[2] = 0.1 * ciblage / objectiveWidget[0]; // on divise par 10 car on fait *100 pour mettre en % et /1000 pour tout mettre en km2
+    objectiveWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / objectiveWidget[0]; // on divise par 10 car on fait *100 pour mettre en % et /1000 pour tout mettre en km2
     if (relevantNode.label == 'France'){
       let agentNodes = (relevantNode.children as Node[]).map(drvNode => drvNode.children as Node[]).reduce((acc: Node[], list: Node[]) => acc.concat(list), []);
       ciblageWidget = [
         agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "volP2CD")).reduce((acc, value) => acc + value, 0),
         agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
         0]
-        ciblageWidget[2] = 0.1 * ciblage / ciblageWidget[0]; 
-    }
-    console.log('-->', objectiveWidget)
+        ciblageWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / ciblageWidget[0]; 
+    } else ciblageWidget = [
+        ciblage / 1000,
+        PDV.computeCiblage(relevantNode, false, true),
+        100];
     return [objectiveWidget, ciblageWidget];
   }
 
