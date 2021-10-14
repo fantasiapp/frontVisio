@@ -1,11 +1,12 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Injector } from "@angular/core";
+import { Navigation } from "../middle/Navigation";
 import { PDV } from "../middle/Slice&Dice";
 import { DataService } from "../services/data.service";
 
 export type Snapshot = {
   view: boolean;
   year: boolean;
-  path: number[];
+  path?: number[];
   dashboard: number;
   pdv?: number;
   mapVisible: boolean;
@@ -13,76 +14,97 @@ export type Snapshot = {
   widgetParams?: number;
   stayConnected: boolean;
 };
-export const structureSnapshot: string[] =  ['view', 'year', 'path', 'dashboard', 'pdv', 'mapVisible', 'mapFilters', 'targetControl', 'connected']
+export const structureSnapshot: string[] =  ['view', 'year', 'path', 'dashboard', 'pdv', 'mapVisible', 'mapFilters', 'widgetParams', 'stayConnected']
+
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoggerService {
 
-  private snapshot: Snapshot = defaultSnapshot;
+  protected snapshot: Snapshot = defaultSnapshot;
+  protected change: boolean = false;
 
-  constructor(private dataService: DataService) {
-    (window as any).logger = this;
-  }
+  constructor(private dataService: DataService, private navigation: Navigation) {}
 
   reset() {
     this.snapshot = defaultSnapshot;
   }
 
   handleEvent(event: number, data: any = undefined) {
+    let result: any = data, key: string = '';
     switch ( event ) {
       case LoggerService.events.NAVIGATION_TREE_CHANGED:
+        key = 'view';
         if ( data.type == PDV.geoTree.type )
-          this.snapshot.view = LoggerService.values.NAVIGATION_GEO_TREE;
+          result = LoggerService.values.NAVIGATION_GEO_TREE;
         else
-          this.snapshot.view = LoggerService.values.NAVIGATION_TRADE_TREE;
-        break;
-      
-      case LoggerService.events.NAVIGATION_PATH_CHANGED:
-        this.snapshot.path = (data as number[])
+          result = LoggerService.values.NAVIGATION_TRADE_TREE;
         break;
       
       case LoggerService.events.NAVIGATION_DASHBOARD_CHANGED:
-        this.snapshot.dashboard = (data as number);
+        key = 'dashboard';
         break;
       
       case LoggerService.events.DATA_YEAR_CHANGED:
-        this.snapshot.year = data;
+        key = 'year';
         break;
       
       case LoggerService.events.PDV_SELECTED:
-        this.snapshot.pdv = data;
+        key = 'pdv';
         break;
         
       case LoggerService.events.MAP_STATE_CHANGED:
-        this.snapshot.mapVisible = data;
+        key = 'mapVisible'
         break;
       
       case LoggerService.events.MAP_FILTERS_CHANGED:
-        this.snapshot.mapFilters = data;
+        key = 'mapFilters'
         break;
       
       case LoggerService.events.WIDGET_PARAMS_ADDED:
-        this.snapshot.widgetParams = data;
+        key = 'widgetParams'
         break;
       
       case LoggerService.events.WIDGET_PARAMS_REMOVED:
-        this.snapshot.widgetParams = undefined;
+        key = 'widgetParams'
+        result = undefined;
         break;
       
       case LoggerService.events.STAY_CONNECTED:
-        this.snapshot.stayConnected = data;
+        key = 'stayConnected'
         break;
       
       default:
         console.warn('[LoggerService]: unknown event number', event);
-        break;
+        return key;
     }
+
+    this.change = this.setValue(key, result);
+    return key;
+  }
+
+  setValue(key: string, value: any): boolean {
+    let snapshot = this.snapshot as any; //allow indexing
+    if ( snapshot[key] === undefined || snapshot[key] != value ) {
+      snapshot[key] = value;
+      return true;
+    }
+    return false;
+  }
+
+  autofillFields() {
+    let path = this.navigation.currentLevel?.path.map(node => node.id);
+    this.snapshot.path = path?.slice(1);
   }
 
   actionComplete() {
-    this.dataService.queueSnapshot(this.snapshot)
+    if ( !this.change ) return;
+    console.log(this.snapshot);
+    this.autofillFields();
+    this.dataService.queueSnapshot(this.snapshot);
+    this.change = false;
   }
 
   static events = {
@@ -109,10 +131,8 @@ export class LoggerService {
 const defaultSnapshot: Snapshot = {
   view: LoggerService.values.NAVIGATION_GEO_TREE,
   year: LoggerService.values.DATA_YEAR_CURRENT,
-  path: [],
-  dashboard: 0,
+  dashboard: 1,
   mapVisible: false,
-  mapFilters: [],
   widgetParams: undefined,
   stayConnected: false
 };

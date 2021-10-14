@@ -3,7 +3,6 @@ import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { PDV } from './Slice&Dice';
-import { LoggerService } from '../behaviour/logger.service';
 
 @Injectable()
 export class Navigation{
@@ -11,7 +10,7 @@ export class Navigation{
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
-  constructor(private logger: LoggerService) {}
+  constructor() {}
 
   setTree(t: Tree){
     if ( this.tree === t ) return;
@@ -30,11 +29,6 @@ export class Navigation{
       
       this.currentDashboard = this.currentLevel!.dashboards[dashboardIndex!] || this.currentLevel?.dashboards[0];
     }
-
-    this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
-    this.logger.handleEvent(LoggerService.events.NAVIGATION_PATH_CHANGED, this.currentLevel.path.map((node: Node) => node.id));
-    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.currentDashboard.id);
-    this.logger.actionComplete();
   }
 
   getArray(dataType: 'level' | 'dashboard'): any{
@@ -133,10 +127,6 @@ export class Navigation{
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : this.currentLevel.dashboards[0];
-      
-      this.logger.handleEvent(LoggerService.events.NAVIGATION_PATH_CHANGED, this.currentLevel.path.map(node => node.id));
-      this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.currentDashboard.id);
-      this.logger.actionComplete();
     } else if (levelId){
       this.currentLevel = currentLevel.goChild(levelId);
       dashboardId = currentDashboard.id;
@@ -147,10 +137,6 @@ export class Navigation{
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : this.currentLevel.dashboards[0];
-      
-      this.logger.handleEvent(LoggerService.events.NAVIGATION_PATH_CHANGED, this.currentLevel.path.map(node => node.id));
-      this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.currentDashboard.id);
-      this.logger.actionComplete();
     } else if (dashboardId){
       let nextDashboard = currentLevel.dashboards.find(
         (dashboard) => dashboard.id == dashboardId
@@ -158,9 +144,6 @@ export class Navigation{
       this.currentDashboard = nextDashboard
         ? nextDashboard
         : this.currentDashboard;
-
-      this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.currentDashboard!.id);
-      this.logger.actionComplete();
     } else{
       console.warn('[Navigation.ts -- setCurrent]: nothing to do.');
     }

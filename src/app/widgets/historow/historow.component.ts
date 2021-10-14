@@ -6,6 +6,9 @@ import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar, Chart} from 'billboard.js';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
+let DESCRIPTION_MOCK = [
+  ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
+];
 
 @Component({
   selector: 'app-historow',
@@ -31,9 +34,7 @@ export class HistoRowComponent extends BasicWidget {
 
   ngOnInit() {
     super.ngOnInit();
-    this.properties.description = [
-      ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
-    ];
+    this.properties.description = DESCRIPTION_MOCK;
 
     //HACK because back doesn't send like this
     if ( !Array.isArray(this.properties.arguments[0]) ) {
@@ -217,6 +218,14 @@ export class HistoRowComponent extends BasicWidget {
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
     return [this.path, this.rubixAxis!, args[1], args[2], args[3], args[4], args[5], true, false, this.rubixArgument!];
+  }
+
+  updateData() {
+    this.chart?.tooltip.hide();
+    let data = this.sliceDice.getWidgetData.apply(this.sliceDice, this.getDataArguments()),
+      rubix = this.sliceDice.rubiksCubeCheck(this.path, this.properties.arguments[2], this.properties.arguments[5]);
+    console.log(rubix);
+    return data;
   }
 
   updateCondition(e: Event) {

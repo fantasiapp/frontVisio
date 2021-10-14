@@ -8,6 +8,7 @@ import { Observable} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
+import { LoggerService } from 'src/app/behaviour/logger.service';
 
 @Component({
   selector: 'app-table',
@@ -72,7 +73,7 @@ export class TableComponent extends BasicWidget {
     addArrowCellRenderer: AddArrowCellRenderer,
   };
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable, private logger: LoggerService) {
     super(ref, filtersService, sliceDice);
     this.defaultColDef = {
       flex: 1,
@@ -245,11 +246,14 @@ export class TableComponent extends BasicWidget {
 
   }
 
-  sideDivRight: string = "-60%";
+  sideDivRight: string = "calc(-60% - 5px)";
   showInfo: boolean = false;
   infoData: any = {}
   showInfoOnClick(data: any = {}) {
-    if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "-60%";    return}
+    this.logger.handleEvent(LoggerService.events.PDV_SELECTED, data.instanceId);
+    this.logger.actionComplete();
+
+    if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "calc(-60% - 5px)";    return}
     this.showInfo = true
     this.sideDivRight = "0%";
     this.infoData = {
