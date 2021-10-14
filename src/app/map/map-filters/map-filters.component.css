@@ -131,9 +131,9 @@
 
 .cover {
     position: fixed;
-    top: 0; left: 0;
+    top: 50px; left: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 50px);
     background-color: rgba(247, 247, 247, 0.5);
     z-index: -1;
 }

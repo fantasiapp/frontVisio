@@ -19,7 +19,13 @@
     box-shadow: inset 0px 3px 6px #000000A0;
     opacity: 1;
     border-radius: 24px;
+    cursor: pointer;
 }
+
+.input-range:disabled {
+    cursor: default;
+}
+
 label{
     top: 16px;
     left: 684px;
@@ -79,6 +85,10 @@ label{
     border: 0.4000000059604645px solid #1E1F23;
     border-radius: 50%;
     opacity: 1;
+}
+
+.input-range:disabled::-webkit-slider-thumb {
+    background-color: #aaa;
 }
 
 .button-img {

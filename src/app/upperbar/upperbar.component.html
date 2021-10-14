@@ -19,6 +19,7 @@
       class="input-range"
       [value]="sldValue"
       (click)="toggle();"
+      [disabled]="mapComponent?.shown ? true : false"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
