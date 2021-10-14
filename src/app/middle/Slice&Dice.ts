@@ -240,9 +240,14 @@ class DataWidget{
     let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
     for (let i = 0; i < this.rowsTitles.length; i++)
       extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
-    for (let [id, i] of Object.entries(this.idToI)) if (i !== undefined) this.idToI[+id] = i + 1;  
-    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) this.idToI[+id] = j + 1;   
-    return extendedBoolMatrix
+    let lineIds = new Array(this.rowsTitles.length).fill(0),
+      columnsIds = new Array(this.columnsTitles.length).fill(0);
+    for (let [id, i] of Object.entries(this.idToI)) if (i !== undefined) lineIds[i] = id;  
+    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
+    return {boolMatrix: extendedBoolMatrix,
+      enseigneIndexes: lineIds,
+      segmentMarketingIndexes: columnsIds
+    }
   }
 }
 
@@ -903,11 +908,7 @@ class SliceDice{
     let sortLines = percent !== 'classic';
     let dataWidget = PDV.getData(slice, "enseigne", "segmentMarketing", indicator.toLowerCase(), this.geoTree, []);
     dataWidget.basicTreatement(false, sortLines);
-    return {
-      boolMatrix: dataWidget.numberToBool(),
-      enseigneIndexes: dataWidget.idToI,
-      segmentMarketingIndexes: dataWidget.idToJ
-    }
+    return dataWidget.numberToBool()
   }
 
   getIndustriesReverseDict(){
