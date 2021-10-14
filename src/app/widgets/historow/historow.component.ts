@@ -44,7 +44,7 @@ export class HistoRowComponent extends BasicWidget {
     this.rubixArgument = this.properties.description[0][1];
   }
 
-  private axisPadding: number = 90;
+  private axisPadding: number = 100;
   private rectWidth: number = 0;
   private maxValue: number = 0;
 

@@ -3,14 +3,14 @@ import { PDV } from "../middle/Slice&Dice";
 import { DataService } from "../services/data.service";
 
 export type Snapshot = {
-  view: number;
-  year: number;
+  view: boolean;
+  year: boolean;
   path: number[];
   dashboard: number;
   pdv?: number;
   mapVisible: boolean;
   mapFilters?: [number, number[]][];
-  widgetParams: number[];
+  widgetParams?: number;
   stayConnected: boolean;
 };
 export const structureSnapshot: string[] =  ['view', 'year', 'path', 'dashboard', 'pdv', 'mapVisible', 'mapFilters', 'targetControl', 'connected']
@@ -64,13 +64,11 @@ export class LoggerService {
         break;
       
       case LoggerService.events.WIDGET_PARAMS_ADDED:
-        this.snapshot.widgetParams.push(data);
+        this.snapshot.widgetParams = data;
         break;
       
       case LoggerService.events.WIDGET_PARAMS_REMOVED:
-        let idx = this.snapshot.widgetParams.indexOf(data);
-        if ( idx < 0 ) break;
-        this.snapshot.widgetParams.splice(idx, 1);
+        this.snapshot.widgetParams = undefined;
         break;
       
       case LoggerService.events.STAY_CONNECTED:
@@ -101,10 +99,10 @@ export class LoggerService {
   };
 
   static values = {
-    NAVIGATION_GEO_TREE: 0,
-    NAVIGATION_TRADE_TREE: 1,
-    DATA_YEAR_CURRENT: 1,
-    DATA_YEAR_LAST: 0
+    NAVIGATION_GEO_TREE: false,
+    NAVIGATION_TRADE_TREE: true,
+    DATA_YEAR_CURRENT: true,
+    DATA_YEAR_LAST: false
   };
 }
 
@@ -115,6 +113,6 @@ const defaultSnapshot: Snapshot = {
   dashboard: 0,
   mapVisible: false,
   mapFilters: [],
-  widgetParams: [],
+  widgetParams: undefined,
   stayConnected: false
 };
