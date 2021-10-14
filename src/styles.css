@@ -229,6 +229,9 @@ app-historow .bb-xgrid {
 .enduit .group-row {
     background-color: #929191 !important;
 }
+.pdv-displayed-red {
+    color: red !important;
+  }
 /**************/
 g.simple-needle {
     pointer-events: none;
