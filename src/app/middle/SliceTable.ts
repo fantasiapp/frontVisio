@@ -95,17 +95,7 @@ export class SliceTable {
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {
-            let p2cdSalesRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes();
-            let siniatSale = p2cdSalesRaw['Siniat'];
-            let totalSale = Object.entries(p2cdSalesRaw).filter(([industry, value]) => {!['Siniat', 'Placo', 'Knauf'].includes(industry)})
-            .reduce((total: number, [industry, value]: [string, number]) => total + value, 0)
-
-            let enduitSalesRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true);
-            let pregySale = enduitSalesRaw['Pregy'];
-            let salsiSale = enduitSalesRaw['Salsi'];
-
-
-            return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale;
+            return this.getPdvInstance(pdv)!.getPotential();
         },
         'typologie': (pdv :any) => {
             let list = this.getPdvInstance(pdv)!.getValue('dn', false, true);
