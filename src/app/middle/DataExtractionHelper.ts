@@ -425,7 +425,7 @@ class DataExtractionHelper{
     let ciblage:number = +PDV.computeCiblage(node, enduit, dn);
     if (enduit) return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' T.');
     else if (dn) return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
-    else return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².');
+    else return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².'); // les ciblages c'est les seuls à être en m² et pas en km²
   }
 
   private static getObjectif(node:any, enduit=false, dn=false){
@@ -433,7 +433,7 @@ class DataExtractionHelper{
     if (node.label !== 'Secteur') return "";
     let targetName = dn ? 'dnP2CD': 'volP2CD';
     let objective = DataExtractionHelper.getTarget(node.label, node.id, targetName);
-    return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)/1000).toString(), ' km², ');
+    return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');
   }
 
   private static getObjectifDrv(node:any, dn=false){
@@ -441,14 +441,14 @@ class DataExtractionHelper{
     let targetName = dn ? "dnP2CD": 'volP2CD', targetDrv:number;
     if (node.label == 'France') targetDrv = DataExtractionHelper.getTarget('nationalByAgent', 0, targetName);
     if (node.label == 'Région') targetDrv = node.children.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, targetName)).reduce((acc:number, value:number) => acc + value, 0);
-    return (dn) ? 'DRV: '.concat(targetDrv!.toString(), ' PdVs, '): 'DRV: '.concat((Math.round(targetDrv!)/1000).toString(), ' km², ');
+    return (dn) ? 'DRV: '.concat(targetDrv!.toString(), ' PdVs, '): 'DRV: '.concat((Math.round(targetDrv!)).toString(), ' km², ');
   }
 
   private static getObjectifSiege(node:any, dn=false):string{
     if (!(node.label == 'France' || node.label == 'Région')) return "";
     let targetName = dn ? "dnP2CD": 'volP2CD';
     let targetSiege =  DataExtractionHelper.getTarget(node.label, node.id, targetName);
-    return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdVs, '): 'Objectif Siège: '.concat((Math.round(targetSiege)/1000).toString(), ' km², ');
+    return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdVs, '): 'Objectif Siège: '.concat((Math.round(targetSiege)).toString(), ' km², ');
   }
 
   static computeDescriptionWidget(slice:any): [number, number, number][]{
