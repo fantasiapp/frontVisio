@@ -101,7 +101,7 @@ export class LoggerService {
 
   actionComplete() {
     if ( !this.change ) return;
-    console.log(this.snapshot);
+    // console.log(this.snapshot);
     this.autofillFields();
     this.dataService.queueSnapshot(this.snapshot);
     this.change = false;
