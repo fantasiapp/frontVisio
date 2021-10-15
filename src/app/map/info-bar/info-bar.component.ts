@@ -31,8 +31,10 @@ export class InfoBarComponent {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
       this.redistributedDisabled = !value.attribute('redistributed')
+      this.doesntSellDisabled = !value.attribute('sale')
       this.target = this._pdv!.attribute('target')
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
+      this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.loadGrid()
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
@@ -63,6 +65,8 @@ export class InfoBarComponent {
 
   redistributedDisabled: boolean = false;
   redistributedChecked: boolean = false;
+  doesntSellDisabled: boolean = false;
+  doesntSellChecked: boolean = false;
 
 
   industryIdToIndex : {[industryId: number]: number} = {}
@@ -248,6 +252,13 @@ export class InfoBarComponent {
     ]);
     this.hasChanged = true;
     return;
+  }
+
+  changeTargetSale(){
+    this.doesntSellChecked = !this.doesntSellChecked;
+    this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
+    this.target[this.TARGET_LIGHT_ID] = 'r'
+    this.hasChanged = true;
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
