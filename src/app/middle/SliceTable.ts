@@ -201,7 +201,7 @@ export class SliceTable {
             columnDefs.push(column);
         }
 
-        this.columnDefs = columnDefs;
+        this.columnDefs = columnDefs; 
         return this.columnDefs;
     }
 
@@ -225,8 +225,12 @@ export class SliceTable {
         return this.titleData;
     }
 
+    initializeTarget() {
+        return [Math.floor(Date.now()/1000), true, false, 0, false, "r", ""]
+      }
 
     changeTargetTargetFinition(pdv: {[field: string]: any}) {
+        if(!pdv['target']) pdv['target'] = this.initializeTarget()
         if(pdv['potential'] > 0) {
             if(pdv['checkboxEnduit']) {
                 this.updateTotalTarget(pdv['potential'])
@@ -235,8 +239,8 @@ export class SliceTable {
                 this.updateTotalTarget(-pdv['potential'])
                 pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = 0
             }
-            this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
         }
+        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
     }
 
     updateTotalTarget(increment: number) {
