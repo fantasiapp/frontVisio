@@ -66,13 +66,13 @@
                 <div class="definition" *ngIf="getSalesVolumes().length">
                     <div class="name">Volumes de vente par marque en m²</div>
                     <ul>
-                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} : </span>{{formatNumberToString(entry[1])}} m²</li>
+                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} : </span>{{myFormatNumberToString(entry[1])}} m²</li>
                     </ul>
                 </div>
 
                 <div class="eval">
                     <ul>
-                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="target[TARGET_VOLUME_ID]" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD agentOnly/></li>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
                             <button (click)="changeLight('r')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
                             <button (click)="changeLight('o')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
