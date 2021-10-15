@@ -6,6 +6,7 @@ import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { BasicWidget } from '../BasicWidget';
 import { TargetService } from '../description-widget/description-service.service';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
@@ -58,14 +59,14 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     });
   }
 
-  private newTargetControl() { 
+  private newTargetControl(empty: boolean = true) { 
     let ref = d3.select(this.ref.nativeElement);
     let container =  ref.select('div.target-control');
     if ( container.empty() ) {
       ref.insert('div', 'div.container')
         .classed('target-control', true);
     } else {
-      container.selectAll('*').remove();
+      if ( empty ) container.selectAll('*').remove();
     };
     return container;
   };
@@ -82,22 +83,30 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   private renderTargetControl() {
     let barsNumber = this.barHeights.length;
+    let coeff = 0.4;
     let container = this.newTargetControl();
+
     container
       .style('margin-left', (10 + this.marginX) + 'px')
       .selectAll('input')
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .attr('value', (d) => this.getTargetValue(d))
+        .attr('value', (d) => BasicWidget.format(this.getTargetValue(d)))
         // .attr('value', (d) => d)
-        .attr('type', 'number')
-        .style('width', (this.barWidth.toFixed(1)) + 'px')
-        .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px')
+        .attr('type', 'text')
+        .style('width', ((this.barWidth*(1 + coeff)).toFixed(1)) + 'px')
+        .style('margin', '0 ' + ((this.offsetX - this.barWidth*coeff/2).toFixed(1)) + 'px')
         .on('change', (e: Event) => {
           let input = e.target as any,
-            target = input.value | 0;
-          this.changeValue(target, input.__data__, e);
+            target = +input.value.replace(/\s+/g, '');
+
+          if ( Number.isNaN(target) ) {
+            input.classList.add('incorrect-input');
+          } else {
+            input.classList.remove('incorrect-input');
+            this.changeValue(target, input.__data__, e);
+          }
         })
     return container;
   }
@@ -106,10 +115,10 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let self = this;
     this.data = data;
     super.createGraph(data, {
-      onresized(this: Chart) {
-        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
-        self.rectHeight = rect.height;
-        self.renderTargetContainer({data: null, target: self.barTargets});
+      onresized: () => {
+        let rect = (this.chart!.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        this.rectHeight = rect.height;
+        this.renderTargetContainer({data: null, target: this.barTargets});
       },
       onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
@@ -126,6 +135,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   updateGraph(data: any) {
     //wait for animation
+    if ( this.inputIsOpen ) { this.toggleTargetControl(); this.cd.detectChanges(); }
     super.updateGraph(data); //queue first
     this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
@@ -158,7 +168,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let main = this.chart!.$.main.select('.bb-chart-bars') as d3Selection;
     let mainRect: DOMRect = main.node().getBoundingClientRect();
     let bars = this.chart!.$.bar.bars;
-    let barsNumber = data && data[0].length - 1;
+    let barsNumber = data && (data[0].length - 1) || (this.barHeights && this.barHeights.length);
     this.barHeights = new Array(barsNumber).fill(0);
 
     let offsetX = 0, offsetY = 0, width = 0;
