@@ -4,7 +4,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
-import { formatNumberToString, formatStringToNumber } from 'src/app/general/valueFormatter';
+import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 
 
 @Component({
@@ -35,6 +35,7 @@ export class InfoBarComponent {
       this.redistributedDisabled = !value.attribute('redistributed')
       this.doesntSellDisabled = !value.attribute('sale')
       this.target = this._pdv!.attribute('target')
+      this.targetP2cd = new ValueFormatted(this.target[this.TARGET_VOLUME_ID] || 0)
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
@@ -55,6 +56,7 @@ export class InfoBarComponent {
   grid: number[][] = [];
   gridFormatted: string[][] = [];
   targetP2cdFormatted: string = "";
+  targetP2cd!: ValueFormatted;
   salesColors: string[] = [];
 
   SALES_INDUSTRY_ID;
