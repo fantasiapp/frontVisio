@@ -60,7 +60,8 @@ export class TableComponent extends BasicWidget {
   // Render
   pinnedRow?: {}[];
   rowClassRules = {
-    'group-row': 'data.groupRow === true'
+    'group-row': 'data.groupRow === true',
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow']) return false; if(params.data['onlySiniat'] || !params.data['sale'] || !params.data['redistributed'] || params.data['sales'].length > 0) return false; return true;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
@@ -219,7 +220,7 @@ export class TableComponent extends BasicWidget {
     return data;
   }
 
-  onCellClicked(event: any) {    
+  onCellClicked(event: any) {
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {

@@ -109,7 +109,9 @@ export class SliceTable {
             return true; //should return what is inside the new div ?
         },
         'checkboxEnduit': (pdv: any) => {
-                return false;
+            let target = this.getPdvInstance(pdv)!.attribute('target')    
+            if(!target) return false;
+            return target[DataExtractionHelper.TARGET_FINITION_ID]>0;
         },
         'checkboxP2cd': (pdv: any) => null,
 
@@ -221,6 +223,20 @@ export class SliceTable {
 
     getTitleData(){
         return this.titleData;
+    }
+
+
+    changeTargetTargetFinition(pdv: {[field: string]: any}) {
+        if(pdv['potential'] > 0) {
+            if(pdv['checkboxEnduit']) {
+                this.updateTotalTarget(pdv['potential'])
+                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = pdv['potential']
+            } else {
+                this.updateTotalTarget(-pdv['potential'])
+                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = 0
+            }
+            this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
+        }
     }
 
     updateTotalTarget(increment: number) {

@@ -883,7 +883,6 @@ class SliceDice{
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
           let ciblageValues = agentNodesMatrix.map((agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, targetName)).reduce((acc:number, value:number) => acc + value, 0));
-          console.log(ciblageValues)
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
           for (let i = 0; i < targetValues.length; i++) rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
         }

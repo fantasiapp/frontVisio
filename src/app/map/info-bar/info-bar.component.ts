@@ -35,7 +35,6 @@ export class InfoBarComponent {
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.loadGrid()
     }
-    console.log(value?.id);
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
     this.logger.actionComplete();
   }
@@ -209,7 +208,6 @@ export class InfoBarComponent {
     let ref = this.comments!.get(0); //<- the current text area is the first in view
     if ( !ref ) return;
     if(!this.target) this.target = this.initializeTarget()
-    console.log(ref.nativeElement.value);
     this.target[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
     this.hasChanged = true;
   }
@@ -263,7 +261,6 @@ export class InfoBarComponent {
 
   updatePdv(pdv: PDV) { //Field that may be changed here : target.commentTargetP2CD, target.redistributed, target.greenLight, target.targetP2CD
     let newPdv = this.pdvFromPDVToList(pdv);
-    console.log("[InfoBar] newPdv : ", newPdv)
     this.dataService.updatePdv(newPdv, InfoBarComponent.pdvId);
     this.hasChanged = false;
   }
