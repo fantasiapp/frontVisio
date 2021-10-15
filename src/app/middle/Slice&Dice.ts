@@ -257,15 +257,17 @@ class DataWidget{
   }
 
   numberToBool(){
-    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0));
+    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
     let firstLine: boolean[] = [];
-    for (let j = 0; j < this.rowsTitles.length; j++) firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    for (let j = 0; j < this.columnsTitles.length; j++) firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    firstLine.pop();
     let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
     for (let i = 0; i < this.rowsTitles.length; i++)
       extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
-    let lineIds = new Array(this.rowsTitles.length).fill(0),
+    let lineIds = new Array(this.columnsTitles.length).fill(0),
       columnsIds = new Array(this.columnsTitles.length).fill(0);
-    lineIds = this.rowsTitles.map(title => DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), title)); // ) changer quand le idToJ sera à jour
+    let industriesDict = DataExtractionHelper.get('enseigne')
+    lineIds = this.rowsTitles.map(title => DataExtractionHelper.getKeyByValue(industriesDict, title)); // ) changer quand le idToJ sera à jour
     for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
     return {boolMatrix: extendedBoolMatrix,
       enseigneIndexes: lineIds,
