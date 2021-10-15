@@ -201,7 +201,7 @@ export class SliceTable {
             columnDefs.push(column);
         }
 
-        this.columnDefs = columnDefs;
+        this.columnDefs = columnDefs; 
         return this.columnDefs;
     }
 
