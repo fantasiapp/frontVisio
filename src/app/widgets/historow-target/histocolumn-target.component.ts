@@ -4,6 +4,7 @@ import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { formatNumberToString, formatStringToNumber } from 'src/app/general/valueFormatter';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { TargetService } from '../description-widget/description-service.service';
@@ -76,8 +77,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       this.renderTargetControl();
   }
 
-  private getTargetValue(d: number) {
-    return DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])];
+  private getTargetValue(d: number): string {
+    return formatNumberToString(DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
   }
 
   private renderTargetControl() {
@@ -91,12 +92,12 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         .append('input')
         .attr('value', (d) => this.getTargetValue(d))
         // .attr('value', (d) => d)
-        .attr('type', 'number')
+        .attr('type', 'text')
         .style('width', (this.barWidth.toFixed(1)) + 'px')
         .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px')
         .on('change', (e: Event) => {
           let input = e.target as any,
-            target = input.value | 0;
+            target = input.value || '';
           this.changeValue(target, input.__data__, e);
         })
     return container;
@@ -217,7 +218,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .classed('target-control-opened', this.inputIsOpen);
   }
 
-  changeValue(newValue :number, inputId: number, fullEvent: any) {
+  changeValue(newValueFormatted : string, inputId: number, fullEvent: any) {
+    let newValue: number = formatStringToNumber(newValueFormatted)
+    fullEvent.srcElement.value = formatNumberToString(newValue)
     this.sliceDice.updateTargetLevel(newValue, this.data.targetLevel['name'], this.data.targetLevel['ids'][inputId], this.data.targetLevel['volumeIdentifier'], this.data.targetLevel['structure'])
   }
 }
