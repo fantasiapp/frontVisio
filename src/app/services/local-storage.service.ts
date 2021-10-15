@@ -61,9 +61,15 @@ export class LocalStorageService {
     this.localStorage.setItem('queuedDataToUpdate', JSON.stringify(storedQueues))
   }
   getQueueUpdate(): UpdateData {
-    let token = this.localStorage.getItem('token') || '';
+    let token = this.getToken();
     let storedQueues = JSON.parse(this.localStorage.getItem('queuedDataToUpdate') || '{}') as {[token: string]: UpdateData};
     return storedQueues[token];
+  }
+  removeQueueUpdate() {
+    let token = this.getToken();
+    let storedQueues = JSON.parse(this.localStorage.getItem('queuedDataToUpdate') || '{}') as {[token: string]: UpdateData};
+    delete storedQueues[token]
+    this.localStorage.setItem('queuedDataToUpdate', JSON.stringify(storedQueues))
   }
 
   handleDisconnect() {
@@ -76,10 +82,6 @@ export class LocalStorageService {
     this.localStorage.setItem('lastUpdateTimestamps', JSON.stringify(storedTimestamps))
     this.localStorage.removeItem('stayConnected')
     this.localStorage.removeItem('token')
-  }
-
-  remove(key: string): void {
-    this.localStorage.removeItem(key);
   }
   
   clear(): void {
