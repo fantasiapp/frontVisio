@@ -113,13 +113,14 @@ export class InfoBarComponent {
   }
 
   quit(save: boolean) {
-    if(save && this.hasChanged) this.updatePdv(this._pdv!)
+    if(save && this.hasChanged) this.updatePdv(this._pdv!);
     else this._pdv!.setValues(InfoBarComponent.valuesSave)
     this.quiting = false;
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
       this.ref!.nativeElement.removeEventListener('transitionend', fn);
     });
+    this.hasChanged = false;
     this.pdv = undefined;
   }
 

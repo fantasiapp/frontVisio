@@ -108,7 +108,7 @@ label{
 }
 .button {
     height: 30px;
-    width: 40px;
+    width: auto;
     margin: 0 15px;
     cursor: pointer;
     background: none;

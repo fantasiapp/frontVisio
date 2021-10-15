@@ -29,6 +29,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
       this.subscription!.unsubscribe();
       this.subscription = undefined;
       this.path = path;
+      this.onPathChanged();
       //view is initialized
       this.interactiveMode();
       this.start();
@@ -40,10 +41,13 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     this.subscription = this.filtersService.$path.subscribe(path => {
       if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
+        this.onPathChanged();
         this.update();
       }
     });
   }
+
+  protected onPathChanged() { }
   
   pause() {
     if ( !this.subscription ) return;

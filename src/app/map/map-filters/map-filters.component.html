@@ -15,4 +15,4 @@
     <div><img src="assets/Filtre.svg"/></div>
 </div>
 
-<div class="cover" [style.display]="opened ? 'block' : 'none'"></div>
+<div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
