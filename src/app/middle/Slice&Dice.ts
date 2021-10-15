@@ -257,9 +257,10 @@ class DataWidget{
   }
 
   numberToBool(){
-    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0));
+    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
     let firstLine: boolean[] = [];
-    for (let j = 0; j < this.rowsTitles.length; j++) firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    for (let j = 0; j < this.columnsTitles.length; j++) firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    firstLine.pop();
     let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
     for (let i = 0; i < this.rowsTitles.length; i++)
       extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
@@ -917,6 +918,7 @@ class SliceDice{
       targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;
+    console.log(this.rubiksCubeCheck(slice, indicator, percent))
     return {data: dataWidget.formatWidget(transpose), 
       sum: sum, 
       target: rodPosition, 
