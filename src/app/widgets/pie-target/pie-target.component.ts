@@ -1,14 +1,16 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection, pie } from 'billboard.js';
 import * as d3 from 'd3';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { BasicWidget } from '../BasicWidget';
 import { SimplePieComponent } from '../simple-pie/simple-pie.component';
 
 @Component({
   selector: 'app-pie-target',
   templateUrl: '../widget-template.html',
-  styleUrls: ['./pie-target.component.css']
+  styleUrls: ['./pie-target.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PieTargetComponent extends SimplePieComponent {
   @ViewChild('content', {read: ElementRef})
@@ -17,7 +19,6 @@ export class PieTargetComponent extends SimplePieComponent {
   private needle?: d3Selection;
   private needleTranslate: [number, number] = [0, 0];
   private needleRotate: number = 0;
-//  private data?: any[]; //store data reference, use it to draw needle
   
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
@@ -41,10 +42,16 @@ export class PieTargetComponent extends SimplePieComponent {
         order: null
       },
       onresized: () => {
-        this.createNeedle({data: null, target: this.needleRotate})
+        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
+        this.chart!.flush();
+        requestAnimationFrame(_ => this.createNeedle({data: null, target: this.needleRotate - 90}))
       },
       onrendered(this: Chart) {
+        self.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        self.chart!.config('legend_inset_y', 10 + self.chart!.data().length * BasicWidget.legendItemHeight);
         self.createNeedle(data);
+        self.chart!.flush();
         this.config('onrendered', null);
       }
     });
@@ -83,9 +90,8 @@ export class PieTargetComponent extends SimplePieComponent {
       .attr('y2', 0);
   }
 
-  // 🛑 this is the mission of the middle 🛑
   computeNeedlePosition(data: any): number {
-    return (data ? data.target : this.needleRotate)+90;
+    return data.target + 90;
   }
 
   updateGraph(data: any[]) {

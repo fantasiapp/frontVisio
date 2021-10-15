@@ -8,6 +8,7 @@
     position: absolute;
     bottom: -30px;
     transition: bottom 100ms ease-out 0s;
+    font-size: inherit;
 }
 
 .target-control.target-control-opened {
@@ -45,8 +46,8 @@
     position: absolute;
     right: 50px;
 
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     text-align: center;
     border-radius: 50%;
     background: #333;

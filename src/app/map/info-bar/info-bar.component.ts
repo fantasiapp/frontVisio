@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { of } from 'rxjs';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { DataService } from 'src/app/services/data.service';
-import * as d3 from 'd3';
+import { LoggerService } from 'src/app/behaviour/logger.service';
+import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
+
 
 @Component({
   selector: 'info-bar',
@@ -30,9 +30,18 @@ export class InfoBarComponent {
     this.currentIndex = 0;
     this.pdvChange.emit(value);
     if ( value ) {
-      let target = value!.getLightTarget();
-      this.targetClass = { 'r': target == 'r', 'g': target == 'g', 'o': target == 'o' };
-    } 
+      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
+      InfoBarComponent.pdvId = value.id;
+      this.redistributedDisabled = !value.attribute('redistributed')
+      this.doesntSellDisabled = !value.attribute('sale')
+      this.target = this._pdv!.attribute('target')
+      this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
+      this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
+      this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
+      this.loadGrid()
+    }
+    this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
+    this.logger.actionComplete();
   }
 
   @Output()
@@ -45,31 +54,37 @@ export class InfoBarComponent {
   products: string[] = [];//PDV.getProducts() as string[];
   grid: number[][] = [];
   gridFormatted: string[][] = [];
-  targetClass: any = {
-    'r': false,
-    'g': false,
-    'o': false
-  };
+  targetP2cdFormatted: string = "";
+  salesColors: string[] = [];
 
-  TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
-  TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
-  TARGET_VOLUME_ID = DataExtractionHelper.TARGET_VOLUME_ID;
-  TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
-  TARGET_LIGHT_ID = DataExtractionHelper.TARGET_LIGHT_ID;
-  SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
-  SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')
-  SALES_VOLUME_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'volume')
-  SALES_DATE_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'date')
+  SALES_INDUSTRY_ID;
+  SALES_PRODUCT_ID;
+  SALES_VOLUME_ID;
+  SALES_DATE_ID;
+  TARGET_VOLUME_ID;
+  TARGET_LIGHT_ID;
+  TARGET_REDISTRIBUTED_ID;
+  TARGET_SALE_ID;
+  TARGET_COMMENT_ID;
+
+  redistributedDisabled: boolean = false;
+  redistributedChecked: boolean = false;
+  doesntSellDisabled: boolean = false;
+  doesntSellChecked: boolean = false;
+
 
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
+
+  myFormatNumberToString = formatNumberToString;
 
   get pdv() {
     return this._pdv;
   }
 
   private _pdv: PDV | undefined;
+  target?: any;
   static valuesSave: any[] = [];
   static pdvId: number = 0;
   redistributed?: boolean;
@@ -78,26 +93,28 @@ export class InfoBarComponent {
     return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
   }
 
-  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService) {
-    console.log('[InfobarComponent]: On');
+  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
+    console.log('[InfobarComponent]: On')
+    this.SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
+    this.SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')
+    this.SALES_VOLUME_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'volume')
+    this.SALES_DATE_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'date')
+    this.TARGET_VOLUME_ID = DataExtractionHelper.TARGET_VOLUME_ID;
+    this.TARGET_LIGHT_ID = DataExtractionHelper.TARGET_LIGHT_ID;
+    this.TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
+    this.TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
+    this.TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
+
     
     filtersState.$load.subscribe(() => {
       this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
       this.products = PDV.getProducts() as string[];
       this.products.splice(3, this.products.length, 'P2CD')
-      this.grid = new Array(this.industries.length + 1);
-      this.gridFormatted = new Array(this.industries.length+1);
-      for ( let i = 0; i < this.grid.length; i++ ) {
-        this.grid[i] = new Array(this.products.length).fill(0);
-        this.gridFormatted[i] = new Array(this.products.length).fill(0);
-      }
       for(let i = 0; i<this.industries.length; i++)
         this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
       for(let i = 0; i<this.products.length-1; i++)
         this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
     });
-
-    
   }
 
   //make variable
@@ -106,33 +123,54 @@ export class InfoBarComponent {
   }
 
   quit(save: boolean) {
-    if(save && this.hasChanged) this.updatePdv(this._pdv!)
+    if(save && this.hasChanged) this.updatePdv(this._pdv!);
     else this._pdv!.setValues(InfoBarComponent.valuesSave)
     this.quiting = false;
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
       this.ref!.nativeElement.removeEventListener('transitionend', fn);
     });
+    this.hasChanged = false;
     this.pdv = undefined;
   }
 
   requestQuit() {
     //show the quit bar
-    this.quiting = true;
+    if ( this.hasChanged )
+      this.quiting = true;
+    else
+      this.pdv = undefined; //force quit
   }
 
   setPage(index: number) {
     this.currentIndex = index % this.pages.length;
-    if(index === 2) this.loadGrid()
   }
 
   loadGrid() {
-    for(let sale of this._pdv!.attribute('sales')) {
-      let i = this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]];
-      this.grid[i][j] = +sale[this.SALES_VOLUME_ID!]
-      this.gridFormatted[i][j] = Math.floor(+sale[this.SALES_VOLUME_ID!]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-      this.updateSum(i,j)
+    // console.log("Id retenus : ", this.productIdToIndex)
+    // console.log("Sales totales : ", this._pdv!.attribute("sales"))
+    // console.log("Sales retenues : ", this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())))
+    this.grid = new Array(this.industries.length + 1);
+    this.gridFormatted = new Array(this.industries.length+1);
+    for ( let i = 0; i < this.grid.length; i++ ) {
+      this.grid[i] = new Array(this.products.length).fill(0);
+      this.gridFormatted[i] = new Array(this.products.length).fill('');
     }
+    for(let sale of this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString()))) {
+      let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
+      this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]
+      this.gridFormatted[i][j] = formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
+      this.updateSum(i,j)
+      this.salesColors = this._pdv!.salesColors;
+      this.salesColors[0] = 'black'
+    }
+  }
+
+  onKey(event: any) {
+    if(event.keyCode === 37) console.log("Left")
+    if(event.keyCode === 38) console.log("Up")
+    if(event.keyCode === 39) console.log("Right")
+    if(event.keyCode === 40) console.log("Down")
   }
 
   updateSum(row: number, i: number) {
@@ -141,51 +179,65 @@ export class InfoBarComponent {
       sum += this.grid[j+1][i] | 0;
     }
     this.grid[0][i] = sum;
-    this.gridFormatted[0][i] = Math.floor(sum).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[0][i] = formatNumberToString(sum);
     diff = this.grid[row][0] + this.grid[row][1] + this.grid[row][2] - this.grid[row][3];
     this.grid[row][3] += diff;
     this.grid[0][3] += diff;
-    this.gridFormatted[row][3] = Math.floor(this.grid[row][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-    this.gridFormatted[0][3] = Math.floor(this.grid[0][3]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[row][3] = formatNumberToString(this.grid[row][3]);
+    this.gridFormatted[0][3] = formatNumberToString(this.grid[0][3]);
     return sum;
   }
-
-  formatVolume(x: number) {
-    return BasicWidget.format(x, 3);
+  
+  initializeTarget() {
+    return [Math.floor(Date.now()/1000), true, false, 0, false, "r", ""]
   }
+
+
   changeRedistributed() {
-    this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID] = !this._pdv!.attribute('target')[this.TARGET_REDISTRIBUTED_ID]
+    this.redistributedChecked = !this.redistributedChecked
+    if(!this.target) this.target = this.initializeTarget()
+    this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;
   }
 
-  changeTargetP2CD(newTargetP2cd: any) { //PB : newValue isn't a number
-    this._pdv!.attribute('target')[this.TARGET_VOLUME_ID] = +newTargetP2cd;
+  changeTargetP2CD() {
+    if(!this.target) this.target = this.initializeTarget()
+    this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
+    if(Number.isNaN(+this.targetP2cdFormatted)) {
+      this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID]);
+      return;
+    }
+    this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
+    this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID])
+    console.log("newTargetFormatted : ", this.targetP2cdFormatted)
     this.hasChanged = true;
   }
 
   changeComment() { //PB : newValue isn't a number
     let ref = this.comments!.get(0); //<- the current text area is the first in view
     if ( !ref ) return;
-    console.log(ref.nativeElement.value);
-    this._pdv!.attribute('target')[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
+    if(!this.target) this.target = this.initializeTarget()
+    this.target[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
     this.hasChanged = true;
   }
 
   changeLight(newLightValue: string) {
-    this._pdv!.attribute('target')[this.TARGET_LIGHT_ID] = newLightValue
+    if(!this.target) this.target = this.initializeTarget()
+    this.target[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
   }
 
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
+    this.gridFormatted[i][j] = formatStringToNumber(this.gridFormatted[i][j]).toString();
     if(Number.isNaN(+this.gridFormatted[i][j])) {
-      this.gridFormatted[i][j] = Math.floor(this.grid[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
       this.errorAdInput = true;
       return;
     }
     this.errorAdInput = false;
-  
+    this.salesColors[i-1] = 'black'
     this.grid[i][j] = +this.gridFormatted[i][j];
-    this.gridFormatted[i][j] = Math.floor(+this.gridFormatted[i][j]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
     this.updateSum(i,j)
 
     for(let sale of this._pdv!.attribute('sales')) {
@@ -207,20 +259,25 @@ export class InfoBarComponent {
     return;
   }
 
+  changeTargetSale(){
+    this.doesntSellChecked = !this.doesntSellChecked;
+    this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
+    this.target[this.TARGET_LIGHT_ID] = 'r'
+    this.hasChanged = true;
+  }
+
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
     let pdvAsList = []
     for(let field of DataExtractionHelper.getPDVFields()) {
-      pdvAsList.push(pdv.attribute(field))
+      if(field == 'target') pdvAsList.push(this.target)
+      else pdvAsList.push(pdv.attribute(field))
     }
     return pdvAsList;
   }
 
   updatePdv(pdv: PDV) { //Field that may be changed here : target.commentTargetP2CD, target.redistributed, target.greenLight, target.targetP2CD
     let newPdv = this.pdvFromPDVToList(pdv);
-    console.log("[InfoBar] newPdv : ", newPdv)
     this.dataService.updatePdv(newPdv, InfoBarComponent.pdvId);
     this.hasChanged = false;
   }
-
-
 }

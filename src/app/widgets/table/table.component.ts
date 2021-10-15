@@ -1,13 +1,14 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, HostBinding } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { Observable} from 'rxjs';
-import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
+import { LoggerService } from 'src/app/behaviour/logger.service';
 
 @Component({
   selector: 'app-table',
@@ -16,6 +17,7 @@ import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
   providers: [SliceDice],
 })
 export class TableComponent extends BasicWidget {
+
   @ViewChild('title', {static: false, read: ElementRef})
   private titleContainer?: ElementRef;
 
@@ -46,13 +48,11 @@ export class TableComponent extends BasicWidget {
   gridApi: any;
   columnApi: any;
   onGridReady = (params: any) => {
-    console.log("ready")
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
-
       })
   }
   gridObservable = new Observable();
@@ -60,7 +60,8 @@ export class TableComponent extends BasicWidget {
   // Render
   pinnedRow?: {}[];
   rowClassRules = {
-    'group-row': 'data.groupRow === true'
+    'group-row': 'data.groupRow === true',
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow']) return false; if(params.data['onlySiniat'] || !params.data['sale'] || !params.data['redistributed'] || params.data['sales'].length > 0) return false; return true;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
@@ -70,9 +71,10 @@ export class TableComponent extends BasicWidget {
     noCellRenderer: NoCellRenderer,
     targetCellRenderer: TargetCellRenderer,
     infoCellRenderer: InfoCellRenderer,
+    addArrowCellRenderer: AddArrowCellRenderer,
   };
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable, private logger: LoggerService) {
     super(ref, filtersService, sliceDice);
     this.defaultColDef = {
       flex: 1,
@@ -97,12 +99,13 @@ export class TableComponent extends BasicWidget {
 
   updateGraph(data: any[]): void {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
-    this.gridApi.setRowData(data[1]);
     this.navOpts = data[2];
     this.updateTitle()
     this.pinnedRow = data[1][0]; //Hardest part
     groupInfos = data[3][0];
     hiddenGroups = {}
+    this.gridApi.setRowData(data[1])
+    this.gridApi.refreshCells()
   }
 
   updateGroups(id: string) {
@@ -114,8 +117,8 @@ export class TableComponent extends BasicWidget {
 
   updateTitle() {
     let title = this.sliceTable.getTitleData();
-    if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${(title[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.floor(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${title[2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
     this.titleContainer!.nativeElement.innerText = this.title
   }
 
@@ -129,23 +132,22 @@ export class TableComponent extends BasicWidget {
         for(let cd of data){
           switch (cd.field) {
             case 'name':
-
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow) return params.value['name'] + ' PdV : ' + params.value['number']
-                return params.value;
+                if(params.data.groupRow === true) return params.value['name'] + ' PdV : ' + params.value['number']
+                return;
               }
               break;
             case 'siniatSales':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Siniat : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
-                return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
+                if(params.data.groupRow === true) return 'Siniat : ' + Math.round(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                return Math.round(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
             case 'totalSales':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Identifie : ' + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
-                else return Math.floor(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
+                if(params.data.groupRow === true) return 'Identifie : ' + Math.round(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
+                else return Math.round(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
               }
               break;
 
@@ -166,7 +168,7 @@ export class TableComponent extends BasicWidget {
 
             case 'checkboxEnduit':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
                 return {component : 'checkboxEnduitCellRenderer'};
               }
 
@@ -174,14 +176,14 @@ export class TableComponent extends BasicWidget {
             
             case 'pointFeu':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
                 return {component : 'pointFeuCellRenderer'};
               }
               break;
             
             case 'graph':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow ===  true) return "Cible : " + Math.floor(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
+                if(params.data.groupRow ===  true) return "Cible : " + Math.round(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
                 return params.value;
               }
               cd.cellRendererSelector = function (params: any) {
@@ -199,8 +201,8 @@ export class TableComponent extends BasicWidget {
             
             case 'potential':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
-                return Math.floor(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
+                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + Math.round(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
+                return Math.round(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
               }
               break;
             case 'nbVisits':
@@ -219,33 +221,42 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    if(event['column']['colId'] === 'edit') {
-      this.pdv = this.sliceTable.getPdvInstance(event['data'])
-      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
-      InfoBarComponent.pdvId = event['data'].instanceId;
-      this.selectedPdv = event['data'];
-    }
-    if(event['column']['colId'] === 'info') {
-      this.selectedPdv = event['data'];
-      this.showInfoOnClick(this.selectedPdv);
-      this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
-    }
-    
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
+      let arrowImg = document.getElementById(event['node'].data.name.name);
+      if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
+      else arrowImg!.style.transform = "rotate(-0.5turn)"
+    } else {
+      if(event['column']['colId'] === 'edit') {
+        this.pdv = this.sliceTable.getPdvInstance(event['data'])
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+        InfoBarComponent.pdvId = event['data'].instanceId;
+        this.selectedPdv = event['data'];
+      }
+      if(event['column']['colId'] === 'info') {
+        this.selectedPdv = event['data'];
+        this.showInfoOnClick(this.selectedPdv);
+        this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
+      }
+      if(event['column']['colId'] === 'checkboxEnduit') {
+        this.updateTitle()
+      }
     }
-    if(event['column']['colId'] === 'checkboxEnduit') {
-      this.updateTitle()
-    }
+
   }
 
+  sideDivRight: string = "calc(-60% - 5px)";
   showInfo: boolean = false;
   infoData: any = {}
   showInfoOnClick(data: any = {}) {
-    if(this.showInfo) {this.showInfo = false; return}
+    this.logger.handleEvent(LoggerService.events.PDV_SELECTED, data.instanceId);
+    this.logger.actionComplete();
+
+    if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "calc(-60% - 5px)";    return}
     this.showInfo = true
+    this.sideDivRight = "0%";
     this.infoData = {
       'name': data.name,
       'enseigne': data.enseigne,
@@ -254,14 +265,15 @@ export class TableComponent extends BasicWidget {
       'segmentMarketing': data.segmentMarketing,
       'segmentCommercial': data.segmentCommercial,
       'nbVisits': data.nbVisits,
-      'siniatP2cdSales': Math.floor(data.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'placoP2cdSales': Math.floor(data.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'knaufP2cdSales': Math.floor(data.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalP2cdSales': Math.floor(data.graph.p2cd['Siniat'].value + data.graph.p2cd['Placo'].value + data.graph.p2cd['Knauf'].value + data.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.floor(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'salsiEnduitSales': Math.floor(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'potential': Math.floor(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalEnduitSales': Math.floor(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'siniatP2cdSales': Math.round(data.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'placoP2cdSales': Math.round(data.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'knaufP2cdSales': Math.round(data.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalP2cdSales': Math.round(data.graph.p2cd['Siniat'].value + data.graph.p2cd['Placo'].value + data.graph.p2cd['Knauf'].value + data.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.round(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'salsiEnduitSales': Math.round(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'potential': Math.round(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalSiniatEnduitSales': Math.round(data.potential + data.graph.enduit['Salsi'].value + data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalEnduitSales': Math.round(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
     };
   }
 
@@ -282,11 +294,13 @@ export class TableComponent extends BasicWidget {
 
   doesExternalFilterPass(node: any) {
     if(node.data.groupRow == true) return true;
-    try {
-      return !hiddenGroups[node.data[groupInfos.field]] === true;
-    } catch {
-      return true;
-    }
+    return !hiddenGroups[node.data[groupInfos.field]] === true;
+
+    // try {
+    //   return !hiddenGroups[node.data[groupInfos.field]] === true;
+    // } catch {
+    //   return true;
+    // }
   }
 }
 

@@ -22,7 +22,7 @@ export interface Layout {
   providers: [WidgetManagerService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridManager implements OnInit, AfterViewInit, OnChanges {
+export class GridManager implements AfterViewInit, OnChanges {
   //default layout
   private $layout: Layout = defaultLayout;
 
@@ -95,8 +95,6 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
     this.cd.detectChanges();
   }
 
-  ngOnInit(): void { }
-
   interactiveMode() {
     for ( let i = 0; i < this.instances.length; i++ ) {
       let widget = this.instances[i] as any;
@@ -128,6 +126,11 @@ export class GridManager implements OnInit, AfterViewInit, OnChanges {
   update() {
     for ( let component of this.instances )
       component.update();
+  }
+
+  refresh() { //mainly a transition without animation
+    for ( let component of this.instances )
+      component.refresh();
   }
 
   ngOnDestroy() {

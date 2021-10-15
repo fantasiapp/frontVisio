@@ -30,8 +30,7 @@
     display: flex;
     flex-flow: row nowrap;
     transition: left 200ms ease-out 0s;
-    font-family: 'Roboto';
-    font-size: 20px;
+    font-family: inherit;
     box-shadow: 2px 0 3px 0px #aaa;
     border-radius: 3px;
     overflow: hidden;
@@ -43,20 +42,20 @@
 }
 
 @media (max-width: 1366px) {
-    :host {
+    :host::ng-deep {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 1367px) and (max-width: 1500px) {
+    :host::ng-deep {
         font-size: 16px;
     }
 }
 
-@media (max-width: 1920px) {
-    :host {
-        font-size: 20px;
-    }
-}
-
-@media (min-width: 1920px) {
-    :host {
-        font-size: 22px;
+@media (min-width: 1500px) {
+    :host::ng-deep {
+        font-size: 17px;
     }
 }
 
@@ -70,10 +69,19 @@
     position: relative;
 }
 
-.toggle img {
+.toggle div {
+    box-sizing: border-box;
     position: absolute;
     top: 30%; left: 50%;
     transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    padding: 5px 0;
+    box-shadow: 0 1px 10px 0 #ccc;
+}
+
+.toggle div img {
+    vertical-align: middle;
 }
 
 .close {
@@ -88,13 +96,13 @@
 }
 
 .title {
-    font-size: 1.25em;
-    font-weight: medium;
+    font-size: 1.125em;
+    font-weight: 400;
     padding-left: var(--filter-bar-elements-padding-x);
 }
 
 .total {
-    font-size: 0.8em;
+    font-size: 0.9em;
     font-weight: 300;
     padding-left: var(--filter-bar-elements-padding-x);
 }
@@ -119,4 +127,13 @@
     border-bottom: 1px solid #7f7f7f;
     outline: none !important;
     width: 250px;
+}
+
+.cover {
+    position: fixed;
+    top: 50px; left: 0;
+    width: 100vw;
+    height: calc(100vh - 50px);
+    background-color: rgba(247, 247, 247, 0.5);
+    z-index: -1;
 }

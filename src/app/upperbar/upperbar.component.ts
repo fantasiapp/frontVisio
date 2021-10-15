@@ -2,7 +2,7 @@ import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { getGeoTree, getTradeTree } from '../middle/Slice&Dice';
+import { getGeoTree, getTradeTree, PDV } from '../middle/Slice&Dice';
 
 import {
   trigger,
@@ -13,7 +13,7 @@ import {
 } from '@angular/animations';
 import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
-import { combineLatest } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { BasicWidget } from '../widgets/BasicWidget';
 import { DataService } from '../services/data.service';
 
@@ -42,6 +42,7 @@ export class UpperbarComponent implements OnInit {
   isFilterVisible = false;
   searchModel: string = '';
   searchDebounceId!: number;
+  updating: boolean = false;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
 
   @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
@@ -86,6 +87,18 @@ export class UpperbarComponent implements OnInit {
     );
   }
 
+  getName() {
+    return new Observable<string>((observer) => {
+      this.filtersState.$load.subscribe(_ => {
+        observer.next(PDV.geoTree.root.name || 'national');
+      });
+    });
+  }
+
+  onAnimationEnd() {
+    this.updating = false;
+  }
+
   toggleMap() {
     if ( !this.mapComponent?.shown ) {
       this.mapComponent!.show();
@@ -97,6 +110,6 @@ export class UpperbarComponent implements OnInit {
   }
 
   updateData() {
-    this.dataService.requestUpdateData()
+    this.dataService.requestData();
   }
 }

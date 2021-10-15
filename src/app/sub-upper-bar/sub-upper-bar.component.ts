@@ -1,6 +1,8 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
+import { LoggerService } from '../behaviour/logger.service';
+import { Logger } from 'ag-grid-community';
 
 @Component({
   selector: 'app-sub-upper-bar',
@@ -8,7 +10,7 @@ import { Subject } from 'rxjs/internal/Subject';
   styleUrls: ['./sub-upper-bar.component.css'],
 })
 export class SubUpperBarComponent implements OnInit {
-  constructor(private filtersStates: FiltersStatesService) {}
+  constructor(private filtersStates: FiltersStatesService, private logger: LoggerService) {}
   filtersVisibles : boolean = false
   currentDashboard: string = '';
   currentLevel: string =''
@@ -34,5 +36,10 @@ export class SubUpperBarComponent implements OnInit {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  onYearChange(e: Event) {
+    this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, !!(e.target as any).value);
+    this.logger.actionComplete();
   }
 }

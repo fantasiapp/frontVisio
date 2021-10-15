@@ -12,5 +12,7 @@
     
 </div>
 <div *ngIf="!opened" class="toggle" (click)="opened = !opened">
-    <img src="assets/Filtre.svg"/>
+    <div><img src="assets/Filtre.svg"/></div>
 </div>
+
+<div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>

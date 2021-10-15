@@ -1,0 +1,58 @@
+.main {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}
+
+.main ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.main ul:nth-child(2) {
+    text-align: right;
+}
+
+.main ul li {
+    box-sizing: border-box;
+    width: 150px;
+    margin: 3px 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.configs li {
+    justify-content: flex-end;
+    user-select: none !important;
+}
+
+.configs label, .configs label [type='radio'] {
+    cursor: pointer;
+}
+
+.main ul:first-child li:not(:last-child) {
+    margin-right: 20px;
+    position: relative;
+}
+
+.main ul:first-child li:not(:last-child)::after {
+    content: " ";
+    display: block;
+    width: 3px !important;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 5px;
+    background-color: black;
+    transform: scale(0.5, 1);
+}
+
+.main ul li .value {
+    display: inline-block;
+    flex: 1;
+    text-align: center;
+}

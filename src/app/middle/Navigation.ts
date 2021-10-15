@@ -10,21 +10,25 @@ export class Navigation{
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
+  constructor() {}
+
   setTree(t: Tree){
+    if ( this.tree === t ) return;
+    
     let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null, dashboardIndex: number, sameType = this.tree?.type === t.type;
     if ( path )
       dashboardIndex = this.currentLevel!.dashboards.findIndex(dashboard => dashboard.id == this.currentDashboard?.id);
 
-      this.tree = t ? t : new Tree(NavigationExtractionHelper);
-      this.currentLevel = this.tree.root;
-      this.currentDashboard = this.currentLevel!.dashboards[0];
+    this.tree = t ? t : new Tree(NavigationExtractionHelper);
+    this.currentLevel = this.tree.root;
+    this.currentDashboard = this.currentLevel!.dashboards[0];
 
-      if ( sameType && path  ) {
-        for ( let id of path )
-          this.currentLevel = this.currentLevel!.goChild(id);
-        
-        this.currentDashboard = this.currentLevel!.dashboards[dashboardIndex!] || this.currentLevel?.dashboards[0];
-      }
+    if ( sameType && path  ) {
+      for ( let id of path )
+        this.currentLevel = this.currentLevel!.goChild(id);
+      
+      this.currentDashboard = this.currentLevel!.dashboards[dashboardIndex!] || this.currentLevel?.dashboards[0];
+    }
   }
 
   getArray(dataType: 'level' | 'dashboard'): any{
@@ -38,7 +42,7 @@ export class Navigation{
       }: {name: [], id: [], label:[]};
 
       let superLevel = (currentLevel.parent && !currentLevel.parent.parent) ? {
-        name: 'dashboards', id: 0, label: 'Dashboards'
+        name: 'National', id: 0, label: 'National'
       } : {name: currentLevel.parent?.name, id: currentLevel.parent?.id, label: currentLevel.parent?.label};
 
 

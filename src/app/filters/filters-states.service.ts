@@ -3,9 +3,10 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { loadAll, getGeoTree, PDV } from '../middle/Slice&Dice';
+import { loadAll, PDV } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
+import { LoggerService } from '../behaviour/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,22 +15,22 @@ export class FiltersStatesService {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
   tree?: Tree;
-  constructor(private navigation: Navigation, private dataservice : DataService) {
+  constructor(private navigation: Navigation, private dataservice : DataService, private logger: LoggerService) {
     this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
         loadAll();
-        let defaultTree = getGeoTree();
+        let type = this.navigation.tree?.type || null, defaultTree;
+        if ( !type || type == PDV.geoTree.type ) 
+          defaultTree = PDV.geoTree;
+        else
+          defaultTree = PDV.tradeTree;
+        
         this.reset(defaultTree);
         this.$load.next(0 as never);
         this.$load.complete();
+        this.dataservice.beginUpdateThread();
       }
-    });
-
-    this.dataservice.update.subscribe((_) => {
-      let type = this.navigation.tree?.type || null;
-      //doesn't notify further because it's not needed
-      this.navigation.setTree(PDV.geoTree.type == type ? PDV.geoTree : PDV.tradeTree);
     });
   }
 
@@ -88,26 +89,32 @@ export class FiltersStatesService {
     superlevel?: boolean,
     emit: boolean = true
   ) {
+
     this.navigation.setCurrent(levelId, dashboardId, superlevel);
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
     };
+    const States = this.navigation.getCurrent();
     const currentState = {
-      States: this.navigation.getCurrent(),
+      States
     };
 
-    if ( emit )
+    //the path is auto computed, the only interesting thing "logwise" that can change is the dashboard
+    console.log('filtersState.updateState')
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
+    this.logger.actionComplete();
+
+    if ( emit ) {
       this.stateSubject.next(currentState);
       this.arraySubject.next(currentArrays);
-    
-    if ( this.navigation.currentLevel ) {
-      /* Rework this */
-      
-
-      if ( emit )
-        this.$path.next(this.getPath(currentState.States));
+      this.$path.next(this.getPath(currentState.States));
     }
+    // if ( this.navigation.currentLevel ) {
+    //   /* Rework this */
+    //   if ( emit )
+    //     this.$path.next(this.getPath(currentState.States));
+    // }
   }
 
   private getPath(States: any) {
@@ -121,6 +128,7 @@ export class FiltersStatesService {
   public reset(t: Tree) {
     this.tree = t;
     this.navigation.setTree(t);
+
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
@@ -129,6 +137,10 @@ export class FiltersStatesService {
     const currentState = {
       States
     };
+
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
+    this.logger.actionComplete();
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
     this.$path.next(this.getPath(States));

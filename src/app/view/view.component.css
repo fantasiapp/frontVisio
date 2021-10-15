@@ -7,12 +7,28 @@
 }
 
 .description {
-    display: flex;
     width: 90%;
     position: absolute;
-    top: 135px;
+    top: 125px;
     font-size: 14px;
     font-weight: 300;
     font-size: 14px;
-    justify-content: flex-start;
+}
+
+@media (max-width: 1366px) {
+    .description {
+        top: 125px;
+    }
+}
+
+@media (min-width: 1366px) and (max-width: 1500px) {
+    .description {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 1500px) {
+    .description {
+        font-size: 16px;
+    }
 }

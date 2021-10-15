@@ -16,7 +16,7 @@
     [rowHeight]="rowHeight"
     [defaultColDef]="defaultColDef"
     [columnDefs]="columnDefs"
-    [animateRows]="false"
+    [animateRows]="true"
     [isExternalFilterPresent]="isExternalFilterPresent"
     [doesExternalFilterPass]="doesExternalFilterPass"
     [rowData]="rowData"
@@ -25,18 +25,17 @@
     [rowClassRules]="rowClassRules"
     [frameworkComponents]="frameworkComponents"
     (cellClicked)="onCellClicked($event)"
-
 >
 </ag-grid-angular>
 
-<info-bar [style.margin-top]="0"  [style.height]="'100%'" [(pdv)]="pdv"></info-bar>
+<info-bar [style.margin-top]="0" [style.top]="0"  [style.height]="'100%'" [(pdv)]="pdv"></info-bar>
 
-<div *ngIf="showInfo" class="side-div">
+<div [style.right] = "sideDivRight" class="side-div">
     <img src="assets/x icon.svg" (click)="showInfoOnClick()"/>
     <div>
         <div>
             <span>
-                <h1>{{ infoData.name }}</h1>
+                <h2>{{ infoData.name }}</h2>
             </span>
             <ul>
                 <li><span>Enseigne : </span>{{ infoData.enseigne }}</li>
@@ -51,25 +50,28 @@
     <div class="checkbox-div">Point de vente redistribue<input type="checkbox" [checked]="redistributed"></div>
     <div class="values-div">
         <div>
-            <h1>P2CD</h1>
+            <h2>P2CD</h2>
             <ul>
-                <li><span>Siniat : </span>{{ infoData.siniatP2cdSales }} m²</li>
-                <li><span>Placo : </span>{{ infoData.placoP2cdSales }} m²</li>
-                <li><span>Knauf : </span>{{ infoData.knaufP2cdSales }} m²</li>
-                <li><span>Total P2CD estimé : </span>{{ infoData.totalP2cdSales }} m²</li>
+                <li *ngIf="infoData.siniatP2cdSales  != 0"><span>Siniat : </span>{{ infoData.siniatP2cdSales }} m²</li>
+                <li *ngIf="infoData.placoP2cdSales  != 0"><span>Placo : </span>{{ infoData.placoP2cdSales }} m²</li>
+                <li *ngIf="infoData.knaufP2cdSales  != 0"><span>Knauf : </span>{{ infoData.knaufP2cdSales }} m²</li>
+                <li *ngIf="infoData.totalP2cdSales  != 0"><span>Total P2CD estimé : </span>{{ infoData.totalP2cdSales }} m²</li>
             </ul>
         </div>
         <div>
             <div class="vertical-bar"></div>
         </div>
         <div>
-            <h1>Enduit</h1>
+            <h2>Enduit</h2>
             <ul>
-                <li><span>Pregy : </span>{{ infoData.pregyEnduitSales }} KG</li>
-                <li><span>Potentiel : </span>{{ infoData.salsiEnduitSales }} KG</li>
-                <li><span>Total siniat : </span>{{ infoData.potential }} KG</li>
-                <li><span>Total estimé : </span>{{ infoData.totalEnduitSales }} KG</li>
+                <li *ngIf="infoData.pregyEnduitSales != 0"><span>Pregy : </span>{{ infoData.pregyEnduitSales }} KG</li>
+                <li *ngIf="infoData.salsiEnduitSales != 0"><span>Salsi : </span>{{ infoData.salsiEnduitSales }} KG</li>
+                <li *ngIf="infoData.potential  != 0"><span>Potentiel : </span>{{ infoData.potential }} KG</li>
+                <li *ngIf="infoData.totalSiniatEnduitSales  != 0"><span>Total siniat : </span>{{ infoData.totalSiniatEnduitSales }} KG</li>
+                <li *ngIf="infoData.totalEnduitSales  != 0"><span>Total estimé : </span>{{ infoData.totalEnduitSales }} KG</li>
             </ul>
         </div>
     </div>
+
+    <div class="cover" [class.open]="showInfo"></div>
 </div>

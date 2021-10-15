@@ -1,6 +1,5 @@
 :host {
     display: block;
-    font-size: 16px;
     height: 40px;
     overflow-y: hidden;
     transition: height 150ms ease-in-out 0s;
@@ -8,18 +7,32 @@
 }
 
 .name {
-    font-size: 1em;
-    font-weight: 500;
+    font-size: 0.9em;
+    font-weight: 400;
     padding: 10px 20px;
     margin: 0;
     background: #F7F7F7;
     color: #151D21;
     height: 20px;
     cursor: pointer;
+    transform-origin: 50% 50%;
+    position: relative;
+}
+
+.name .dropicon {
+    position: absolute;
+    top: 17px;
+    right: 30px;
+    cursor: pointer;
+    transition: transform 100ms ease-out 0s;
+}
+
+.name.dropped .dropicon {
+    transform: rotate(180deg);
 }
 
 .container {
-    font-size: 1.125em;
+    font-size: 1em;
     font-weight: 300;
     padding: 15px 20px;
 }

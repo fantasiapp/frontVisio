@@ -2,9 +2,7 @@
   <div class="button-container">
     <div (click)="showFilters()" class="open-filters">
       Options
-        <div class="arrow-box">
-          <mat-icon class="expand-icon">expand_more</mat-icon></div></div
-      >
+        <mat-icon class="expand-icon">expand_more</mat-icon></div>
   </div>
 
   <div class="ens-org">
@@ -19,6 +17,7 @@
       class="input-range"
       [value]="sldValue"
       (click)="toggle();"
+      [disabled]="mapComponent?.shown ? true : false"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
@@ -50,18 +49,16 @@
     </div>
     <div class="search-div">
       <button class="button" (click)="updateData()">
-        <img class="button-img" src="assets/Mise a jour.svg" alt="Mettre à jour" />
+        <img class="button-img updatable" (click)="updating = true" (animationend)="onAnimationEnd()" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
       </button>
     </div>
     <div class="search-div">
       <button class="button" (click)="toggleMap()">
-        <img class="button-img" [src]="mapComponent?.shown ? 'assets/list.svg' : 'assets/map.svg'" alt="Carte" />
+        <img class="button-img" [src]="mapComponent?.shown ? 'assets/icon retourne en mode dashboard.svg' : 'assets/map.svg'" alt="Carte" />
       </button>
     </div>
     <div class="search-div">
-      <button class="button" (click)="logOut()">
-        <img class="button-img" src="assets/Log out.svg" alt="déconnecter" />
-      </button>
+      <account-info [name]="(getName() | async) || '...'"></account-info>
     </div>
   </div>
 </div>

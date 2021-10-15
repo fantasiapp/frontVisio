@@ -1,8 +1,12 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { AsyncSubject, combineLatest, Subscription } from 'rxjs';
+import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { BasicWidget } from '../widgets/BasicWidget';
+import { MapFiltersComponent } from './map-filters/map-filters.component';
+import { InfoBarComponent } from './info-bar/info-bar.component';
 
 type MarkerType = {
   pdv: PDV;
@@ -35,10 +39,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   filterDict: any = {};
 
   set criteria(value: any[]) {
-    let pdvs = PDV.sliceMap(this.path, []);
+    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree?.type === PDV.geoTree.type);
     this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
     this.filterDict = PDV.countForFilter(pdvs);
     this.update();
+    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this._criteria.length ? this._criteria : undefined);
+    this.logger.actionComplete();
   }
   
   selectedPDV?: PDV;
@@ -48,10 +54,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   hide() {
     this.hidden = true;
     this.subscription?.unsubscribe();
+    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
+    this.logger.actionComplete();
   }
+
   show() {
     this.interactiveMode();
     this.hidden = false;
+    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, true);
+    this.logger.actionComplete();
   }
   
   get shown() { return !this.hidden; }
@@ -64,7 +75,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   markerTimeout: any = 0;
   subscription?: Subscription;
 
-  constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef) {
+  constructor(private filtersService: FiltersStatesService, private cd: ChangeDetectorRef, private logger: LoggerService) {
     console.log('[MapComponent]: On');
     this.initializeInfowindow();
     if ( this.shown )
@@ -75,7 +86,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.subscription = combineLatest([this.filtersService.$path, this.filtersService.$load, this.ready]).subscribe(([path, _, __]) => {
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
-        let pdvs = PDV.sliceMap(this.path, []);
+        let pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree?.type === PDV.geoTree.type);
         this.pdvs = PDV.reSlice(pdvs, this._criteria);
         this.filterDict = PDV.countForFilter(pdvs);
         this.update();
@@ -279,14 +290,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     let std = Math.sqrt(variance[0] + variance[1]);
     let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
 
-    this.map!.setZoom(zoom || 13);
-
-    this.map!.panTo(
-      new google.maps.LatLng(
-        center[0] || 48.52,
-        center[1] || 2.19
-      )
-    );
+    requestAnimationFrame(() => {
+      this.map!.setZoom(zoom || 13);
+      this.map!.panTo(
+        new google.maps.LatLng(
+          center[0] || 48.52,
+          center[1] || 2.19
+        )
+      );
+    });
   }
 
   private addMarkersFromPDVs() {
@@ -298,7 +310,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         lng = pdv.attribute('longitude'),
         industrie = pdv.property('industrie'),
         icon = builder.get([industrie, +(pdv.property('clientProspect') == 3), +pdv.attribute('pointFeu'), pdv.attribute('segmentMarketing')]);
-      
+
+      if ( !icon ) throw 'Cannot find icon, maybe ids change';
       return {
         position: new google.maps.LatLng(lat, lng),
         icon,
@@ -431,22 +444,21 @@ let builder = new MapIconBuilder({
   width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
 });
 
-builder.axis('id', [
-  ['1', {fill: '#A61F7D'}],
-  ['2', {fill: '#0056A6'}],
-  ['3', {fill: '#67CFFE'}],
-  ['4', {fill: '#888888'}],
-]).axis('cp', [
-  ['0', {}],
-  ['1', {fill: '#FF0000'}]
-]).axis('pf', [
-  ['1', {strokeFeet: 'none', feet: MapIconBuilder.fire}], //<- draw fire
-  ['0', {}]
-]).axis('sm', [
-  ['8', {head: MapIconBuilder.circle}],
-  ['7', {head: MapIconBuilder.square}],
-  ['6', {head: MapIconBuilder.diamond}],
-  ['9', {head: MapIconBuilder.circle}]
-]).generate();
 
-console.log(builder.icons);
+builder.axis('id', [
+  [1, {fill: '#A61F7D'}],
+  [2, {fill: '#0056A6'}],
+  [3, {fill: '#67CFFE'}],
+  [4, {fill: '#888888'}],
+]).axis('cp', [
+  [0, {}],
+  [1, {fill: '#FF0000'}]
+]).axis('pf', [
+  [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}], //<- draw fire later, now it's a circle
+  [0, {}]
+]).axis('sm', [
+  [8, {head: MapIconBuilder.circle}],
+  [7, {head: MapIconBuilder.square}],
+  [6, {head: MapIconBuilder.diamond}],
+  [9, {head: MapIconBuilder.circle}]
+]).generate();

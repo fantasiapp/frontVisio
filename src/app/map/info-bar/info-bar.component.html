@@ -2,7 +2,7 @@
     <img src="assets/X.svg"/>
 </button>
 <div class="nav">
-    <ul #navigation>
+    <ul #navigation *ngIf="doesntSellChecked != true">
         <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
         <hr class="horizontal-line">
     </ul>
@@ -29,23 +29,19 @@
                         <li>
                             <label class="container-checkbox">
                                 Ne vend pas de plaque
-                                <input type="checkbox" [attr.checked]="pdv.attribute('target')[TARGET_SALE_ID]" disabled>
+                                <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [disabled]="doesntSellDisabled">
                                 <span class="checkmark" ></span>
                             </label>
                         </li>
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="!pdv.attribute('redistributed') || !pdv.attribute('target')[TARGET_REDISTRIBUTED_ID]" (change)="changeRedistributed()" [disabled]="!pdv.attribute('redistributed')">
+                                <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="redistributedDisabled">
                                 <span class="checkmark"></span>
                             </label>
                         </li>
                     </ul>
                 </div>
-            </div>
-            <div class="comments">
-                <span>Commentaires :</span>
-                <textarea (change)="changeComment()" #comments>{{ pdv ? pdv!.getCommentTarget() : '' }}</textarea>
             </div>
         </div>
     </ng-container>
@@ -58,36 +54,36 @@
                 <div class="definition">
                     <div class="name">Général</div>
                     <ul>
-                        <li><span>Agent :</span> {{getName('agent')}}</li>
-                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
-                        <li><span>Départements :</span> {{getName('dep')}}</li>
-                        <li><span>Client prospect :</span> {{pdv!.clientProspect() || "Non documenté"}} </li>
-                        <li><span>Segmentation marketing :</span>{{getName('segmentMarketing')}}</li>
-                        <li><span>Segmentation portefeuille :</span> {{getName('segmentCommercial')}} </li>
+                        <li><span>Agent : </span> {{getName('agent')}}</li>
+                        <li><span>Enseigne : </span> {{getName('enseigne')}}</li>
+                        <li><span>Départements : </span> {{getName('dep')}}</li>
+                        <li><span>Client prospect : </span> {{pdv!.clientProspect() || "Non documenté"}} </li>
+                        <li><span>Segmentation marketing : </span>{{getName('segmentMarketing')}}</li>
+                        <li><span>Segmentation portefeuille : </span> {{getName('segmentCommercial')}} </li>
                     </ul>
                 </div>
 
                 <div class="definition" *ngIf="getSalesVolumes().length">
                     <div class="name">Volumes de vente par marque en m²</div>
                     <ul>
-                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} :</span>{{formatVolume(entry[1])}} m²</li>
+                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} : </span>{{myFormatNumberToString(entry[1])}} m²</li>
                     </ul>
                 </div>
 
                 <div class="eval">
                     <ul>
-                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [value]="pdv!.getVolumeTarget()" (change)="changeTargetP2CD(targetP2CD.value)" type="number" #targetP2CD/></li>
+                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly/></li>
                         <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'r' ? 'red' : 'lightgray'}" (click)="changeLight('r')"></div>
-                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'o' ? 'orange' : 'lightgray'}" (click)="changeLight('o')"></div>
-                            <div class="circle" [ngStyle]="{'background': pdv!.getLightTarget() === 'g' ? 'green' : 'lightgray'}" (click)="changeLight('g')"></div>
+                            <button (click)="changeLight('r')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
+                            <button (click)="changeLight('o')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
+                            <button (click)="changeLight('g')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="comments">
                 <span>Commentaires :</span>
-                <textarea (change)="changeComment()" #comments>{{ pdv ? pdv!.getCommentTarget() : '' }}</textarea>
+                <textarea (change)="changeComment()" #comments agentOnly>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
             </div>
         </div>
     </ng-container>
@@ -114,7 +110,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0"/>
+                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j]" accessControl agentOnly/>
                         </div>
                     </div>
                 </div>
@@ -123,17 +119,11 @@
     </ng-container>
 </ng-container>
 
-
-<div *ngIf="currentIndex == 2" class="validation">
-    <button>Annuler</button>
-    <button>Valider</button>
-</div>
-
 <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
-<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2" (click)="setPage(currentIndex + 1)"/>
+<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true" (click)="setPage(currentIndex + 1)"/>
 
+<div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
 <div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
-    <div class="cover"></div>
     <div class="quitbar">
         <h1>Souhaitez-vous mettre à jour les modifications</h1>
         <div class="button-container">

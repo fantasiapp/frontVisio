@@ -16,14 +16,12 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   protected sliceDice: SliceDice;
   protected chart: Chart | null = null;
   /* Styling */
-  protected tileHeight: number = 16;
   protected dynamicDescription: boolean = false;
   //protected savedData: {[key:number]: any} = {};
 
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
-
-
+  
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
@@ -31,22 +29,26 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
       this.subscription!.unsubscribe();
       this.subscription = undefined;
       this.path = path;
+      this.onPathChanged();
       //view is initialized
       this.interactiveMode();
       this.start();
     });
   }
-
+  
   interactiveMode() {
     if ( this.subscription ) return;
     this.subscription = this.filtersService.$path.subscribe(path => {
       if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
+        this.onPathChanged();
         this.update();
       }
     });
   }
 
+  protected onPathChanged() { }
+  
   pause() {
     if ( !this.subscription ) return;
     this.subscription.unsubscribe();
@@ -55,9 +57,9 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   
   ngOnInit() {
     if ( this.properties.description == '@sum' )
-      this.dynamicDescription = true;
+    this.dynamicDescription = true;
   }
-
+  
   protected start(): void {
     let data = this.updateData();
     //used to wait for css to render components correctly <--> needs investigation   v
@@ -65,9 +67,9 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
       this.createGraph(data);
     });
   }
-
+  
   abstract createGraph(data: any, opt?: {}): void;
-
+  
   updateGraph({data}: any): void {
     let newIds = data.map((d: any[]) => d[0]);
     let oldIds = Object.keys(this.chart!.xs());
@@ -81,22 +83,22 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
       });
     });
   }
-
+  
   getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
     let args: any[] = this.properties.arguments;
     return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, false];
   }
-
+  
   updateData(): {} {
     this.chart?.tooltip.hide();
     let data;
     //let pathId = this.sliceDice.pathId(this.path);
     //if ( this.savedData[pathId] ) {
-    //  console.log('data already here')
-    //  data = this.savedData[pathId]
-    //} else {
+  //  console.log('data already here')
+  //  data = this.savedData[pathId]
+  //} else {
     //  console.log('fetching data');
-      data = this.sliceDice.getWidgetData(...this.getDataArguments());
+    data = this.sliceDice.getWidgetData(...this.getDataArguments());
     //  this.savedData[this.sliceDice.pathId(this.path)] = data;
     //}
     
@@ -106,48 +108,50 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
       this.setSubtitle(this.properties.description);
     }; return data;
   }
-
+  
   setTitle(title: string) {
     d3.select(this.ref.nativeElement).select('div:nth-of-type(1) h2').text(title);
   }
-
+  
   setSubtitle(subtitle: string) {
     d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
   }
-
+  
   update() {
     this.updateGraph(this.updateData());
   }
 
+  refresh() { //for transitions without animation
+    this.update();
+  }
+  
   ngOnDestroy() {
     d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     this.subscription?.unsubscribe();
     if ( this.ref )
-      d3.select(this.ref.nativeElement).selectAll('div > *').remove();
-    // if ( this.chart )
-    //   this.chart.destroy();
+    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
   }
-
+  
   noData(content: ElementRef) {
     console.log('[BasicWidget -- noData]: No data is supplied, this is most probably a error.');
-
     d3.select(content.nativeElement).select('div > svg').remove();
     content.nativeElement.innerHTML = `
-      <div class="nodata">Il n'y a pas de données.</div>
+    <div class="nodata">Il n'y a pas de données.</div>
     `;
   }
-
+  
+  static legendItemHeight: number = BasicWidget.getLegendItemHeight(window.innerWidth);
   static shallowArrayEquality(obj: any[], other: any[]): boolean {
     let l = obj.length;
     if ( l != other.length ) return false;
     for ( let i = 0; i < l; i++ )
-      if ( obj[i] != other[i] ) return false;
+    if ( obj[i] != other[i] ) return false;
     return true;
   }
-
+  
   static shallowObjectEquality(obj: {[key:string]:any}, other: {[key:string]: any}): boolean {
     let objKeys: string[] = Object.keys(obj),
-      otherKeys: string[] = Object.keys(other);
+    otherKeys: string[] = Object.keys(other);
     
     if ( !this.shallowArrayEquality(objKeys, otherKeys) ) return false;
     for ( let key of objKeys )
@@ -156,12 +160,21 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     return true;
   }
 
+  static getLegendItemHeight(width: number) {
+    if ( width < 1366 )
+      return 12;
+    else if ( width < 1500 )
+      return 14;
+    else
+      return 16;
+  }
+
   static format(q: number, n: number = 3): string {
     let p = Math.round(q);
     let base = Math.pow(10, n);
     let str = '';
 
-    if ( p == 0 )
+    if ( Math.floor(q) == 0 )
       return q.toFixed(1).toString();
 
     while (p >= base) {
@@ -174,3 +187,22 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     return str;
   }
 };
+
+//perhaps will be useful
+let timeoutId: any = null;
+let windowResize = (e: Event) => {
+  let width = window.innerWidth;
+  BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(width);
+  timeoutId = null;
+};
+
+(window as any).addEventListener('resize', (e: Event) => {
+  if ( timeoutId )
+    clearTimeout(timeoutId);
+  
+  timeoutId = setTimeout(windowResize, 100, [e]);
+});
+
+(window as any).addEventListener('load', (e: Event) => {
+  BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(window.innerWidth);
+})

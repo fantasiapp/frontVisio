@@ -1,30 +1,13 @@
 :host {
   display: grid;
-  column-gap: 20px;
-  row-gap: 20px;
+  column-gap: 15px;
+  row-gap: 15px;
   /* tune this */
-  margin: 175px 5% 0;
-  height: calc(100% - 190px);
+  margin: 165px 5% 0;
+  height: calc(100% - 180px);
   font-size: 20px;
 }
 
-@media (max-width: 1366px) {
-  :host {
-      font-size: 16px;
-  }
-}
-
-@media (max-width: 1920px) {
-  :host {
-      font-size: 20px;
-  }
-}
-
-@media (min-width: 1920px) {
-  :host {
-      font-size: 22px;
-  }
-}
 
 :host::ng-deep > * {
   display: flex;
@@ -39,14 +22,16 @@
   position: relative;
   font-size: inherit;
   user-select: none;
+  box-shadow: 0 0 5px 0 #eee;
 }
 
 :host::ng-deep * .props h2 {
   padding: 0;
   margin: 0;
   margin-bottom: 3px;
-  font-size: 0.9em;
-  font-weight: 500;
+  font-size: 1.1em;
+  line-height: 1.4em;
+  font-weight: 400;
   padding: 0 25px;
   border-bottom: 1px solid #707070;
   color: #151d21;
@@ -56,8 +41,9 @@
   padding: 0;
   margin: 0;
   margin-bottom: 5px;
-  font-size: 0.7em;
-  font-weight: 500;
+  font-size: 0.9em;
+  line-height: 1.2em;
+  font-weight: 300;
   color: #070707;
 }
 
@@ -78,4 +64,36 @@
 :host::ng-deep > * .container {
   flex: 1;
   overflow: hidden;
+}
+
+@media (max-width: 1366px) {
+  :host {
+    font-size: 14px;
+  }
+
+  :host::ng-deep > * {
+    padding: 10px !important;
+  }
+
+  :host::ng-deep * .props h2 {
+    font-weight: 500;
+  }
+}
+
+@media (min-width: 1367px) and (max-width: 1500px) {
+  :host {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1500px) {
+  :host {
+    font-size: 18px;
+    column-gap: 20px;
+    row-gap: 20px;
+  }
+
+  :host::ng-deep * .props p {
+    font-weight: 400;
+  }
 }

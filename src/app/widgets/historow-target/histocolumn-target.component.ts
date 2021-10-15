@@ -1,16 +1,21 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Logger } from 'ag-grid-community';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
+import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { formatNumberToString, formatStringToNumber } from 'src/app/general/valueFormatter';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { TargetService } from '../description-widget/description-service.service';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 
 //❌
 @Component({
   selector: 'app-historow-target',
   templateUrl: './histocolumn-target.component.html',
-  styleUrls: ['./histocolumn-target.component.css']
+  styleUrls: ['./histocolumn-target.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('content', {read: ElementRef})
@@ -19,7 +24,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   @ViewChild('openTargetControl', {read: ElementRef})
   protected openTargetControl!: ElementRef;
 
-  private transitionDuration = 0;
+  private transitionDuration = 250;
   private needles?: d3Selection;
   private barHeights: number[] = [];
   private barTargets: number[] = [];
@@ -27,11 +32,31 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   private offsetY: number = 0;
   private marginX: number = 0;
   private barWidth: number = 0;
-  inputIsOpen: boolean = false;
+  _inputIsOpen: boolean = false;
+  canSetTargets: boolean = true;
   private data?: any;
-  
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
+
+  get inputIsOpen() { return this._inputIsOpen; }
+  set inputIsOpen(val: boolean) {
+    let event: number = val ? LoggerService.events.WIDGET_PARAMS_ADDED : LoggerService.events.WIDGET_PARAMS_REMOVED,
+      id: number = parseInt(DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('widget'), 'histoColumnTarget')!);
+    
+    this.logger.handleEvent(event, id);
+    this.logger.actionComplete();
+    this._inputIsOpen = val;
+  }
+
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService, protected cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
+    this.targetService.targetChange.subscribe(value => {
+      if ( this.inputIsOpen ) this.toggleTargetControl();
+      this.canSetTargets = !this.canSetTargets;
+      let data = this.updateData() as any;
+      if ( this.needles )
+        this.createNeedles(data);
+      
+      this.cd.detectChanges();
+    });
   }
 
   private newTargetControl() { 
@@ -50,7 +75,11 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     this.createNeedles(data);
     if ( this.inputIsOpen )
       this.renderTargetControl();
-  };
+  }
+
+  private getTargetValue(d: number): string {
+    return formatNumberToString(DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
+  }
 
   private renderTargetControl() {
     let barsNumber = this.barHeights.length;
@@ -61,27 +90,33 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .attr('value', (d) => +DataExtractionHelper.get("targetLevelDrv")[Object.keys(DataExtractionHelper.get('drv'))[d]][DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('structureTargetLevelDrv'), this.data.updateTargetName)!])
+        .attr('value', (d) => this.getTargetValue(d))
         // .attr('value', (d) => d)
-        .attr('type', 'number')
-        .on('change', (event) => {console.log("change : ", event.target.value), this.changeValue(event.target.value, event.target.__data__, event)})
+        .attr('type', 'text')
         .style('width', (this.barWidth.toFixed(1)) + 'px')
-        .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px');
-      return container;
+        .style('margin', '0 ' + (this.offsetX.toFixed(1)) + 'px')
+        .on('change', (e: Event) => {
+          let input = e.target as any,
+            target = input.value || '';
+          this.changeValue(target, input.__data__, e);
+        })
+    return container;
   }
 
   createGraph(data: any) {
     let self = this;
     this.data = data;
     super.createGraph(data, {
-      onresized: () => {
-        this.renderTargetContainer({data: null, target: this.barTargets});
+      onresized(this: Chart) {
+        let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
+        self.renderTargetContainer({data: null, target: self.barTargets});
       },
       onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
         self.rectHeight = rect.height;
         self.chart = this;
-        self.renderTargetContainer(data);
+        self.renderTargetContainer(data); //initial render
         this.config('onrendered', null);
       },
       transition: {
@@ -91,20 +126,31 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   updateGraph(data: any) {
-    //remove all
-    super.updateGraph(data);
     //wait for animation
+    super.updateGraph(data); //queue first
+    this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
+      this.data = data;
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
       }, this.transitionDuration);
-      
     });
   }
 
-  private createNeedles({data, target}: any) {
-    this.barTargets = target;
+  //override the update method, the make target move immediately
+  refresh() {
+    let data = this.data = this.updateData(), oldDuration = this.transitionDuration;
+    this.getNeedleGroup()?.remove();
+    this.transitionDuration = 0;
+    super.updateGraph(data); //immediate update
+    this.createNeedles(data); //maybe setTimeout
+    this.transitionDuration = oldDuration;
+  }
+
+  private createNeedles(allData: any) {
+    let data = allData.data;
+    let target = this.barTargets = this.canSetTargets ? allData.target : allData.ciblage;
     if ( this.needles )
       this.getNeedleGroup()!.remove();
 
@@ -113,7 +159,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let main = this.chart!.$.main.select('.bb-chart-bars') as d3Selection;
     let mainRect: DOMRect = main.node().getBoundingClientRect();
     let bars = this.chart!.$.bar.bars;
-    let barsNumber = data && data[0].length - 1 || this.barHeights.length;
+    let barsNumber = data && data[0].length - 1;
     this.barHeights = new Array(barsNumber).fill(0);
 
     let offsetX = 0, offsetY = 0, width = 0;
@@ -124,7 +170,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         width = rect.width;
     });
     
-    //n * width + 2*(n-1)*offset = mainRect.width
+    //n * width + 2*n*offset = mainRect.width
     this.barWidth = width;
     this.offsetX = offsetX = (gridRect.width - width * barsNumber)/(2*barsNumber);
     this.offsetY = offsetY = (gridRect.height - mainRect.height) + 2;
@@ -137,7 +183,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
     this.needles
       .selectAll('line')
-      .data(<number[]>target.slice(0, barsNumber))
+      .data(<number[]>(target || []).slice(0, barsNumber))
       .enter()
       .append('line')
       .attr('x1', function(d, i) {
@@ -172,13 +218,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .classed('target-control-opened', this.inputIsOpen);
   }
 
-  doTargetControl() {
-    console.log('[HistoRowTargetComponent]: Target control validated:\nRespect+.');
-    //close
-    this.toggleTargetControl();
-  }
-
-  changeValue(newValue :number, inputId: number, fullEvent: any) {
-    this.sliceDice.updateTargetLevelDrv(inputId, newValue, this.data.updateTargetName)
+  changeValue(newValueFormatted : string, inputId: number, fullEvent: any) {
+    let newValue: number = formatStringToNumber(newValueFormatted)
+    fullEvent.srcElement.value = formatNumberToString(newValue)
+    this.sliceDice.updateTargetLevel(newValue, this.data.targetLevel['name'], this.data.targetLevel['ids'][inputId], this.data.targetLevel['volumeIdentifier'], this.data.targetLevel['structure'])
   }
 }

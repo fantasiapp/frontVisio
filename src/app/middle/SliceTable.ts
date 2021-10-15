@@ -27,13 +27,14 @@ export class SliceTable {
         'p2cd': {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
-                Math.floor(this.sortedPdvsList.reduce((totalSiniat: number, pdv: {}) => totalSiniat + (pdv as any).siniatSales,0)/1000),
-                Math.floor(this.sortedPdvsList.reduce((totalSales: number, pdv: {}) => totalSales + (pdv as any).totalSales,0)/1000)
+                this.sortedPdvsList.reduce((totalSiniat: number, pdv: {}) => totalSiniat + (pdv as any).siniatSales,0),
+                this.sortedPdvsList.reduce((totalSales: number, pdv: {}) => totalSales + (pdv as any).totalSales,0)
                 ],
             'navIds': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
-            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => { if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[3]>0 && params.data.target[5] != 'r'}}}, {field: 'pointFeu', flex: 0.35}],
-            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
+            'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
+            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {return params.data.siniatSales > 30000}}, {field: 'pointFeu', flex: 0.35}],
+            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
             'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
@@ -54,7 +55,7 @@ export class SliceTable {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
                 this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.checkboxEnduit === true ? pdv.potential : 0),0),
-                Math.floor(this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)/1000)
+                this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)
                 ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
             'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkboxEnduit && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkboxEnduit', flex: 0.3}],
@@ -75,40 +76,27 @@ export class SliceTable {
         }
     }
 
-    private customField: {[name: string]: (pdv: any) => {}} = { //the way to compute them
+    private customField: {[name: string]: (pdv: any) => {} | null}  = { //the way to compute them
         'siniatSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[1]) && sale[2] === 1))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
+            return this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()['Siniat']
         },
         'totalSales': (pdv: any) => {
-            return pdv[DataExtractionHelper.SALES_ID].filter((sale: number[]) => ([1,2,3]
-                .includes(sale[1])))
-                .reduce((siniatSales: number, sale: number[]) => siniatSales + sale[3], 0);
+            return Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)
         },
         'graph': (pdv: any) => {
-            let p2cdSales: any =  {};
-            let enduitSales: any =  {};
-            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reverse()) {
-                p2cdSales[entry[0]] = {'value': entry[1], 'color': this.getColor('industry', entry[0])}
+            let p2cdSales: any =  {}; let p2cdRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()
+            let enduitSales: any =  {}; let enduitRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)
+            p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
+            for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
+                p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': this.getColor('industry', industry)}
             }
-            for(let entry of Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)).reverse()) {
-                enduitSales[entry[0]] = {'value': entry[1], 'color': this.getColor('indFinition', entry[0])}
+            for(let industry of ['Pregy', 'Salsi', 'Autres']) {
+                enduitSales[industry] = {'value': enduitRaw[industry], 'color': this.getColor('indFinition', industry)}
             }
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
         'potential': (pdv: any) => {
-            let p2cdSalesRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes();
-            let siniatSale = p2cdSalesRaw['Siniat'];
-            let totalSale = Object.entries(p2cdSalesRaw).filter(([industry, value]) => {!['Siniat', 'Placo', 'Knauf'].includes(industry)})
-            .reduce((total: number, [industry, value]: [string, number]) => total + value, 0)
-
-            let enduitSalesRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true);
-            let pregySale = enduitSalesRaw['Pregy'];
-            let salsiSale = enduitSalesRaw['Salsi'];
-
-
-            return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale;
+            return this.getPdvInstance(pdv)!.getPotential();
         },
         'typologie': (pdv :any) => {
             let list = this.getPdvInstance(pdv)!.getValue('dn', false, true);
@@ -121,12 +109,12 @@ export class SliceTable {
             return true; //should return what is inside the new div ?
         },
         'checkboxEnduit': (pdv: any) => {
-                return false;
+            let target = this.getPdvInstance(pdv)!.attribute('target')    
+            if(!target) return false;
+            return target[DataExtractionHelper.TARGET_FINITION_ID]>0;
         },
-        'checkboxP2cd': (pdv: any) => {
-            if(!pdv['target']) return false;
-            return pdv['target'][DataExtractionHelper.TARGET_VOLUME_ID] > 0 && pdv['target'][DataExtractionHelper.TARGET_LIGHT_ID] !== 'r'
-        },
+        'checkboxP2cd': (pdv: any) => null,
+
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
             if(array[0] === 1) return DataExtractionHelper.get('clientProspect')[1]
@@ -173,9 +161,12 @@ export class SliceTable {
                 for(let index = 0; index < Object.keys(allColumns).length; index ++) {
                     let field = allColumns[index]
                     if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
-                    else if(this.tableConfig[type]['specificColumns'].includes(field)) newPdv[field] = this.customField[field](pdv);
+                    else if(this.tableConfig[type]['specificColumns'].includes(field)) {
+                        let customValue = this.customField[field](pdv);
+                        if(customValue !== null) newPdv[field] = customValue;
+                    }
                     else {
-                        newPdv[field] = pdv[DataExtractionHelper.getKeyByValue(DataExtractionHelper.getPDVFields(), field)!]
+                        newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
                     }
                 }
                 pdvsAsList.push(newPdv);
@@ -205,13 +196,12 @@ export class SliceTable {
             }
         }
         for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
-            let column : any = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': visibleColumn.colSpan ? visibleColumn.colSpan : (params: any) => 1}
-            if(column.field === 'potential') column.colSpan = (params : any) => {return params.data.groupRow === true ? 3 : 1; };
+            let column : any = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': (params: any) => {if(params.data.groupRow && params.colDef.field === 'potential') return 2; return 1}, 'cellStyle': (params: any) => {if(params.colDef.field != 'graph') return {display: 'flex'}; return;}}
             if(visibleColumn.valueGetter) column.valueGetter = visibleColumn.valueGetter; 
             columnDefs.push(column);
         }
 
-        this.columnDefs = columnDefs;
+        this.columnDefs = columnDefs; 
         return this.columnDefs;
     }
 
@@ -235,8 +225,26 @@ export class SliceTable {
         return this.titleData;
     }
 
+    initializeTarget() {
+        return [Math.floor(Date.now()/1000), true, false, 0, false, "r", ""]
+      }
+
+    changeTargetTargetFinition(pdv: {[field: string]: any}) {
+        if(!pdv['target']) pdv['target'] = this.initializeTarget()
+        if(pdv['potential'] > 0) {
+            if(pdv['checkboxEnduit']) {
+                this.updateTotalTarget(pdv['potential'])
+                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = pdv['potential']
+            } else {
+                this.updateTotalTarget(-pdv['potential'])
+                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = 0
+            }
+        }
+        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
+    }
+
     updateTotalTarget(increment: number) {
-        this.titleData[1]+=increment;
+        this.titleData[1]+=increment
     }
 
 
@@ -274,17 +282,20 @@ export class SliceTable {
     }
 
     getColor(axis: string, enseigne: string): string {
-        if(axis === 'industry' && enseigne === 'Siniat')
-            return '#c12793';
-        if(axis === 'industry' && enseigne === 'Autres')
-            return '#888888';
-        if(axis === 'indFinition' && enseigne === 'Autres')
-            return '#5b5b5b';
-        for(let array of Object.values(DataExtractionHelper.get('labelForGraph'))) {
-            if ((array as any)[0] === axis && (array as any)[1] === enseigne) return (array as any)[2]
+        let hardCodedColors: {[key: string]: {[key: string]: string}} = {
+            'industry': {
+            'Siniat': '#A61F7D',
+            'Placo': '#0056A6',
+            'Knauf': '#67D0FF',
+            'Autres': '#888888',
+            },
+            'indFinition': {
+            'Pregy': '#7B145C',
+            'Salsi': '#D00000',
+            'Autres': '#B0B0B0'
+            }
         }
-
-        return 'black'
+        return hardCodedColors[axis][enseigne];
     }
   
     pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
@@ -301,33 +312,6 @@ export class SliceTable {
         }
         return pdvAsList;
     }
-
-    updatePdv(pdv: any, redistributed = false) { //We check here fields that may have been updated : target.redistributed, target.targetFinition
-        let newPdv = this.pdvFromObjectToList(pdv);
-        let newTarget;
-        if(!pdv['target']) {
-            newTarget = {
-                0:formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', 'en-US'),
-                1:redistributed,
-                2:false,
-                3:0,
-                4:pdv['checkboxEnduit'],
-                5:'g',
-                6:""
-            }
-        } else {
-            newTarget = pdv['target'];
-            newTarget[DataExtractionHelper.TARGET_DATE_ID] = formatDate(Date.now(), 'yyyy-MM-ddTHH:mm:ssZZZZZ', this.locale);
-            newTarget[DataExtractionHelper.TARGET_FINITION_ID] = pdv.checkboxEnduit;
-            newTarget[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = redistributed;
-
-        }
-
-        newPdv[DataExtractionHelper.TARGET_ID] = newTarget;
-        console.log("newPdv : ", newPdv)
-        this.dataService.updatePdv(newPdv, pdv.instanceId);
-    }
-
 
     // updateData() {
     //     this.dataService.requestUpdateData()

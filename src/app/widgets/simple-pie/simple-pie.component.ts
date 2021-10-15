@@ -45,7 +45,7 @@ export class SimplePieComponent extends BasicWidget {
               <div class="tooltip-tail"></div>
             </div>
           `;
-        },
+        }
       },
       //remove labels on slices
       pie: {
@@ -63,19 +63,32 @@ export class SimplePieComponent extends BasicWidget {
       legend: {
         item: {
           onclick() {},
-          tile: {height: this.tileHeight}
+          tile: { }
         },
         position: 'inset',
         inset: {
-          anchor: 'bottom-right',
-          y: 5 + (data.length) * this.tileHeight
+          anchor: 'bottom-left',
+          y: 15 + (data.length - 0.5) * BasicWidget.legendItemHeight,
+          x: 20
         }
       },
       transition: {
         duration: 250
       },
+      onrendered: () => {
+        //initial rendering bug
+        this.chart!.config('onrendered', null);
+        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 15 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
+        //this.chart!.flush();
+      },
+      onresized: () => {
+        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 15 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
+        //this.chart!.flush();
+      },
       // add opt
       ...opt
     });
   }
-}
+};

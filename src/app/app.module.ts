@@ -45,6 +45,12 @@ import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
 import { MapFiltersComponent } from './map/map-filters/map-filters.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
+import { AgentOnlyDirective } from './behaviour/agent-only.directive';
+import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
+import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
+import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
+import { LoggerService } from './behaviour/logger.service';
+import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +86,12 @@ import { MapSelectComponent } from './map/map-select/map-select.component';
     HistocurveComponent,
     InfoBarComponent,
     MapFiltersComponent,
-    MapSelectComponent
+    MapSelectComponent,
+    AgentOnlyDirective,
+    RootLevelOnlyDirective,
+    AccountInfoComponent,
+    DescriptionWidgetComponent,
+    SearchbarComponent
   ],
   imports: [
     BrowserModule,
@@ -98,7 +109,7 @@ import { MapSelectComponent } from './map/map-select/map-select.component';
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable],
+  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable, LoggerService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
