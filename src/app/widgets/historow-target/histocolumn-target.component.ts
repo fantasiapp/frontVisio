@@ -4,6 +4,7 @@ import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { formatNumberToString, formatStringToNumber } from 'src/app/general/valueFormatter';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
@@ -77,8 +78,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       this.renderTargetControl();
   }
 
-  private getTargetValue(d: number) {
-    return DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])];
+  private getTargetValue(d: number): string {
+    return formatNumberToString(DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
   }
 
   private renderTargetControl() {
@@ -92,7 +93,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .data(d3.range(barsNumber))
       .enter()
         .append('input')
-        .attr('value', (d) => BasicWidget.format(this.getTargetValue(d)))
+        .attr('value', (d) => this.getTargetValue(d))
         // .attr('value', (d) => d)
         .attr('type', 'text')
         .style('width', ((this.barWidth*(1 + coeff)).toFixed(1)) + 'px')
@@ -227,7 +228,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       .classed('target-control-opened', this.inputIsOpen);
   }
 
-  changeValue(newValue :number, inputId: number, fullEvent: any) {
+  changeValue(newValue : number, inputId: number, fullEvent: any) {
     this.sliceDice.updateTargetLevel(newValue, this.data.targetLevel['name'], this.data.targetLevel['ids'][inputId], this.data.targetLevel['volumeIdentifier'], this.data.targetLevel['structure'])
   }
 }
