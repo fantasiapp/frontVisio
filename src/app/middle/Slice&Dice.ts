@@ -919,7 +919,6 @@ class SliceDice{
       targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;
-    console.log(this.rubiksCubeCheck(slice, indicator, percent))
     return {data: dataWidget.formatWidget(transpose), 
       sum: sum, 
       target: rodPosition, 
