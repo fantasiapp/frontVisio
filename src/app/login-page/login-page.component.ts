@@ -48,9 +48,7 @@ export class LoginPageComponent implements OnInit {
     next: (success: any) => {
       if (success) {
         this.userValid = true
-        this.dataservice.requestData().subscribe(val => {
-          sessionStorage.setItem('data', JSON.stringify(val))
-          });
+        this.dataservice.requestData();
         const elmt = document.getElementById('image-container')!;
         const elmt2 = document.getElementById('pentagon-image');
         const elmt3 = document.getElementById('logo-container');
@@ -83,9 +81,7 @@ export class LoginPageComponent implements OnInit {
   ngOnInit(): void {
     if(this.authService.getStayConnected()) {
       this.userValid = true
-      this.dataservice.requestData().subscribe(val => {
-        sessionStorage.setItem('data', JSON.stringify(val))
-        });
+      this.dataservice.requestData();
       this.router.navigate([
         sessionStorage.getItem('originalPath') || 'logged',
       ]);
