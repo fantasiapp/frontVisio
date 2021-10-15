@@ -4,8 +4,9 @@ import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar, Chart} from 'billboard.js';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { RubixCube } from './RubixCube';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+
 
 @Component({
   selector: 'app-historow',
@@ -160,8 +161,9 @@ export class HistoRowComponent extends BasicWidget {
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
-          let index = e.target.__data__.index, tab = self.description.nativeElement.selectedIndex;
-          self.cube!.enseigneCondition = index;
+          let index = e.target.__data__.index, label = this.categories()[index];
+          let realIndex = +DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('enseigne'), label)!;
+          self.cube!.enseigneCondition = self.cube!.getIndexById(realIndex)!;
           self.update();
         });
       },
@@ -197,7 +199,6 @@ export class HistoRowComponent extends BasicWidget {
 
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    console.log([this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube!.conditions])
     return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube!.conditions];
   }
 

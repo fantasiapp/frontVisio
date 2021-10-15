@@ -45,7 +45,7 @@ export class RubixCube {
       this._conditions[1] = null;
       this.segmentAxis = this.lastSegmentAxis;
     } else {
-      index = this.transformIndex(index, 0);
+      //index = this.transformIndex(index, 0);
       this._conditions[1] = [this.mainAxis, [ +this.cube!.enseigneIndexes[index] ]];
       this.mainAxis = this.historow.properties.arguments[0][1];
       this.lastSegmentAxis = this.segmentAxis;
@@ -79,8 +79,9 @@ export class RubixCube {
       let pos = 0;
       while ( pos < this.segmentAxis!.length ) {
         if ( this.segmentAxis![pos++] ) index--;
-        if ( index == -1 )
+        if ( index == -1 ) {
           return pos-1;
+        }
       }
     } 
     
@@ -88,13 +89,17 @@ export class RubixCube {
       let pos = 0;
       while ( pos < this.enseigneAxis!.length ) {
         if ( this.enseigneAxis![pos++] ) index--;
-        if ( index == -1 )
+        if ( index == -1 ) {
           return pos-1;
+        }
       }
     }
-
     
     throw "incorrect axis or value";
+  }
+
+  getIndexById(id: number) {
+    return this.cube!.enseigneIndexes.findIndex(x => +x == id);
   }
 
 
