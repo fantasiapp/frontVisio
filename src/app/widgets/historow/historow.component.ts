@@ -1,14 +1,12 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar, Chart} from 'billboard.js';
+import { RubixCube } from './RubixCube';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
-let DESCRIPTION_MOCK = [
-  ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
-];
 
 @Component({
   selector: 'app-historow',
@@ -20,46 +18,30 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
-  private rubixMask: boolean[] = [];
-  private rubixDirection: number = 0;
-  private rubixMatrix: boolean[][] = [];
-  private rubixIndex: number = 0;
-  private rubixAxis?: string;
-  private rubixArgument?: [string, number[]][];
+  private cube: RubixCube | null = null;
 
   @ViewChild('description', {read: ElementRef})
   protected description!: ElementRef;
 
   public axisLabelLength: number = 10;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, public cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
   }
 
   ngOnInit() {
-    super.ngOnInit();
-    this.properties.description = DESCRIPTION_MOCK;
-
-    //HACK because back doesn't send like this
-    if ( !Array.isArray(this.properties.arguments[0]) ) {
-      this.properties.arguments[0] = [this.properties.arguments[0], 'ensemble'];
-    }
-    
-    this.rubixAxis = this.properties.arguments[0][0];
-    this.rubixArgument = this.properties.description[0][1];
+    this.cube = new RubixCube(this);
   }
 
   private axisPadding: number = 100;
   private rectWidth: number = 0;
   private maxValue: number = 0;
 
-  protected start(): void {
-    this.rubixMatrix = this.sliceDice.rubiksCubeCheck(this.path, this.properties.arguments[2], this.properties.arguments[5]).boolMatrix;
-    let data = this.updateData();
-    //used to wait for css to render components correctly <--> needs investigation   v
-    requestAnimationFrame((_: any) => {
-      this.createGraph(data);
-    });
+  protected onPathChanged() {
+    this.cube = new RubixCube(this);
+    this.cube.rules = this.sliceDice.rubiksCubeCheck(this.path, this.properties.arguments[2], this.properties.arguments[5]);
+    this.description.nativeElement.selectedIndex = "0";
+    this.cd.markForCheck();
   }
 
   private computeMax(data: any) {
@@ -179,7 +161,9 @@ export class HistoRowComponent extends BasicWidget {
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
-          self.addRubixCondition(e.target.__data__.index, this.categories()[e.target.__data__.index]);
+          let index = e.target.__data__.index, label = this.categories()[index];
+          let realIndex = +DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('enseigne'), label)!;
+          self.cube!.enseigneCondition = self.cube!.getIndexById(realIndex)!;
           self.update();
         });
       },
@@ -187,27 +171,9 @@ export class HistoRowComponent extends BasicWidget {
     });
   }
 
-  addRubixCondition(index: number, name: string) {
-    let type = this.properties.arguments[0][0];
-    if ( this.rubixAxis === type ) {
-      let set = DataExtractionHelper.get(type),
-        keyId = DataExtractionHelper.getKeyByValue(set, name),
-        id;
-      if ( !keyId ) throw `${name} not found in ${type}.`;
-      id = parseInt(keyId);
-      this.rubixAxisForEnseigne(index);
-      this.rubixAxis = this.properties.arguments[0][1];
-      this.rubixArgument!.push([type, [id]]);
-    } else {
-      this.rubixAxisForEnseigne(-1); //remove conditions
-      this.rubixAxis = type;
-      this.rubixArgument!.pop();
-    }
-  }
-
   //wait on delays
   updateGraph({data}: any) {
-    this.applyRubixConditions(data);
+    // this.applyRubixConditions(data);
     if ( data[0][0] != 'x' ) {
       console.log('[HistoRow]: Rendering inaccurate format because `x` axis is unspecified.')
       data = [['x', ...data.map((d: any[]) => d[0])], ...data];
@@ -233,7 +199,7 @@ export class HistoRowComponent extends BasicWidget {
 
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    return [this.path, this.rubixAxis!, args[1], args[2], args[3], args[4], args[5], true, false, this.rubixArgument!];
+    return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube!.conditions];
   }
 
   updateData() {
@@ -243,31 +209,11 @@ export class HistoRowComponent extends BasicWidget {
     return data;
   }
 
-  private rubixAxisForSegment() {
-    if ( this.rubixIndex ) { //pas tout segment
-      this.rubixMask = this.rubixMatrix.map(line => line[this.rubixIndex]);
-      this.rubixDirection = 1;
-    }
-  }
-
-  private rubixAxisForEnseigne(index: number) { //-1 -> pas d'enseigne
-    this.rubixMask = this.rubixMatrix[index+1]; this.rubixDirection = 0;
-  }
-
-  private applyRubixConditions(data: any) {
-    if ( this.rubixDirection == 0 ) { //enseigne -> filter segmentMarketing
-      console.log(this.rubixMask, this.rubixIndex);
-      this.properties.description = DESCRIPTION_MOCK.filter((_, idx) => this.rubixMask[idx]);
-      console.log(this.properties.description);
-    } else { // segmentMarketing -> filter enseigne
-      data[0] = ['x', ...data[0].slice(1).filter((_: any, idx: number) => this.rubixMask[idx])];
-    }
-  };
-
-  updateCondition(e: Event) {
-    this.rubixIndex =  (e.target as any).value;
-    this.rubixArgument = this.properties.description[this.rubixIndex][1];
-    this.rubixAxisForSegment();
+  setSegment(e: Event) {
+    let index = (e.target as any).value;
+    this.cube!.segmentCondition = index;
     this.update();
   }
+
+  makeSelect() { this.cd.markForCheck(); }
 }
