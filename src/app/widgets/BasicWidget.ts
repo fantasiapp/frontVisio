@@ -193,7 +193,6 @@ let timeoutId: any = null;
 let windowResize = (e: Event) => {
   let width = window.innerWidth;
   BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(width);
-  console.log(width, '>', BasicWidget.legendItemHeight);
   timeoutId = null;
 };
 

@@ -13,8 +13,11 @@ export class RubixCube {
   mainAxis: string;
   private _conditions: [Condition, Condition] = [null, null];
   private cube?: CubeData;
-  private segmentAxis: boolean[] = [];
-  private enseigneAxis: boolean[] | null =  null;
+  private _segmentAxis: boolean[] | null = null;
+  private enseigneAxis: boolean[] | null =  null; //less important because we dont render enseigne
+
+  private lastSegmentAxis: boolean[] | null = null;
+
 
   constructor(private historow: HistoRowComponent) {
     let properties = historow.properties;
@@ -26,23 +29,34 @@ export class RubixCube {
     this.mainAxis = properties.arguments[0][0];
   }
 
-  set enseigneCondition(index: number) {
+  set segmentAxis(value: any) {
+    this._segmentAxis = value;
+    this.historow.properties.description = RubixCube.DESCRIPTION_MOCK.filter((_, idx) => this.segmentAxis![idx]);
+    this.historow.makeSelect();
+  }
+
+  get segmentAxis() {
+    return this._segmentAxis;
+  }
+
+  set enseigneCondition(index: number) { //defines segmentAxis
     if ( this._conditions[1] && this._conditions[1].length ) {
       this.mainAxis = this.historow.properties.arguments[0][0];
       this._conditions[1] = null;
+      this.segmentAxis = this.lastSegmentAxis;
     } else {
-      this._conditions[1] = [this.mainAxis, [this.transformIndex(index, 0)]];
+      index = this.transformIndex(index, 0);
+      this._conditions[1] = [this.mainAxis, [ +this.cube!.enseigneIndexes[index] ]];
       this.mainAxis = this.historow.properties.arguments[0][1];
-      if ( !this.enseigneAxis![index] )
-        this.segmentCondition = 0;
+      this.lastSegmentAxis = this.segmentAxis;
+      this.segmentAxis = this.cube!.boolMatrix[index+1];
     }
   }
 
   set segmentCondition(index: number) {
     index = this.transformIndex(index, 1);
-    this.enseigneAxis = this.cube!.boolMatrix.map(row => row[index]);
-    console.log(this.enseigneAxis);
-    this._conditions[0] = RubixCube.DESCRIPTION_MOCK[index][1][0];
+    this._conditions[0] =  RubixCube.DESCRIPTION_MOCK[index][1][0];
+    this.enseigneAxis = this.cube!.boolMatrix.map(row => row[index]).slice(1);
   }
 
   get conditions() {
@@ -51,37 +65,36 @@ export class RubixCube {
   }
 
   set rules(cube: CubeData) {
-    console.log(cube);
     this.cube = cube;
-    this.segmentAxis = cube.boolMatrix[0].slice(0, RubixCube.DESCRIPTION_MOCK.length);
-    this.enseigneAxis = cube.boolMatrix.map(row => row[0]).slice(1);
-    this.historow.properties.description = RubixCube.DESCRIPTION_MOCK.filter((_, idx) => this.segmentAxis[idx]);
+    this._conditions[1] = null;
+    this.lastSegmentAxis = null;
+    this.segmentAxis = this.cube!.boolMatrix[0]; //render Axis
+    this.segmentCondition = 0; //add condition to the displayer
+    this.historow.properties.description = RubixCube.DESCRIPTION_MOCK.filter((_, idx) => this.segmentAxis![idx]);
   }
 
   transformIndex(index: number, axis: number) {
     let _idx = index;
     if ( axis == 1 ) {
       let pos = 0;
-      while ( index-- >= 0 ) {
-        while ( pos < this.segmentAxis.length && !this.segmentAxis[pos] ) {
-          pos++;
-        }
-        pos += 1;
+      while ( pos < this.segmentAxis!.length ) {
+        if ( this.segmentAxis![pos++] ) index--;
+        if ( index == -1 )
+          return pos-1;
       }
-
-      return pos - 1; //use indices from the array to eliminate the mock
-    } else if ( axis == 0 ) {
+    } 
+    
+    if ( axis == 0 ) {
       let pos = 0;
-      while ( index-- >= 0 ) {
-        while ( pos < this.enseigneAxis!.length && !this.enseigneAxis![pos] ) {
-          pos++;
-        }
-        pos += 1;
+      while ( pos < this.enseigneAxis!.length ) {
+        if ( this.enseigneAxis![pos++] ) index--;
+        if ( index == -1 )
+          return pos-1;
       }
+    }
 
-      console.log('transformIndex', _idx, '=>', pos);
-      return +this.cube!.enseigneIndexes[pos-1];
-    } else return index;
+    
+    throw "incorrect axis or value";
   }
 
 

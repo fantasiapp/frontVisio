@@ -7,10 +7,6 @@ import bb, {bar, Chart} from 'billboard.js';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { RubixCube } from './RubixCube';
 
-let DESCRIPTION_MOCK = [
-  ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
-];
-
 @Component({
   selector: 'app-historow',
   templateUrl: './historow.component.html',
@@ -21,12 +17,7 @@ export class HistoRowComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
-  private rubixMask: boolean[] = [];
-  private rubixDirection: number = 0;
-  private rubixMatrix: boolean[][] = [];
   private cube: RubixCube | null = null;
-  private rubixAxis?: string;
-  private rubixArgument?: [string, number[]][];
 
   @ViewChild('description', {read: ElementRef})
   protected description!: ElementRef;
@@ -46,7 +37,6 @@ export class HistoRowComponent extends BasicWidget {
   private maxValue: number = 0;
 
   protected onPathChanged() {
-    console.log('path changes');
     this.cube = new RubixCube(this);
     this.cube.rules = this.sliceDice.rubiksCubeCheck(this.path, this.properties.arguments[2], this.properties.arguments[5]);
     this.description.nativeElement.selectedIndex = "0";
@@ -170,31 +160,13 @@ export class HistoRowComponent extends BasicWidget {
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
-          let index = e.target.__data__.index;
+          let index = e.target.__data__.index, tab = self.description.nativeElement.selectedIndex;
           self.cube!.enseigneCondition = index;
           self.update();
         });
       },
       ...opt
     });
-  }
-
-  addRubixCondition(index: number, name: string) {
-    let type = this.properties.arguments[0][0];
-    if ( this.rubixAxis === type ) {
-      let set = DataExtractionHelper.get(type),
-        keyId = DataExtractionHelper.getKeyByValue(set, name),
-        id;
-      if ( !keyId ) throw `${name} not found in ${type}.`;
-      id = parseInt(keyId);
-      // this.rubixAxisForEnseigne(index);
-      this.rubixAxis = this.properties.arguments[0][1];
-      this.rubixArgument!.push([type, [id]]);
-    } else {
-      // this.rubixAxisForEnseigne(-1); //remove conditions
-      this.rubixAxis = type;
-      this.rubixArgument!.pop();
-    }
   }
 
   //wait on delays
@@ -225,7 +197,7 @@ export class HistoRowComponent extends BasicWidget {
 
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    console.log('retrieve', [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube!.conditions]);
+    console.log([this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube!.conditions])
     return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube!.conditions];
   }
 
@@ -236,30 +208,11 @@ export class HistoRowComponent extends BasicWidget {
     return data;
   }
 
-  // private rubixAxisForSegment() {
-  //   if ( this.rubixIndex ) { //pas tout segment
-  //     this.rubixMask = this.rubixMatrix.map(line => line[this.rubixIndex]);
-  //     this.rubixDirection = 1;
-  //   }
-  // }
-
-  // private rubixAxisForEnseigne(index: number) { //-1 -> pas d'enseigne
-  //   this.rubixMask = this.rubixMatrix[index+1]; this.rubixDirection = 0;
-  // }
-
-  // private applyRubixConditions(data: any) {
-  //   if ( this.rubixDirection == 0 ) { //enseigne -> filter segmentMarketing
-  //     console.log(this.rubixMask, this.rubixIndex);
-  //     this.properties.description = DESCRIPTION_MOCK.filter((_, idx) => this.rubixMask[idx]);
-  //     console.log(this.properties.description);
-  //   } else { // segmentMarketing -> filter enseigne
-  //     data[0] = ['x', ...data[0].slice(1).filter((_: any, idx: number) => this.rubixMask[idx])];
-  //   }
-  // };
-
   setSegment(e: Event) {
     let index = (e.target as any).value;
     this.cube!.segmentCondition = index;
     this.update();
   }
+
+  makeSelect() { this.cd.markForCheck(); }
 }
