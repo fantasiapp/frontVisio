@@ -118,9 +118,9 @@ class DataWidget{
     }
   }
   
-  basicTreatement(km2 = false, sortLines=true){
+  basicTreatement(km2 = false, sortLines=true, removeNullColumns:boolean=true){
     if (km2) this.m2ToKm2();
-    this.removeZeros();
+    if (removeNullColumns) this.removeZeros() ; else this.removeNullLine();
     if (sortLines) this.sortLines();
   }
   
@@ -162,6 +162,29 @@ class DataWidget{
     this.rowsTitles = sortedCoupleList.map((couple: [string, number[]]) => couple[0]);
     this.data = sortedCoupleList.map((couple: [string, number[]]) => couple[1]);
   }
+
+  private removeNullLine(){
+    let n = this.rowsTitles.length,
+      m = this.columnsTitles.length,
+      newData: number[][] = [],
+      realLinesIndexes: number[] = [];
+    for (let i = 0; i < n; i++){
+      let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
+      if (lineNull) this.idToI[DataWidget.findKeyByValue(this.idToI, i) as number] = undefined;
+      if (!lineNull) {
+        newData.push(this.data[i]); 
+        realLinesIndexes.push(i);
+      }       
+    }
+    for (let [id, i] of Object.entries(this.idToI)) if (i != undefined) this.idToI[+id] = realLinesIndexes.indexOf(i);
+    this.data = newData;
+    this.rowsTitles = realLinesIndexes.map(index => this.rowsTitles[index]);
+  }
+
+  static findKeyByValue(dict:{[key:number]: number|undefined}, searchValue:number): number|undefined{
+    for (let [key, value] of Object.entries(dict)) if (value == searchValue) return +key;
+    return undefined;
+  }
   
   private removeZeros(){
     let n = this.rowsTitles.length,
@@ -171,13 +194,13 @@ class DataWidget{
       realColumnsIndexes: number[] = [];
     for (let i = 0; i < n; i++){
       let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
-      if (lineNull) this.idToI[i] = undefined;
+      if (lineNull) this.idToI[i] = undefined; // bizarre cette ligne
       if (!lineNull) realLinesIndexes.push(i);        
     }
     for (let _ in realLinesIndexes) newData.push([]);
     for (let j = 0; j < m; j++){
       let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] === 0), true);
-      if (colNull) this.idToJ[j] = undefined;
+      if (colNull) this.idToJ[j] = undefined; // bizarre cette ligne
       if (!colNull){
         realColumnsIndexes.push(j)
         for (let i = 0; i < realLinesIndexes.length; i++){
@@ -242,7 +265,7 @@ class DataWidget{
       extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
     let lineIds = new Array(this.rowsTitles.length).fill(0),
       columnsIds = new Array(this.columnsTitles.length).fill(0);
-    for (let [id, i] of Object.entries(this.idToI)) if (i !== undefined) lineIds[i] = id;  
+    lineIds = this.rowsTitles.map(title => DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), title)); // ) changer quand le idToJ sera à jour
     for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
     return {boolMatrix: extendedBoolMatrix,
       enseigneIndexes: lineIds,
@@ -906,7 +929,7 @@ class SliceDice{
   rubiksCubeCheck(slice:any, indicator: string, percent:string){
     let sortLines = percent !== 'classic';
     let dataWidget = PDV.getData(slice, "enseigne", "segmentMarketing", indicator.toLowerCase(), this.geoTree, []);
-    dataWidget.basicTreatement(false, sortLines);
+    dataWidget.basicTreatement(false, sortLines, false);
     return dataWidget.numberToBool()
   }
 
