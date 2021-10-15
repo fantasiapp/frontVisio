@@ -250,7 +250,7 @@ class DataExtractionHelper{
     //Build trees !!! CUSTOM THIS
 
     let localStorageService: LocalStorageService = new LocalStorageService();
-    localStorageService.set('data', JSON.stringify(this.data))
+    localStorageService.saveData(this.data)
     DataExtractionHelper.setData(this.data);
     PDV.load(true);
   }
