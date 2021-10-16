@@ -5,6 +5,7 @@ import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
+import { SliceTable } from 'src/app/middle/SliceTable';
 
 
 @Component({
@@ -187,21 +188,16 @@ export class InfoBarComponent {
     this.gridFormatted[0][3] = formatNumberToString(this.grid[0][3]);
     return sum;
   }
-  
-  initializeTarget() {
-    return [Math.floor(Date.now()/1000), true, false, 0, false, "r", ""]
-  }
-
 
   changeRedistributed() {
     this.redistributedChecked = !this.redistributedChecked
-    if(!this.target) this.target = this.initializeTarget()
+    if(!this.target) this.target = SliceTable.initializeTarget()
     this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
     this.hasChanged = true;
   }
 
   changeTargetP2CD() {
-    if(!this.target) this.target = this.initializeTarget()
+    if(!this.target) this.target = SliceTable.initializeTarget()
     this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID]);
@@ -216,13 +212,13 @@ export class InfoBarComponent {
   changeComment() { //PB : newValue isn't a number
     let ref = this.comments!.get(0); //<- the current text area is the first in view
     if ( !ref ) return;
-    if(!this.target) this.target = this.initializeTarget()
+    if(!this.target) this.target = SliceTable.initializeTarget()
     this.target[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
     this.hasChanged = true;
   }
 
   changeLight(newLightValue: string) {
-    if(!this.target) this.target = this.initializeTarget()
+    if(!this.target) this.target = SliceTable.initializeTarget()
     this.target[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
   }
@@ -260,6 +256,7 @@ export class InfoBarComponent {
   }
 
   changeTargetSale(){
+    if(!this.target) this.target = SliceTable.initializeTarget()
     this.doesntSellChecked = !this.doesntSellChecked;
     this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
     this.target[this.TARGET_LIGHT_ID] = 'r'
