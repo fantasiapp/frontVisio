@@ -61,7 +61,7 @@ export class TableComponent extends BasicWidget {
   pinnedRow?: {}[];
   rowClassRules = {
     'group-row': 'data.groupRow === true',
-    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow']) return false; if(params.data['onlySiniat'] || !params.data['sale'] || !params.data['redistributed'] || params.data['sales'].length > 0) return false; return true;}
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow']) return false; if(params.data['onlySiniat'] || !params.data['sale'] || !params.data['redistributed'] || params.data['sales'].length > 0 || (params.data['target'] && !params.data['target'][DataExtractionHelper.TARGET_SALE_ID])) return false; return true;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
