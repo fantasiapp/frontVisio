@@ -49,7 +49,6 @@ export class LoginPageComponent implements OnInit {
     next: (success: any) => {
       if (success) {
         this.userValid = true;
-        this.authService.handleTokenSave();
         this.dataservice.requestData();
         if(this.stayConnected) this.localStorageService.saveToken(this.authService.getAuthorizationToken()); 
         const elmt = document.getElementById('image-container')!;
