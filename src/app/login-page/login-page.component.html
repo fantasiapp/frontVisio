@@ -9,12 +9,15 @@
     </div>
     
   </div>
-    <div class="connection-container">
+    <div *ngIf="alreadyConnected == false" class="connection-container">
       <app-login-form
         *ngIf="!userValid"
         @fadeOut
-        (onLogin)="onLoading($event.username, $event.password)"
+        (onLogin)="onLoading($event.username, $event.password, $event.isStayConnected)"
         [errorConnection]="!userValid"
       ></app-login-form>
+    </div>
+    <div *ngIf="alreadyConnected" class="connection-container">
+      Une session est déjà en cours sur cet ordinateur
     </div>
 </div>

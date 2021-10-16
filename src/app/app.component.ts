@@ -12,9 +12,7 @@ export class AppComponent implements OnDestroy{
 
   @HostListener('window:beforeunload')
   ngOnDestroy(): void {
-    if(!this.localStorage.getStayConnected()) {
-      this.localStorage.handleDisconnect();
-    }
+    this.localStorage.handleDisconnect(!this.localStorage.getToken());
   }
   title = 'VisioFantasiapp';
 }

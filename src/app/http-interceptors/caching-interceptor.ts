@@ -3,6 +3,7 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse } fr
 import { Observable, of } from "rxjs";
 import { tap } from "rxjs/operators";
 import { LocalStorageService } from "../services/local-storage.service";
+import { AuthService } from "../connection/auth.service";
 
 
 @Injectable()
@@ -17,10 +18,9 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         if (!this.isCacheable(req)) {
             return next.handle(req);
         }
-        const storedData = this.localStorageService.getData();
-        const stayConnected = this.localStorageService.getStayConnected();
-        if(storedData && stayConnected) {
-            return of(new HttpResponse<any>({'body': storedData}));
+
+        if(this.localStorageService.getToken()) {
+            return of(new HttpResponse<any>({'body': this.localStorageService.getData()}));
         }
         return next.handle(req).pipe(
                 tap(stateEvent => {

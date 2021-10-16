@@ -127,6 +127,7 @@ export class DataService {
   }
 
   setLastUpdateDate(timestamp: string) {
+    console.log("Save local updte timestamp")
     this.localStorage.saveLastUpdateTimestamp(+timestamp)
   }
   getLastUpdateDate() {
