@@ -1,0 +1,4 @@
+<div class="suggestion" *ngFor="let suggestion of suggestions; let index = index" [class.selected]="selection == index">
+    <span class="typed">{{ suggestion[0] | titlecase }}</span><span class="completed">{{suggestion[1]}}</span>
+    <span class="special"> {{ format(suggestion[2]) }} </span>
+</div>

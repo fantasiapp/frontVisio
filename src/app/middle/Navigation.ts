@@ -5,24 +5,30 @@ import {Tree, Node} from './Node';
 import { PDV } from './Slice&Dice';
 
 @Injectable()
-export class Navigation{
+export class Navigation {
   tree?: Tree;
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
-  constructor() {}
+  constructor() {
+    console.log('navigation created');
+  }
 
-  setTree(t: Tree){
-    if ( this.tree === t ) return;
-    
-    let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null, dashboardIndex: number, sameType = this.tree?.type === t.type;
-    if ( path )
-      dashboardIndex = this.currentLevel!.dashboards.findIndex(dashboard => dashboard.id == this.currentDashboard?.id);
-
+  setTree(t: Tree){    
     this.tree = t ? t : new Tree(NavigationExtractionHelper);
     this.currentLevel = this.tree.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
+  }
 
+  followTree(t: Tree) {
+    let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null,
+      dashboardIndex: number,
+      sameType = this.tree?.type === t.type;
+    
+    if ( path )
+      dashboardIndex = this.currentLevel!.dashboards.findIndex(dashboard => dashboard.id == this.currentDashboard?.id);
+    
+    this.setTree(t);
     if ( sameType && path  ) {
       for ( let id of path )
         this.currentLevel = this.currentLevel!.goChild(id);
@@ -42,7 +48,7 @@ export class Navigation{
       }: {name: [], id: [], label:[]};
 
       let superLevel = (currentLevel.parent && !currentLevel.parent.parent) ? {
-        name: 'National', id: 0, label: 'National'
+        name: this.tree?.root.name, id: 0, label: this.tree?.root.label 
       } : {name: currentLevel.parent?.name, id: currentLevel.parent?.id, label: currentLevel.parent?.label};
 
 

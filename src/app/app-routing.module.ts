@@ -1,17 +1,11 @@
 import { AuthGuard } from './connection/auth.guard';
-import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
 import { ViewComponent } from './view/view.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FiltersComponent } from './filters/filters.component';
-import { LoggedPageComponent } from './logged-page/logged-page.component';
 import { LoginPageComponent } from './login-page/login-page.component';
-import { PublicPageComponent } from './public-page/public-page.component';
-import { GridManager } from './grid/grid-manager/grid-manager.component';
-import { MapComponent } from './map/map.component';
-import { MapSelectComponent } from './map/map-select/map-select.component';
-import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
-import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
+import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
+import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionbox.component';
 //import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
@@ -34,8 +28,12 @@ const routes: Routes = [
     canActivate:[AuthGuard],
   },
   {
-    path: 'description',
-    component: DescriptionWidgetComponent
+    path: 'search',
+    component: SearchbarComponent
+  },
+  {
+    path: 'box',
+    component: SuggestionBox
   }
 ];
 

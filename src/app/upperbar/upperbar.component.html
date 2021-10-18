@@ -28,24 +28,7 @@
 
   <div class="right-block">
     <div class="search-div">
-      <span
-      [@openClose]="shouldShowButtons ? 'open' : 'closed'"
-        ><app-search-field
-          *ngIf="shouldShowButtons === true"
-          class="search-bar"
-          [noLense]="true"
-          [searchModel]="searchModel"
-          (searchModelChange)="updateSearchData($event)"
-          (onCrossClick)="!$event.length && toggleSearch()"
-        ></app-search-field
-      ></span>
-      <button class="button search" (click)="toggleSearch()">
-        <img
-          class="button-img"
-          src="assets/Rechercher.svg"
-          alt="Chercher"
-        />
-      </button>
+     <searchbar></searchbar>
     </div>
     <div class="search-div">
       <button class="button" (click)="updateData()">
