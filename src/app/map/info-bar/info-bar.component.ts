@@ -56,7 +56,7 @@ export class InfoBarComponent {
   grid: number[][] = [];
   gridFormatted: string[][] = [];
   targetP2cdFormatted: string = "";
-  salesColors: string[] = [];
+  salesColors: string[][] = [];
 
   SALES_INDUSTRY_ID;
   SALES_PRODUCT_ID;
@@ -153,19 +153,28 @@ export class InfoBarComponent {
     // console.log("Sales retenues : ", this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())))
     this.grid = new Array(this.industries.length + 1);
     this.gridFormatted = new Array(this.industries.length+1);
+    this.salesColors = new Array(this.industries.length + 1);
     for ( let i = 0; i < this.grid.length; i++ ) {
       this.grid[i] = new Array(this.products.length).fill(0);
       this.gridFormatted[i] = new Array(this.products.length).fill('');
+      this.salesColors[i] = new Array(this.products.length).fill('red');
     }
     for(let sale of this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString()))) {
       let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
       this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]
       this.gridFormatted[i][j] = formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
       this.updateSum(i,j)
-      this.salesColors = this._pdv!.salesColors;
-      this.salesColors[0] = 'black'
+      this.salesColors[i][j] = this.getSaleColor(sale);
     }
+    for(let row = 0; row < this.industries.length; row++)
+      this.salesColors[row][3] = 'black'
   }
+
+  getSaleColor(sale: number[]): string {
+    if(this._pdv!.attribute('sale') === false || this._pdv!.attribute('onlySiniat') === true || sale[DataExtractionHelper.SALES_INDUSTRY_ID] == DataExtractionHelper.INDUSTRIE_SINIAT_ID) return 'black'
+    if(Math.floor(Date.now()/1000) - 15778476 > sale[DataExtractionHelper.SALES_DATE_ID]) return 'orange'
+    else return 'black'
+}
 
   onKey(event: any) {
     if(event.keyCode === 37) console.log("Left")
@@ -231,7 +240,7 @@ export class InfoBarComponent {
       return;
     }
     this.errorAdInput = false;
-    this.salesColors[i-1] = 'black'
+    this.salesColors[i][j] = 'black'
     this.grid[i][j] = +this.gridFormatted[i][j];
     this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
     this.updateSum(i,j)

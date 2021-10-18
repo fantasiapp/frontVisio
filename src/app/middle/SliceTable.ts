@@ -312,7 +312,7 @@ export class SliceTable {
         }
         return pdvAsList;
     }
-
+    
     // updateData() {
     //     this.dataService.requestUpdateData()
     //     .subscribe((updatedData) => {

@@ -303,22 +303,6 @@ export class PDV{
     return target[DataExtractionHelper.TARGET_FINITION_ID]
   }
 
-  get salesColors(): string[]{
-    let industriesNames: any = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]);
-    let nbIndustries: any = industriesNames.length;
-    let industriesIdsToNames: any = DataExtractionHelper.get('industrie')!;
-    if(this.attribute('sale') === false || this.attribute('onlySiniat') === true) return new Array(nbIndustries).fill('black')
-    let colors = new Array(nbIndustries).fill('red'), isAdOpen = DataExtractionHelper.get('params')['isAdOpen'], sales = this.attribute('sales');
-    if(!sales) return colors;
-    for(let sale of sales) {
-      if(isAdOpen === true && Math.floor(Date.now()/1000) - 15778476 > sale[DataExtractionHelper.SALES_DATE_ID]) colors[industriesNames.indexOf(industriesIdsToNames[sale[DataExtractionHelper.SALES_INDUSTRY_ID]])] = 'orange'
-      else {
-        colors[industriesNames.indexOf(industriesIdsToNames[sale[DataExtractionHelper.SALES_INDUSTRY_ID]])] = 'black'
-      }
-    }
-    return colors
-  }
-
   get color(): string{
     let isAdOpen = DataExtractionHelper.get('params')['isAdOpen'], sales = this.attribute('sales');
     if(this.attribute('onlySiniat') || !this.attribute('sale') || !this.attribute('redistributed') || (this.attribute('target') && (this.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || this.attribute('target')[DataExtractionHelper.TARGET_SALE_ID])))
@@ -327,10 +311,10 @@ export class PDV{
     if(!sales) return 'red'
     if(isAdOpen) {
       for(let sale of sales) {
-        if(Math.floor(Date.now()/1000) - 15778476 > sale[DataExtractionHelper.SALES_DATE_ID]) return 'orange'
+        if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] === DataExtractionHelper.INDUSTRIE_SINIAT_ID) return 'black'
       }
     }
-    return 'black'
+    return 'orange'
   }
 
   static getInstances(): Map<number, PDV> {
