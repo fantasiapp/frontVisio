@@ -21,9 +21,11 @@ export class LoginFormComponent implements OnInit {
   @Output() onLogin = new EventEmitter<{
     username: string;
     password: string;
+    isStayConnected: boolean;
   }>();
   showEmptyPseudo: boolean = false;
   showErrorMessage: number = -1;
+
 
 
   // @Input() badCredentials: boolean;
@@ -49,6 +51,7 @@ export class LoginFormComponent implements OnInit {
     this.onLogin.emit({
       username: this.loginForm.value.username,
       password: this.loginForm.value.password,
+      isStayConnected: this.isStayConnected
     });
     setTimeout(() => {
       if (this.errorConnection) {

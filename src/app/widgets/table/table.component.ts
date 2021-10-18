@@ -41,7 +41,7 @@ export class TableComponent extends BasicWidget {
 
   //Side menus
   pdv?: PDV;
-  redistributed?: boolean;
+  redistributed: boolean = false;
   selectedPdv?: any;
 
   //Apis
@@ -61,7 +61,9 @@ export class TableComponent extends BasicWidget {
   pinnedRow?: {}[];
   rowClassRules = {
     'group-row': 'data.groupRow === true',
-    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow']) return false; if(params.data['onlySiniat'] || !params.data['sale'] || !params.data['redistributed'] || params.data['sales'].length > 0) return false; return true;}
+    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getPdvInstance(params.data)!.color == 'orange') return true; return false;},
+    // 'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow']) return false; return true;},
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getPdvInstance(params.data)!.color == 'red') return true; return false;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
@@ -277,10 +279,12 @@ export class TableComponent extends BasicWidget {
     };
   }
 
-  // toggleRedistributed() {
-  //   this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
-  //   this.updateGraph(this.updateData());
-  // }
+  changeRedistributed() {
+    // this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
+    // this.updateGraph(this.updateData());
+    
+    this.redistributed= !this.redistributed; //doesn't update locally
+  }
 
   externalFilterChanged(value: any) {
     if (hiddenGroups[value] === true) delete hiddenGroups[value];

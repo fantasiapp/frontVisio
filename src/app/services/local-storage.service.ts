@@ -15,13 +15,13 @@ export class LocalStorageService {
   }
 
   saveData(data: {[field: string]: any}) {
-    let token = this.getToken();
+    let token = this.getActiveToken();
     let storedData = JSON.parse(this.localStorage.getItem('data') || '{}') as {[token: string]: {[field: string]: any}};
     storedData[token] = data;
     this.localStorage.setItem('data', JSON.stringify(storedData))
   }
   getData() {
-    let token = this.getToken();
+    let token = this.getActiveToken();
     let storedData = JSON.parse(this.localStorage.getItem('data') || '{}') as {[token: string]: {[field: string]: any}};
     if(!token || !storedData) return {}
     return storedData[token];
@@ -29,59 +29,73 @@ export class LocalStorageService {
 
   saveToken(token: string) {
     this.localStorage.setItem('token', token)
-    this.sessionStorage.setItem('token', token)
   }
   getToken(): string {
-    return this.sessionStorage.getItem('token') ? this.sessionStorage.getItem('token') || '' : this.localStorage.getItem('token') || ''
+    return this.localStorage.getItem('token') || '';
   }
-
-  saveStayConnected(stayConnected: boolean) {
-    this.localStorage.setItem('stayConnected', stayConnected.toString())
+  removeToken() {
+    this.localStorage.removeItem('token')
   }
-  getStayConnected(): boolean {
-    return (this.localStorage.getItem('stayConnected') || false) as boolean;
+  setActiveToken(token: string) {
+    console.log("SET ACTIVE TOKEN")
+    this.localStorage.setItem('activeToken', token)
   }
-
+  getActiveToken(): string {
+    return this.localStorage.getItem('activeToken')!
+  }
+  removeActiveToken() {
+    this.localStorage.removeItem('activeToken')
+  }
   saveLastUpdateTimestamp(timestamp: number) {
-    let token = this.getToken();
+    let token = this.getActiveToken();
     let storedTimestamps = JSON.parse(this.localStorage.getItem('lastUpdateTimestamps') || '{}') as {[token: string]: number}
     storedTimestamps[token] = timestamp;
     this.localStorage.setItem('lastUpdateTimestamps', JSON.stringify(storedTimestamps))
   }
   getLastUpdateTimestamp() {
-    let token = this.localStorage.getItem('token') || '';
+    let token = this.getActiveToken();
     let storedTimestamps = JSON.parse(this.localStorage.getItem('lastUpdateTimestamps') || '{}') as {[token: string]: number}
     return storedTimestamps[token]
   }
 
   saveQueueUpdate(queueUpdate: UpdateData) {
-    let token = this.getToken();
+    let token = this.getActiveToken();
     let storedQueues = JSON.parse(this.localStorage.getItem('queuedDataToUpdate') || '{}') as {[token: string]: UpdateData};
     storedQueues[token] = queueUpdate;
     this.localStorage.setItem('queuedDataToUpdate', JSON.stringify(storedQueues))
   }
   getQueueUpdate(): UpdateData {
-    let token = this.getToken();
+    let token = this.getActiveToken();
     let storedQueues = JSON.parse(this.localStorage.getItem('queuedDataToUpdate') || '{}') as {[token: string]: UpdateData};
     return storedQueues[token];
   }
   removeQueueUpdate() {
-    let token = this.getToken();
+    let token = this.getActiveToken();
     let storedQueues = JSON.parse(this.localStorage.getItem('queuedDataToUpdate') || '{}') as {[token: string]: UpdateData};
     delete storedQueues[token]
     this.localStorage.setItem('queuedDataToUpdate', JSON.stringify(storedQueues))
   }
 
-  handleDisconnect() {
-    let token = this.getToken()
-    let storedData = JSON.parse(this.localStorage.getItem('data') || '{}') as {[token: string]: {[field: string]: any}};
-    delete storedData[token]
-    this.localStorage.setItem('data', JSON.stringify(storedData))
-    let storedTimestamps  = JSON.parse(this.localStorage.getItem('lastUpdateTimestamps') || '{}') as {[token: string]: number};
-    delete storedTimestamps[token]
-    this.localStorage.setItem('lastUpdateTimestamps', JSON.stringify(storedTimestamps))
-    this.localStorage.removeItem('stayConnected')
-    this.localStorage.removeItem('token')
+  handleDisconnect(longTermDeconnection: boolean = false) {
+    console.log("Handle delog")
+    if(this.getActiveToken() === sessionStorage.getItem('token')) {
+      console.log("From active window")
+
+      if(longTermDeconnection) {
+        console.log("Long term disconnection")
+
+        let token = this.getActiveToken()
+        let storedData = JSON.parse(this.localStorage.getItem('data') || '{}') as {[token: string]: {[field: string]: any}};
+        delete storedData[token]
+        this.localStorage.setItem('data', JSON.stringify(storedData))
+        let storedTimestamps  = JSON.parse(this.localStorage.getItem('lastUpdateTimestamps') || '{}') as {[token: string]: number};
+        delete storedTimestamps[token]
+        this.localStorage.setItem('lastUpdateTimestamps', JSON.stringify(storedTimestamps))
+        this.localStorage.removeItem('token')
+      }
+      this.localStorage.removeItem('activeToken')
+      sessionStorage.removeItem("token")
+    }
   }
   
   clear(): void {

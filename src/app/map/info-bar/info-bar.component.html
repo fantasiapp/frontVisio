@@ -2,7 +2,7 @@
     <img src="assets/X.svg"/>
 </button>
 <div class="nav">
-    <ul #navigation *ngIf="doesntSellChecked != true">
+    <ul #navigation *ngIf="doesntSellChecked != true && redistributedChecked!=true">
         <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
         <hr class="horizontal-line">
     </ul>
@@ -29,14 +29,14 @@
                         <li>
                             <label class="container-checkbox">
                                 Ne vend pas de plaque
-                                <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [disabled]="doesntSellDisabled">
+                                <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [attr.disabled]="doesntSellDisabled" agentOnly>
                                 <span class="checkmark" ></span>
                             </label>
                         </li>
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="redistributedDisabled">
+                                <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [attr.disabled]="redistributedDisabled" agentOnly>
                                 <span class="checkmark"></span>
                             </label>
                         </li>
@@ -110,7 +110,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j]" accessControl agentOnly/>
+                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j+1][i]" accessControl agentOnly/>
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
 </ng-container>
 
 <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
-<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true" (click)="setPage(currentIndex + 1)"/>
+<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true && redistributedChecked!=true" (click)="setPage(currentIndex + 1)"/>
 
 <div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
 <div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">

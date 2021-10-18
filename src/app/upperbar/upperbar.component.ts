@@ -76,9 +76,6 @@ export class UpperbarComponent implements OnInit {
     this.isSearchOpen.next(!this.isSearchOpen.getValue());
     this.isSearchOpen.subscribe((val) => (this.shouldShowButtons = val));
   }
-  logOut() {
-    this.authService.logoutFromServer();
-  }
   toggle() {
     this.sldValue = 1 - this.sldValue;
     this.sliceDice.geoTree = this.sldValue ? true : false;
