@@ -574,14 +574,16 @@ export class PDV{
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
-    if (axe2 == 'lg-1') {
-      let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
+    // Ces conditions il va falloir les factoriser à l'avenir
+    let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
+    if (axe2 == 'lgp-1') axe2 = labelsToLevelName[this.geoTree.attributes['labels'][1]]; // lgp is for "level geographique du profil"
+    if (axe2 == 'lg-1') { // lg is for "level geographique"
       let labels = this.geoTree.attributes['labels'];      
       let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe2 = subLevelLabel;
     }
-    if (axe1 == 'lt-1'){
+    if (axe1 == 'lt-1'){ // lt is for "level trade"
       let labelsToLevelName: {[key: string]: string} = {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", PDV: 'site'}; //le PDV: 'site' c'est un fix le temps que jlw rajoute ça dans le back
       let labels = this.tradeTree.attributes['labels'];
       let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
