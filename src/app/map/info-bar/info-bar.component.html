@@ -29,14 +29,14 @@
                         <li>
                             <label class="container-checkbox">
                                 Ne vend pas de plaque
-                                <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [disabled]="doesntSellDisabled" agentOnly>
+                                <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [attr.disabled]="doesntSellDisabled" agentOnly>
                                 <span class="checkmark" ></span>
                             </label>
                         </li>
                         <li>
                             <label class="container-checkbox">
                                 Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="redistributedDisabled" agentOnly>
+                                <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [attr.disabled]="redistributedDisabled" agentOnly>
                                 <span class="checkmark"></span>
                             </label>
                         </li>

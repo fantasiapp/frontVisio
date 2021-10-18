@@ -33,9 +33,11 @@ export class InfoBarComponent {
     if ( value ) {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
-      this.redistributedDisabled = !value.attribute('redistributed')
-      this.doesntSellDisabled = !value.attribute('sale')
       this.target = this._pdv!.attribute('target')
+      this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
+      this.redistributedDisabled = !value.attribute('redistributed') || this.sales!.length > 0
+      console.log("this.sales!.length ", this.sales!.length, "redistributedDisabled ", this.redistributedDisabled)
+      this.doesntSellDisabled = !value.attribute('sale') || this.sales!.length > 0
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
@@ -86,6 +88,7 @@ export class InfoBarComponent {
 
   private _pdv: PDV | undefined;
   target?: any;
+  sales?: [][];
   static valuesSave: any[] = [];
   static pdvId: number = 0;
   redistributed?: boolean;
@@ -159,7 +162,7 @@ export class InfoBarComponent {
       this.gridFormatted[i] = new Array(this.products.length).fill('');
       this.salesColors[i] = new Array(this.products.length).fill('red');
     }
-    for(let sale of Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())))) {
+    for(let sale of this.sales!) {
       let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
       this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]
       this.gridFormatted[i][j] = formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
@@ -199,10 +202,12 @@ export class InfoBarComponent {
   }
 
   changeRedistributed() {
-    this.redistributedChecked = !this.redistributedChecked
-    if(!this.target) this.target = SliceTable.initializeTarget()
-    this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
-    this.hasChanged = true;
+    if(!this.redistributedDisabled){
+      this.redistributedChecked = !this.redistributedChecked
+      if(!this.target) this.target = SliceTable.initializeTarget()
+      this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
+      this.hasChanged = true;
+    }
   }
 
   changeTargetP2CD() {
@@ -265,11 +270,13 @@ export class InfoBarComponent {
   }
 
   changeTargetSale(){
-    if(!this.target) this.target = SliceTable.initializeTarget()
-    this.doesntSellChecked = !this.doesntSellChecked;
-    this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
-    this.target[this.TARGET_LIGHT_ID] = 'r'
-    this.hasChanged = true;
+    if(!this.doesntSellDisabled){
+      if(!this.target) this.target = SliceTable.initializeTarget()
+      this.doesntSellChecked = !this.doesntSellChecked;
+      this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
+      this.target[this.TARGET_LIGHT_ID] = 'r'
+      this.hasChanged = true;
+    }
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
