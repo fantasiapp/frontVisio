@@ -94,6 +94,9 @@
 .details li {
     padding: 8px 0;
     font-weight: 300;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
 }
 
 .details li > * {
@@ -102,7 +105,7 @@
 
 .details li img {
     width: 25px;
-    height: 285x;
+    height: 25px;
     margin-right: 10px ;
 }
 
