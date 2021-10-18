@@ -413,7 +413,7 @@ export class PDV{
     }
     let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd,
       saleEnduit = totalEnduit > 0,
-      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : this.attribute("nbVisits") * totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"];
+      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : this.attribute("nbVisits") * Math.max(totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"], totalEnduit); // Ca c'est le calcul du volume d'enduit qu'il faudra peut-être aller chercher chez baptiste à l'avenir
     if (saleP2cd && saleEnduit){
       if (this.targetFinition) dnEnduit[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
       else dnEnduit[associatedIndex["P2CD + Enduit"]] = toAdd;
