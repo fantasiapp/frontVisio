@@ -159,7 +159,7 @@ export class InfoBarComponent {
       this.gridFormatted[i] = new Array(this.products.length).fill('');
       this.salesColors[i] = new Array(this.products.length).fill('red');
     }
-    for(let sale of this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString()))) {
+    for(let sale of Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())))) {
       let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
       this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]
       this.gridFormatted[i][j] = formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
