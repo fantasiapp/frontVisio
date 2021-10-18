@@ -5,4 +5,4 @@
     <input placeholder="Rechercher ..." #input (input)="onInput($event)" (keydown)="onKeyDown($event)" (focus)="onFocus($event)" (focusout)="onFocusOut($event)"/>
 </div>
 
-<suggestionbox [suggestions]="results | async" [selection]="selectionIndex"></suggestionbox>
+<suggestionbox [suggestions]="results | async" [selection]="selectionIndex" #suggestionbox></suggestionbox>

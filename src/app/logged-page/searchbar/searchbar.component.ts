@@ -45,7 +45,7 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   onFocusOut(e: Event) {
-    this.results.next([]);
+    //this.results.next([]);
   }
 
   resultNumber: number = 0;
@@ -61,10 +61,18 @@ export class SearchbarComponent implements OnDestroy {
       if ( this.selectionIndex == 0 ) this.selectionIndex = -1; //cancel
       else this.selectionIndex = this.selectionIndex - 1;
     }
+
+    if ( e.code == 'Enter' ) {
+      e.preventDefault();
+      if ( this.selectionIndex !== -1 )
+        this.suggestionBox?.navigate(this.selectionIndex);
+    }
   }
   
   open() {
     this.opened = !this.opened;
+    if ( !this.opened )
+      this.results.next([]);
   }
 
   ngOnDestroy() {

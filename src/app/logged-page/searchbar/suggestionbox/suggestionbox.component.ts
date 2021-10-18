@@ -21,11 +21,20 @@ export class SuggestionBox {
 
   constructor() { }
 
-  format(x: any) {
+  formatSpecial(x: any) {
     if ( x == SearchService.OPENMENU ) {
       return '(menu)'
     } else {
       return x.toString();
     }
+  }
+
+  navigate(index: number) {
+    let suggestion = (this.suggestions as any)[index];
+    if ( !suggestion )
+      throw 'yeah, unexpected';
+    
+    
+    this.suggestions = [];
   }
 }
