@@ -33,7 +33,7 @@ export class DataService {
   response = new BehaviorSubject<Object|null>(null);
   updateSubscriber: any;
 
-  public requestData(): Observable<Object|null> {
+  public requestData(): Observable<Object|null> { //used at login, and with refresh button to ask immediatly data from the back
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         params : {"action" : "dashboard"},
@@ -47,14 +47,13 @@ export class DataService {
       )
       .subscribe((data) => {
         this.response.next(data);
-        this.update.next();
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
       });
     return this.response;
   }
 
-  public requestUpdateData() {
+  public requestUpdateData() { //
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DataExtractionHelper.get('timestamp')}})
     .subscribe((response : any) => {
       if(response !== {}) {
@@ -63,7 +62,6 @@ export class DataService {
         } else {
           console.log("Updates received from back : ", response)
           DataExtractionHelper.updateData(response);
-          this.update.next();
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
           )
         }
@@ -94,13 +92,13 @@ export class DataService {
   //   this.sendDataToUpdate(data)
   // }
 
-  private sendDataToUpdate(data: UpdateData) {
+  private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
     DataExtractionHelper.updateData(data);
     this.update.next();
   }
-  private sendQueuedDataToUpdate() {
+  private sendQueuedDataToUpdate() { //used to send data every 10 seconds to the back
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate

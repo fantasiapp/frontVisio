@@ -41,7 +41,7 @@ export class TableComponent extends BasicWidget {
 
   //Side menus
   pdv?: PDV;
-  redistributed?: boolean;
+  redistributed: boolean = false;
   selectedPdv?: any;
 
   //Apis
@@ -277,10 +277,12 @@ export class TableComponent extends BasicWidget {
     };
   }
 
-  // toggleRedistributed() {
-  //   this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
-  //   this.updateGraph(this.updateData());
-  // }
+  changeRedistributed() {
+    // this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
+    // this.updateGraph(this.updateData());
+    
+    this.redistributed= !this.redistributed; //doesn't update locally
+  }
 
   externalFilterChanged(value: any) {
     if (hiddenGroups[value] === true) delete hiddenGroups[value];

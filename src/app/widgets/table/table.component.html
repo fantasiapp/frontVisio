@@ -47,7 +47,11 @@
             </ul>
         </div>
     </div>
-    <div class="checkbox-div">Point de vente redistribue<input type="checkbox" [checked]="redistributed"></div>
+    <div class="container-checkbox" (click)="changeRedistributed()">
+        <span>Point de vente redistribué</span>
+        <input type="checkbox" [attr.checked]="redistributed == false">
+        <span class="checkmark" ></span>
+    </div>
     <div class="values-div">
         <div>
             <h2>P2CD</h2>
