@@ -232,6 +232,9 @@ app-historow .bb-xgrid {
 .pdv-displayed-red {
     color: red !important;
   }
+  .pdv-displayed-orange {
+    color: orange !important;
+  }
 /**************/
 g.simple-needle {
     pointer-events: none;

@@ -321,6 +321,9 @@ export class PDV{
 
   get color(): string{
     let isAdOpen = DataExtractionHelper.get('params')['isAdOpen'], sales = this.attribute('sales');
+    if(this.attribute('onlySiniat') || !this.attribute('sale') || !this.attribute('redistributed') || (this.attribute('target') && (this.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || this.attribute('target')[DataExtractionHelper.TARGET_SALE_ID])))
+      return 'black'
+
     if(!sales) return 'red'
     if(isAdOpen) {
       for(let sale of sales) {
