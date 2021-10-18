@@ -151,6 +151,7 @@ class DataExtractionHelper{
   static SALES_PRODUCT_ID: any;
   static SALES_VOLUME_ID: any;
   static SALE_ID: any;
+  static AGENTFINITION_TARGETVISITS_ID: number;
 
 
   
@@ -199,11 +200,11 @@ class DataExtractionHelper{
     this.SALES_INDUSTRY_ID = this.data['structureSales'].indexOf('industry');
     this.SALES_PRODUCT_ID = this.data['structureSales'].indexOf('product');
     this.SALES_VOLUME_ID = this.data['structureSales'].indexOf('volume');
-
     this.SALE_ID = this.getKeyByValue(this.data['structurePdvs'], 'sale');
     this.SALE_INDUSTRY_ID = this.data["structureSales"].indexOf("industry");
     this.SALE_PRODUCT_ID = this.data["structureSales"].indexOf("product");
     this.SALE_VOLUME_ID = this.data["structureSales"].indexOf("volume");
+    // this.AGENTFINITION_TARGETVISITS_ID = this.data["structureAgentfinitions"].indexOf("TargetedNbVisit");
     
     //trades have less info that geo
     

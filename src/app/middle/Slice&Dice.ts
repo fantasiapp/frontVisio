@@ -120,6 +120,7 @@ class DataWidget{
   
   basicTreatement(km2 = false, sortLines=true, removeNullColumns:boolean=true){
     if (km2) this.m2ToKm2();
+    this.removeTooSmallValues();
     if (removeNullColumns) this.removeZeros() ; else this.removeNullLine();
     if (sortLines) this.sortLines();
   }
@@ -229,6 +230,13 @@ class DataWidget{
     for(let j = 0; j < this.columnsTitles.length; j++) 
       sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
     return sumCols
+  }
+
+  private removeTooSmallValues(){
+    let tooSmallLimit = 0.2;
+    for(let i = 0; i < this.rowsTitles.length; i++)
+      for(let j = 0; j < this.columnsTitles.length; j++)
+        if (this.data[i][j] < tooSmallLimit) this.data[i][j] = 0;
   }
 
   // à enlever dans la version finale
@@ -400,7 +408,7 @@ export class PDV{
     let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-      dnEnduit = new Array(6).fill(0),
+      visitsRepartition = new Array(6).fill(0),
       totalP2cd = 0,
       totalSiniatP2cd = 0,
       totalEnduit = 0;
@@ -415,17 +423,17 @@ export class PDV{
       saleEnduit = totalEnduit > 0,
       toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : this.attribute("nbVisits") * Math.max(totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"], totalEnduit); // Ca c'est le calcul du volume d'enduit qu'il faudra peut-être aller chercher chez baptiste à l'avenir
     if (saleP2cd && saleEnduit){
-      if (this.targetFinition) dnEnduit[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
-      else dnEnduit[associatedIndex["P2CD + Enduit"]] = toAdd;
+      if (this.targetFinition) visitsRepartition[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
+      else visitsRepartition[associatedIndex["P2CD + Enduit"]] = toAdd;
     }
     else if (saleEnduit){
-      if (this.targetFinition) dnEnduit[associatedIndex["Cible Enduit hors P2CD"]] = toAdd;
-      else dnEnduit[associatedIndex["Enduit hors P2CD"]] = toAdd;
+      if (this.targetFinition) visitsRepartition[associatedIndex["Cible Enduit hors P2CD"]] = toAdd;
+      else visitsRepartition[associatedIndex["Enduit hors P2CD"]] = toAdd;
     } else{
-      if (this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = toAdd;
-      else dnEnduit[associatedIndex["Pur prospect"]] = toAdd;
+      if (this.targetFinition) visitsRepartition[associatedIndex["Cible Pur Prospect"]] = toAdd;
+      else visitsRepartition[associatedIndex["Pur prospect"]] = toAdd;
     }
-    return dnEnduit
+    return visitsRepartition
   }
 
   private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
@@ -547,7 +555,7 @@ export class PDV{
 
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
-    if (axis1 == 'suiviAD' || axis2 == 'suiviAD' || axis1 == 'histo&curve') dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock des visites
+    if (axis1 == 'suiviAD' || axis2 == 'suiviAD' || axis1 == 'histo&curve') dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock de l'AD
     else {
       let irregular: string = 'no';
       if (nonRegularAxis.includes(axis1)) irregular = 'line';
@@ -817,7 +825,7 @@ export class PDV{
     switch(indicator){
       case 'simple': {
         let totalVisits = 0,
-          cibleVisits = 1820; // Hardcodé, il faudra prendre la valeur au back plus tard
+          cibleVisits = PDV.computeTargetVisits(slice); 
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
         return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]];
       };
@@ -832,6 +840,19 @@ export class PDV{
       };
       default: return [['  ', 100 * Math.random()]];
     }
+  }
+
+  static computeTargetVisits(slice:any){
+    // if (Object.keys(slice).length == 0){
+    //   let dictFinitionAgents:{[key:number]: (number|string)[]} = DataExtractionHelper.get("agentFinitions"),
+    //     visitsTarget = 0;
+    //   for (let finitionAgent of Object.values(dictFinitionAgents)){
+    //     let visitTarget = finitionAgent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID] as number;
+    //     visitsTarget += visitTarget;
+    //   }
+    //   return visitsTarget;
+    // }
+    return 300; // Hardcodé, il faudra prendre la valeur au back plus tard
   }
 
   getVolumeTarget() : number{
