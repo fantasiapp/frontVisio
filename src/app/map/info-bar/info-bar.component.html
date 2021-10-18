@@ -2,7 +2,7 @@
     <img src="assets/X.svg"/>
 </button>
 <div class="nav">
-    <ul #navigation *ngIf="doesntSellChecked != true">
+    <ul #navigation *ngIf="doesntSellChecked != true && redistributedChecked!=true">
         <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
         <hr class="horizontal-line">
     </ul>
@@ -120,7 +120,7 @@
 </ng-container>
 
 <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
-<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true" (click)="setPage(currentIndex + 1)"/>
+<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true && redistributedChecked!=true" (click)="setPage(currentIndex + 1)"/>
 
 <div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
 <div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
