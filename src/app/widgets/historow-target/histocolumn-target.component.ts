@@ -116,10 +116,11 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     let self = this;
     this.data = data;
     super.createGraph(data, {
-      onresized: () => {
-        let rect = (this.chart!.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
-        this.rectHeight = rect.height;
-        this.renderTargetContainer({data: null, target: this.barTargets});
+      onresized(this: any) {
+        let chart = self.chart!;
+        let rect = (chart.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
+        self.rectHeight = rect.height;
+        self.renderTargetContainer({data: null, target: self.barTargets});
       },
       onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();

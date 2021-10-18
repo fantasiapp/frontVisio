@@ -3,13 +3,14 @@ import { Subscription } from 'rxjs';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
+import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-view',
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewComponent implements OnDestroy {
 

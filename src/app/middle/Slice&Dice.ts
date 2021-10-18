@@ -875,6 +875,7 @@ export class PDV{
 };
 
 
+// can lead to an error, potentially
 @Injectable({providedIn: 'root'})
 class SliceDice{
   geoTree: boolean = true;
@@ -999,5 +1000,4 @@ function getTradeTree() {
   return PDV.tradeTree;
 };
 
-(window as any).PDV = PDV;
 export {SliceDice, loadAll, getGeoTree, getTradeTree};

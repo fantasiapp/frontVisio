@@ -38,11 +38,14 @@ export class HistocurveComponent extends BasicWidget {
 
   createGraph({data, colors}: any, opt: {} = {}) {
     let n = 4 + (Math.random()*6 | 0);
+    let alpha = new Array(26).fill(0).map((_, i) => String.fromCharCode(97 + i));
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
+        x: 'x',
         columns: [
+          ['x', ...(alpha.slice(0, n))],
           ['$1', ...(new Array(n).fill(0).map(_ => 10*Math.random() + 1))],
           ['$2', ...(new Array(n).fill(0).map(_ => 10*Math.random() + 1))]
         ],
