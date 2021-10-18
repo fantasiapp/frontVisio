@@ -976,4 +976,5 @@ function getTradeTree() {
   return PDV.tradeTree;
 };
 
+(window as any).PDV = PDV;
 export {SliceDice, loadAll, getGeoTree, getTradeTree};
