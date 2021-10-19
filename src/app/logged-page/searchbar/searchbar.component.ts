@@ -21,15 +21,39 @@ export class SearchbarComponent implements OnDestroy {
   term: Subject<string> = new Subject();
   lastTerm: string = '';
   results: Subject<[string, string, number][]> = new Subject;
+  lastResults: [string, string, number][] = [];
+
+  private _pattern: string = 'Agent';
+  get pattern() { return this._pattern; }
+  set pattern(value: string) {
+    this.engine.switchMode(value ? SearchService.FIND_INSTANCE : SearchService.FIND_PATTERN, value);
+    this._pattern = value;
+    this.results.next([]);
+    this.input!.nativeElement.value = '';
+  }
+
   private debounceDuration = 50;
   private subscription: Subscription = new Subscription;
 
   constructor(private ref: ElementRef, private engine: SearchService) {
     this.subscription = this.term.pipe(debounceTime(this.debounceDuration)).subscribe(term => {
       let results = this.engine.search(this.lastTerm = term);
+      this.lastResults = results;
       this.results.next(results);
-      this.resultNumber = results.length;
-    });    
+    });
+
+    if ( this.pattern )
+      this.engine.switchMode(SearchService.FIND_INSTANCE, this.pattern);
+  }
+
+  get placeholder(): string {
+    if ( !this.pattern ) return 'Rechercher ...';
+    return 'Rechercher dans ' + this.pattern;
+  }
+
+  get patternWidth(): number {
+    if ( !this.pattern ) return 0;
+    return SearchService.measureText(this.pattern, '14px Roboto')
   }
 
   onInput(e: Event) {
@@ -67,8 +91,30 @@ export class SearchbarComponent implements OnDestroy {
       if ( this.selectionIndex !== -1 )
         this.suggestionBox?.navigate(this.selectionIndex);
     }
+
+    if ( e.code == 'Tab' ) {
+      e.preventDefault();
+      let suggestion = this.lastResults[0];
+      if ( !suggestion ) return;
+      let pattern = suggestion[0] + suggestion[1];
+      this.pattern = pattern;
+    }
+
+    if ( e.code == 'Escape' ) {
+      e.preventDefault();
+      this.pattern = '';
+      this.engine.switchMode(SearchService.FIND_PATTERN);
+      this.results.next([]);
+    }
   }
-  
+
+  onSelectionConfirmed(e: string) {
+    if ( !this.pattern )
+      this.pattern = e;
+    else
+      throw 'not yet';
+  }
+
   open() {
     this.opened = !this.opened;
     if ( !this.opened )

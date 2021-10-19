@@ -272,6 +272,8 @@ class DataExtractionHelper{
   static getGeoLevelName(height: number, id: number): string{
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
     if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
+    if ( Array.isArray(name) )
+      return name[DataExtractionHelper.get('structureAgentfinitions').indexOf('name')];
     return name;
   }
 

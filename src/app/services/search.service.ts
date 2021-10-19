@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
 
 type onMatch = (match: string, complete: string) => [string, string, any];
 
@@ -12,15 +13,26 @@ export class SearchService {
       let match = term.match(regexp);
       return match ? match[0] : null;
     }
-  };
-
-  static KEEP_VIEW = 0;
-  static GEO_VIEW = 1;
-  static TRADE_VIEW = 2;
+  }
 
   static genericRuleMatch(match: string, complete: string): [string, string, any] {
     return [match, complete, SearchService.OPENMENU];
-  } 
+  }
+
+  static interpretMatch(match: any) {
+    if ( typeof match == 'string' ) {
+      let fields = DataExtractionHelper.get(match);
+      return (term: string) => {
+        let result = [];
+        for ( let field of fields )
+          if ( field.search(term) !== -1 )
+            result.push([term, field.slice(term.length), '']);
+        return result;
+      }
+    } else {
+      return match;
+    }
+  }
 
   static OPENMENU = {}; //used as a token
 
@@ -39,14 +51,37 @@ export class SearchService {
     this.levels.splice(index, 0, [rule, autocompletion, onmatch]);
   }
 
+  static FIND_PATTERN = 0;
+  static FIND_INSTANCE = 1;
+
+  static IS_PATTERN = 0;
+  static IS_NAVIGATED = 1;
+
+  private mode: number = SearchService.FIND_PATTERN;
+  private pattern: string = '';
+
+  switchMode(mode: number, pattern: string = '') {
+    this.mode = mode;
+    this.pattern = pattern;
+  }
+
   constructor() { }
 
   search(term: string): [string, string, any][] {
-    return this.basicSearch(term);
+    let result = this.mode == SearchService.FIND_PATTERN ?
+      this.patternSearch(term) : this.instanceSearch(term);
+    
+    return result;
   }
 
-  basicSearch(term: string): [string, string, any][] {
+  patternSearch(term: string): [string, string, any][] {
     return this.levelSearch(term.replace(this.INTEGER, ''));
+  }
+
+  instanceSearch(term: string): [string, string, any][] {
+    return [
+      ['Casca', 'les', '']
+    ]
   }
 
   levelSearch(term: string): [string, string, any][] {
@@ -62,8 +97,16 @@ export class SearchService {
       let typed = autocompletion.slice(0, match.length),
         completed = autocompletion.slice(match.length);
       
-      results.push(level[2](typed, completed));
+      results.push([typed, completed, SearchService.OPENMENU]);
     }
     return results;
+  }
+
+  static canvas = document.createElement('canvas');
+  static ctx = SearchService.canvas.getContext('2d');
+  static measureText(text: string, font: string) {
+    this.ctx!.font = font;
+    console.log(this.ctx!.measureText(text).width);
+    return this.ctx!.measureText(text).width;
   }
 }
