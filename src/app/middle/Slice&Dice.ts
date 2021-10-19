@@ -303,20 +303,6 @@ export class PDV{
     return target[DataExtractionHelper.TARGET_FINITION_ID]
   }
 
-  get color(): string{
-    let isAdOpen = DataExtractionHelper.get('params')['isAdOpen'], sales = this.attribute('sales');
-    if(this.attribute('onlySiniat') || !this.attribute('sale') || !this.attribute('redistributed') || (this.attribute('target') && (this.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || this.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || !isAdOpen)
-      return 'black'
-
-    if(!sales) return 'red'
-    if(isAdOpen) {
-      for(let sale of sales) {
-        if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] === DataExtractionHelper.INDUSTRIE_SINIAT_ID) return 'black'
-      }
-    }
-    return 'orange'
-  }
-
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
       this.load(false);

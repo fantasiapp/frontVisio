@@ -281,6 +281,23 @@ export class SliceTable {
         return PDV.getInstances().get(pdv.instanceId);
     }
 
+    getRowColor(pdv: any): string {
+        let pdvInstance = this.getPdvInstance(pdv)!;
+        let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
+        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+            return 'black'
+
+        for(let sale of pdvInstance.attribute('sales')) {
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'black';
+        }
+
+        for(let sale of pdvInstance.attribute('sales')) {
+            if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'orange'
+        }
+
+        return 'red'
+    }
+
     getColor(axis: string, enseigne: string): string {
         let hardCodedColors: {[key: string]: {[key: string]: string}} = {
             'industry': {

@@ -61,9 +61,9 @@ export class TableComponent extends BasicWidget {
   pinnedRow?: {}[];
   rowClassRules = {
     'group-row': 'data.groupRow === true',
-    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getPdvInstance(params.data)!.color == 'orange') return true; return false;},
+    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
     // 'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow']) return false; return true;},
-    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getPdvInstance(params.data)!.color == 'red') return true; return false;}
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data) == 'red') return true; return false;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
@@ -92,6 +92,12 @@ export class TableComponent extends BasicWidget {
     this.gridObservable = new Observable((observer) => {
       observer.next()
     })
+  }
+
+  refresh() {
+    this.gridApi.refreshCells()
+    this.gridApi.redrawRows()
+
   }
 
   updateData(): any[] {

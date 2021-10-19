@@ -430,6 +430,11 @@ p {
     background-color: #f7f7f7;
 }
 
+.first.row .cell.siniatOnly[checked="true"]{
+    color: orange !important;
+    text-decoration: underline;
+}
+
 .first.row .cell:not(.empty) {
     margin: 0 1px;
     border: var(--grid-cells-border);
