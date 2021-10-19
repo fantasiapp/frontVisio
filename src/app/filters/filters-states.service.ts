@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { loadAll, PDV } from '../middle/Slice&Dice';
+import { getGeoTree, loadAll, PDV } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
@@ -16,22 +16,14 @@ export class FiltersStatesService {
   filtersVisible = new BehaviorSubject<boolean>(false);
   tree?: Tree;
   constructor(private navigation: Navigation, private dataservice : DataService, private logger: LoggerService) {
-    let subscription = this.dataservice.response.subscribe((data) => {
+    this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
         loadAll();
-        let type = this.navigation.tree?.type || null, defaultTree;
-        if ( !type || type == PDV.geoTree.type ) 
-          defaultTree = PDV.geoTree;
-        else
-          defaultTree = PDV.tradeTree;
-        
-        this.reset(defaultTree, false);
+        this.reset(getGeoTree(), false);
         this.$load.next(0 as never);
         this.$load.complete();
         this.dataservice.beginUpdateThread();
-
-        setTimeout(() => subscription.unsubscribe(), 0);
       }
     });
   }
@@ -128,7 +120,6 @@ export class FiltersStatesService {
   }
 
   public reset(t: Tree, follow: boolean = true) {
-    console.log('follow');
     this.tree = t;
     if ( follow )
       this.navigation.followTree(t);

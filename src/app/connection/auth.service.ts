@@ -3,7 +3,7 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of,Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { LoggerService } from '../behaviour/logger.service';
@@ -20,10 +20,20 @@ export class AuthService {
   token: string;
   username: string = '';
   isLoggedIn = new BehaviorSubject<boolean>(false);
-  errorCode: number = 0
+  // saveLocalTokenSubject = new BehaviorSubject<boolean>(false);
+  errorCode: number = 0;
+  // tokenSubscription: Subscription;
+  stayConnected: boolean = false;
 
   constructor(private http: HttpClient, private router: Router, private localStorageService: LocalStorageService, private dataService: DataService, private logger: LoggerService) {
-    this.token = this.localStorageService.getToken();
+    this.token = this.localStorageService.getToken(); //usefull?
+    // this.tokenSubscription = this.saveLocalTokenSubject
+    // .subscribe((save: boolean) => 
+    //   {this.localStorageService.setActiveToken(this.getAuthorizationToken());
+    //    sessionStorage.setItem('token', this.getAuthorizationToken());
+    //     if(save) this.localStorageService.saveToken(this.getAuthorizationToken()); 
+    //     else this.localStorageService.removeToken()
+    //   })
   }
 
   loginToServer(username: string, password: string) {
@@ -38,7 +48,7 @@ export class AuthService {
           map((response: any) => {
             this.token = response['token'];
             this.username = username;
-            this.localStorageService.saveToken(this.token);
+            this.handleTokenSave();
             this.isLoggedIn.next(true);
             return true;
           })
@@ -46,7 +56,7 @@ export class AuthService {
     );
   }
 
-  getUser() {
+  getUser() { 
     return { name: this.username };
   }
 
@@ -58,27 +68,34 @@ export class AuthService {
     return false
   }
 
+  handleTokenSave() {
+    this.localStorageService.setActiveToken(this.getAuthorizationToken());
+    sessionStorage.setItem('token', this.getAuthorizationToken());
+  }
+
   setStayConnected(val: boolean) {
-    this.localStorageService.saveStayConnected(val? true : false);
     this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!val);
     this.logger.actionComplete();
-    
   }
-  getStayConnected(): boolean {
-    if(this.localStorageService.getData() && this.localStorageService.getToken()) {
-      let logged = this.localStorageService.getStayConnected();
-      this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!logged);
+
+  isStayConnected(): boolean {
+    if(this.localStorageService.getToken()) {
+      this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!true);
       this.logger.actionComplete();
-      return logged;
-    } else { return false;}
+      return true;
+    } else {
+      return false;}
+  }
+
+  isAlreadyConnected(): boolean {
+    return this.localStorageService.getActiveToken()?true:false;
   }
 
   logoutFromServer() {
     setTimeout(() => {
       this.dataService.endUpdateThread();
-      this.localStorageService.handleDisconnect()
-
-      this.isLoggedIn.next(false);
+      this.localStorageService.handleDisconnect(true)
+      this.isLoggedIn.next(false)
       this.router.navigate(['login']);
     }, 1000);
   }
