@@ -821,7 +821,7 @@ export class PDV{
       case 'target': {
         let totalVisits = 0,
           totalCibleVisits = 0,
-          thresholdForGreen = PDV.computeTargetVisits(slice, true),
+          thresholdForGreen = 100 * PDV.computeTargetVisits(slice, true),
           threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
         for (let pdv of pdvs){
           totalVisits += pdv.attribute("nbVisits");
