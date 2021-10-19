@@ -96,7 +96,7 @@
             <div class="content">
                 <div class="grid">
                     <div class="first row">
-                        <div class="first empty cell"></div>
+                        <div class="first siniatOnly empty cell" [attr.checked]="isOnlySiniat" (click)="changeOnlySiniat()">100% Siniat</div>
                         <div class="cell" *ngFor="let product of products">
                             {{product | titlecase}}
                         </div>
@@ -122,7 +122,7 @@
 <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
 <img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true && redistributedChecked!=true" (click)="setPage(currentIndex + 1)"/>
 
-<div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
+<div class="cover" (click)="requestQuit()" [style.display]="opened ? 'block' : 'none'"></div>
 <div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
     <div class="quitbar">
         <h1>Souhaitez-vous mettre à jour les modifications</h1>
