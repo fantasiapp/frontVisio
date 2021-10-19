@@ -43,6 +43,8 @@ export class TableComponent extends BasicWidget {
   pdv?: PDV;
   redistributed: boolean = false;
   selectedPdv?: any;
+  hasChanged: boolean = false;
+  quiting: boolean = false;
 
   //Apis
   gridApi: any;
@@ -290,6 +292,7 @@ export class TableComponent extends BasicWidget {
     // this.updateGraph(this.updateData());
     
     this.redistributed= !this.redistributed; //doesn't update locally
+    this.hasChanged = true;
   }
 
   externalFilterChanged(value: any) {
@@ -312,6 +315,28 @@ export class TableComponent extends BasicWidget {
     //   return true;
     // }
   }
+
+  
+  requestQuit() {
+    console.log("click cover")
+    //show the quit bar
+    if ( this.hasChanged )
+      this.quiting = true;
+    else
+      this.quit(false)
+  }
+
+  quit(save: boolean) {
+    if(save && this.hasChanged) console.log("Updating pdv")
+    else {
+      console.log("not updating pdv")
+    }
+    this.hasChanged = false;
+    this.quiting = false;
+    this.sideDivRight = "calc(-60% - 5px)";
+    this.showInfo = false;
+  }
+
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)

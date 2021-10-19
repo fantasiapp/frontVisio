@@ -31,7 +31,7 @@
 <info-bar [style.margin-top]="0" [style.top]="0"  [style.height]="'100%'" [(pdv)]="pdv"></info-bar>
 
 <div [style.right] = "sideDivRight" class="side-div">
-    <img src="assets/x icon.svg" (click)="showInfoOnClick()"/>
+    <img src="assets/x icon.svg" (click)="requestQuit()"/>
     <div>
         <div>
             <span>
@@ -77,5 +77,15 @@
         </div>
     </div>
 
-    <div class="cover" [class.open]="showInfo"></div>
+</div>
+
+<div class="cover" (click)="requestQuit()" [style.display]="showInfo ? 'block' : 'none'"></div>
+<div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
+    <div class="quitbar">
+        <h1>Souhaitez-vous mettre à jour les modifications</h1>
+        <div class="button-container">
+            <button class="negative button" (click)="quit(false)">Non, merci</button>
+            <button class="positive button" (click)="quit(true)">Oui</button>
+        </div>
+    </div>
 </div>

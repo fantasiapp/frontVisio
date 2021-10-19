@@ -19,6 +19,14 @@ span {
     font-size: 0.8em;
 }
 
+.cover {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(247, 247, 247, 0.5);
+    display: none;
+}
 
 .side-div {
     display: flex;
@@ -33,9 +41,9 @@ span {
     box-shadow: -2px 0 4px grey;
     overflow: scroll;
     transition: right 200ms ease-out 0s;
-    z-index: 99;
     overflow-x: auto;
     overflow-y: auto;
+    z-index: 9999;
 }
 
 
@@ -76,16 +84,6 @@ span {
 .side-div .checkbox-div {
     color: orange;
     
-}
-
-.side-div .cover {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(247, 247, 247, 0.5);
-    z-index: -1;
-    display: none;
 }
 
 .side-div .cover.open {
@@ -172,4 +170,62 @@ span {
     border: solid white;
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
+}
+
+
+.quitbar-container {
+    background: rgba(247, 247, 247, 0.5);
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+}
+
+.quitbar {
+    /* z-index: 99999; */
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 250px;
+    text-align: center;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0px 3px 6px #00000053;
+    font-size: 20px;
+    
+    padding: 30px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.quitbar h1 {
+    font-size: 1em;
+    font-weight: 500;
+    margin-bottom: 50px;
+}
+
+.button {
+    background: white;
+    border: none !important;
+    outline: none !important;
+    margin: 0 10px;
+    width: 150px;
+    height: 40px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.negative.button {
+    border: 1px solid #E07030 !important;
+    color: #e07030;
+}
+
+.positive.button {
+    background: #E07030;
+    color: white;
 }
