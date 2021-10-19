@@ -41,6 +41,7 @@ export class InfoBarComponent {
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
+      this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
       this.loadGrid()
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
@@ -59,6 +60,7 @@ export class InfoBarComponent {
   gridFormatted: string[][] = [];
   targetP2cdFormatted: string = "";
   salesColors: string[][] = [];
+  isAdOpen: boolean = false;
 
   SALES_INDUSTRY_ID;
   SALES_PRODUCT_ID;
