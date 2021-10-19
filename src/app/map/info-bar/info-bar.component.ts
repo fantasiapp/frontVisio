@@ -147,7 +147,7 @@ export class InfoBarComponent {
     if ( this.hasChanged )
       this.quiting = true;
     else
-      this.pdv = undefined; //force quit
+      this.quit(false)
   }
 
   setPage(index: number) {
