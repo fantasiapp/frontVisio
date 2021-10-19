@@ -121,6 +121,7 @@ ul, hr {
     flex-grow: 0;
     max-height: 40%;
     display: flex;
+    justify-content: space-between;
     flex-flow: row nowrap;
     margin-bottom: var(--pdv-title-margin-y);
 }
@@ -200,6 +201,7 @@ span.bolder {
     display: flex;
     flex-flow: column nowrap;
     align-self: flex-start;
+    max-width: 310px;
 }
 
 .props {
@@ -214,6 +216,7 @@ span.bolder {
 .props ul {
     font-weight: 400;
     width: 100%;
+    max-width: 250px;
 }
 
 .props ul li {
