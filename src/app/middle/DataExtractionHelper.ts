@@ -151,6 +151,9 @@ class DataExtractionHelper{
   static SALES_PRODUCT_ID: any;
   static SALES_VOLUME_ID: any;
   static SALE_ID: any;
+  static AGENTFINITION_TARGETVISITS_ID: number;
+  static AGENTFINITION_DRV_ID: number;
+  static AGENTFINITION_RATIO_ID: number;
 
 
   
@@ -199,11 +202,13 @@ class DataExtractionHelper{
     this.SALES_INDUSTRY_ID = this.data['structureSales'].indexOf('industry');
     this.SALES_PRODUCT_ID = this.data['structureSales'].indexOf('product');
     this.SALES_VOLUME_ID = this.data['structureSales'].indexOf('volume');
-
     this.SALE_ID = this.getKeyByValue(this.data['structurePdvs'], 'sale');
     this.SALE_INDUSTRY_ID = this.data["structureSales"].indexOf("industry");
     this.SALE_PRODUCT_ID = this.data["structureSales"].indexOf("product");
     this.SALE_VOLUME_ID = this.data["structureSales"].indexOf("volume");
+    this.AGENTFINITION_TARGETVISITS_ID = this.data["structureAgentfinitions"].indexOf("TargetedNbVisit");
+    this.AGENTFINITION_DRV_ID = this.data["structureAgentfinitions"].indexOf("drv");
+    this.AGENTFINITION_RATIO_ID = this.data["structureAgentfinitions"].indexOf("ratioTargetedVisit");
     
     //trades have less info that geo
     
@@ -464,6 +469,14 @@ class DataExtractionHelper{
         PDV.computeCiblage(relevantNode, false, true),
         100];
     return [objectiveWidget, ciblageWidget];
+  }
+
+  static findFinitionAgentsOfDrv(drvId: number){
+    let finitionAgents: {[key:number]: (number|string)[]} = this.data["agentFinitions"],
+      finitionAgentsOfDrv = [];
+    for (let [_, agent] of Object.entries(finitionAgents))
+      if (agent[this.AGENTFINITION_DRV_ID] == drvId) finitionAgentsOfDrv.push(agent);
+    return finitionAgentsOfDrv;
   }
 
   static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {
