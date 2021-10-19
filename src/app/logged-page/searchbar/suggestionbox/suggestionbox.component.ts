@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { SearchService } from 'src/app/services/search.service';
 
 @Component({
@@ -18,6 +18,9 @@ export class SuggestionBox {
   suggestions: [string, string, any][] | null = [];
   @Input()
   selection: number = -1;
+  
+  @Output()
+  confirm: EventEmitter<string> = new EventEmitter();
 
   constructor() { }
 
@@ -35,6 +38,6 @@ export class SuggestionBox {
       throw 'yeah, unexpected';
     
     
-    this.suggestions = [];
+    this.confirm.emit(suggestion[0] + suggestion[1]);
   }
 }
