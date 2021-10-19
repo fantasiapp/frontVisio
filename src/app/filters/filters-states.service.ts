@@ -3,13 +3,13 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { loadAll, PDV } from '../middle/Slice&Dice';
+import { getGeoTree, loadAll, PDV } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class FiltersStatesService {
   currentlevelName: string = '';
@@ -20,13 +20,7 @@ export class FiltersStatesService {
       if (data) {
         DataExtractionHelper.setData(data);
         loadAll();
-        let type = this.navigation.tree?.type || null, defaultTree;
-        if ( !type || type == PDV.geoTree.type ) 
-          defaultTree = PDV.geoTree;
-        else
-          defaultTree = PDV.tradeTree;
-        
-        this.reset(defaultTree);
+        this.reset(getGeoTree(), false);
         this.$load.next(0 as never);
         this.$load.complete();
         this.dataservice.beginUpdateThread();
@@ -125,9 +119,12 @@ export class FiltersStatesService {
     return path;
   }
 
-  public reset(t: Tree) {
+  public reset(t: Tree, follow: boolean = true) {
     this.tree = t;
-    this.navigation.setTree(t);
+    if ( follow )
+      this.navigation.followTree(t);
+    else
+      this.navigation.setTree(t);
 
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),

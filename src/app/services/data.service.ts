@@ -31,6 +31,8 @@ export class DataService {
   constructor(private http : HttpClient, private localStorage : LocalStorageService) {}
   
   response = new BehaviorSubject<Object|null>(null);
+  update: Subject<never> = new Subject;
+
   updateSubscriber: any;
 
   public requestData(): Observable<Object|null> { //used at login, and with refresh button to ask immediatly data from the back
@@ -41,11 +43,11 @@ export class DataService {
     ) 
       .pipe(
         map((data) => {
-          console.debug('DATA ', data);
           return data;
         })
       )
       .subscribe((data) => {
+        console.log(data);
         this.response.next(data);
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
@@ -56,7 +58,7 @@ export class DataService {
   public requestUpdateData() { //
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DataExtractionHelper.get('timestamp')}})
     .subscribe((response : any) => {
-      if(response !== {}) {
+      if( !Object.keys(response).length ) { //this is always false response !== {}
         if(response.message) {
           console.debug("Empty update")
         } else {
@@ -73,8 +75,6 @@ export class DataService {
 
   private dataToUpdate:UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
   private queuedDataToUpdate: UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
-
-  update: Subject<never> = new Subject;
 
   public updatePdv(pdv: any[], id: number) {
     this.dataToUpdate['pdvs'][id] = pdv;
