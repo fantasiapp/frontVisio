@@ -34,9 +34,9 @@ export class InfoBarComponent {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
       this.target = this._pdv!.attribute('target')
+      this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || this.sales!.length > 0
-      console.log("this.sales!.length ", this.sales!.length, "redistributedDisabled ", this.redistributedDisabled)
       this.doesntSellDisabled = !value.attribute('sale') || this.sales!.length > 0
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
@@ -91,14 +91,25 @@ export class InfoBarComponent {
   }
 
   private _pdv: PDV | undefined;
+  displayedInfos: {[field: string]: any} = {};
   target?: any;
   sales?: [][];
   static valuesSave: any[] = [];
   static pdvId: number = 0;
   redistributed?: boolean;
 
-  getName(name: string) {
-    return DataExtractionHelper.getNameOfRegularObject(name, this._pdv!.attribute(name));
+  extractDisplayedInfos(pdv: PDV) {
+    return {
+      name: this._pdv!.attribute('name'),
+      agent: DataExtractionHelper.get('agent')[this._pdv!.attribute('agent')],
+      segmentMarketing: DataExtractionHelper.get('segmentMarketing')[this._pdv!.attribute('segmentMarketing')],
+      segmentCommercial: DataExtractionHelper.get('segmentCommercial')[this._pdv!.attribute('segmentCommercial')],
+      enseigne: DataExtractionHelper.get('enseigne')[this._pdv!.attribute('enseigne')],
+      dep: DataExtractionHelper.get('dep')[this._pdv!.attribute('dep')],
+      ville: DataExtractionHelper.get('ville')[this._pdv!.attribute('ville')],
+      bassin: DataExtractionHelper.get('bassin')[this._pdv!.attribute('bassin')],
+      clientProspect: pdv!.clientProspect() || "Non documenté"
+    }
   }
 
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {

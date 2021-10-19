@@ -2,7 +2,7 @@
     <img src="assets/X.svg"/>
 </button>
 <div class="nav">
-    <ul #navigation *ngIf="doesntSellChecked != true && redistributedChecked!=true && isAdOpen==true">
+    <ul #navigation *ngIf="doesntSellChecked != true && redistributedChecked!=true">
         <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
         <hr class="horizontal-line">
     </ul>
@@ -15,13 +15,13 @@
             <div class="reference">
                 <div class="definition">
                     <ul>
-                        <li><span>Point de vente :</span> {{pdv!.attribute('name')}}</li>
-                        <li><span>Agent :</span> {{getName('agent')}}</li>
-                        <li><span>Segment :</span> {{getName('segmentMarketing')}}</li>
-                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
-                        <li><span>Département :</span> {{getName('dep')}}</li>
-                        <li><span>Ville :</span> {{getName('ville')}}</li>
-                        <li><span>Bassin :</span> {{getName('bassin')}}</li>
+                        <li><span>Point de vente : </span><input [value]="displayedInfos.name" disabled></li>
+                        <li><span>Agent : </span><input [value]="displayedInfos.agent" disabled></li>
+                        <li><span>Segment : </span><input [value]="displayedInfos.segmentMarketing" disabled></li>
+                        <li><span>Enseigne : </span><input [value]="displayedInfos.enseigne" disabled></li>
+                        <li><span>Département : </span><input [value]="displayedInfos.dep" disabled></li>
+                        <li><span>Ville : </span><input [value]="displayedInfos.ville" disabled></li>
+                        <li><span>Bassin : </span><input [value]="displayedInfos.bassin"></li>
                     </ul>
                 </div>
                 <div class="props">
@@ -54,12 +54,12 @@
                 <div class="definition">
                     <div class="name">Général</div>
                     <ul>
-                        <li><span>Agent : </span> {{getName('agent')}}</li>
-                        <li><span>Enseigne : </span> {{getName('enseigne')}}</li>
-                        <li><span>Départements : </span> {{getName('dep')}}</li>
-                        <li><span>Client prospect : </span> {{pdv!.clientProspect() || "Non documenté"}} </li>
-                        <li><span>Segmentation marketing : </span>{{getName('segmentMarketing')}}</li>
-                        <li><span>Segmentation portefeuille : </span> {{getName('segmentCommercial')}} </li>
+                        <li><span>Agent : </span><input [value]="displayedInfos.agent" disabled></li>
+                        <li><span>Enseigne : </span><input [value]="displayedInfos.enseigne" disabled></li>
+                        <li><span>Département : </span><input [value]="displayedInfos.dep" disabled></li>
+                        <li><span>Client prospect : </span><input [value]="displayedInfos.clientProspect" disabled></li>
+                        <li><span>Segmentation marketing : </span><input [value]="displayedInfos.segmentMarketing" disabled></li>
+                        <li><span>Segmentation portefeuille : </span><input [value]="displayedInfos.segmentCommercial" disabled></li>
                     </ul>
                 </div>
 
@@ -96,7 +96,7 @@
             <div class="content">
                 <div class="grid">
                     <div class="first row">
-                        <div class="first siniatOnly empty cell" [attr.checked]="isOnlySiniat" (click)="changeOnlySiniat()">100% Siniat</div>
+                        <div class="first empty cell"></div>
                         <div class="cell" *ngFor="let product of products">
                             {{product | titlecase}}
                         </div>
@@ -110,7 +110,7 @@
                     <div class="row" *ngFor="let industry of industries; let j = index">
                         <div class="first cell">{{industry | titlecase}}</div>
                         <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]" accessControl agentOnly/>
+                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j+1][i]" accessControl agentOnly/>
                         </div>
                     </div>
                 </div>
@@ -120,9 +120,9 @@
 </ng-container>
 
 <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
-<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true && redistributedChecked!=true && isAdOpen==true" (click)="setPage(currentIndex + 1)"/>
+<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true && redistributedChecked!=true" (click)="setPage(currentIndex + 1)"/>
 
-<div class="cover" (click)="requestQuit()" [style.display]="opened ? 'block' : 'none'"></div>
+<div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
 <div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
     <div class="quitbar">
         <h1>Souhaitez-vous mettre à jour les modifications</h1>
