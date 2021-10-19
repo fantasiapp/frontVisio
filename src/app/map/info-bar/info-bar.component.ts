@@ -36,8 +36,8 @@ export class InfoBarComponent {
       this.target = this._pdv!.attribute('target')
       this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
-      this.redistributedDisabled = !value.attribute('redistributed') || this.sales!.length > 0
-      this.doesntSellDisabled = !value.attribute('sale') || this.sales!.length > 0
+      this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
+      this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
@@ -278,6 +278,8 @@ export class InfoBarComponent {
         sale[this.SALES_VOLUME_ID!] = this.grid[i][j];
         sale[this.SALES_DATE_ID!] = Math.floor(Date.now() / 1000);
         this.hasChanged = true;
+        this.redistributedDisabled = !this._pdv!.attribute('redistributed') || !this.noSales();
+        this.doesntSellDisabled = !this._pdv!.attribute('sale') || !this.noSales();
         return;
       }
     }
