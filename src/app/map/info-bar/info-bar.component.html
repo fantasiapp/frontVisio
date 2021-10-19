@@ -21,7 +21,7 @@
                         <li><span>Enseigne : </span><input [value]="displayedInfos.enseigne" disabled></li>
                         <li><span>Département : </span><input [value]="displayedInfos.dep" disabled></li>
                         <li><span>Ville : </span><input [value]="displayedInfos.ville" disabled></li>
-                        <li><span>Bassin : </span><input [value]="displayedInfos.bassin"></li>
+                        <li><span>Bassin : </span><input [value]="displayedInfos.bassin" (change)="changeTargetBassin($event)"></li>
                     </ul>
                 </div>
                 <div class="props">

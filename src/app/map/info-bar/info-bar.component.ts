@@ -246,6 +246,14 @@ export class InfoBarComponent {
     this.hasChanged = true;
   }
 
+  changeTargetBassin(event: any) {
+    let newBassin = event.target.value;
+    // if(newBassin!) this.displayedInfos.bassin = this.target[DataExtractionHelper.TARGET_BASSIN_ID] || this._pdv!.attribute('bassin');
+    // if(!this.target) this.target = SliceTable.initializeTarget()
+    // this.target[DataExtractionHelper.TARGET_BASSIN_ID] = event.target.value;
+    // this.hasChanged = true;
+  } 
+
   changeLight(newLightValue: string) {
     if(!this.target) this.target = SliceTable.initializeTarget()
     this.target[this.TARGET_LIGHT_ID] = newLightValue
