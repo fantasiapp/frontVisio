@@ -808,45 +808,37 @@ export class PDV{
     return dictResult;
   }
 
-  static computeJauge(slice:any, indicator:string): [string, number][]{
+  static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
     let pdvs = PDV.childrenOfNode(DataExtractionHelper.followSlice(slice));
     switch(indicator){
       case 'simple': {
         let totalVisits: number= 0,
-          cibleVisits:number = PDV.computeTargetVisits(slice) as number; 
+          cibleVisits:number = PDV.computeTargetVisits(slice) as number,
+          threshold = [50, 99.99, 100];
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
-        return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]];
+        return [[[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
       };
       case 'target': {
         let totalVisits = 0,
-          totalCibleVisits = 0;
+          totalCibleVisits = 0,
+          thresholdForGreen = PDV.computeTargetVisits(slice, true),
+          threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
         for (let pdv of pdvs){
           totalVisits += pdv.attribute("nbVisits");
           if (pdv.targetFinition) totalCibleVisits += pdv.attribute("nbVisits");
         }
-        return [[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]];
+        return [[[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
       };
-      default: return [['  ', 100 * Math.random()]];
+      default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
     }
   }
 
-  static computeTargetVisits(slice:any){
+  static computeTargetVisits(slice:any, threshold=false){
     let relevantNode = DataExtractionHelper.followSlice(slice);   
-    if (relevantNode.label == 'France'){
-      let dictFinitionAgents:{[key:number]: (number|string)[]} = DataExtractionHelper.get("agentFinitions"),
-        visitsTarget = 0;
-      console.log('here', dictFinitionAgents)
-      for (let finitionAgent of Object.values(dictFinitionAgents)){
-        let visitTarget = finitionAgent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID] as number;
-        visitsTarget += visitTarget;
-      }
-      return visitsTarget;
-    }
-    if (relevantNode.label === 'Région'){
-      let finitionAgent = DataExtractionHelper.findFinitionAgentOfDrv(slice['Région']);
-      return finitionAgent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID];
-    }
-    return 0;
+    let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DataExtractionHelper.get("agentFinitions")): 
+      DataExtractionHelper.findFinitionAgentsOfDrv(slice['Région']);
+    if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce((acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_RATIO_ID], 0);
+    return finitionAgents.reduce((acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID], 0);
   }
 
   getVolumeTarget() : number{
@@ -889,9 +881,18 @@ class SliceDice{
        groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
     }
-    if (axis1 == "visits") return {data: PDV.computeJauge(slice, indicator='simple'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
-    if (axis1 == "targetedVisits") return {data: PDV.computeJauge(slice, indicator='target'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
-    if (axis1 == "avancementAD") return {data: PDV.computeJauge(slice, indicator='AD'), sum: 0, target: undefined, colors: colors, targetLevel: {}};
+    if (axis1 == "visits"){
+      let jauge = PDV.computeJauge(slice, indicator='simple');
+      return {data: jauge[0], sum: 0, target: undefined, colors: colors, targetLevel: {}, threshold: jauge[1]};
+    }
+    if (axis1 == "targetedVisits"){
+      let jauge = PDV.computeJauge(slice, indicator='target');
+      return {data: jauge[0], sum: 0, target: undefined, colors: colors, targetLevel: {}, threshold: jauge[1]};
+    }
+    if (axis1 == "avancementAD"){
+      let jauge = PDV.computeJauge(slice, indicator='AD');
+      return {data: jauge[0], sum: 0, target: undefined, colors: colors, targetLevel: {}, threshold: jauge[1]};
+    }
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
     let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false,
       sortLines = percent !== 'classic';
