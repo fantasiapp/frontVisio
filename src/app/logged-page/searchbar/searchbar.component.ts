@@ -105,9 +105,15 @@ export class SearchbarComponent implements OnDestroy {
       this.pattern = '';
       this.results.next(this.lastResults = []);
     }
+
+    if ( e.code == 'Space' && e.ctrlKey ) {
+      this.results.next(this.lastResults = this.engine.findAll());
+      console.log(this.lastResults);
+    }
   }
 
   onSelectionConfirmed(suggestion?: Suggestion) {
+    console.log('how should i execute', suggestion);
     if ( !suggestion ) {
       this.filtersState.reset(this.filtersState.tree!, false);
       this.pattern = '';

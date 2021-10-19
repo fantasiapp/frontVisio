@@ -75,7 +75,7 @@ export class SearchService {
   }
 
   static genericRuleMatch(match: string, complete: string): [string, string, any] {
-    return [match, complete, SearchService.OPENMENU];
+    return [match, complete, null];
   }
 
   static interpretMatch(level: any): SearchFunction {
@@ -84,14 +84,14 @@ export class SearchService {
       let fieldName = SearchService.findFieldName(level[1]),
         height = SearchService.findFieldHeight(level[1]);
       
-      return (term: string) => {
-        if ( !term ) return [];
-        let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
+      return (term: string, notEmpty: boolean = true) => {
+        if ( !term && notEmpty ) return [];
+        let relevantNodes = ((level[2] & this.IS_GEO) ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
         relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term.toLowerCase()) >= 0);
         let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
           let index = node.name.toLowerCase().search(term.toLowerCase());
           if ( index < 0 ) return null;
-          let data = {info: '', geoTree: true, node: node};
+          let data = {info: '', geoTree: (level[2] & this.IS_GEO) ? true : false, node: node};
           return !index ?
             [term, node.name.slice(term.length), data] :
             ['', node.name, data]
@@ -110,10 +110,11 @@ export class SearchService {
 
   levels: [MatchFunction, string, number, any?][] = [
     [SearchService.ruleFromRegexp(/Nat?i?o?n?a?l?/i), 'National', SearchService.IS_REDIRECTION, SearchService.genericRuleMatch],
-    [SearchService.ruleFromRegexp(/R[ée]g?i?o?n?/i), 'Région', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/(?:Sec?t?e?u?r?)|(?:Age?n?t?)/i), 'Secteur', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN, searchDépartement],
-    [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN]
+    [SearchService.ruleFromRegexp(/R[ée]g?i?o?n?/i), 'Région', SearchService.IS_PATTERN | SearchService.IS_GEO],
+    [SearchService.ruleFromRegexp(/(?:Sec?t?e?u?r?)|(?:Age?n?t?)/i), 'Secteur', SearchService.IS_PATTERN | SearchService.IS_GEO],
+    [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN | SearchService.IS_GEO, searchDépartement],
+    [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN | SearchService.IS_GEO],
+    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Enseigne', SearchService.IS_PATTERN]
   ];
 
   addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {
@@ -123,9 +124,9 @@ export class SearchService {
   static FIND_PATTERN = 0;
   static FIND_INSTANCE = 1;
 
-  static IS_PATTERN = 0;
-  static IS_REDIRECTION = 1;
-  static IS_GEO = 2;
+  static IS_PATTERN = 1;
+  static IS_REDIRECTION = 2;
+  static IS_GEO = 4;
 
   private mode: number = SearchService.FIND_PATTERN;
   private customSearch: SearchFunction | null = null;
@@ -157,6 +158,22 @@ export class SearchService {
     return this.customSearch!(term, ...args);
   }
 
+  findAll() {
+    let result = this.mode == SearchService.FIND_PATTERN ?
+      this.findAllPatterns() : this.findAllInstances();
+    return result;
+  }
+
+  findAllPatterns(): Suggestion[] {
+    return this.levels.map(level => 
+      ['', level[1], level[2]]
+    )
+  }
+
+  findAllInstances(): Suggestion[] {
+    return this.customSearch!('', false);
+  }
+
   levelSearch(term: string): Suggestion[] {
     let results: Suggestion[] = [];
     for ( let i = 0; i < this.levels.length; i++ ) {
@@ -172,7 +189,7 @@ export class SearchService {
       
       results.push([typed, completed, level[2]]);
     }
-    return results;
+    return results.sort((a, b) =>  b[0].length - a[0].length);
   }
 
   static canvas = document.createElement('canvas');

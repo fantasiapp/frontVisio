@@ -57,9 +57,9 @@ export class SuggestionBox implements AfterViewInit {
   }
   
   formatSpecial(x: any) {
-    if ( x == SearchService.IS_PATTERN ) {
+    if ( x & SearchService.IS_PATTERN ) {
       return '(navigation)'
-    } else if ( x == SearchService.IS_REDIRECTION ) {
+    } else if ( x & SearchService.IS_REDIRECTION ) {
       return '(racine)'
     } else if ( typeof x == 'object' ) {
       return x.info ? '(' + x.info + ')' : '';
@@ -68,7 +68,10 @@ export class SuggestionBox implements AfterViewInit {
     }
   }
 
-  capitalizeSecond(term: string) {
+  capitalizeSecond(suggestion: Suggestion) {
+    let term = suggestion[1];
+    if ( !suggestion[0] )
+      return term.split(' ').map(part => part[0].toUpperCase() + part.slice(1).toLowerCase()).join(' ')
     return term.split(' ').map((part, index) => index == 0 ? part.toLowerCase() : part[0].toUpperCase() + part.slice(1).toLowerCase()).join(' ');
   }
 
