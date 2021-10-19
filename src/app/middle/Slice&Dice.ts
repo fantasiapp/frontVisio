@@ -569,6 +569,7 @@ export class PDV{
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
+    console.log(axe1, axe2)
     // Ces conditions il va falloir les factoriser à l'avenir
     let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
     if (axe2 == 'lgp-1') axe2 = labelsToLevelName[this.geoTree.attributes['labels'][1]]; // lgp is for "level geographique du profil"
@@ -811,8 +812,8 @@ export class PDV{
     let pdvs = PDV.childrenOfNode(DataExtractionHelper.followSlice(slice));
     switch(indicator){
       case 'simple': {
-        let totalVisits = 0,
-          cibleVisits = PDV.computeTargetVisits(slice); 
+        let totalVisits: number= 0,
+          cibleVisits:number = PDV.computeTargetVisits(slice) as number; 
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
         return [[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]];
       };
@@ -830,16 +831,22 @@ export class PDV{
   }
 
   static computeTargetVisits(slice:any){
-    // if (Object.keys(slice).length == 0){
-    //   let dictFinitionAgents:{[key:number]: (number|string)[]} = DataExtractionHelper.get("agentFinitions"),
-    //     visitsTarget = 0;
-    //   for (let finitionAgent of Object.values(dictFinitionAgents)){
-    //     let visitTarget = finitionAgent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID] as number;
-    //     visitsTarget += visitTarget;
-    //   }
-    //   return visitsTarget;
-    // }
-    return 300; // Hardcodé, il faudra prendre la valeur au back plus tard
+    let relevantNode = DataExtractionHelper.followSlice(slice);   
+    if (relevantNode.label == 'France'){
+      let dictFinitionAgents:{[key:number]: (number|string)[]} = DataExtractionHelper.get("agentFinitions"),
+        visitsTarget = 0;
+      console.log('here', dictFinitionAgents)
+      for (let finitionAgent of Object.values(dictFinitionAgents)){
+        let visitTarget = finitionAgent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID] as number;
+        visitsTarget += visitTarget;
+      }
+      return visitsTarget;
+    }
+    if (relevantNode.label === 'Région'){
+      let finitionAgent = DataExtractionHelper.findFinitionAgentOfDrv(slice['Région']);
+      return finitionAgent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID];
+    }
+    return 0;
   }
 
   getVolumeTarget() : number{
@@ -930,6 +937,7 @@ class SliceDice{
       targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
     }
     if (typeof(sum) !== 'number') sum = 0;
+    console.log('--->', dataWidget.getData())
     return {data: dataWidget.formatWidget(transpose), 
       sum: sum, 
       target: rodPosition, 
