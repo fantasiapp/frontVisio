@@ -14,11 +14,6 @@ input[type="radio"] {
     /* filter: invert(100%) hue-rotate(18deg) brightness(1.7); */
 }
 
-ul li {
-    font-weight: 300;
-    margin: 10px -40px;
-    list-style-type: none;
-}
 span {
     font-weight: 400;
     font-size: 0.8em;
@@ -39,6 +34,8 @@ span {
     overflow: scroll;
     transition: right 200ms ease-out 0s;
     z-index: 99;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 
@@ -51,10 +48,20 @@ span {
 }
 
 .side-div h2 {
-    font-weight : 400;
-    font-size: 1.20em;
+    margin: 15px 0;
+    font-size: 1.5em;
+    font-weight: 400;
 }
 
+.side-div ul {
+    padding-inline-start: 0px;
+}
+.side-div ul li {
+    font-weight: 300;
+    list-style-type: none;
+    padding-top: 10px;
+
+}
 .side-div div {
     flex-grow: 1;
 }
@@ -63,7 +70,7 @@ span {
     padding-top: 3em;
 }
 .side-div>div {
-    padding-left: 3em;
+    padding-left: 5em;
 }
 
 .side-div .checkbox-div {
@@ -94,7 +101,7 @@ span {
 .vertical-bar{
     min-width: 2px;
     max-width: 2px;
-    height: 60%;
+    height: 90%;
     background-color: lightgray;
 }
 
@@ -111,6 +118,7 @@ span {
     cursor: pointer;
     user-select: none;
     width: fit-content;
+    color: #F06D0C;
 }
 
 /* Hide the browser's default checkbox */
