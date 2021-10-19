@@ -28,7 +28,6 @@ export class FiltersStatesService {
     });
   }
 
-
   $path: BehaviorSubject<{}> = new BehaviorSubject({});
   $load: AsyncSubject<never> = new AsyncSubject();
 
@@ -95,7 +94,6 @@ export class FiltersStatesService {
     };
 
     //the path is auto computed, the only interesting thing "logwise" that can change is the dashboard
-    console.log('filtersState.updateState')
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
     this.logger.actionComplete();
 
@@ -138,6 +136,23 @@ export class FiltersStatesService {
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
     this.logger.actionComplete();
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+    this.$path.next(this.getPath(States));
+  }
+
+  //this makes GridManager.refresh a bit silly
+  //as it refreshes almost everything and is easily accessible
+  refresh() {
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    let States = this.navigation.getCurrent();
+    const currentState = {
+      States
+    };
+    this.tree = this.navigation.tree;
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
     this.$path.next(this.getPath(States));

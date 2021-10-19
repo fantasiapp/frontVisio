@@ -155,8 +155,8 @@ class DataExtractionHelper{
 
   
   //Represent levels as a vertical array rather than a recursive structure
-  private static geoLevels: any[] = [];
-  private static tradeLevels: any[] = [];
+  static geoLevels: any[] = [];
+  static tradeLevels: any[] = [];
 
   static geoHeight: number;
   static tradeHeight: number;

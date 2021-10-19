@@ -20,6 +20,18 @@ export class Navigation {
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
 
+  setNode(t: Tree, node: Node) {
+    this.tree = t;
+    this.currentLevel = node;
+    let dashboardId = this.currentDashboard!.id;
+    let nextDashboard = node.dashboards.findIndex(
+      (dashboard) => dashboard.id == dashboardId
+    );
+      
+    if ( nextDashboard !== -1 )
+      this.currentDashboard = node.dashboards[nextDashboard];
+  }
+
   followTree(t: Tree) {
     let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null,
       dashboardIndex: number,

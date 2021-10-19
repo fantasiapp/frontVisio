@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
-import { SearchService } from 'src/app/services/search.service';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { SearchService, Suggestion } from 'src/app/services/search.service';
 
 @Component({
   selector: 'suggestionbox',
@@ -7,7 +7,7 @@ import { SearchService } from 'src/app/services/search.service';
   styleUrls: ['./suggestionbox.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SuggestionBox {
+export class SuggestionBox implements AfterViewInit {
 
   @HostBinding('class.hidden')
   get shouldBeHidden() {
@@ -15,29 +15,65 @@ export class SuggestionBox {
   }
   
   @Input()
-  suggestions: [string, string, any][] | null = [];
+  suggestions: Suggestion[] | null = [];
+  
+  private suggestionSize = 28;
+  private _selection: number = -1;
+  private scrollRatio = 0;
+  private scrollStart = 0;
+
   @Input()
-  selection: number = -1;
+  set selection(value: number) {
+    if ( !this.suggestions ) return;
+    
+    let scrollRatio = this.scrollRatio || (this.ref.nativeElement.scrollHeight - 10) / (this.suggestions.length * this.suggestionSize),
+      ref = this.ref.nativeElement,
+      quantity = Math.max(0, value) - this.scrollStart;
+    
+    this._selection = value;
+    if ( quantity >= this.maxSuggestions ) {
+      this.scrollStart += quantity - this.maxSuggestions + 1;
+    } else if ( quantity < 0 ) {
+      this.scrollStart += quantity;
+    } else {
+      return;
+    }
+    
+    ref.scroll(0, - 5 + this.scrollStart * this.suggestionSize * scrollRatio);
+  }
+
+  get selection() { return this._selection; }
+
+  @Input()
+  maxSuggestions: number = 7;
   
   @Output()
-  confirm: EventEmitter<string> = new EventEmitter();
+  confirm: EventEmitter<Suggestion> = new EventEmitter();
 
-  constructor() { }
+  constructor(private ref: ElementRef) { }
 
+  ngAfterViewInit() {
+    this.ref.nativeElement.style.maxHeight = (5 + (this.maxSuggestions + 1) * this.suggestionSize) + 'px';
+  }
+  
   formatSpecial(x: any) {
-    if ( x == SearchService.OPENMENU ) {
-      return '(menu)'
+    if ( x == SearchService.IS_PATTERN ) {
+      return '(navigation)'
+    } else if ( x == SearchService.IS_REDIRECTION ) {
+      return '(racine)'
+    } else if ( typeof x == 'object' ) {
+      return x.info ? '(' + x.info + ')' : '';
     } else {
-      return x.toString();
+      return '(' + x + ')';
     }
+  }
+
+  capitalizeSecond(term: string) {
+    return term.split(' ').map((part, index) => index == 0 ? part.toLowerCase() : part[0].toUpperCase() + part.slice(1).toLowerCase()).join(' ');
   }
 
   navigate(index: number) {
     let suggestion = (this.suggestions as any)[index];
-    if ( !suggestion )
-      throw 'yeah, unexpected';
-    
-    
-    this.confirm.emit(suggestion[0] + suggestion[1]);
+    this.confirm.emit(suggestion);
   }
 }
