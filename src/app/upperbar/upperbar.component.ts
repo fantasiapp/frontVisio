@@ -1,6 +1,6 @@
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { getGeoTree, getTradeTree, PDV } from '../middle/Slice&Dice';
 
@@ -13,9 +13,10 @@ import {
 } from '@angular/animations';
 import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { BasicWidget } from '../widgets/BasicWidget';
 import { DataService } from '../services/data.service';
+import { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
 
 
 @Component({
@@ -37,7 +38,7 @@ import { DataService } from '../services/data.service';
     ])
   ]
 })
-export class UpperbarComponent implements OnInit {
+export class UpperbarComponent implements OnInit, OnDestroy {
   sldValue: number = 1;
   isFilterVisible = false;
   searchModel: string = '';
@@ -51,19 +52,28 @@ export class UpperbarComponent implements OnInit {
   mapComponent?: MapComponent;
 
   isSearchOpen = new BehaviorSubject(false);
+
+  private subscription?: Subscription;;
   constructor(
     private filtersState: FiltersStatesService,
     private authService: AuthService,
     private sliceDice: SliceDice,
     private dataService: DataService,
     private cd: ChangeDetectorRef
-  ) {}
+  ) {
+    this.subscription = this.filtersState.$path.subscribe(_ => {
+      this.sldValue = this.filtersState.tree?.type == NavigationExtractionHelper ? 1 : 0;
+    });
+  }
   shouldShowButtons = false;
 
   ngOnInit(): void {
     this.filtersState.filtersVisible.subscribe(
       (val) => (this.isFilterVisible = val)
     );
+  }
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
   }
   showFilters() {
     this.isFilterVisible = !this.filtersState.filtersVisible.getValue();

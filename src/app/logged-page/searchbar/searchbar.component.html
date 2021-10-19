@@ -1,9 +1,10 @@
-<div class="left" (click)="open()">
+<div class="left" (click)="opened = true">
     <img src="assets/Rechercher.svg"/>
 </div>
-<div class="wrapper" [class.opened]="opened">
-    <span class="pattern" (click)="pattern = ''">{{ pattern }}</span>
-    <input [placeholder]="placeholder" [style.padding-left]="(15 + patternWidth) + 'px'" #input (input)="onInput($event)" (keydown)="onKeyDown($event)" (focus)="onFocus($event)" (focusout)="onFocusOut($event)"/>
+<div class="wrapper">
+    <span class="pattern" (click)="pattern = ''">{{ pattern | pattern }}</span>
+    <input [placeholder]="placeholder" [style.padding-left]="(40 + patternWidth) + 'px'" #input (input)="onInput($event)" (keydown)="onKeyDown($event)" (focus)="onFocus($event)" (focusout)="onFocusOut($event)"/>
+    <img [style.visibility]="opened ? 'visible' : 'hidden'" (click)="toggle()" class="close" src="assets/X.svg"/>
 </div>
 
 <suggestionbox [suggestions]="results | async" [selection]="selectionIndex" (confirm)="onSelectionConfirmed($event)" #suggestionbox></suggestionbox>

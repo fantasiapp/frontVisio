@@ -5,18 +5,22 @@
     background: none;
     position: absolute;
     top: 100%;
-    left: 0;
     width: var(--suggestion-box-width);
     box-shadow: 0 0 3px 0 #aaa;
     padding: 5px 0;
     cursor: pointer;
     z-index: 1;
+    background: white;
 
-    --suggestion-box-width: 250px;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    --suggestion-box-width: 300px;
     --suggestion-item-height: 28px;
 }
 
 :host > .suggestion {
+    box-sizing: border-box;
     width: 100%;
     height: var(--suggestion-item-height);
 }
@@ -33,7 +37,7 @@
 }
 
 .suggestion.selected, .suggestion:hover {
-    background: #151D2140;
+    background: #ccc;
 }
 
 .typed {
@@ -41,9 +45,9 @@
 }
 
 .completed {
-    color: #151D2180
+    color: #151D21b0
 }
 
 .special {
-    color: #E1962A; 
+    color: #E1962A;
 }

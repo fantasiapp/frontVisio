@@ -1,4 +1,5 @@
 <div class="suggestion" *ngFor="let suggestion of suggestions; let index = index" [class.selected]="selection == index" (click)="navigate(index)">
-    <span class="typed">{{ suggestion[0] | titlecase }}</span><span class="completed">{{suggestion[1]}}</span>
-    <span class="special"> {{ formatSpecial(suggestion[2]) }} </span>
+    <span class="typed">{{ suggestion[0] | titlecase }}</span>
+    <span class="completed">{{ capitalizeSecond(suggestion) }}</span>
+    <span class="special"> {{ formatSpecial(suggestion[2]) | titlecase }} </span>
 </div>

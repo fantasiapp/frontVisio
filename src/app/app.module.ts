@@ -51,6 +51,7 @@ import { DescriptionWidgetComponent } from './widgets/description-widget/descrip
 import { LoggerService } from './behaviour/logger.service';
 import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
 import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionbox.component';
+import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionb
     AccountInfoComponent,
     DescriptionWidgetComponent,
     SearchbarComponent,
-    SuggestionBox
+    SuggestionBox,
+    PatternPipe
   ],
   imports: [
     BrowserModule,
