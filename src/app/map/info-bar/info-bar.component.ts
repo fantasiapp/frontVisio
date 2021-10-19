@@ -42,6 +42,7 @@ export class InfoBarComponent {
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
+      this.isOnlySiniat = value.attribute('onlySiniat')
       this.loadGrid()
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
@@ -61,6 +62,7 @@ export class InfoBarComponent {
   targetP2cdFormatted: string = "";
   salesColors: string[][] = [];
   isAdOpen: boolean = false;
+  isOnlySiniat: boolean = false;
 
   SALES_INDUSTRY_ID;
   SALES_PRODUCT_ID;
@@ -280,11 +282,26 @@ export class InfoBarComponent {
       this.hasChanged = true;
     }
   }
+  changeOnlySiniat() {
+    if(PDV.geoTree.root.label == 'Secteur' && this.noSales()) {
+      this.isOnlySiniat = !this.isOnlySiniat;
+      this.hasChanged = true;
+    }
+  }
+
+  noSales(): boolean { //check if they are no sales, or only with a null volume (other than Siniat)
+    for(let sale of this.sales!) {
+      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+        return false;
+    }
+    return true;
+  }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
     let pdvAsList = []
     for(let field of DataExtractionHelper.getPDVFields()) {
       if(field == 'target') pdvAsList.push(this.target)
+      else if (field == 'onlySiniat') pdvAsList.push(this.isOnlySiniat);
       else pdvAsList.push(pdv.attribute(field))
     }
     return pdvAsList;

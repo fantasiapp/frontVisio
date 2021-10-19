@@ -96,7 +96,7 @@
             <div class="content">
                 <div class="grid">
                     <div class="first row">
-                        <div class="first empty cell"></div>
+                        <div class="first siniatOnly empty cell" [attr.checked]="isOnlySiniat" (click)="changeOnlySiniat()">100% Siniat</div>
                         <div class="cell" *ngFor="let product of products">
                             {{product | titlecase}}
                         </div>
