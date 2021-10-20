@@ -45,6 +45,7 @@ export class TableComponent extends BasicWidget {
   selectedPdv?: any;
   hasChanged: boolean = false;
   quiting: boolean = false;
+  customData: {[field: string]: any} = {};
 
   //Apis
   gridApi: any;
@@ -240,17 +241,18 @@ export class TableComponent extends BasicWidget {
       else arrowImg!.style.transform = "rotate(-0.5turn)"
     } else {
       if(event['column']['colId'] === 'edit') {
-        this.pdv = this.sliceTable.getPdvInstance(event['data'])
-        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(event['data'])!.getValues())); //Values deepcopy
         InfoBarComponent.pdvId = event['data'].instanceId;
         this.selectedPdv = event['data'];
+        this.pdv = this.sliceTable.getPdvInstance(event['data']) // => displays infoBar
       }
       if(event['column']['colId'] === 'info') {
-        
-        this.pdv = this.sliceTable.getPdvInstance(event['data'])
-        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(event['data'])!.getValues())); //Values deepcopy
         InfoBarComponent.pdvId = event['data'].instanceId;
         this.selectedPdv = event['data'];
+        if(this.type == 'enduit') this.loadCustomData();
+        this.pdv = this.sliceTable.getPdvInstance(event['data']) // => displays infoBar
+
         // this.selectedPdv = event['data'];
         // this.showInfoOnClick(this.selectedPdv);
         // this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
@@ -260,6 +262,21 @@ export class TableComponent extends BasicWidget {
       }
     }
 
+  }
+
+  loadCustomData() {
+    this.customData = {
+      'nbVisits': this.selectedPdv.nbVisits,
+      'siniatP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'placoP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'knaufP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value + this.selectedPdv.graph.p2cd['Placo'].value + this.selectedPdv.graph.p2cd['Knauf'].value + this.selectedPdv.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'salsiEnduitSales': Math.round(this.selectedPdv.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'potential': Math.round(this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pregy'].value + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+    }    
   }
 
   sideDivRight: string = "calc(-60% - 5px)";

@@ -39,7 +39,7 @@
     right: 0;
 }
 
-.side-div {
+.on-top-div {
     z-index: 9999;
 }
 
@@ -105,6 +105,7 @@ ul, hr {
     top: calc(var(--navigation-ball-size) * -0.5 - 0.5em + 1px);
     left: 50%;
     transform: translateX(-50%);
+    z-index: -1;
 }
 
 .close {
@@ -253,7 +254,6 @@ span.bolder {
 
 h2 {
     margin: var(--pdv-title-margin-y) 0;
-    margin-bottom: 65px;
     font-size: 1.20em;
     font-weight: 300;
 }
@@ -271,20 +271,19 @@ p {
 .container-checkbox {
     display: block;
     position: relative;
-    padding-left: 10px;
     cursor: pointer;
     user-select: none;
 }
 
 /* Hide the browser's default checkbox */
-.props .container-checkbox input {
+ .container-checkbox input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
 }
 
 /* Create a custom checkbox */
-.props .container-checkbox .checkmark {
+.container-checkbox .checkmark {
     position: relative;
     display: inline-block;
     vertical-align: middle;
@@ -295,29 +294,29 @@ p {
 }
 
 /* On mouse-over, add a grey background color */
-.props .container-checkbox:hover input ~ .checkmark {
+.container-checkbox:hover input ~ .checkmark {
     /* background-color: #ccc; */
 }
 
 /* When the checkbox is checked, add a blue background */
-.props .container-checkbox input[checked="true"] ~ .checkmark {
+.container-checkbox input[checked="true"] ~ .checkmark {
     background-color: #F38839;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
-.props .container-checkbox .checkmark:after {
+.container-checkbox .checkmark:after {
     content: "";
     position: absolute;
     display: none;
 }
 
 /* Show the checkmark when checked */
-.props .container-checkbox input[checked="true"] ~ .checkmark:after {
+.container-checkbox input[checked="true"] ~ .checkmark:after {
     display: block;
 }
 
 /* Style the checkmark/indicator */
-.props .container-checkbox .checkmark:after {
+.container-checkbox .checkmark:after {
     left: 9px;
     top: 5px;
     width: 5px;
@@ -580,6 +579,36 @@ input[type=number] {
     font-weight: 300;
     font-style: italic;
 }
+
+/* For ENduit */
+.values-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.vertical-bar{
+    min-width: 2px;
+    max-width: 2px;
+    height: 100%;
+    background-color: lightgray;
+}
+
+.values-div ul {
+    padding-inline-start: 0px;
+}
+.values-div ul li {
+    list-style-type: none;
+    padding-top: 10px;
+}
+.enduit-info-bar .container-checkbox {
+    color: #F06D0C;
+    max-width: 300px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+/* ***** */
+
 
 @media (max-width: 1367px) {
     :host {

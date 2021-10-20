@@ -49,6 +49,11 @@ export class InfoBarComponent {
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
     this.logger.actionComplete();
   }
+  @Input()
+  display: string = 'p2cd';
+  @Input()
+  customData: {[field: string]: any} = {};
+
 
   @Output()
   pdvChange = new EventEmitter<PDV | undefined>();
