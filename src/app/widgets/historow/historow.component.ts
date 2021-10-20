@@ -207,8 +207,7 @@ export class HistoRowComponent extends BasicWidget {
 
   updateData() {
     this.chart?.tooltip.hide();
-    let data = this.sliceDice.getWidgetData.apply(this.sliceDice, this.getDataArguments());
-    
+    let data = this.sliceDice.getWidgetData.apply(this.sliceDice, this.getDataArguments());  
     return data;
   }
 
