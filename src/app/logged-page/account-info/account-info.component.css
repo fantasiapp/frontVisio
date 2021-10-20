@@ -23,11 +23,9 @@
 .resume {
     padding-left: 15px;
     border-left: 1px solid #333;
-}
-
-.resume > * {
-    display: inline-block;
-    vertical-align: middle;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
 }
 
 .toggle-dropdown {

@@ -1,7 +1,11 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { SearchService } from 'src/app/services/search.service';
+import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { Navigation } from 'src/app/middle/Navigation';
+import { PDV } from 'src/app/middle/Slice&Dice';
+import { SearchService, Suggestion } from 'src/app/services/search.service';
+import { PatternPipe } from './pattern.pipe';
 import { SuggestionBox } from './suggestionbox/suggestionbox.component';
 
 @Component({
@@ -17,29 +21,33 @@ export class SearchbarComponent implements OnDestroy {
   @ViewChild('suggestionbox', {read: SuggestionBox})
   suggestionBox?: SuggestionBox;
   
+  @HostBinding('class.opened')
   opened: boolean = false;
+
   term: Subject<string> = new Subject();
   lastTerm: string = '';
-  results: Subject<[string, string, number][]> = new Subject;
-  lastResults: [string, string, number][] = [];
+  results: Subject<Suggestion[]> = new Subject;
+  lastResults: Suggestion[] = [];
 
-  private _pattern: string = 'Agent';
+  private _pattern: string = 'Tous';
   get pattern() { return this._pattern; }
   set pattern(value: string) {
-    this.engine.switchMode(value ? SearchService.FIND_INSTANCE : SearchService.FIND_PATTERN, value);
+    let switched =
+      this.engine.switchMode(value ? SearchService.FIND_INSTANCE : SearchService.FIND_PATTERN, value);
+    if ( !switched ) return;
     this._pattern = value;
-    this.results.next([]);
+    this.results.next(this.lastResults = []);
     this.input!.nativeElement.value = '';
+    this.selectionIndex = -1;
   }
 
   private debounceDuration = 50;
   private subscription: Subscription = new Subscription;
 
-  constructor(private ref: ElementRef, private engine: SearchService) {
+  constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService) {
     this.subscription = this.term.pipe(debounceTime(this.debounceDuration)).subscribe(term => {
       let results = this.engine.search(this.lastTerm = term);
-      this.lastResults = results;
-      this.results.next(results);
+      this.results.next(this.lastResults = results);
     });
 
     if ( this.pattern )
@@ -53,7 +61,7 @@ export class SearchbarComponent implements OnDestroy {
 
   get patternWidth(): number {
     if ( !this.pattern ) return 0;
-    return SearchService.measureText(this.pattern, '14px Roboto')
+    return SearchService.measureText(PatternPipe.transform(this.pattern), '14px Roboto')
   }
 
   onInput(e: Event) {
@@ -61,7 +69,7 @@ export class SearchbarComponent implements OnDestroy {
       value = (target as any).value;
     
     this.selectionIndex = -1;
-    this.term.next(value);
+    this.term.next(value.trim());
   }
 
   onFocus(e: Event) {
@@ -72,53 +80,68 @@ export class SearchbarComponent implements OnDestroy {
     //this.results.next([]);
   }
 
-  resultNumber: number = 0;
   selectionIndex: number = -1;
   onKeyDown(e: KeyboardEvent) {
     if ( e.code == 'ArrowDown' ) {
       e.preventDefault();
-      this.selectionIndex = Math.min(this.selectionIndex+1, this.resultNumber-1);
+      this.selectionIndex = Math.min(this.selectionIndex+1, this.lastResults.length-1);
     }
 
     if ( e.code == 'ArrowUp' ) {
       e.preventDefault();
-      if ( this.selectionIndex == 0 ) this.selectionIndex = -1; //cancel
+      if ( this.selectionIndex <= 0 ) this.selectionIndex = -1; //cancel
       else this.selectionIndex = this.selectionIndex - 1;
     }
 
-    if ( e.code == 'Enter' ) {
+    if ( e.code == 'Tab' || e.code == 'Enter' ) {
       e.preventDefault();
-      if ( this.selectionIndex !== -1 )
-        this.suggestionBox?.navigate(this.selectionIndex);
-    }
-
-    if ( e.code == 'Tab' ) {
-      e.preventDefault();
-      let suggestion = this.lastResults[0];
-      if ( !suggestion ) return;
-      let pattern = suggestion[0] + suggestion[1];
-      this.pattern = pattern;
+      let suggestion = this.lastResults[this.selectionIndex] || this.lastResults[0];
+      //will fail if we're in mode 1
+      this.onSelectionConfirmed(suggestion);
     }
 
     if ( e.code == 'Escape' ) {
       e.preventDefault();
-      this.pattern = '';
-      this.engine.switchMode(SearchService.FIND_PATTERN);
-      this.results.next([]);
+      if ( this.pattern ) {
+        this.pattern = '';
+        this.results.next(this.lastResults = []);
+      } else this.pattern = 'Tous';
+    }
+
+    if ( e.code == 'Space' && e.ctrlKey ) {
+      this.results.next(this.lastResults = this.engine.findAll());
+      console.log(this.lastResults);
     }
   }
 
-  onSelectionConfirmed(e: string) {
-    if ( !this.pattern )
-      this.pattern = e;
-    else
-      throw 'not yet';
+  onSelectionConfirmed(suggestion?: Suggestion) {
+    if ( !suggestion ) {
+      this.filtersState.reset(this.filtersState.tree!, false);
+      this.pattern = '';
+      return;
+    };
+
+    if ( !this.pattern ) {
+      let type = suggestion[2];
+      if ( type == SearchService.IS_REDIRECTION ) {
+        this.filtersState.reset(this.filtersState.tree!, false);
+        this.pattern = '';
+      } else
+        this.pattern = suggestion[0] + suggestion[1];
+    } else {
+      let data = suggestion[2];
+      if ( data.node ) {
+        this.navigation.setNode(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
+        this.filtersState.refresh();
+      }
+      else throw "not yet";
+    }
   }
 
-  open() {
+  toggle() {
     this.opened = !this.opened;
     if ( !this.opened )
-      this.results.next([]);
+      this.results.next(this.lastResults = []);
   }
 
   ngOnDestroy() {

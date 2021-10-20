@@ -1,9 +1,9 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DataExtractionHelper, { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { getGeoTree, loadAll, PDV } from '../middle/Slice&Dice';
+import { getGeoTree, loadAll, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
@@ -15,7 +15,7 @@ export class FiltersStatesService {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
   tree?: Tree;
-  constructor(private navigation: Navigation, private dataservice : DataService, private logger: LoggerService) {
+  constructor(private navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
     this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
@@ -27,7 +27,6 @@ export class FiltersStatesService {
       }
     });
   }
-
 
   $path: BehaviorSubject<{}> = new BehaviorSubject({});
   $load: AsyncSubject<never> = new AsyncSubject();
@@ -95,7 +94,6 @@ export class FiltersStatesService {
     };
 
     //the path is auto computed, the only interesting thing "logwise" that can change is the dashboard
-    console.log('filtersState.updateState')
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
     this.logger.actionComplete();
 
@@ -121,6 +119,7 @@ export class FiltersStatesService {
 
   public reset(t: Tree, follow: boolean = true) {
     this.tree = t;
+    this.sliceDice.geoTree = this.tree!.type == NavigationExtractionHelper;
     if ( follow )
       this.navigation.followTree(t);
     else
@@ -130,7 +129,7 @@ export class FiltersStatesService {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
     };
-    let States = this.navigation.getCurrent();
+    let States = this.navigation.getCurrent(), path = this.getPath(States);
     const currentState = {
       States
     };
@@ -138,6 +137,29 @@ export class FiltersStatesService {
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
     this.logger.actionComplete();
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+    this.$path.next(path);
+  }
+
+  //this makes GridManager.refresh a bit silly
+  //as it refreshes almost everything and is easily accessible
+  refresh() {
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    let States = this.navigation.getCurrent();
+    const currentState = {
+      States
+    };
+
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.navigation.tree);
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
+    this.logger.actionComplete();
+
+    this.tree = this.navigation.tree;
+    this.sliceDice.geoTree = this.tree!.type == NavigationExtractionHelper;
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
     this.$path.next(this.getPath(States));

@@ -10,14 +10,23 @@ export class Navigation {
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
-  constructor() {
-    console.log('navigation created');
-  }
+  constructor() { }
 
   setTree(t: Tree){    
     this.tree = t ? t : new Tree(NavigationExtractionHelper);
     this.currentLevel = this.tree.root;
     this.currentDashboard = this.currentLevel!.dashboards[0];
+  }
+
+  setNode(t: Tree, node: Node) {
+    this.tree = t;
+    this.currentLevel = node;
+    let dashboardId = this.currentDashboard!.id;
+    let nextDashboard = node.dashboards.findIndex(
+      (dashboard) => dashboard.id == dashboardId
+    );
+
+    this.currentDashboard = node.dashboards[nextDashboard] || node.dashboards[0];
   }
 
   followTree(t: Tree) {
