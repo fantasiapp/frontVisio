@@ -35,7 +35,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
     private filtersState: FiltersStatesService,
     private dataService: DataService,
   ) {
-    this.subscription = this.filtersState.$path.subscribe(_ => {
+    this.subscription = this.filtersState.stateSubject.subscribe(({States}) => {
       this.sldValue = this.filtersState.tree?.type == NavigationExtractionHelper ? 1 : 0;
     });
   }

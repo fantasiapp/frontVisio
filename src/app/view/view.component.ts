@@ -25,7 +25,8 @@ export class ViewComponent implements OnDestroy {
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService) {
     this.subscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
       if ( this.layout?.id !== dashboard.id ) {
-        console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.')
+        console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.');
+        this.gridManager?.clear();
         this.layout = dashboard;
       }
     });
@@ -38,7 +39,7 @@ export class ViewComponent implements OnDestroy {
   computeDescription(description: string | string[]) {
     let compute = Array.isArray(description) && description.length >= 1;
     if ( compute )
-      return DataExtractionHelper.computeDescription(this.filtersService.$path.value, description as string[]);
+      return DataExtractionHelper.computeDescription(this.filtersService.getPath(this.filtersService.stateSubject.value.States), description as string[]);
     return description[0] || description;
   }
 

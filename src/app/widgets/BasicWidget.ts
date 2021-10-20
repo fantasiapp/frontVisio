@@ -24,10 +24,10 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
-    this.subscription = combineLatest([filtersService.$path, this.ready!]).subscribe(([path, _]) => {
+    this.subscription = combineLatest([filtersService.stateSubject, this.ready!]).subscribe(([{States}, _]) => {
       this.subscription!.unsubscribe();
       this.subscription = undefined;
-      this.path = path;
+      this.path = this.filtersService.getPath(States);
       this.onPathChanged();
       //view is initialized
       this.interactiveMode();
@@ -37,7 +37,8 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   
   interactiveMode() {
     if ( this.subscription ) return;
-    this.subscription = this.filtersService.$path.subscribe(path => {
+    this.subscription = this.filtersService.stateSubject.subscribe(({States}) => {
+      let path = this.filtersService.getPath(States);
       if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.onPathChanged();

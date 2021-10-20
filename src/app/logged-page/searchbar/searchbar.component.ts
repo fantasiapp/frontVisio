@@ -74,7 +74,7 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   onFocus(e: Event) {
-    this.results.next(this.engine.search(this.lastTerm));
+    this.results.next(this.lastResults = []);
   }
 
   onFocusOut(e: Event) {
