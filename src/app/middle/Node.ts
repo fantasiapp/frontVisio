@@ -118,6 +118,14 @@ export class Tree {
   get height() {
     return this.attributes['labels'].length;
   }
+
+  getAllDashboards() {
+    let dict: any = {};
+    this.attributes['dashboards'].flat().forEach(dashboard =>
+      dict[dashboard.id] = dashboard
+    );
+    return Object.values<Dashboard>(dict);
+  }
   
   getNodesAtHeight(height: number): any[] {
     if ( height < 0 ) {  throw 'No height < 0.'; };

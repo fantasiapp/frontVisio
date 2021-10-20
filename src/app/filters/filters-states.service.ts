@@ -162,6 +162,8 @@ export class FiltersStatesService {
     this.sliceDice.geoTree = this.tree!.type == NavigationExtractionHelper;
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
+    // $path must be changed after all elements are destroyed
+    // the error doesn't crash the app
     this.$path.next(this.getPath(States));
   }
 

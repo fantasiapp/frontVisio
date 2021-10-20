@@ -15,9 +15,8 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
   protected chart: Chart | null = null;
-  /* Styling */
+  /* for processing @sum and similar */
   protected dynamicDescription: boolean = false;
-  //protected savedData: {[key:number]: any} = {};
 
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
@@ -47,7 +46,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     });
   }
 
-  protected onPathChanged() { }
+  protected onPathChanged() { console.log('>>>>>>>>>>>>> path changed'); }
   
   pause() {
     if ( !this.subscription ) return;
@@ -57,7 +56,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   
   ngOnInit() {
     if ( this.properties.description == '@sum' )
-    this.dynamicDescription = true;
+      this.dynamicDescription = true;
   }
   
   protected start(): void {
@@ -126,10 +125,11 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   }
   
   ngOnDestroy() {
-    d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
+    console.log('DESTROY <<<<<<<<<<<<<<<<<<<<');
     this.subscription?.unsubscribe();
+    d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     if ( this.ref )
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
+      d3.select(this.ref.nativeElement).selectAll('div > *').remove();
   }
   
   noData(content: ElementRef) {

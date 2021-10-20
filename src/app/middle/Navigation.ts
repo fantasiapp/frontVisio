@@ -25,8 +25,21 @@ export class Navigation {
     let nextDashboard = node.dashboards.findIndex(
       (dashboard) => dashboard.id == dashboardId
     );
-
     this.currentDashboard = node.dashboards[nextDashboard] || node.dashboards[0];
+  }
+
+  setDashboard(t: Tree, dashboard: Dashboard) {
+    if ( !dashboard )
+      throw 'uh oh';
+    
+    if ( this.tree!.type !== t.type) {
+      this.tree = t;
+      this.currentLevel = this.tree.root;
+    }
+
+    this.currentDashboard = dashboard;
+    while ( this.currentLevel && this.currentLevel.parent && !this.currentLevel.dashboards.find(d => d.id == dashboard.id) )
+      this.currentLevel = this.currentLevel.parent!;
   }
 
   followTree(t: Tree) {

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, HostListen
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { NavigationExtractionHelper } from 'src/app/middle/DataExtractionHelper';
 import { Navigation } from 'src/app/middle/Navigation';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { SearchService, Suggestion } from 'src/app/services/search.service';
@@ -38,7 +39,7 @@ export class SearchbarComponent implements OnDestroy {
     this._pattern = value;
     this.results.next(this.lastResults = []);
     this.input!.nativeElement.value = '';
-    this.selectionIndex = -1;
+    this.selectionIndex = 0;
   }
 
   private debounceDuration = 50;
@@ -68,7 +69,7 @@ export class SearchbarComponent implements OnDestroy {
     let target = e.target,
       value = (target as any).value;
     
-    this.selectionIndex = -1;
+    this.selectionIndex = 0;
     this.term.next(value.trim());
   }
 
@@ -89,14 +90,13 @@ export class SearchbarComponent implements OnDestroy {
 
     if ( e.code == 'ArrowUp' ) {
       e.preventDefault();
-      if ( this.selectionIndex <= 0 ) this.selectionIndex = -1; //cancel
-      else this.selectionIndex = this.selectionIndex - 1;
+      this.selectionIndex = Math.max(0, this.selectionIndex - 1);
     }
 
     if ( e.code == 'Tab' || e.code == 'Enter' ) {
       e.preventDefault();
       let suggestion = this.lastResults[this.selectionIndex] || this.lastResults[0];
-      //will fail if we're in mode 1
+      if ( !suggestion && e.code == 'Enter' ) return;
       this.onSelectionConfirmed(suggestion);
     }
 
@@ -110,7 +110,6 @@ export class SearchbarComponent implements OnDestroy {
 
     if ( e.code == 'Space' && e.ctrlKey ) {
       this.results.next(this.lastResults = this.engine.findAll());
-      console.log(this.lastResults);
     }
   }
 
@@ -133,15 +132,19 @@ export class SearchbarComponent implements OnDestroy {
       if ( data.node ) {
         this.navigation.setNode(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
         this.filtersState.refresh();
+      } else if ( data.dashboard ) {
+        this.navigation.setDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
+        this.filtersState.refresh();
       }
       else throw "not yet";
     }
+
+    this.results.next(this.lastResults = []);
   }
 
   toggle() {
     this.opened = !this.opened;
-    if ( !this.opened )
-      this.results.next(this.lastResults = []);
+    this.results.next(this.lastResults = []);
   }
 
   ngOnDestroy() {
