@@ -2,7 +2,6 @@ import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} 
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
-import { first } from 'rxjs/operators';
 
 
 // peut-être à mettre dans un fichier de config
@@ -569,7 +568,6 @@ export class PDV{
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
-    console.log(axe1, axe2)
     // Ces conditions il va falloir les factoriser à l'avenir
     let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
     if (axe2 == 'lgp-1') axe2 = labelsToLevelName[this.geoTree.attributes['labels'][1]]; // lgp is for "level geographique du profil"
@@ -586,8 +584,8 @@ export class PDV{
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe1 = subLevelLabel;
     }
-    let dataAxe1 = DataExtractionHelper.get(axe1);
-    let dataAxe2 = DataExtractionHelper.get(axe2);
+    let dataAxe1 = DataExtractionHelper.get(axe1, true);
+    let dataAxe2 = DataExtractionHelper.get(axe2, true);
     let rowsTitles = Object.values(dataAxe1) as string[];
     let columnsTitles = Object.values(dataAxe2) as string[];
     let idToI:any = {}, idToJ:any = {};    
@@ -905,40 +903,35 @@ class SliceDice{
       targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
-      let targetName:string;
-      if (indicator == 'dn' && finition) targetName = "dnFinition";
-      else if (indicator == 'dn') targetName = "dnP2CD";
-      else if (finition) targetName = "volFinition";
-      else targetName = "volP2CD";
+      let dn = indicator == 'dn';
       let node = DataExtractionHelper.followSlice(slice);      
       if(typeof(sum) == 'number'){
         let targetValue:number;      
-        if (node.label == 'France') targetValue = DataExtractionHelper.getTarget("", 0, targetName); // faire une seule ligne avec ça
-        else targetValue = DataExtractionHelper.getTarget(node.label, node.id, targetName);        
+        if (node.label == 'France') targetValue = DataExtractionHelper.getTarget("", 0, dn, finition); // faire une seule ligne avec ça
+        else targetValue = DataExtractionHelper.getTarget(node.label, node.id, dn, finition);        
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
-        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, targetName);
+        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, dn, finition);
         for (let i = 0; i < targetValues.length; i++) rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
-        if (node.label == 'France' && (targetName == "dnP2CD" || targetName == "volP2CD")){
+        if (node.label == 'France' && !finition){
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
-          let ciblageValues = agentNodesMatrix.map((agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, targetName)).reduce((acc:number, value:number) => acc + value, 0));
+          let ciblageValues = agentNodesMatrix.map((agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, dn)).reduce((acc:number, value:number) => acc + value, 0));
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
           for (let i = 0; i < targetValues.length; i++) rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
         }
-      }
-      targetLevel['volumeIdentifier'] = targetName;
+      }// à modifier probablement
+      targetLevel['volumeIdentifier'] = dn ? "dn": "vol";
       if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
       else if(node.label === 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
       else targetLevel['name'] = 'targetLevel'
-      targetLevel['structure'] = 'structure' + targetLevel['name'][0].toUpperCase() + targetLevel['name'].slice(1)
+      targetLevel['structure'] = "structureTargetLevel";
     }
     if (typeof(sum) !== 'number') sum = 0;
-    console.log('--->', dataWidget.getData())
     return {data: dataWidget.formatWidget(transpose), 
       sum: sum, 
       target: rodPosition, 
