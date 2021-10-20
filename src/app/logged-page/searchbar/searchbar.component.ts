@@ -29,7 +29,7 @@ export class SearchbarComponent implements OnDestroy {
   results: Subject<Suggestion[]> = new Subject;
   lastResults: Suggestion[] = [];
 
-  private _pattern: string = '';
+  private _pattern: string = 'Tous';
   get pattern() { return this._pattern; }
   set pattern(value: string) {
     let switched =
@@ -102,8 +102,10 @@ export class SearchbarComponent implements OnDestroy {
 
     if ( e.code == 'Escape' ) {
       e.preventDefault();
-      this.pattern = '';
-      this.results.next(this.lastResults = []);
+      if ( this.pattern ) {
+        this.pattern = '';
+        this.results.next(this.lastResults = []);
+      } else this.pattern = 'Tous';
     }
 
     if ( e.code == 'Space' && e.ctrlKey ) {
@@ -113,7 +115,6 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   onSelectionConfirmed(suggestion?: Suggestion) {
-    console.log('how should i execute', suggestion);
     if ( !suggestion ) {
       this.filtersState.reset(this.filtersState.tree!, false);
       this.pattern = '';

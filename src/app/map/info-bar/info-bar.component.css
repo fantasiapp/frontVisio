@@ -582,7 +582,7 @@ input[type=number] {
 
 @media (max-width: 1367px) {
     :host {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .button {
@@ -592,7 +592,7 @@ input[type=number] {
 
 @media (min-width: 1367px) and (max-width: 1500px) {
     :host {
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .button {
@@ -602,7 +602,7 @@ input[type=number] {
 
 @media (min-width: 1500px) {
     :host {
-        font-size: 20px;
+        font-size: 19px;
     }
 
     .button {

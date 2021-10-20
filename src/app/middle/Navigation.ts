@@ -10,9 +10,7 @@ export class Navigation {
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
-  constructor() {
-    console.log('navigation created');
-  }
+  constructor() { }
 
   setTree(t: Tree){    
     this.tree = t ? t : new Tree(NavigationExtractionHelper);
@@ -27,9 +25,8 @@ export class Navigation {
     let nextDashboard = node.dashboards.findIndex(
       (dashboard) => dashboard.id == dashboardId
     );
-      
-    if ( nextDashboard !== -1 )
-      this.currentDashboard = node.dashboards[nextDashboard];
+
+    this.currentDashboard = node.dashboards[nextDashboard] || node.dashboards[0];
   }
 
   followTree(t: Tree) {

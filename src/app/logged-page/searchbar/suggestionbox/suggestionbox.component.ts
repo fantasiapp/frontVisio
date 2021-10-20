@@ -58,7 +58,7 @@ export class SuggestionBox implements AfterViewInit {
   
   formatSpecial(x: any) {
     if ( x & SearchService.IS_PATTERN ) {
-      return '(navigation)'
+      return '(categorie)'
     } else if ( x & SearchService.IS_REDIRECTION ) {
       return '(racine)'
     } else if ( typeof x == 'object' ) {

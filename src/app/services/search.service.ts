@@ -13,16 +13,16 @@ function filterMap<U, V = U>(array: U[], filterMap: FilterMapFunction<U, V>): V[
   return array.map(filterMap).filter(x => x) as unknown as V[];
 }
 
-function searchDépartement(_: any): SearchFunction {
-  let fieldName = SearchService.findFieldName('Département'),
-    height = SearchService.findFieldHeight('Département');
+function searchDépartement(): SearchFunction {
+  let [height,] = SearchService.findFieldHeight('Département');
   
-  return (term: string) => {
+  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
+    if ( !term && notEmpty ) return [];
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
     relevantNodes = relevantNodes.filter(node => node.name.search(term) >= 0);
 
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-      let index = node.name.search(term); //only numbers, doesnt matter here
+      let index = node.name.search(term);
       if ( index < 0 ) return null;
       let data = {info: node.parent ? node.parent.name : 'racine', geoTree: true, node: node};
       return !index ?
@@ -30,7 +30,70 @@ function searchDépartement(_: any): SearchFunction {
         ['Département ', node.name, data]
     });
 
-    return result.sort((a, b) =>  b[0].length - a[0].length); //closest to match
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
+  }
+};
+
+function searchField(field: string): SearchFunction {
+  if ( field == 'Département' )
+    return searchDépartement();
+  
+  let [fieldName, isGeo] = SearchService.findFieldName(field),
+    [height,] = SearchService.findFieldHeight(field);
+    
+  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
+    if ( !term && notEmpty ) return [];
+    let relevantNodes = (isGeo ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
+    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term.toLowerCase()) >= 0);
+    let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
+      let index = node.name.toLowerCase().search(term.toLowerCase());
+      if ( index < 0 ) return null;
+      let data = {info: '', geoTree: isGeo, node: node};
+      return !index ?
+        [term, node.name.slice(term.length), data] :
+        ['', node.name, data]
+    });
+
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
+  }
+};
+
+function searchDashboard(hightlight: boolean = false): SearchFunction {
+  let dashboards = Object.entries<any>(DataExtractionHelper.get('dashboards'));
+  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
+    if ( !term && notEmpty ) return [];
+    let result: Suggestion[] = [];
+    for ( let [id, name] of dashboards ) {
+      name = name[0];
+      let index = name.toLowerCase().search(term.toLowerCase());
+      if ( index < 0 ) continue;
+      let data = {info: hightlight ? 'Tableau' : '', dashboard: id};
+      result.push(!index ?
+        [term, name.slice(term.length), data] :
+        ['', name, data])
+    }
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
+  }
+};
+
+function searchAll(...fields: string[]): SearchFunction {
+  let functions: SearchFunction[] = fields.map(field => searchField(field));
+  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
+    let result: Suggestion[] = [];
+    for ( let i = 0; i < fields.length; i++ ) {
+      let field = fields[i],
+        partial = functions[i](term, notEmpty);
+      partial.forEach(suggestion => { if ( !suggestion[2].info ) suggestion[2].info = field});
+      Array.prototype.push.apply(result, partial);
+    }
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
+  };
+};
+
+function combineResults(functions: SearchFunction[], notEmpty: boolean = true, sort: boolean = true) {
+  return (term: string) => {
+    let result = functions.map(f => f(term, notEmpty)).flat();
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result
   }
 };
 
@@ -39,30 +102,30 @@ function searchDépartement(_: any): SearchFunction {
 })
 export class SearchService {
 
-  static findFieldName(pretty: string) {
-    //try in geo tree and then in trade tree
+  static findFieldName(pretty: string): [string, boolean] {
+    //try in geo tree and then in trade tree, true is for geotree
     for ( let level of DataExtractionHelper.geoLevels )
       if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return level[DataExtractionHelper.LABEL_INDEX];
+        return [level[DataExtractionHelper.LABEL_INDEX], true];
     
     for ( let level of DataExtractionHelper.tradeLevels )
       if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return level[DataExtractionHelper.LABEL_INDEX];
+        return [level[DataExtractionHelper.LABEL_INDEX], false];
     
     throw 'No data to search ' + pretty;
   }
 
-  static findFieldHeight(pretty: string) {
+  static findFieldHeight(pretty: string): [number, boolean] {
     //try in geo tree and then in trade tree
     let levels = DataExtractionHelper.geoLevels;
     for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
       if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return i;
+        return [i, true];
     
     levels = DataExtractionHelper.tradeLevels;
     for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
       if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return i;
+        return [i, false];
     
     throw 'No data to search ' + pretty;
   }
@@ -81,40 +144,21 @@ export class SearchService {
   static interpretMatch(level: any): SearchFunction {
     let match = level[3];
     if ( !match ) {
-      let fieldName = SearchService.findFieldName(level[1]),
-        height = SearchService.findFieldHeight(level[1]);
-      
-      return (term: string, notEmpty: boolean = true) => {
-        if ( !term && notEmpty ) return [];
-        let relevantNodes = ((level[2] & this.IS_GEO) ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
-        relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term.toLowerCase()) >= 0);
-        let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-          let index = node.name.toLowerCase().search(term.toLowerCase());
-          if ( index < 0 ) return null;
-          let data = {info: '', geoTree: (level[2] & this.IS_GEO) ? true : false, node: node};
-          return !index ?
-            [term, node.name.slice(term.length), data] :
-            ['', node.name, data]
-        });
-    
-        return result.sort((a, b) =>  b[0].length - a[0].length); //closest to match
-      }
+      return searchField(level[1]);
     } else {
       return match();
     }
   }
 
-  static OPENMENU = {}; //used as a token
-
-  INTEGER = /[0-9]+/g;
-
   levels: [MatchFunction, string, number, any?][] = [
-    [SearchService.ruleFromRegexp(/Nat?i?o?n?a?l?/i), 'National', SearchService.IS_REDIRECTION, SearchService.genericRuleMatch],
-    [SearchService.ruleFromRegexp(/R[ée]g?i?o?n?/i), 'Région', SearchService.IS_PATTERN | SearchService.IS_GEO],
-    [SearchService.ruleFromRegexp(/(?:Sec?t?e?u?r?)|(?:Age?n?t?)/i), 'Secteur', SearchService.IS_PATTERN | SearchService.IS_GEO],
-    [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN | SearchService.IS_GEO, searchDépartement],
-    [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN | SearchService.IS_GEO],
-    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Enseigne', SearchService.IS_PATTERN]
+    [SearchService.ruleFromRegexp(/Tou?s?/i), 'Tous', SearchService.IS_PATTERN, () => combineResults([searchAll('Région', 'Secteur', 'Département', 'Bassin', 'Enseigne', 'Ensemble', 'Sous-Ensemble'), searchDashboard(true)])],
+    [SearchService.ruleFromRegexp(/(?:Nat?i?o?n?a?l?)|(?:Fra?n?c?e?)/i), 'National', SearchService.IS_REDIRECTION],
+    [SearchService.ruleFromRegexp(/R[ée]g?i?o?n?/i), 'Région', SearchService.IS_PATTERN],
+    [SearchService.ruleFromRegexp(/(?:Sec?t?e?u?r?)|(?:Age?n?t?)/i), 'Secteur', SearchService.IS_PATTERN],
+    [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN, searchDépartement],
+    [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN],
+    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Enseigne', SearchService.IS_PATTERN],
+    [SearchService.ruleFromRegexp(/(?:Bord?)|(?:Table?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard]
   ];
 
   addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {
@@ -126,7 +170,6 @@ export class SearchService {
 
   static IS_PATTERN = 1;
   static IS_REDIRECTION = 2;
-  static IS_GEO = 4;
 
   private mode: number = SearchService.FIND_PATTERN;
   private customSearch: SearchFunction | null = null;
@@ -141,7 +184,9 @@ export class SearchService {
     return true;
   }
 
-  constructor() { }
+  constructor() {
+    (window as any).search = searchDashboard;
+  }
 
   search(term: string, ...args: any[]): Suggestion[] {
     let result = this.mode == SearchService.FIND_PATTERN ?
@@ -151,7 +196,7 @@ export class SearchService {
   }
 
   patternSearch(term: string): Suggestion[] {
-    return this.levelSearch(term.replace(this.INTEGER, ''));
+    return this.levelSearch(term);
   }
 
   instanceSearch(term: string, ...args: any[]): Suggestion[] {
