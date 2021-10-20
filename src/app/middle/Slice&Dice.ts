@@ -300,7 +300,7 @@ export class PDV{
   get targetFinition(){
     let target = this.attribute('target');
     if (target == undefined) return 0;
-    return target[DataExtractionHelper.TARGET_FINITION_ID]
+    return target[DataExtractionHelper.TARGET_FINITIONS_ID]
   }
 
   static getInstances(): Map<number, PDV> {

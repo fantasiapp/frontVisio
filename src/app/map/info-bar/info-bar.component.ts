@@ -37,11 +37,11 @@ export class InfoBarComponent {
       this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
-      this.redistributedEnduitDisabled = !value.attribute('redistributedEnduit') || !this.noSales();
+      this.redistributedFinitionsDisabled = !value.attribute('redistributedFinition') || !this.noSales();
       this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
-      // this.redistributedEnduitChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED__ENDUIT_ID] : false) || !value.attribute('redistributedEnduit');
+      this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinition');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
@@ -81,11 +81,12 @@ export class InfoBarComponent {
   TARGET_REDISTRIBUTED_ID;
   TARGET_SALE_ID;
   TARGET_COMMENT_ID;
+  TARGET_REDISTRIBUTED_FINITIONS_ID: any;
 
   redistributedDisabled: boolean = false;
   redistributedChecked: boolean = false;
-  redistributedEnduitDisabled: boolean = false;
-  redistributedEnduitChecked: boolean = false;
+  redistributedFinitionsDisabled: boolean = false;
+  redistributedFinitionsChecked: boolean = false;
   doesntSellDisabled: boolean = false;
   doesntSellChecked: boolean = false;
   showNavigation: boolean = false;
@@ -236,12 +237,12 @@ export class InfoBarComponent {
       this.hasChanged = true;
     }
   }
-  changeRedistributedEnduit() {
-    if(!this.redistributedEnduitDisabled){
-      this.redistributedEnduitChecked = !this.redistributedEnduitChecked
-      this.showNavigation = this.doesntSellChecked != true && this.redistributedEnduitChecked!=true
+  changeRedistributedFinitions() {
+    if(!this.redistributedFinitionsDisabled){
+      this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
+      this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
       if(!this.target) this.target = SliceTable.initializeTarget()
-      // this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ENDUIT_ID] = !this.target[this.TARGET_REDISTRIBUTED_ENDUIT_ID]
+      this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
       this.hasChanged = true;
     }
   }

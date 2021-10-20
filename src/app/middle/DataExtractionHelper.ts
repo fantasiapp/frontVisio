@@ -138,8 +138,9 @@ class DataExtractionHelper{
   static TARGET_REDISTRIBUTED_ID: number;
   static TARGET_SALE_ID: number;
   static TARGET_VOLUME_ID: number;
-  static TARGET_FINITION_ID: number;
+  static TARGET_FINITIONS_ID: number;
   static TARGET_LIGHT_ID: number;
+  static TARGET_REDISTRIBUTED_FINITIONS_ID: number;
   static TARGET_COMMENT_ID: number;
   static SALE_INDUSTRY_ID: number;
   static SALE_PRODUCT_ID: number;
@@ -191,9 +192,10 @@ class DataExtractionHelper{
     this.TARGET_REDISTRIBUTED_ID = this.data["structureTarget"].indexOf("redistributed");
     this.TARGET_SALE_ID = this.data["structureTarget"].indexOf("sale");
     this.TARGET_VOLUME_ID = this.data["structureTarget"].indexOf("targetP2CD");
-    this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
+    this.TARGET_FINITIONS_ID = this.data["structureTarget"].indexOf("targetFinitions");
     this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
+    this.TARGET_REDISTRIBUTED_FINITIONS_ID = this.data["structureTarget"].indexOf("redistributedFinitions");
     this.SALES_ID = this.getKeyByValue(this.data['structurePdvs'], 'sales');
     this.SALES_DATE_ID = this.data['structureSales'].indexOf('date');
     this.SALES_INDUSTRY_ID = this.data['structureSales'].indexOf('industry');
@@ -233,7 +235,7 @@ class DataExtractionHelper{
   }
 
   static updateData(data: UpdateData) {
-    // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
+    // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
 
     // Check how deletions are managed 
     //update this.pdv
@@ -241,8 +243,8 @@ class DataExtractionHelper{
     for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
           this.data.pdvs[newPdvId] = newPdv;
     }
-  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
-    for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
+  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinitions, this.targetLevelDrv,
+    for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinitions', 'targetLevelDrv']) {
       for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
             this.data[targetType][newTargetId] = newTarget;
       }
@@ -360,9 +362,9 @@ class DataExtractionHelper{
 
   static getTarget(level='national', id:number, targetType:string){
     if (level == 'Secteur'){
-      if (targetType == 'volFinition'){
-        let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelAgentFinition").indexOf(targetType);
-        return DataExtractionHelper.get("targetLevelAgentFinition")[id][targetTypeId];
+      if (targetType == 'volFinitions'){
+        let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelAgentFinitions").indexOf(targetType);
+        return DataExtractionHelper.get("targetLevelAgentFinitions")[id][targetTypeId];
       }
       let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelAgentP2CD").indexOf(targetType);
       return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];

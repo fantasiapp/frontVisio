@@ -111,7 +111,7 @@ export class SliceTable {
         'checkboxEnduit': (pdv: any) => {
             let target = this.getPdvInstance(pdv)!.attribute('target')    
             if(!target) return false;
-            return target[DataExtractionHelper.TARGET_FINITION_ID]>0;
+            return target[DataExtractionHelper.TARGET_FINITIONS_ID]>0;
         },
         'checkboxP2cd': (pdv: any) => null,
 
@@ -229,15 +229,15 @@ export class SliceTable {
         return [Math.floor(Date.now()/1000), true, true, 0, false, "r", ""]
       }
 
-    changeTargetTargetFinition(pdv: {[field: string]: any}) {
+    changeTargetTargetFinitions(pdv: {[field: string]: any}) {
         if(!pdv['target']) pdv['target'] = SliceTable.initializeTarget()
         if(pdv['potential'] > 0) {
             if(pdv['checkboxEnduit']) {
                 this.updateTotalTarget(pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = pdv['potential']
+                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = pdv['potential']
             } else {
                 this.updateTotalTarget(-pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = 0
+                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = 0
             }
         }
         this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'], true)

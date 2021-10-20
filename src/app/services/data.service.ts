@@ -13,7 +13,7 @@ import { Snapshot, structureSnapshot } from '../behaviour/logger.service';
 
 export const enum UpdateFields {
   targetLevelAgentP2CD = "targetLevelAgentP2CD",
-  targetLevelAgentFinition = "targetLevelAgentFinition",
+  targetLevelAgentFinition = "targetLevelAgentFinitions",
   targetLevelDrv = "targetLevelDrv",
   pdvs = "pdvs",
   logs = "logs"
@@ -47,7 +47,7 @@ export class DataService {
         })
       )
       .subscribe((data) => {
-        console.log(data);
+        console.log("RequestData successfull")
         this.response.next(data);
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
@@ -73,19 +73,19 @@ export class DataService {
     });
   }
 
-  private dataToUpdate:UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
-  private queuedDataToUpdate: UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+  private dataToUpdate:UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+  private queuedDataToUpdate: UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
 
   public updatePdv(pdv: any[], id: number, fromTable: boolean = false) {
     this.dataToUpdate['pdvs'][id] = pdv;
     this.sendDataToUpdate(this.dataToUpdate, fromTable);
-    this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+    this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
   }
 
   updateTargetLevel(targetLevel: number[], targetLevelName: UpdateFields, id: number) {
     this.dataToUpdate[targetLevelName][id] = targetLevel;
     this.sendDataToUpdate(this.dataToUpdate);
-    this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+    this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
   }
 
   // public updateData(data: UpdateData) { //then sends immediate changes to the back, and the logs, sends the queuedData to the back 
@@ -102,9 +102,7 @@ export class DataService {
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
-      , {params : {"action" : "update"}}).subscribe((response: any) => {this.localStorage.removeQueueUpdate(); this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};})
-      DataExtractionHelper.updateData(this.queuedDataToUpdate);
-      this.update.next();    
+      , {params : {"action" : "update"}}).subscribe((response: any) => {this.localStorage.removeQueueUpdate(); this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};})
     }
   }
   public queueSnapshot(snapshot: Snapshot) {
@@ -135,7 +133,7 @@ export class DataService {
 
   queueUpdate(dict: UpdateData) {
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
-    if(!this.queuedDataToUpdate) this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+    if(!this.queuedDataToUpdate) this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
     for(let [field, updates] of Object.entries(dict)) {
       for(let [id, update] of Object.entries(updates)) {
         this.queuedDataToUpdate[field as UpdateFields][+id] = update;
