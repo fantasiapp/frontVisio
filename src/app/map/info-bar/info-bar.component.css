@@ -1,6 +1,6 @@
 :host {
-    --info-bar-width: 700px;
-    --info-bar-max-width: 700px;
+    --info-bar-width: 60%;
+    --info-bar-max-width: 1000px;
     --info-bar-padding-y: 50px;
     --info-bar-padding-x: 40px;
     --info-bar-margin-y: 20px;
@@ -19,7 +19,6 @@
     width: var(--info-bar-width);
     max-width: var(--info-bar-max-width);
     height: calc(100% - var(--info-bar-margin-y) - var(--navigation-height));
-    padding: var(--info-bar-padding-y) var(--info-bar-padding-x);
     top: 10px;
     right: calc(-1*var(--info-bar-width) - 5px);
     background: white;
@@ -33,14 +32,20 @@
     border-radius: 3px;
     overflow: auto;
     user-select: none;
+    z-index: 2
 }
 
 :host(.opened) {
     right: 0;
 }
 
-.on-top-div {
-    z-index: 9999;
+:host * {
+    z-index: 2;
+    background: white;
+}
+.only-for-padding {
+    padding: var(--info-bar-padding-y) var(--info-bar-padding-x);
+    height: 100%;
 }
 
 ul, hr {
@@ -55,6 +60,7 @@ ul, hr {
     height: 100vh;
     background-color: rgba(247, 247, 247, 0.5);
     display: none;
+    z-index: 1;
 }
 
 .nav ul {
@@ -524,7 +530,7 @@ input[type=number] {
     top: 0; left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 9999;
+    z-index: 3;
 }
 
 .quitbar {
