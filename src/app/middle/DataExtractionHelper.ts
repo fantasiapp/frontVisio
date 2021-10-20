@@ -1,7 +1,7 @@
-import { PDV, SliceDice } from "./Slice&Dice";
+import {PDV} from "./Slice&Dice";
 import {Node, Tree} from "./Node"
-import { LocalStorageService } from "../services/local-storage.service";
-import { UpdateData } from "../services/data.service";
+import {LocalStorageService} from "../services/local-storage.service";
+import {UpdateData} from "../services/data.service";
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -371,6 +371,7 @@ class DataExtractionHelper{
   static getTarget(level='national', id:number, dn=false, finition=false){
     let targetType = dn ? "dn": "vol";
     let targetTypeId:number = DataExtractionHelper.get("structureTargetLevel").indexOf(targetType);
+    if (level == "agentFinitions") return DataExtractionHelper.get("targetLevelAgentFinition")[id][targetTypeId];
     if (finition && level == 'Région'){
       let finitionAgentsids = DataExtractionHelper.findFinitionAgentsOfDrv(id, true),
         targetsAgentFinition = DataExtractionHelper.get("targetLevelAgentFinition");

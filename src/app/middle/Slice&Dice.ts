@@ -906,18 +906,16 @@ class SliceDice{
       let dn = indicator == 'dn';
       let node = DataExtractionHelper.followSlice(slice);      
       if(typeof(sum) == 'number'){
-        let targetValue:number;      
-        if (node.label == 'France') targetValue = DataExtractionHelper.getTarget("", 0, dn, finition); // faire une seule ligne avec ça
-        else targetValue = DataExtractionHelper.getTarget(node.label, node.id, dn, finition);        
+        let targetValue = DataExtractionHelper.getTarget(node.label, node.id, dn, finition);      
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
-        let targetValues = DataExtractionHelper.getListTarget((node.children[0] as Node).label, elemIds, dn, finition);
+        let targetValues = DataExtractionHelper.getListTarget(finition ? "agentFinitions": (node.children[0] as Node).label, elemIds, dn, finition);
         for (let i = 0; i < targetValues.length; i++) rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
-        if (node.label == 'France' && !finition){
+        if (node.label == 'France' && !finition){ // This is to calculate the position of the ciblage rods
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
           let ciblageValues = agentNodesMatrix.map((agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, dn)).reduce((acc:number, value:number) => acc + value, 0));
@@ -926,7 +924,8 @@ class SliceDice{
         }
       }// à modifier probablement
       targetLevel['volumeIdentifier'] = dn ? "dn": "vol";
-      if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
+      if(finition) targetLevel['name'] = "targetLevelAgentFinition";
+      else if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
       else if(node.label === 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
       else targetLevel['name'] = 'targetLevel'
       targetLevel['structure'] = "structureTargetLevel";
