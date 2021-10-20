@@ -28,7 +28,6 @@ export class FiltersStatesService {
     });
   }
 
-  $path: BehaviorSubject<{}> = new BehaviorSubject({});
   $load: AsyncSubject<never> = new AsyncSubject();
 
   stateSubject = new BehaviorSubject({
@@ -100,16 +99,10 @@ export class FiltersStatesService {
     if ( emit ) {
       this.stateSubject.next(currentState);
       this.arraySubject.next(currentArrays);
-      this.$path.next(this.getPath(currentState.States));
     }
-    // if ( this.navigation.currentLevel ) {
-    //   /* Rework this */
-    //   if ( emit )
-    //     this.$path.next(this.getPath(currentState.States));
-    // }
   }
 
-  private getPath(States: any) {
+  getPath(States: any) {
     let path = States._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
       acc[level[0]]=level[1];
       return acc;
@@ -139,7 +132,6 @@ export class FiltersStatesService {
     this.logger.actionComplete();
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
-    this.$path.next(path);
   }
 
   //this makes GridManager.refresh a bit silly
@@ -162,7 +154,8 @@ export class FiltersStatesService {
     this.sliceDice.geoTree = this.tree!.type == NavigationExtractionHelper;
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
-    this.$path.next(this.getPath(States));
+    // $stateSubject must be changed after all elements are destroyed
+    // the error doesn't crash the app
   }
 
   canSub() {

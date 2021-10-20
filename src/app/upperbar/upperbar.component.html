@@ -5,7 +5,7 @@
         <mat-icon class="expand-icon">expand_more</mat-icon></div>
   </div>
 
-  <div class="ens-org">
+  <div class="ens-org" [style.visibility]="mapComponent?.shown ? 'hidden' : 'visible'">
     <span
       ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
     >
@@ -17,7 +17,6 @@
       class="input-range"
       [value]="sldValue"
       (click)="toggle();"
-      [disabled]="mapComponent?.shown ? true : false"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">

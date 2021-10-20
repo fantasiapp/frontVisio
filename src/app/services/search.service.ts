@@ -13,18 +13,20 @@ function filterMap<U, V = U>(array: U[], filterMap: FilterMapFunction<U, V>): V[
   return array.map(filterMap).filter(x => x) as unknown as V[];
 }
 
+//Département names can be duplicates
 function searchDépartement(): SearchFunction {
   let [height,] = SearchService.findFieldHeight('Département');
   
-  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
-    if ( !term && notEmpty ) return [];
+  return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    if ( !term && showAll || height < 0 ) return [];
+    term = term.toLowerCase();
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.search(term) >= 0);
+    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term) >= 0);
 
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-      let index = node.name.search(term);
+      let index = node.name.toLowerCase().search(term);
       if ( index < 0 ) return null;
-      let data = {info: node.parent ? node.parent.name : 'racine', geoTree: true, node: node};
+      let data = {info: node.parent!.name , geoTree: true, node: node};
       return !index ?
         ['Département ' + term, node.name.slice(term.length), data] :
         ['Département ', node.name, data]
@@ -34,19 +36,44 @@ function searchDépartement(): SearchFunction {
   }
 };
 
+//Bassin names can be duplicaltes
+function searchBassin(): SearchFunction {
+  let [height,] = SearchService.findFieldHeight('Bassin');
+  return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    if ( !term && showAll || height < 0 ) return [];
+    term = term.toLowerCase();
+    let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
+    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term) >= 0);
+
+    let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
+      let index = node.name.toLowerCase().search(term);
+      if ( index < 0 ) return null;
+      let data = {info: node.parent!.parent!.name + ', ' + node.parent!.name, geoTree: true, node: node};
+      return !index ?
+        [term, node.name.slice(term.length), data] :
+        ['', node.name, data]
+    });
+
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
+  }
+};
+
 function searchField(field: string): SearchFunction {
   if ( field == 'Département' )
     return searchDépartement();
+  if ( field == 'Bassin' )
+    return searchBassin();
   
   let [fieldName, isGeo] = SearchService.findFieldName(field),
     [height,] = SearchService.findFieldHeight(field);
     
-  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
-    if ( !term && notEmpty ) return [];
+  return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    if ( !term && showAll || height < 0 ) return [];
+    term = term.toLowerCase();
     let relevantNodes = (isGeo ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term.toLowerCase()) >= 0);
+    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term) >= 0);
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-      let index = node.name.toLowerCase().search(term.toLowerCase());
+      let index = node.name.toLowerCase().search(term);
       if ( index < 0 ) return null;
       let data = {info: '', geoTree: isGeo, node: node};
       return !index ?
@@ -58,16 +85,24 @@ function searchField(field: string): SearchFunction {
   }
 };
 
-function searchDashboard(hightlight: boolean = false): SearchFunction {
-  let dashboards = Object.entries<any>(DataExtractionHelper.get('dashboards'));
-  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
-    if ( !term && notEmpty ) return [];
+function searchDashboard(): SearchFunction {
+  let dashboards = Object.entries<any>(DataExtractionHelper.get('dashboards')),
+    geoDashboards = PDV.geoTree.getAllDashboards(),
+    ids = geoDashboards.map(d => d.id);
+  
+    console.log('ids used in geoTree', ids);
+    console.log('ids used in tradeTree', PDV.tradeTree.getAllDashboards().map(d => d.id));
+    return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    if ( !term && showAll ) return [];
     let result: Suggestion[] = [];
-    for ( let [id, name] of dashboards ) {
+    for ( let [_id, name] of dashboards ) {
+      let id = +_id, index, isGeo, dashboard, data;
       name = name[0];
-      let index = name.toLowerCase().search(term.toLowerCase());
+      index = name.toLowerCase().search(term.toLowerCase());
       if ( index < 0 ) continue;
-      let data = {info: hightlight ? 'Tableau' : '', dashboard: id};
+      isGeo = ids.includes(id);
+      dashboard = isGeo ? geoDashboards.find(d => d.id == id) : PDV.tradeTree.getAllDashboards().find(d => d.id == id);
+      data = {info: isGeo ? 'Org. commercial' : 'Enseigne', geoTree: isGeo, dashboard};
       result.push(!index ?
         [term, name.slice(term.length), data] :
         ['', name, data])
@@ -78,11 +113,11 @@ function searchDashboard(hightlight: boolean = false): SearchFunction {
 
 function searchAll(...fields: string[]): SearchFunction {
   let functions: SearchFunction[] = fields.map(field => searchField(field));
-  return (term: string, notEmpty: boolean = true, sort: boolean = true) => {
+  return (term: string, showAll: boolean = true, sort: boolean = true) => {
     let result: Suggestion[] = [];
     for ( let i = 0; i < fields.length; i++ ) {
       let field = fields[i],
-        partial = functions[i](term, notEmpty);
+        partial = functions[i](term, showAll);
       partial.forEach(suggestion => { if ( !suggestion[2].info ) suggestion[2].info = field});
       Array.prototype.push.apply(result, partial);
     }
@@ -90,9 +125,9 @@ function searchAll(...fields: string[]): SearchFunction {
   };
 };
 
-function combineResults(functions: SearchFunction[], notEmpty: boolean = true, sort: boolean = true) {
-  return (term: string) => {
-    let result = functions.map(f => f(term, notEmpty)).flat();
+function combineResults(functions: SearchFunction[]) {
+  return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    let result = functions.map(f => f(term, showAll)).flat();
     return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result
   }
 };
@@ -112,7 +147,7 @@ export class SearchService {
       if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
         return [level[DataExtractionHelper.LABEL_INDEX], false];
     
-    throw 'No data to search ' + pretty;
+    return ['@none', false];
   }
 
   static findFieldHeight(pretty: string): [number, boolean] {
@@ -127,7 +162,7 @@ export class SearchService {
       if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
         return [i, false];
     
-    throw 'No data to search ' + pretty;
+    return [-1, false];
   }
 
   static ruleFromRegexp(regexp: RegExp): MatchFunction {
@@ -151,12 +186,12 @@ export class SearchService {
   }
 
   levels: [MatchFunction, string, number, any?][] = [
-    [SearchService.ruleFromRegexp(/Tou?s?/i), 'Tous', SearchService.IS_PATTERN, () => combineResults([searchAll('Région', 'Secteur', 'Département', 'Bassin', 'Enseigne', 'Ensemble', 'Sous-Ensemble'), searchDashboard(true)])],
     [SearchService.ruleFromRegexp(/(?:Nat?i?o?n?a?l?)|(?:Fra?n?c?e?)/i), 'National', SearchService.IS_REDIRECTION],
+    [SearchService.ruleFromRegexp(/Tou?s?/i), 'Tous', SearchService.IS_PATTERN, () => combineResults([searchAll('Région', 'Secteur', 'Département', 'Bassin', 'Enseigne', 'Ensemble', 'Sous-Ensemble'), searchDashboard()])],
     [SearchService.ruleFromRegexp(/R[ée]g?i?o?n?/i), 'Région', SearchService.IS_PATTERN],
     [SearchService.ruleFromRegexp(/(?:Sec?t?e?u?r?)|(?:Age?n?t?)/i), 'Secteur', SearchService.IS_PATTERN],
     [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN, searchDépartement],
-    [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN],
+    [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN, searchBassin],
     [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Enseigne', SearchService.IS_PATTERN],
     [SearchService.ruleFromRegexp(/(?:Bord?)|(?:Table?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard]
   ];
@@ -211,7 +246,7 @@ export class SearchService {
 
   findAllPatterns(): Suggestion[] {
     return this.levels.map(level => 
-      ['', level[1], level[2]]
+      [level[1], '', level[2]]
     )
   }
 

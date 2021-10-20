@@ -167,6 +167,7 @@ class DataExtractionHelper{
 
 
   static setData(d: any){
+    console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
     console.log("[DataExtractionHelper] this.data updated")
     let structure = this.data['structureLevel'];
