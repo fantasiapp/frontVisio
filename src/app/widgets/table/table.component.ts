@@ -65,7 +65,6 @@ export class TableComponent extends BasicWidget {
   rowClassRules = {
     'group-row': 'data.groupRow === true',
     'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
-    // 'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow']) return false; return true;},
     'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data) == 'red') return true; return false;}
   }
   frameworkComponents = {
@@ -98,6 +97,7 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
+    console.log("REFRESH")
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
 

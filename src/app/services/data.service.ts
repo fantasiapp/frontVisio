@@ -76,9 +76,9 @@ export class DataService {
   private dataToUpdate:UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
   private queuedDataToUpdate: UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
 
-  public updatePdv(pdv: any[], id: number) {
+  public updatePdv(pdv: any[], id: number, fromTable: boolean = false) {
     this.dataToUpdate['pdvs'][id] = pdv;
-    this.sendDataToUpdate(this.dataToUpdate);
+    this.sendDataToUpdate(this.dataToUpdate, fromTable);
     this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
   }
 
@@ -92,11 +92,11 @@ export class DataService {
   //   this.sendDataToUpdate(data)
   // }
 
-  private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
+  private sendDataToUpdate(data: UpdateData, fromTable: boolean = false) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
     DataExtractionHelper.updateData(data);
-    this.update.next();
+    if(!fromTable) this.update.next();
   }
   private sendQueuedDataToUpdate() { //used to send data every 10 seconds to the back
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();

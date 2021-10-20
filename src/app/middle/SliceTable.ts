@@ -240,7 +240,7 @@ export class SliceTable {
                 pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = 0
             }
         }
-        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
+        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'], true)
     }
 
     updateTotalTarget(increment: number) {
