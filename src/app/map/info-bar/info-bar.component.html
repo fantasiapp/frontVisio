@@ -140,11 +140,11 @@
                         </ul>
                     </div>
                 </div>
-                <div class="container-checkbox" (click)="changeRedistributed()">
+                <label class="container-checkbox">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" [attr.checked]="redistributed == false">
+                    <input type="checkbox" (click)="changeRedistributedEnduit()" [attr.disabled]="redistributedEnduitDisabled" [attr.checked]="redistributedEnduitChecked" agentOnly>
                     <span class="checkmark" ></span>
-                </div>
+                </label>
                 <div class="values-div">
                     <div>
                         <h2>P2CD</h2>
