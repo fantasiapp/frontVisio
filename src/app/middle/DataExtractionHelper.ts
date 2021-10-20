@@ -142,6 +142,7 @@ class DataExtractionHelper{
   static TARGET_LIGHT_ID: number;
   static TARGET_REDISTRIBUTED_FINITIONS_ID: number;
   static TARGET_COMMENT_ID: number;
+  static TARGET_BASSIN_ID: number;
   static SALE_INDUSTRY_ID: number;
   static SALE_PRODUCT_ID: number;
   static SALE_VOLUME_ID: number;  
@@ -199,6 +200,7 @@ class DataExtractionHelper{
     this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
     this.TARGET_REDISTRIBUTED_FINITIONS_ID = this.data["structureTarget"].indexOf("redistributedFinitions");
+    this.TARGET_BASSIN_ID = this.data["structureTarget"].indexOf("bassin");
     this.SALES_ID = this.getKeyByValue(this.data['structurePdvs'], 'sales');
     this.SALES_DATE_ID = this.data['structureSales'].indexOf('date');
     this.SALES_INDUSTRY_ID = this.data['structureSales'].indexOf('industry');

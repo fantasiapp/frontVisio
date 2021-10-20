@@ -23,7 +23,7 @@
                                 <li><span>Enseigne : </span>{{ displayedInfos.enseigne }}</li>
                                 <li><span>Département : </span>{{ displayedInfos.dep }}</li>
                                 <li><span>Ville : </span>{{ displayedInfos.ville }}</li>
-                                <li><span>Bassin : </span><input [value]="displayedInfos.bassin" (change)="changeTargetBassin($event)"></li>
+                                <li><span>Bassin : </span><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></li>
                             </ul>
                         </div>
                         <div class="props">

@@ -37,11 +37,11 @@ export class InfoBarComponent {
       this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
-      this.redistributedFinitionsDisabled = !value.attribute('redistributedFinition') || !this.noSales();
+      this.redistributedFinitionsDisabled = !value.attribute('redistributedFinitions');
       this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
-      this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinition');
+      this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinitions');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
@@ -119,7 +119,7 @@ export class InfoBarComponent {
       enseigne: DataExtractionHelper.get('enseigne')[this._pdv!.attribute('enseigne')],
       dep: DataExtractionHelper.get('dep')[this._pdv!.attribute('dep')],
       ville: DataExtractionHelper.get('ville')[this._pdv!.attribute('ville')],
-      bassin: DataExtractionHelper.get('bassin')[this._pdv!.attribute('bassin')],
+      bassin: this.target[DataExtractionHelper.TARGET_BASSIN_ID] || DataExtractionHelper.get('bassin')[this._pdv!.attribute('bassin')],
       clientProspect: pdv!.clientProspect() || "Non documenté"
     }
   }
@@ -238,6 +238,7 @@ export class InfoBarComponent {
     }
   }
   changeRedistributedFinitions() {
+    console.log("d")
     if(!this.redistributedFinitionsDisabled){
       this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
@@ -257,7 +258,6 @@ export class InfoBarComponent {
     }
     this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
     this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID])
-    console.log("newTargetFormatted : ", this.targetP2cdFormatted)
     this.hasChanged = true;
   }
 
@@ -269,12 +269,13 @@ export class InfoBarComponent {
     this.hasChanged = true;
   }
 
-  changeTargetBassin(event: any) {
-    let newBassin = event.target.value;
-    // if(newBassin!) this.displayedInfos.bassin = this.target[DataExtractionHelper.TARGET_BASSIN_ID] || this._pdv!.attribute('bassin');
-    // if(!this.target) this.target = SliceTable.initializeTarget()
-    // this.target[DataExtractionHelper.TARGET_BASSIN_ID] = event.target.value;
-    // this.hasChanged = true;
+  changeTargetBassin() {
+    if(!this.displayedInfos.bassin) this.displayedInfos.bassin = DataExtractionHelper.get('bassin')[this.target[DataExtractionHelper.TARGET_BASSIN_ID]] || DataExtractionHelper.get('bassin')[this._pdv!.attribute('bassin')];
+    else {
+      if(!this.target) this.target = SliceTable.initializeTarget()
+      this.target[DataExtractionHelper.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
+      this.hasChanged = true;
+    }
   } 
 
   changeLight(newLightValue: string) {
