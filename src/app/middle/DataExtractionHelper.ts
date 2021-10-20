@@ -372,15 +372,15 @@ class DataExtractionHelper{
 
   static getTarget(level='national', id:number, dn=false, finition=false){
     let targetType = dn ? "dn": "vol";
-    let targetTypeId:number = DataExtractionHelper.get("structureTargetLevel").indexOf(targetType);
-    if (level == "agentFinitions") return DataExtractionHelper.get("targetLevelAgentFinition")[id][targetTypeId];
+    let targetTypeId:number = DataExtractionHelper.get("structureTargetlevel").indexOf(targetType);
+    if (level == "agentFinitions") return DataExtractionHelper.get("targetLevelAgentFinitions")[id][targetTypeId];
     if (finition && level == 'Région'){
       let finitionAgentsids = DataExtractionHelper.findFinitionAgentsOfDrv(id, true),
-        targetsAgentFinition = DataExtractionHelper.get("targetLevelAgentFinition");
+        targetsAgentFinition = DataExtractionHelper.get("targetLevelAgentFinitions");
       return finitionAgentsids.reduce((acc, id) => acc + targetsAgentFinition[id][targetTypeId], 0);
     }
     if (finition){
-      let targetsAgentFinition = Object.values(DataExtractionHelper.get("targetLevelAgentFinition"));
+      let targetsAgentFinition = Object.values(DataExtractionHelper.get("targetLevelAgentFinitions"));
       return targetsAgentFinition.reduce((acc, target:any) => acc + target[targetTypeId], 0);
     }
     if (level == 'Secteur') return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
