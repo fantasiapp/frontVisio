@@ -136,7 +136,7 @@ export class SearchbarComponent implements OnDestroy {
         this.navigation.setDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
         this.filtersState.refresh();
       }
-      else throw "not yet";
+      else { return console.error("Not yet"); }
     }
 
     this.results.next(this.lastResults = []);

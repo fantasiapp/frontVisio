@@ -90,16 +90,19 @@ function searchDashboard(): SearchFunction {
     geoDashboards = PDV.geoTree.getAllDashboards(),
     ids = geoDashboards.map(d => d.id);
   
-  return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    console.log('ids used in geoTree', ids);
+    console.log('ids used in tradeTree', PDV.tradeTree.getAllDashboards().map(d => d.id));
+    return (term: string, showAll: boolean = true, sort: boolean = true) => {
     if ( !term && showAll ) return [];
     let result: Suggestion[] = [];
     for ( let [_id, name] of dashboards ) {
-      let id = +_id;
+      let id = +_id, index, isGeo, dashboard, data;
       name = name[0];
-      let index = name.toLowerCase().search(term.toLowerCase());
+      index = name.toLowerCase().search(term.toLowerCase());
       if ( index < 0 ) continue;
-      let isGeo = ids.includes(id);
-      let data = {info: isGeo ? 'Org. commercial' : 'Enseigne', geoTree: isGeo, dashboard: isGeo ? geoDashboards.find(d => d.id == id) : PDV.tradeTree.getAllDashboards().find(d => d.id == id)};
+      isGeo = ids.includes(id);
+      dashboard = isGeo ? geoDashboards.find(d => d.id == id) : PDV.tradeTree.getAllDashboards().find(d => d.id == id);
+      data = {info: isGeo ? 'Org. commercial' : 'Enseigne', geoTree: isGeo, dashboard};
       result.push(!index ?
         [term, name.slice(term.length), data] :
         ['', name, data])

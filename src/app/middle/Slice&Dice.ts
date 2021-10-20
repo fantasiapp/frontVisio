@@ -910,11 +910,11 @@ class SliceDice{
         }
       }// à modifier probablement
       targetLevel['volumeIdentifier'] = dn ? "dn": "vol";
-      if(finition) targetLevel['name'] = "targetLevelAgentFinition";
+      if(finition) targetLevel['name'] = "targetLevelAgentFinitions";
       else if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
       else if(node.label === 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
       else targetLevel['name'] = 'targetLevel'
-      targetLevel['structure'] = "structureTargetLevel";
+      targetLevel['structure'] = "structureTargetlevel";
     }
     if (typeof(sum) !== 'number') sum = 0;
     return {data: dataWidget.formatWidget(transpose), 

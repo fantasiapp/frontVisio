@@ -82,6 +82,9 @@ export class LoggerService {
     }
 
     this.change = this.setValue(key, result);
+    setTimeout(() => {
+      console.log('[Logger] snapshot:', this.snapshot)
+    }, 0);
     return key;
   }
 
