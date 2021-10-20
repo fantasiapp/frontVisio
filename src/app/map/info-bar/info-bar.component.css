@@ -23,7 +23,6 @@
     top: 10px;
     right: calc(-1*var(--info-bar-width) - 5px);
     background: white;
-    z-index: 9999;
     margin-top: var(--info-bar-margin-y);
     display: flex;
     flex-flow: column nowrap;
@@ -40,6 +39,9 @@
     right: 0;
 }
 
+.side-div {
+    z-index: 9999;
+}
 
 ul, hr {
     margin: 0;
@@ -52,7 +54,7 @@ ul, hr {
     width: 100vw;
     height: 100vh;
     background-color: rgba(247, 247, 247, 0.5);
-    z-index: -1;
+    display: none;
 }
 
 .nav ul {
@@ -87,7 +89,6 @@ ul, hr {
     top: calc(-1*var(--navigation-ball-size) - 0.5em);
     transform: translateX(-50%);
     background: white;
-    z-index: 1;
 }
 
 .nav ul li.selected::before {
@@ -524,10 +525,10 @@ input[type=number] {
     top: 0; left: 0;
     width: 100vw;
     height: 100vh;
+    z-index: 9999;
 }
 
 .quitbar {
-    z-index: 99999;
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);

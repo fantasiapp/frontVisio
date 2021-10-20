@@ -246,9 +246,14 @@ export class TableComponent extends BasicWidget {
         this.selectedPdv = event['data'];
       }
       if(event['column']['colId'] === 'info') {
+        
+        this.pdv = this.sliceTable.getPdvInstance(event['data'])
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+        InfoBarComponent.pdvId = event['data'].instanceId;
         this.selectedPdv = event['data'];
-        this.showInfoOnClick(this.selectedPdv);
-        this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
+        // this.selectedPdv = event['data'];
+        // this.showInfoOnClick(this.selectedPdv);
+        // this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
       }
       if(event['column']['colId'] === 'checkboxEnduit') {
         this.updateTitle()

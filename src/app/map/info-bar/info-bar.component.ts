@@ -41,6 +41,7 @@ export class InfoBarComponent {
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
+      this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
       this.isOnlySiniat = value.attribute('onlySiniat')
       this.loadGrid()
@@ -78,6 +79,7 @@ export class InfoBarComponent {
   redistributedChecked: boolean = false;
   doesntSellDisabled: boolean = false;
   doesntSellChecked: boolean = false;
+  showNavigation: boolean = false;
 
 
   industryIdToIndex : {[industryId: number]: number} = {}
@@ -219,6 +221,7 @@ export class InfoBarComponent {
   changeRedistributed() {
     if(!this.redistributedDisabled){
       this.redistributedChecked = !this.redistributedChecked
+      this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.hasChanged = true;
@@ -298,6 +301,7 @@ export class InfoBarComponent {
     if(!this.doesntSellDisabled){
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.doesntSellChecked = !this.doesntSellChecked;
+      this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
       this.target[this.TARGET_LIGHT_ID] = 'r'
       this.hasChanged = true;
