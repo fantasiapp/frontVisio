@@ -57,7 +57,7 @@ export class HistoRowComponent extends BasicWidget {
     return Math.round(max);
   }
 
-  maxTicks = 11;
+  maxTicks = 6;
   private getTickValues() {
     let t = this.maxTicks - 1,
       exp = Math.round(Math.log(this.maxValue) / Math.log(10))-1,

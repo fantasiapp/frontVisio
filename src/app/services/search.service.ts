@@ -90,8 +90,6 @@ function searchDashboard(): SearchFunction {
     geoDashboards = PDV.geoTree.getAllDashboards(),
     ids = geoDashboards.map(d => d.id);
   
-    console.log('ids used in geoTree', ids);
-    console.log('ids used in tradeTree', PDV.tradeTree.getAllDashboards().map(d => d.id));
     return (term: string, showAll: boolean = true, sort: boolean = true) => {
     if ( !term && showAll ) return [];
     let result: Suggestion[] = [];
