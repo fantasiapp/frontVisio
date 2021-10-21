@@ -6,9 +6,9 @@
     --info-bar-margin-y: 20px;
     --navigation-height: 40px;
     --navigation-ball-size: 30px;
-    --pdv-title-margin-y: 35px;
+    --pdv-title-margin-y: 2.19em;
     --pdv-fields-margin-y: 12.5px;
-    --pdv-fields-margin-bottom: 25px;
+    --pdv-fields-margin-bottom: 1.56em;
     --pdv-props-margin-y: 20px;
     --pdv-comment-margin-y: 20px;
     --pdv-section-margin-y: 30px;
@@ -64,7 +64,7 @@ ul, hr {
 }
 
 .nav {
-    padding-bottom: 33px;
+    padding-bottom: 2em;
 }
 .nav ul {
     display: flex;
@@ -163,9 +163,9 @@ ul, hr {
     flex-grow: 1;
 }
 .main ul li p, input {
-    font: 300 16px Roboto, sans-serif;
+    font: 300 1em Roboto, sans-serif;
     position: relative;
-    top: 4px;
+    top: 0.25em;
 }
 
 .name {
@@ -175,7 +175,7 @@ ul, hr {
 
 .content .name {
     padding-bottom: var(--pdv-fields-margin-bottom);
-    font: 500 24px Roboto, sans-serif;
+    font: 500 1.25em Roboto, sans-serif;
 }
 
 .definition, .props {
