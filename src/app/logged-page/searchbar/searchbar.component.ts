@@ -80,7 +80,7 @@ export class SearchbarComponent implements OnDestroy {
   @HostListener('focusout', ['$event'])
   private onFocusOut(e: Event) {
     setTimeout(() => {
-      this.results.next(this.lastResults = []);
+      this.term.next(this.input!.nativeElement.value = this.lastTerm = '');
     }, 150);
   }
 

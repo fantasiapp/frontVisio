@@ -13,17 +13,26 @@
         <ng-container *ngIf="pdv">
             <ng-container *ngIf="currentIndex == 0">
                 <div class="main">
-                    <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.attribute('name')}}</span></h2>
                     <div class="reference">
                         <div class="definition">
                             <ul>
-                                <li><span>Point de vente : </span>{{ displayedInfos.name }}</li>
-                                <li><span>Agent : </span>{{ displayedInfos.agent }}</li>
-                                <li><span>Segment : </span>{{ displayedInfos.segmentMarketing }}</li>
-                                <li><span>Enseigne : </span>{{ displayedInfos.enseigne }}</li>
-                                <li><span>Département : </span>{{ displayedInfos.dep }}</li>
-                                <li><span>Ville : </span>{{ displayedInfos.ville }}</li>
-                                <li><span>Bassin : </span><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></li>
+                                <li><span>Point de vente : </span></li>
+                                <li><span>Agent : </span></li>
+                                <li><span>Segment : </span></li>
+                                <li><span>Enseigne : </span></li>
+                                <li><span>Département : </span></li>
+                                <li><span>Ville : </span></li>
+                                <li><span>Bassin : </span></li>
+                            </ul>
+                            <ul>
+                                <li><p>{{ displayedInfos.name }}</p></li>
+                                <li><p>{{ displayedInfos.agent }}</p></li>
+                                <li><p>{{ displayedInfos.segmentMarketing }}</p></li>
+                                <li><p>{{ displayedInfos.enseigne }}</p></li>
+                                <li><p>{{ displayedInfos.dep }}</p></li>
+                                <li><p>{{ displayedInfos.ville }}</p></li>
+                                <li><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></li>
                             </ul>
                         </div>
                         <div class="props">
@@ -50,26 +59,27 @@
 
             <ng-container *ngIf="currentIndex == 1">
                 <div class="main">
-                    <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.attribute('name')}}</span></h2>
                     <!-- <p>information sur la point de vente</p> -->
                     <div class="content">
+                        <div class="name">Général</div>
                         <div class="definition">
-                            <div class="name">Général</div>
                             <ul>
-                                <li><span>Agent : </span>{{ displayedInfos.agent }}</li>
-                                <li><span>Enseigne : </span>{{ displayedInfos.enseigne }}</li>
-                                <li><span>Département : </span>{{ displayedInfos.dep }}</li>
-                                <li><span>Client prospect : </span>{{ displayedInfos.clientProspect }}</li>
-                                <li><span>Segmentation marketing : </span>{{ displayedInfos.segmentMarketing }}</li>
-                                <li><span>Segmentation portefeuille : </span>{{ displayedInfos.segmentCommercial }}</li>
+                                <li><span>Agent : </span><label>{{ displayedInfos.agent }}</label></li>
+                                <li><span>Enseigne : </span><label>{{ displayedInfos.enseigne }}</label></li>
+                                <li><span>Département : </span><label>{{ displayedInfos.dep }}</label></li>
+                                <li><span>Client prospect : </span><label>{{ displayedInfos.clientProspect }}</label></li>
+                                <li><span>Segmentation marketing : </span><label>{{ displayedInfos.segmentMarketing }}</label></li>
+                                <li><span>Segmentation portefeuille : </span><label>{{ displayedInfos.segmentCommercial }}</label></li>
                             </ul>
                         </div>
-
-                        <div class="definition" *ngIf="getSalesVolumes().length">
-                            <div class="name">Volumes de vente par marque en m²</div>
-                            <ul>
-                                <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} : </span>{{myFormatNumberToString(entry[1])}} m²</li>
-                            </ul>
+                        <div *ngIf="getSalesVolumes().length">
+                           <div class="name">Volumes de vente par marque en m²</div>
+                            <div class="definition">
+                                <ul>
+                                    <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} : </span>{{myFormatNumberToString(entry[1])}} m²</li>
+                                </ul>
+                            </div>
                         </div>
 
                         <div class="eval">
@@ -112,7 +122,7 @@
                             <div class="row" *ngFor="let industry of industries; let j = index">
                                 <div class="first cell">{{industry | titlecase}}</div>
                                 <div class="cell" *ngFor="let product of products; let i = index">
-                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j+1][i]" accessControl agentOnly/>
+                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]" accessControl agentOnly/>
                                 </div>
                             </div>
                         </div>
@@ -132,11 +142,18 @@
                 <div class="reference">
                     <div class="definition">
                         <ul>
-                            <li><span>Enseigne : </span>{{ displayedInfos.enseigne }}</li>
-                            <li><span>Département : </span>{{ displayedInfos.dep }}</li>
-                            <li><span>Typologie PdV : </span>{{ displayedInfos.clientProspect }}</li>
-                            <li><span>Segmentation marketing : </span>{{ displayedInfos.segmentMarketing }}</li>
-                            <li><span>Segmentation portefeuille : </span>{{ displayedInfos.segmentCommercial }}</li>
+                            <li><span>Enseigne : </span></li>
+                            <li><span>Département : </span></li>
+                            <li><span>Typologie PdV : </span></li>
+                            <li><span>Segmentation marketing : </span></li>
+                            <li><span>Segmentation portefeuille : </span></li>
+                        </ul>
+                        <ul>
+                            <li>{{ displayedInfos.enseigne }}</li>
+                            <li>{{ displayedInfos.dep }}</li>
+                            <li>{{ displayedInfos.clientProspect }}</li>
+                            <li>{{ displayedInfos.segmentMarketing }}</li>
+                            <li>{{ displayedInfos.segmentCommercial }}</li>
                         </ul>
                     </div>
                 </div>

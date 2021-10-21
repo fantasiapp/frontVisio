@@ -908,7 +908,7 @@ class SliceDice{
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
           for (let i = 0; i < targetValues.length; i++) rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
         }
-      }// à modifier probablement
+      }
       targetLevel['volumeIdentifier'] = dn ? "dn": "vol";
       if(finition) targetLevel['name'] = "targetLevelAgentFinitions";
       else if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';

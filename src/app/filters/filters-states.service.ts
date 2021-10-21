@@ -168,6 +168,7 @@ export class FiltersStatesService {
     if ( change ) {
       loadAll();
       this.reset(this.tree!.type == NavigationExtractionHelper ? PDV.geoTree : PDV.tradeTree, true);
+      this.dataservice.update.next();
     }
   }
 }
