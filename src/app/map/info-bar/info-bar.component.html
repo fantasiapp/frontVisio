@@ -128,7 +128,7 @@
     <div *ngIf="display == 'enduit'">
         <ng-container *ngIf="pdv">
             <div class="main enduit-info-bar">
-                <h2>{{pdv!.attribute('name')}}</h2>
+                <h2 class="title">{{pdv!.attribute('name')}}</h2>
                 <div class="reference">
                     <div class="definition">
                         <ul>
@@ -147,7 +147,7 @@
                 </label>
                 <div class="values-div">
                     <div>
-                        <h2>P2CD</h2>
+                        <h2 class="title">P2CD</h2>
                         <ul>
                             <li *ngIf="customData.siniatP2cdSales  != 0"><span>Siniat : </span>{{ customData.siniatP2cdSales }} m²</li>
                             <li *ngIf="customData.placoP2cdSales  != 0"><span>Placo : </span>{{ customData.placoP2cdSales }} m²</li>
@@ -159,7 +159,7 @@
                         <div class="vertical-bar"></div>
                     </div>
                     <div>
-                        <h2>Enduit</h2>
+                        <h2 class="title">Enduit</h2>
                         <ul>
                             <li *ngIf="customData.pregyEnduitSales != 0"><span>Pregy : </span>{{ customData.pregyEnduitSales }} KG</li>
                             <li *ngIf="customData.salsiEnduitSales != 0"><span>Salsi : </span>{{ customData.salsiEnduitSales }} KG</li>
