@@ -165,6 +165,7 @@ class DataExtractionHelper{
 
   static geoHeight: number;
   static tradeHeight: number;
+  static currentYear = true;
 
 
   static setData(d: any){ // ici on peut mettre des this.datacar de toute façon ce sont des champs de structure donc ils sont uniques
@@ -342,7 +343,7 @@ class DataExtractionHelper{
     if (field == 'indexesDashboard') field = 'indexesDashboards';
     // to switch year
     let singleFields = ['levelGeo', 'levelTrade', 'tradeTree', 'dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'produit', 'industrie', 'ville', 'timestamp', 'root'];
-    if (lastYear && !field.startsWith('structure') && !field.startsWith('indexes') && !singleFields.includes(field)) field = field + '_ly';
+    if (!this.currentYear && !field.startsWith('structure') && !field.startsWith('indexes') && !singleFields.includes(field)) field = field + '_ly';
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
