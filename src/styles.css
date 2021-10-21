@@ -232,6 +232,9 @@ app-historow .bb-xgrid {
 .pdv-displayed-red {
     color: red !important;
   }
+  .pdv-displayed-orange {
+    color: #F06D0C !important;
+  }
 /**************/
 g.simple-needle {
     pointer-events: none;
@@ -257,6 +260,29 @@ g.simple-needle line {
 .bb-legend-item {
     font-size: var(--legend-font-size);
     font-weight: 300;
+}
+
+.incorrect-input {
+    position: relative;
+    color: red;
+    animation-name: vibrate;
+    animation-duration: 250ms;
+    animation-timing-function: linear;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-fill-mode: backwards;
+
+    --vibration-amplitude: 6px;
+}
+
+@keyframes vibrate {
+    0% { left: 0; }
+    10% { left: var(--vibration-amplitude); }
+    30% { left: calc(-1*var(--vibration-amplitude)); }
+    50% { left: var(--vibration-amplitude); }
+    70% { left: calc(-1*var(--vibration-amplitude)); }
+    90% { left: var(--vibration-amplitude); }
+    100% { left: 0; }
 }
 
 @media (max-width: 1366px) {

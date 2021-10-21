@@ -1,128 +1,180 @@
-<button class="close" (click)="requestQuit()">
-    <img src="assets/X.svg"/>
-</button>
-<div class="nav">
-    <ul #navigation *ngIf="doesntSellChecked != true">
-        <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
-        <hr class="horizontal-line">
-    </ul>
+<div class="only-for-padding">
+    <button class="close" (click)="requestQuit()">
+        <img src="assets/X.svg"/>
+    </button>
+    <div *ngIf="display == 'p2cd'">
+        <div class="nav">
+            <ul #navigation *ngIf="showNavigation">
+                <li *ngFor="let page of pages; let index = index" [class.selected]="index == currentIndex" (click)="setPage(index)">{{page}}</li>
+                <hr class="horizontal-line">
+            </ul>
+        </div>
+
+        <ng-container *ngIf="pdv">
+            <ng-container *ngIf="currentIndex == 0">
+                <div class="main">
+                    <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+                    <div class="reference">
+                        <div class="definition">
+                            <ul>
+                                <li><span>Point de vente : </span>{{ displayedInfos.name }}</li>
+                                <li><span>Agent : </span>{{ displayedInfos.agent }}</li>
+                                <li><span>Segment : </span>{{ displayedInfos.segmentMarketing }}</li>
+                                <li><span>Enseigne : </span>{{ displayedInfos.enseigne }}</li>
+                                <li><span>Département : </span>{{ displayedInfos.dep }}</li>
+                                <li><span>Ville : </span>{{ displayedInfos.ville }}</li>
+                                <li><span>Bassin : </span><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></li>
+                            </ul>
+                        </div>
+                        <div class="props">
+                            <ul>
+                                <li>
+                                    <label class="container-checkbox">
+                                        Ne vend pas de plaque
+                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [attr.disabled]="doesntSellDisabled" agentOnly>
+                                        <span class="checkmark" ></span>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="container-checkbox">
+                                        Point de vente redistribue
+                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [attr.disabled]="redistributedDisabled" agentOnly>
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentIndex == 1">
+                <div class="main">
+                    <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+                    <!-- <p>information sur la point de vente</p> -->
+                    <div class="content">
+                        <div class="definition">
+                            <div class="name">Général</div>
+                            <ul>
+                                <li><span>Agent : </span>{{ displayedInfos.agent }}</li>
+                                <li><span>Enseigne : </span>{{ displayedInfos.enseigne }}</li>
+                                <li><span>Département : </span>{{ displayedInfos.dep }}</li>
+                                <li><span>Client prospect : </span>{{ displayedInfos.clientProspect }}</li>
+                                <li><span>Segmentation marketing : </span>{{ displayedInfos.segmentMarketing }}</li>
+                                <li><span>Segmentation portefeuille : </span>{{ displayedInfos.segmentCommercial }}</li>
+                            </ul>
+                        </div>
+
+                        <div class="definition" *ngIf="getSalesVolumes().length">
+                            <div class="name">Volumes de vente par marque en m²</div>
+                            <ul>
+                                <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} : </span>{{myFormatNumberToString(entry[1])}} m²</li>
+                            </ul>
+                        </div>
+
+                        <div class="eval">
+                            <ul>
+                                <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly/></li>
+                                <li><span class="bolder">Capacité à faire basculer le PDV :</span>
+                                    <button (click)="changeLight('r')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
+                                    <button (click)="changeLight('o')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
+                                    <button (click)="changeLight('g')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="comments">
+                        <span>Commentaires :</span>
+                        <textarea (change)="changeComment()" #comments agentOnly>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentIndex == 2">
+                <div class="main">
+                    <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+                    <!-- <p>information sur la point de vente</p> -->
+                    <div *ngIf="errorAdInput" class="invalidValue">Veuillez entrer une valeur valide (nombre décimal xxx.xx)</div>
+                    <div class="content">
+                        <div class="grid">
+                            <div class="first row">
+                                <div class="first siniatOnly empty cell" [attr.checked]="isOnlySiniat" (click)="changeOnlySiniat()">100% Siniat</div>
+                                <div class="cell" *ngFor="let product of products">
+                                    {{product | titlecase}}
+                                </div>
+                            </div>
+                            <div class="total row">
+                                <div class="first cell">Totaux</div>
+                                <div class="cell" *ngFor="let product of products; let i = index">
+                                    <input type="text"[value]="gridFormatted[0][i]" [disabled]="true"/>
+                                </div>
+                            </div>
+                            <div class="row" *ngFor="let industry of industries; let j = index">
+                                <div class="first cell">{{industry | titlecase}}</div>
+                                <div class="cell" *ngFor="let product of products; let i = index">
+                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j+1][i]" accessControl agentOnly/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </ng-container>
+
+        <img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
+        <img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && showNavigation" (click)="setPage(currentIndex + 1)"/>
+    </div>
+
+    <div *ngIf="display == 'enduit'">
+        <ng-container *ngIf="pdv">
+            <div class="main enduit-info-bar">
+                <h2 class="title">{{pdv!.attribute('name')}}</h2>
+                <div class="reference">
+                    <div class="definition">
+                        <ul>
+                            <li><span>Enseigne : </span>{{ displayedInfos.enseigne }}</li>
+                            <li><span>Département : </span>{{ displayedInfos.dep }}</li>
+                            <li><span>Typologie PdV : </span>{{ displayedInfos.clientProspect }}</li>
+                            <li><span>Segmentation marketing : </span>{{ displayedInfos.segmentMarketing }}</li>
+                            <li><span>Segmentation portefeuille : </span>{{ displayedInfos.segmentCommercial }}</li>
+                        </ul>
+                    </div>
+                </div>
+                <label class="container-checkbox">
+                    <span>Point de vente redistribué</span>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.disabled]="redistributedFinitionsDisabled" [attr.checked]="redistributedFinitionsChecked" agentOnly>
+                    <span class="checkmark" ></span>
+                </label>
+                <div class="values-div">
+                    <div>
+                        <h2 class="title">P2CD</h2>
+                        <ul>
+                            <li *ngIf="customData.siniatP2cdSales  != 0"><span>Siniat : </span>{{ customData.siniatP2cdSales }} m²</li>
+                            <li *ngIf="customData.placoP2cdSales  != 0"><span>Placo : </span>{{ customData.placoP2cdSales }} m²</li>
+                            <li *ngIf="customData.knaufP2cdSales  != 0"><span>Knauf : </span>{{ customData.knaufP2cdSales }} m²</li>
+                            <li *ngIf="customData.totalP2cdSales  != 0"><span>Total P2CD estimé : </span>{{ customData.totalP2cdSales }} m²</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="vertical-bar"></div>
+                    </div>
+                    <div>
+                        <h2 class="title">Enduit</h2>
+                        <ul>
+                            <li *ngIf="customData.pregyEnduitSales != 0"><span>Pregy : </span>{{ customData.pregyEnduitSales }} KG</li>
+                            <li *ngIf="customData.salsiEnduitSales != 0"><span>Salsi : </span>{{ customData.salsiEnduitSales }} KG</li>
+                            <li *ngIf="customData.potential  != 0"><span>Potentiel : </span>{{ customData.potential }} KG</li>
+                            <li *ngIf="customData.totalSiniatEnduitSales  != 0"><span>Total siniat : </span>{{ customData.totalSiniatEnduitSales }} KG</li>
+                            <li *ngIf="customData.totalEnduitSales  != 0"><span>Total estimé : </span>{{ displayedInfos.totalEnduitSales }} KG</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
 </div>
 
-<ng-container *ngIf="pdv">
-    <ng-container *ngIf="currentIndex == 0">
-        <div class="main">
-            <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
-            <div class="reference">
-                <div class="definition">
-                    <ul>
-                        <li><span>Point de vente :</span> {{pdv!.attribute('name')}}</li>
-                        <li><span>Agent :</span> {{getName('agent')}}</li>
-                        <li><span>Segment :</span> {{getName('segmentMarketing')}}</li>
-                        <li><span>Enseigne :</span> {{getName('enseigne')}}</li>
-                        <li><span>Département :</span> {{getName('dep')}}</li>
-                        <li><span>Ville :</span> {{getName('ville')}}</li>
-                        <li><span>Bassin :</span> {{getName('bassin')}}</li>
-                    </ul>
-                </div>
-                <div class="props">
-                    <ul>
-                        <li>
-                            <label class="container-checkbox">
-                                Ne vend pas de plaque
-                                <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [disabled]="doesntSellDisabled">
-                                <span class="checkmark" ></span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="container-checkbox">
-                                Point de vente redistribue
-                                <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="redistributedDisabled">
-                                <span class="checkmark"></span>
-                            </label>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </ng-container>
-
-    <ng-container *ngIf="currentIndex == 1">
-        <div class="main">
-            <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
-            <!-- <p>information sur la point de vente</p> -->
-            <div class="content">
-                <div class="definition">
-                    <div class="name">Général</div>
-                    <ul>
-                        <li><span>Agent : </span> {{getName('agent')}}</li>
-                        <li><span>Enseigne : </span> {{getName('enseigne')}}</li>
-                        <li><span>Départements : </span> {{getName('dep')}}</li>
-                        <li><span>Client prospect : </span> {{pdv!.clientProspect() || "Non documenté"}} </li>
-                        <li><span>Segmentation marketing : </span>{{getName('segmentMarketing')}}</li>
-                        <li><span>Segmentation portefeuille : </span> {{getName('segmentCommercial')}} </li>
-                    </ul>
-                </div>
-
-                <div class="definition" *ngIf="getSalesVolumes().length">
-                    <div class="name">Volumes de vente par marque en m²</div>
-                    <ul>
-                        <li *ngFor="let entry of getSalesVolumes()"><span>{{entry[0]}} : </span>{{myFormatNumberToString(entry[1])}} m²</li>
-                    </ul>
-                </div>
-
-                <div class="eval">
-                    <ul>
-                        <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly/></li>
-                        <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                            <button (click)="changeLight('r')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
-                            <button (click)="changeLight('o')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
-                            <button (click)="changeLight('g')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="comments">
-                <span>Commentaires :</span>
-                <textarea (change)="changeComment()" #comments agentOnly>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
-            </div>
-        </div>
-    </ng-container>
-
-    <ng-container *ngIf="currentIndex == 2">
-        <div class="main">
-            <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
-            <!-- <p>information sur la point de vente</p> -->
-            <div *ngIf="errorAdInput" class="invalidValue">Veuillez entrer une valeur valide (nombre décimal xxx.xx)</div>
-            <div class="content">
-                <div class="grid">
-                    <div class="first row">
-                        <div class="first empty cell"></div>
-                        <div class="cell" *ngFor="let product of products">
-                            {{product | titlecase}}
-                        </div>
-                    </div>
-                    <div class="total row">
-                        <div class="first cell">Totaux</div>
-                        <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text"[value]="gridFormatted[0][i]" [disabled]="true"/>
-                        </div>
-                    </div>
-                    <div class="row" *ngFor="let industry of industries; let j = index">
-                        <div class="first cell">{{industry | titlecase}}</div>
-                        <div class="cell" *ngFor="let product of products; let i = index">
-                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0" [style.color]="salesColors[j]" accessControl agentOnly/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </ng-container>
-</ng-container>
-
-<img class="navigateLeft" src="assets/arrow_left.svg" *ngIf="currentIndex > 0" (click)="setPage(currentIndex - 1)"/>
-<img class="navigateRight" src="assets/arrow_right.svg" *ngIf="currentIndex < 2 && doesntSellChecked != true" (click)="setPage(currentIndex + 1)"/>
-
-<div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
+<div class="cover" (click)="requestQuit()" [style.display]="opened ? 'block' : 'none'"></div>
 <div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
     <div class="quitbar">
         <h1>Souhaitez-vous mettre à jour les modifications</h1>

@@ -27,13 +27,13 @@ export class DescriptionWidgetComponent implements OnDestroy {
 
   constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private targetService: TargetService) {
     this.subscriptions.push(
-      filtersService.$path.subscribe(path => {
+      filtersService.stateSubject.subscribe(({States}) => {
         //do something with path
-        this.values = DataExtractionHelper.computeDescriptionWidget(path);
+        this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.getPath(States));
         this.cd.markForCheck();
       }),
       dataservice.update.subscribe(_ => {
-        this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.$path.value);
+        this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
         this.cd.markForCheck();
         //do something when it updates
       })

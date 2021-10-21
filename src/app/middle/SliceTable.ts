@@ -111,7 +111,7 @@ export class SliceTable {
         'checkboxEnduit': (pdv: any) => {
             let target = this.getPdvInstance(pdv)!.attribute('target')    
             if(!target) return false;
-            return target[DataExtractionHelper.TARGET_FINITION_ID]>0;
+            return target[DataExtractionHelper.TARGET_FINITIONS_ID]>0;
         },
         'checkboxP2cd': (pdv: any) => null,
 
@@ -225,22 +225,22 @@ export class SliceTable {
         return this.titleData;
     }
 
-    initializeTarget() {
-        return [Math.floor(Date.now()/1000), true, false, 0, false, "r", ""]
+    static initializeTarget() {
+        return [Math.floor(Date.now()/1000), true, true, 0, false, "r", ""]
       }
 
-    changeTargetTargetFinition(pdv: {[field: string]: any}) {
-        if(!pdv['target']) pdv['target'] = this.initializeTarget()
+    changeTargetTargetFinitions(pdv: {[field: string]: any}) {
+        if(!pdv['target']) pdv['target'] = SliceTable.initializeTarget()
         if(pdv['potential'] > 0) {
             if(pdv['checkboxEnduit']) {
                 this.updateTotalTarget(pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = pdv['potential']
+                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = pdv['potential']
             } else {
                 this.updateTotalTarget(-pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITION_ID] = 0
+                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = 0
             }
         }
-        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
+        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'], true)
     }
 
     updateTotalTarget(increment: number) {
@@ -281,6 +281,23 @@ export class SliceTable {
         return PDV.getInstances().get(pdv.instanceId);
     }
 
+    getRowColor(pdv: any): string {
+        let pdvInstance = this.getPdvInstance(pdv)!;
+        let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
+        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+            return 'black'
+
+        for(let sale of pdvInstance.attribute('sales')) {
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'black';
+        }
+
+        for(let sale of pdvInstance.attribute('sales')) {
+            if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'orange'
+        }
+
+        return 'red'
+    }
+
     getColor(axis: string, enseigne: string): string {
         let hardCodedColors: {[key: string]: {[key: string]: string}} = {
             'industry': {
@@ -312,7 +329,7 @@ export class SliceTable {
         }
         return pdvAsList;
     }
-
+    
     // updateData() {
     //     this.dataService.requestUpdateData()
     //     .subscribe((updatedData) => {

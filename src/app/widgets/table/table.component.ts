@@ -41,8 +41,11 @@ export class TableComponent extends BasicWidget {
 
   //Side menus
   pdv?: PDV;
-  redistributed?: boolean;
+  redistributed: boolean = false;
   selectedPdv?: any;
+  hasChanged: boolean = false;
+  quiting: boolean = false;
+  customData: {[field: string]: any} = {};
 
   //Apis
   gridApi: any;
@@ -61,7 +64,8 @@ export class TableComponent extends BasicWidget {
   pinnedRow?: {}[];
   rowClassRules = {
     'group-row': 'data.groupRow === true',
-    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow']) return false; if(params.data['onlySiniat'] || !params.data['sale'] || !params.data['redistributed'] || params.data['sales'].length > 0) return false; return true;}
+    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data) == 'red') return true; return false;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
@@ -90,6 +94,13 @@ export class TableComponent extends BasicWidget {
     this.gridObservable = new Observable((observer) => {
       observer.next()
     })
+  }
+
+  refresh() {
+    console.log("REFRESH")
+    this.gridApi.refreshCells()
+    this.gridApi.redrawRows()
+
   }
 
   updateData(): any[] {
@@ -230,21 +241,42 @@ export class TableComponent extends BasicWidget {
       else arrowImg!.style.transform = "rotate(-0.5turn)"
     } else {
       if(event['column']['colId'] === 'edit') {
-        this.pdv = this.sliceTable.getPdvInstance(event['data'])
-        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.pdv!.getValues())); //Values deepcopy
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(event['data'])!.getValues())); //Values deepcopy
         InfoBarComponent.pdvId = event['data'].instanceId;
         this.selectedPdv = event['data'];
+        this.pdv = this.sliceTable.getPdvInstance(event['data']) // => displays infoBar
       }
       if(event['column']['colId'] === 'info') {
+        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(event['data'])!.getValues())); //Values deepcopy
+        InfoBarComponent.pdvId = event['data'].instanceId;
         this.selectedPdv = event['data'];
-        this.showInfoOnClick(this.selectedPdv);
-        this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
+        if(this.type == 'enduit') this.loadCustomData();
+        this.pdv = this.sliceTable.getPdvInstance(event['data']) // => displays infoBar
+
+        // this.selectedPdv = event['data'];
+        // this.showInfoOnClick(this.selectedPdv);
+        // this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
       }
       if(event['column']['colId'] === 'checkboxEnduit') {
         this.updateTitle()
       }
     }
 
+  }
+
+  loadCustomData() {
+    this.customData = {
+      'nbVisits': this.selectedPdv.nbVisits,
+      'siniatP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'placoP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'knaufP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value + this.selectedPdv.graph.p2cd['Placo'].value + this.selectedPdv.graph.p2cd['Knauf'].value + this.selectedPdv.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'salsiEnduitSales': Math.round(this.selectedPdv.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'potential': Math.round(this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pregy'].value + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+    }    
   }
 
   sideDivRight: string = "calc(-60% - 5px)";
@@ -277,10 +309,13 @@ export class TableComponent extends BasicWidget {
     };
   }
 
-  // toggleRedistributed() {
-  //   this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
-  //   this.updateGraph(this.updateData());
-  // }
+  changeRedistributed() {
+    // this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
+    // this.updateGraph(this.updateData());
+    
+    this.redistributed= !this.redistributed; //doesn't update locally
+    this.hasChanged = true;
+  }
 
   externalFilterChanged(value: any) {
     if (hiddenGroups[value] === true) delete hiddenGroups[value];
@@ -302,6 +337,28 @@ export class TableComponent extends BasicWidget {
     //   return true;
     // }
   }
+
+  
+  requestQuit() {
+    console.log("click cover")
+    //show the quit bar
+    if ( this.hasChanged )
+      this.quiting = true;
+    else
+      this.quit(false)
+  }
+
+  quit(save: boolean) {
+    if(save && this.hasChanged) console.log("Updating pdv")
+    else {
+      console.log("not updating pdv")
+    }
+    this.hasChanged = false;
+    this.quiting = false;
+    this.sideDivRight = "calc(-60% - 5px)";
+    this.showInfo = false;
+  }
+
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)

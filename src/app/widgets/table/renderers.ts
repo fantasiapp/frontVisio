@@ -30,7 +30,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" [hidden]="!params.data.redistributedEnduit"></div>`,
+    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" [hidden]="!params.data.redistributedEnduit" agentOnly></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -58,7 +58,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
       let colId = this.params.column.colId;
       this.params.node.setDataValue(colId, checked);
       
-      this.sliceTable.changeTargetTargetFinition(this.params.data)
+      this.sliceTable.changeTargetTargetFinitions(this.params.data)
     }
   }
   

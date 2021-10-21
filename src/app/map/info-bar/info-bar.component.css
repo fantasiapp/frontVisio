@@ -1,6 +1,6 @@
 :host {
-    --info-bar-width: 600px;
-    --info-bar-max-width: 700px;
+    --info-bar-width: 60%;
+    --info-bar-max-width: 1000px;
     --info-bar-padding-y: 50px;
     --info-bar-padding-x: 40px;
     --info-bar-margin-y: 20px;
@@ -19,27 +19,33 @@
     width: var(--info-bar-width);
     max-width: var(--info-bar-max-width);
     height: calc(100% - var(--info-bar-margin-y) - var(--navigation-height));
-    padding: var(--info-bar-padding-y) var(--info-bar-padding-x);
     top: 10px;
     right: calc(-1*var(--info-bar-width) - 5px);
     background: white;
-    z-index: 9999;
     margin-top: var(--info-bar-margin-y);
     display: flex;
     flex-flow: column nowrap;
     transition: right 200ms ease-out 0s;
     font-family: 'Roboto';
-    font-size: 20px;
     box-shadow: -2px 0 3px 0px #aaa;
     border-radius: 3px;
     overflow: auto;
     user-select: none;
+    z-index: 2
 }
 
 :host(.opened) {
     right: 0;
 }
 
+:host * {
+    z-index: 2;
+    background: white;
+}
+.only-for-padding {
+    padding: var(--info-bar-padding-y) var(--info-bar-padding-x);
+    height: 100%;
+}
 
 ul, hr {
     margin: 0;
@@ -52,7 +58,8 @@ ul, hr {
     width: 100vw;
     height: 100vh;
     background-color: rgba(247, 247, 247, 0.5);
-    z-index: -1;
+    display: none;
+    z-index: 1;
 }
 
 .nav ul {
@@ -61,7 +68,6 @@ ul, hr {
     justify-content: space-between;
     position: relative;
     margin: 0 12.5%;
-    font-size: 0.8em;
 }
 
 .nav ul li {
@@ -87,12 +93,10 @@ ul, hr {
     top: calc(-1*var(--navigation-ball-size) - 0.5em);
     transform: translateX(-50%);
     background: white;
-    z-index: 1;
 }
 
 .nav ul li.selected::before {
     background: black;
-    font-size: 0.8em;
 }
 
 .nav hr {
@@ -104,6 +108,7 @@ ul, hr {
     top: calc(var(--navigation-ball-size) * -0.5 - 0.5em + 1px);
     left: 50%;
     transform: translateX(-50%);
+    z-index: -1;
 }
 
 .close {
@@ -121,6 +126,7 @@ ul, hr {
     flex-grow: 0;
     max-height: 40%;
     display: flex;
+    justify-content: space-between;
     flex-flow: row nowrap;
     margin-bottom: var(--pdv-title-margin-y);
 }
@@ -141,6 +147,25 @@ ul, hr {
     margin: 0;
 }
 
+.main ul {
+    font-size: 0.8em;
+}
+
+.main ul li {
+    font-weight: 300;
+    margin: var(--pdv-fields-margin-y) 0;
+}
+
+.main ul li * {
+    padding: 0.3em 0 0.3em 0;
+}
+
+.main ul li span {
+    font-size: 1.1em;
+    font-weight: 400;
+    flex-grow: 1;
+}
+
 .name {
     font-size: 0.9em;
     font-weight: 500;
@@ -152,20 +177,34 @@ ul, hr {
 
 .definition ul, .props ul, .eval ul {
     list-style-type: none;
-    font-size: 0.8em;
 }
 
-.definition ul li {
-    font-weight: 300;
-    margin: var(--pdv-fields-margin-y) 0;
+
+
+
+.definition ul li input {
+    padding-left: 0.2em;
+    flex-grow: 0;
+    background: white;
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: #000000;
+    font-weight: inherit;
+    font-family: inherit;
+    border-style: solid
 }
 
-.definition ul li span {
-    font-weight: 400;
+.definition ul li input:not(:disabled):hover {
+    cursor: pointer;
+    border-color: #D6D6D6;
+}
+.definition ul li input:focus {
+    border-color: #9A9A9A;
+    /* box-shadow: inset 0 1px 3px #9A9A9A */
 }
 
 span.bolder {
-    font-size: 1em;
+    /* font-size: 1em; */
     font-weight: 500;
 }
 
@@ -173,6 +212,7 @@ span.bolder {
     display: flex;
     flex-flow: column nowrap;
     align-self: flex-start;
+    max-width: 310px;
 }
 
 .props {
@@ -187,10 +227,11 @@ span.bolder {
 .props ul {
     font-weight: 400;
     width: 100%;
+    max-width: 250px;
 }
 
 .props ul li {
-    font-size: 1em;
+    /* font-size: 1em; */
 }
 
 .props ul li:first-of-type {
@@ -222,7 +263,6 @@ span.bolder {
 
 h2 {
     margin: var(--pdv-title-margin-y) 0;
-    margin-bottom: 65px;
     font-size: 1.20em;
     font-weight: 300;
 }
@@ -240,20 +280,21 @@ p {
 .container-checkbox {
     display: block;
     position: relative;
-    padding-left: 10px;
     cursor: pointer;
     user-select: none;
+    font-size: initial;
+    font-weight: 400;
 }
 
 /* Hide the browser's default checkbox */
-.props .container-checkbox input {
+ .container-checkbox input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
 }
 
 /* Create a custom checkbox */
-.props .container-checkbox .checkmark {
+.container-checkbox .checkmark {
     position: relative;
     display: inline-block;
     vertical-align: middle;
@@ -264,29 +305,29 @@ p {
 }
 
 /* On mouse-over, add a grey background color */
-.props .container-checkbox:hover input ~ .checkmark {
+.container-checkbox:hover input ~ .checkmark {
     /* background-color: #ccc; */
 }
 
 /* When the checkbox is checked, add a blue background */
-.props .container-checkbox input[checked="true"] ~ .checkmark {
+.container-checkbox input[checked="true"] ~ .checkmark {
     background-color: #F38839;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
-.props .container-checkbox .checkmark:after {
+.container-checkbox .checkmark:after {
     content: "";
     position: absolute;
     display: none;
 }
 
 /* Show the checkmark when checked */
-.props .container-checkbox input[checked="true"] ~ .checkmark:after {
+.container-checkbox input[checked="true"] ~ .checkmark:after {
     display: block;
 }
 
 /* Style the checkmark/indicator */
-.props .container-checkbox .checkmark:after {
+.container-checkbox .checkmark:after {
     left: 9px;
     top: 5px;
     width: 5px;
@@ -345,7 +386,7 @@ p {
     padding: 0;
     box-shadow: inset 0 0 5px 0 #aaa;
     padding: 0 10px;
-    font-size: 1em;
+    /* font-size: 1em; */
     font-weight: 400;
     font-style: normal;
 }
@@ -430,6 +471,11 @@ p {
     background-color: #f7f7f7;
 }
 
+.first.row .cell.siniatOnly[checked="true"]{
+    color: orange !important;
+    text-decoration: underline;
+}
+
 .first.row .cell:not(.empty) {
     margin: 0 1px;
     border: var(--grid-cells-border);
@@ -489,10 +535,10 @@ input[type=number] {
     top: 0; left: 0;
     width: 100vw;
     height: 100vh;
+    z-index: 3;
 }
 
 .quitbar {
-    z-index: 99999;
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
@@ -545,9 +591,38 @@ input[type=number] {
     font-style: italic;
 }
 
+/* For ENduit */
+.values-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.vertical-bar{
+    min-width: 2px;
+    max-width: 2px;
+    height: 100%;
+    background-color: lightgray;
+}
+
+.values-div ul {
+    padding-inline-start: 0px;
+}
+.values-div ul li {
+    list-style-type: none;
+}
+.enduit-info-bar .container-checkbox {
+    color: #F06D0C;
+    max-width: 300px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+/* ***** */
+
+
 @media (max-width: 1367px) {
     :host {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .button {
@@ -557,7 +632,7 @@ input[type=number] {
 
 @media (min-width: 1367px) and (max-width: 1500px) {
     :host {
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .button {
@@ -567,7 +642,7 @@ input[type=number] {
 
 @media (min-width: 1500px) {
     :host {
-        font-size: 20px;
+        font-size: 19px;
     }
 
     .button {

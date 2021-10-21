@@ -1,7 +1,7 @@
-import { PDV, SliceDice } from "./Slice&Dice";
+import {PDV} from "./Slice&Dice";
 import {Node, Tree} from "./Node"
-import { LocalStorageService } from "../services/local-storage.service";
-import { UpdateData } from "../services/data.service";
+import {LocalStorageService} from "../services/local-storage.service";
+import {UpdateData} from "../services/data.service";
 
 const paramsCompute = {
   growthConquestLimit: 0.1,
@@ -138,9 +138,11 @@ class DataExtractionHelper{
   static TARGET_REDISTRIBUTED_ID: number;
   static TARGET_SALE_ID: number;
   static TARGET_VOLUME_ID: number;
-  static TARGET_FINITION_ID: number;
+  static TARGET_FINITIONS_ID: number;
   static TARGET_LIGHT_ID: number;
+  static TARGET_REDISTRIBUTED_FINITIONS_ID: number;
   static TARGET_COMMENT_ID: number;
+  static TARGET_BASSIN_ID: number;
   static SALE_INDUSTRY_ID: number;
   static SALE_PRODUCT_ID: number;
   static SALE_VOLUME_ID: number;  
@@ -151,18 +153,22 @@ class DataExtractionHelper{
   static SALES_PRODUCT_ID: any;
   static SALES_VOLUME_ID: any;
   static SALE_ID: any;
+  static AGENTFINITION_TARGETVISITS_ID: number;
+  static AGENTFINITION_DRV_ID: number;
+  static AGENTFINITION_RATIO_ID: number;
 
 
   
   //Represent levels as a vertical array rather than a recursive structure
-  private static geoLevels: any[] = [];
-  private static tradeLevels: any[] = [];
+  static geoLevels: any[] = [];
+  static tradeLevels: any[] = [];
 
   static geoHeight: number;
   static tradeHeight: number;
 
 
   static setData(d: any){
+    console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
     console.log("[DataExtractionHelper] this.data updated")
     let structure = this.data['structureLevel'];
@@ -191,19 +197,23 @@ class DataExtractionHelper{
     this.TARGET_REDISTRIBUTED_ID = this.data["structureTarget"].indexOf("redistributed");
     this.TARGET_SALE_ID = this.data["structureTarget"].indexOf("sale");
     this.TARGET_VOLUME_ID = this.data["structureTarget"].indexOf("targetP2CD");
-    this.TARGET_FINITION_ID = this.data["structureTarget"].indexOf("targetFinition");
+    this.TARGET_FINITIONS_ID = this.data["structureTarget"].indexOf("targetFinitions");
     this.TARGET_LIGHT_ID = this.data["structureTarget"].indexOf("greenLight");
     this.TARGET_COMMENT_ID = this.data["structureTarget"].indexOf("commentTargetP2CD");
+    this.TARGET_REDISTRIBUTED_FINITIONS_ID = this.data["structureTarget"].indexOf("redistributedFinitions");
+    this.TARGET_BASSIN_ID = this.data["structureTarget"].indexOf("bassin");
     this.SALES_ID = this.getKeyByValue(this.data['structurePdvs'], 'sales');
     this.SALES_DATE_ID = this.data['structureSales'].indexOf('date');
     this.SALES_INDUSTRY_ID = this.data['structureSales'].indexOf('industry');
     this.SALES_PRODUCT_ID = this.data['structureSales'].indexOf('product');
     this.SALES_VOLUME_ID = this.data['structureSales'].indexOf('volume');
-
     this.SALE_ID = this.getKeyByValue(this.data['structurePdvs'], 'sale');
     this.SALE_INDUSTRY_ID = this.data["structureSales"].indexOf("industry");
     this.SALE_PRODUCT_ID = this.data["structureSales"].indexOf("product");
     this.SALE_VOLUME_ID = this.data["structureSales"].indexOf("volume");
+    this.AGENTFINITION_TARGETVISITS_ID = this.data["structureAgentfinitions"].indexOf("TargetedNbVisit");
+    this.AGENTFINITION_DRV_ID = this.data["structureAgentfinitions"].indexOf("drv");
+    this.AGENTFINITION_RATIO_ID = this.data["structureAgentfinitions"].indexOf("ratioTargetedVisit");
     
     //trades have less info that geo
     
@@ -233,7 +243,7 @@ class DataExtractionHelper{
   }
 
   static updateData(data: UpdateData) {
-    // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinition': [], 'targetLevelDrv': [], 'pdvs': []}
+    // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
 
     // Check how deletions are managed 
     //update this.pdv
@@ -241,8 +251,8 @@ class DataExtractionHelper{
     for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
           this.data.pdvs[newPdvId] = newPdv;
     }
-  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinition, this.targetLevelDrv,
-    for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinition', 'targetLevelDrv']) {
+  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinitions, this.targetLevelDrv,
+    for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinitions', 'targetLevelDrv']) {
       for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
             this.data[targetType][newTargetId] = newTarget;
       }
@@ -272,6 +282,8 @@ class DataExtractionHelper{
   static getGeoLevelName(height: number, id: number): string{
     let name = this.data[this.getGeoLevel(height)[this.LABEL_INDEX]][id];
     if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
+    if (Array.isArray(name))
+      return name[DataExtractionHelper.get('structureAgentfinitions').indexOf('name')];
     return name;
   }
 
@@ -287,7 +299,7 @@ class DataExtractionHelper{
 
   static getTradeLevelName(height: number, id: number): string {
     // HARDCODE
-    if ( height == 0 ) return '';
+    if (height == 0) return '';
     let name = this.data[this.getTradeLevel(height)[this.LABEL_INDEX]][id];
     if (name === undefined) throw `No trade level with id=${id} at height=${height}`;
     return name;
@@ -320,7 +332,7 @@ class DataExtractionHelper{
     return DataExtractionHelper.get(field)[id];
   }
 
-  static get(field: string){
+  static get(field: string, justName=false){
     //redirections:
     if (field == 'structurePdv') field = 'structurePdvs';
     if (field == 'indexesPdv') field = 'indexesPdvs';
@@ -349,40 +361,47 @@ class DataExtractionHelper{
       return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
     if (field == 'industrieTarget')
       return Object.assign({}, this.data['industrie'], industrieTarget); 
-    return this.data[field];
+    let data = this.data[field];
+    if (!justName || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
+    let names: any = {},
+      nameIndex = this.data["structure" + field[0].toUpperCase() + field.slice(1).toLowerCase()].indexOf('name');
+    for (let [id, list] of Object.entries<any[]>(data)) names[id] = list[nameIndex];
+    return names;
   }
 
   static getKeyByValue(object:any, value:any) {
     return Object.keys(object).find(key => object[key] === value);
   }                          
 
-  static getTarget(level='national', id:number, targetType:string){
-    if (level == 'Secteur'){
-      if (targetType == 'volFinition'){
-        let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelAgentFinition").indexOf(targetType);
-        return DataExtractionHelper.get("targetLevelAgentFinition")[id][targetTypeId];
-      }
-      let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelAgentP2CD").indexOf(targetType);
-      return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
+  static getTarget(level='national', id:number, dn=false, finition=false){
+    let targetType = dn ? "dn": "vol";
+    let targetTypeId:number = DataExtractionHelper.get("structureTargetlevel").indexOf(targetType);
+    if (level == "agentFinitions") return DataExtractionHelper.get("targetLevelAgentFinitions")[id][targetTypeId];
+    if (finition && level == 'Région'){
+      let finitionAgentsids = DataExtractionHelper.findFinitionAgentsOfDrv(id, true),
+        targetsAgentFinition = DataExtractionHelper.get("targetLevelAgentFinitions");
+      return finitionAgentsids.reduce((acc, id) => acc + targetsAgentFinition[id][targetTypeId], 0);
     }
-    let targetTypeId:number = DataExtractionHelper.get("structureTargetLevelDrv").indexOf(targetType);
+    if (finition){
+      let targetsAgentFinition = Object.values(DataExtractionHelper.get("targetLevelAgentFinitions"));
+      return targetsAgentFinition.reduce((acc, target:any) => acc + target[targetTypeId], 0);
+    }
+    if (level == 'Secteur') return DataExtractionHelper.get("targetLevelAgentP2CD")[id][targetTypeId];
     if (level == 'Région') return DataExtractionHelper.get("targetLevelDrv")[id][targetTypeId];
     if (level == 'nationalByAgent'){
       let agentTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelAgentP2CD")); //mettre la version enduit après
       let target = 0;
-      for (let agentTarget of agentTargets)
-      target += agentTarget[targetTypeId];
+      for (let agentTarget of agentTargets) target += agentTarget[targetTypeId];
     return target;
     }
     let drvTargets: number[][] = Object.values(DataExtractionHelper.get("targetLevelDrv"));
     let target = 0;
-    for (let drvTarget of drvTargets)
-      target += drvTarget[targetTypeId];
+    for (let drvTarget of drvTargets) target += drvTarget[targetTypeId];
     return target;
   }
 
-  static getListTarget(level:string, ids: number[], targetName:string){
-    return ids.map((id:number) => DataExtractionHelper.getTarget(level, id, targetName));
+  static getListTarget(level:string, ids: number[], dn: boolean, finition: boolean){
+    return ids.map((id:number) => DataExtractionHelper.getTarget(level, id, dn, finition));
   }
 
   // Il faudrait peut-être mettre tout ce que qui traite de la description dans un autre fichier
@@ -418,26 +437,24 @@ class DataExtractionHelper{
     else return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².'); // les ciblages c'est les seuls à être en m² et pas en km²
   }
 
-  private static getObjectif(node:any, enduit=false, dn=false){
-    if (enduit) return 'Objectif: '.concat(Math.round(DataExtractionHelper.getTarget(node.label, node.id, 'volFinition')/1000).toString(), ' T, ');
+  private static getObjectif(node:any, finition=false, dn=false){
+    let objective = DataExtractionHelper.getTarget(node.label, node.id, dn, finition);
+    if (finition) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
     if (node.label !== 'Secteur') return "";
-    let targetName = dn ? 'dnP2CD': 'volP2CD';
-    let objective = DataExtractionHelper.getTarget(node.label, node.id, targetName);
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');
   }
 
   private static getObjectifDrv(node:any, dn=false){
     if (!(node.label == 'France' || node.label == 'Région')) return "";
-    let targetName = dn ? "dnP2CD": 'volP2CD', targetDrv:number;
-    if (node.label == 'France') targetDrv = DataExtractionHelper.getTarget('nationalByAgent', 0, targetName);
-    if (node.label == 'Région') targetDrv = node.children.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, targetName)).reduce((acc:number, value:number) => acc + value, 0);
+    let targetDrv:number;
+    if (node.label == 'France') targetDrv = DataExtractionHelper.getTarget('nationalByAgent', 0, dn);
+    if (node.label == 'Région') targetDrv = node.children.map((agentNode:Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, dn)).reduce((acc:number, value:number) => acc + value, 0);
     return (dn) ? 'DRV: '.concat(targetDrv!.toString(), ' PdVs, '): 'DRV: '.concat((Math.round(targetDrv!)).toString(), ' km², ');
   }
 
   private static getObjectifSiege(node:any, dn=false):string{
     if (!(node.label == 'France' || node.label == 'Région')) return "";
-    let targetName = dn ? "dnP2CD": 'volP2CD';
-    let targetSiege =  DataExtractionHelper.getTarget(node.label, node.id, targetName);
+    let targetSiege =  DataExtractionHelper.getTarget(node.label, node.id, dn);
     return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdVs, '): 'Objectif Siège: '.concat((Math.round(targetSiege)).toString(), ' km², ');
   }
 
@@ -445,16 +462,16 @@ class DataExtractionHelper{
     let relevantNode:Node = DataExtractionHelper.followSlice(slice) as Node,
       ciblage = PDV.computeCiblage(relevantNode);
     let objectiveWidget: [number, number, number] = [
-      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, "volP2CD")).reduce((acc, value) => acc + value, 0),
-      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
+      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id)).reduce((acc, value) => acc + value, 0),
+      (relevantNode.children as Node[]).map(subLevelNode => DataExtractionHelper.getTarget(subLevelNode.label, subLevelNode.id, true)).reduce((acc, value) => acc + value, 0),
       0],
       ciblageWidget: [number, number, number] = [0, 0, 0];
     objectiveWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / objectiveWidget[0]; // on divise par 10 car on fait *100 pour mettre en % et /1000 pour tout mettre en km2
     if (relevantNode.label == 'France'){
       let agentNodes = (relevantNode.children as Node[]).map(drvNode => drvNode.children as Node[]).reduce((acc: Node[], list: Node[]) => acc.concat(list), []);
       ciblageWidget = [
-        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "volP2CD")).reduce((acc, value) => acc + value, 0),
-        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, "dnP2CD")).reduce((acc, value) => acc + value, 0),
+        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id)).reduce((acc, value) => acc + value, 0),
+        agentNodes.map(agentNode => DataExtractionHelper.getTarget("Secteur", agentNode.id, true)).reduce((acc, value) => acc + value, 0),
         0]
         ciblageWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / ciblageWidget[0]; 
     } else ciblageWidget = [
@@ -462,6 +479,17 @@ class DataExtractionHelper{
         PDV.computeCiblage(relevantNode, false, true),
         100];
     return [objectiveWidget, ciblageWidget];
+  }
+
+  static findFinitionAgentsOfDrv(drvId: number, ids=false){
+    let finitionAgents: {[key:number]: (number|string)[]} = this.data["agentFinitions"],
+      finitionAgentsOfDrv:any[] = [];
+    for (let [id, agent] of Object.entries(finitionAgents))
+      if (agent[this.AGENTFINITION_DRV_ID] == drvId){
+        if (ids) finitionAgentsOfDrv.push(id);
+        else finitionAgentsOfDrv.push(agent);
+      }
+    return finitionAgentsOfDrv;
   }
 
   static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {

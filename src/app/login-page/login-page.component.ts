@@ -19,6 +19,7 @@ import {
 } from '@angular/animations';
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
+import { LocalStorageService } from '../services/local-storage.service';
 
 @Component({
   selector: 'app-login-page',
@@ -47,8 +48,9 @@ export class LoginPageComponent implements OnInit {
   private logInObserver = {
     next: (success: any) => {
       if (success) {
-        this.userValid = true
+        this.userValid = true;
         this.dataservice.requestData();
+        if(this.stayConnected) this.localStorageService.saveToken(this.authService.getAuthorizationToken()); 
         const elmt = document.getElementById('image-container')!;
         const elmt2 = document.getElementById('pentagon-image');
         const elmt3 = document.getElementById('logo-container');
@@ -72,20 +74,29 @@ export class LoginPageComponent implements OnInit {
     cdr: ChangeDetectorRef,
     private authService: AuthService,
     private dataservice: DataService,
+    private localStorageService: LocalStorageService,
     private filtersStates : FiltersStatesService,
     private router: Router
   ) {}
   userValid = false;
   retry = true;
+  alreadyConnected: boolean = false;
+  stayConnected: boolean = false;
 
   ngOnInit(): void {
-    if(this.authService.getStayConnected()) {
-      this.userValid = true
-      this.dataservice.requestData();
-      this.router.navigate([
-        sessionStorage.getItem('originalPath') || 'logged',
-      ]);
-      this.authService.isLoggedIn.next(true);
+    if(this.authService.isAlreadyConnected()){
+      this.alreadyConnected = true;
+    } else {
+      if(this.authService.isStayConnected()) {
+        LocalStorageService.getFromCache = true;
+        this.userValid = true
+        this.authService.handleTokenSave();
+        this.dataservice.requestData();
+        this.router.navigate([
+          sessionStorage.getItem('originalPath') || 'logged',
+        ]);
+        this.authService.isLoggedIn.next(true);
+      }
     }
   }
 
@@ -94,8 +105,11 @@ export class LoginPageComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  onLoading(username: string, password: string) {
-    this.authService
+  onLoading(username: string, password: string, stayConnected: boolean) {
+    console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
+    this.stayConnected = stayConnected;
+    if(this.localStorageService.getActiveToken()) this.alreadyConnected = true;
+    else this.authService
       .loginToServer(username, password)
       .subscribe(this.logInObserver);
   }

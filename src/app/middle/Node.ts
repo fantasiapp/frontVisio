@@ -118,9 +118,17 @@ export class Tree {
   get height() {
     return this.attributes['labels'].length;
   }
+
+  getAllDashboards() {
+    let dict: any = {};
+    this.attributes['dashboards'].flat().forEach(dashboard =>
+      dict[dashboard.id] = dashboard
+    );
+    return Object.values<Dashboard>(dict);
+  }
   
   getNodesAtHeight(height: number): any[] {
-    if ( height < 0 ) { console.trace(); throw 'No height < 0.'; };
+    if ( height < 0 ) {  throw 'No height < 0.'; };
     let depthCallback = (currentHeight: number, height: number, result: any): any[] => {
       if (currentHeight == height) return [result];
       return result.children.map((node: any) => depthCallback(currentHeight+1, height, node)).flat();

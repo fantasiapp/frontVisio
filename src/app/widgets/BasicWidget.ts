@@ -15,9 +15,8 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
   protected chart: Chart | null = null;
-  /* Styling */
+  /* for processing @sum and similar */
   protected dynamicDescription: boolean = false;
-  //protected savedData: {[key:number]: any} = {};
 
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
@@ -25,10 +24,10 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
-    this.subscription = combineLatest([filtersService.$path, this.ready!]).subscribe(([path, _]) => {
+    this.subscription = combineLatest([filtersService.stateSubject, this.ready!]).subscribe(([{States}, _]) => {
       this.subscription!.unsubscribe();
       this.subscription = undefined;
-      this.path = path;
+      this.path = this.filtersService.getPath(States);
       this.onPathChanged();
       //view is initialized
       this.interactiveMode();
@@ -38,7 +37,8 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   
   interactiveMode() {
     if ( this.subscription ) return;
-    this.subscription = this.filtersService.$path.subscribe(path => {
+    this.subscription = this.filtersService.stateSubject.subscribe(({States}) => {
+      let path = this.filtersService.getPath(States);
       if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.onPathChanged();
@@ -47,7 +47,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     });
   }
 
-  protected onPathChanged() { }
+  protected onPathChanged() { console.log('>>>>>>>>>>>>> path changed'); }
   
   pause() {
     if ( !this.subscription ) return;
@@ -57,7 +57,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   
   ngOnInit() {
     if ( this.properties.description == '@sum' )
-    this.dynamicDescription = true;
+      this.dynamicDescription = true;
   }
   
   protected start(): void {
@@ -126,10 +126,11 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   }
   
   ngOnDestroy() {
-    d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
+    console.log('DESTROY <<<<<<<<<<<<<<<<<<<<');
     this.subscription?.unsubscribe();
+    d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     if ( this.ref )
-    d3.select(this.ref.nativeElement).selectAll('div > *').remove();
+      d3.select(this.ref.nativeElement).selectAll('div > *').remove();
   }
   
   noData(content: ElementRef) {
@@ -173,7 +174,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     let p = Math.round(q);
     let base = Math.pow(10, n);
     let str = '';
-
+    
     if ( Math.floor(q) == 0 )
       return q.toFixed(1).toString();
 

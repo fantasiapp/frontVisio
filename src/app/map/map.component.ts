@@ -83,7 +83,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private interactiveMode() {
-    this.subscription = combineLatest([this.filtersService.$path, this.filtersService.$load, this.ready]).subscribe(([path, _, __]) => {
+    this.subscription = combineLatest([this.filtersService.stateSubject, this.filtersService.$load, this.ready]).subscribe(([{States}, _, __]) => {
+      let path = this.filtersService.getPath(States);
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         let pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree?.type === PDV.geoTree.type);

@@ -1,0 +1,56 @@
+:host {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    background: none;
+    position: absolute;
+    top: 100%;
+    width: var(--suggestion-box-width);
+    box-shadow: 0 0 3px 0 #aaa;
+    padding: 5px 0;
+    cursor: pointer;
+    z-index: 1;
+    background: white;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    z-index: 99;
+    --suggestion-box-width: 300px;
+    --suggestion-item-height: 28px;
+}
+
+:host > .suggestion {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--suggestion-item-height);
+}
+
+:host(.hidden) {
+    display: none;
+}
+
+.suggestion {
+    box-sizing: border-box;
+    padding: 5px 15px;
+    margin: 2px 0;
+    user-select: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.suggestion.selected, .suggestion:hover {
+    background: #ccc;
+}
+
+.typed {
+    color: #151D21;
+}
+
+.completed {
+    color: #151D21b0
+}
+
+.special {
+    color: #F06D0C;
+}

@@ -10,7 +10,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { LoginFormComponent } from './login-page/login-form/login-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DataStatComponent } from './data-stat/data-stat.component';
-import { LoggedPageComponent } from './logged-page/logged-page.component';
 import { PublicPageComponent } from './public-page/public-page.component';
 import { UpperbarComponent } from './upperbar/upperbar.component';
 import { FiltersComponent } from './filters/filters.component';
@@ -51,6 +50,8 @@ import { AccountInfoComponent } from './logged-page/account-info/account-info.co
 import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
 import { LoggerService } from './behaviour/logger.service';
 import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
+import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionbox.component';
+import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,6 @@ import { SearchbarComponent } from './logged-page/searchbar/searchbar.component'
     CheckboxComponent,
     LoginFormComponent,
     DataStatComponent,
-    LoggedPageComponent,
     PublicPageComponent,
     UpperbarComponent,
     FiltersComponent,
@@ -91,7 +91,9 @@ import { SearchbarComponent } from './logged-page/searchbar/searchbar.component'
     RootLevelOnlyDirective,
     AccountInfoComponent,
     DescriptionWidgetComponent,
-    SearchbarComponent
+    SearchbarComponent,
+    SuggestionBox,
+    PatternPipe
   ],
   imports: [
     BrowserModule,
