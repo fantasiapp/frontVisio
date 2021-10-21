@@ -166,11 +166,14 @@ class DataExtractionHelper{
   static geoHeight: number;
   static tradeHeight: number;
   static currentYear = true;
+  private static fieldsToSwitchWithyear: string[] = [];
 
 
   static setData(d: any){ // ici on peut mettre des this.datacar de toute façon ce sont des champs de structure donc ils sont uniques
     console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
+    let singleFields = ['levelGeo', 'levelTrade', 'dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'produit', 'industrie', 'ville', 'timestamp', 'root'];
+    for (let field of Object.keys(this.data)) if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) this.fieldsToSwitchWithyear.push(field);
     console.log("[DataExtractionHelper] this.data updated")
     let structure = this.get('structureLevel');
     this.ID_INDEX = structure.indexOf('id');
@@ -333,7 +336,7 @@ class DataExtractionHelper{
     return this.get(field)[id];
   }
 
-  static get(field: string, justName=false, lastYear=false):any{
+  static get(field: string, justName=false):any{
     //redirections: (à enlever quand on rendra le code plus propre)
     if (field == 'structurePdv') field = 'structurePdvs';
     if (field == 'indexesPdv') field = 'indexesPdvs';
@@ -342,8 +345,7 @@ class DataExtractionHelper{
     if (field == 'structureDashboard') field = 'structureDashboards';
     if (field == 'indexesDashboard') field = 'indexesDashboards';
     // to switch year
-    let singleFields = ['levelGeo', 'levelTrade', 'tradeTree', 'dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'produit', 'industrie', 'ville', 'timestamp', 'root'];
-    if (!this.currentYear && !field.startsWith('structure') && !field.startsWith('indexes') && !singleFields.includes(field)) field = field + '_ly';
+    if (!this.currentYear && this.fieldsToSwitchWithyear.includes(field)) field = field + '_ly';
     // A enlever quand le back sera à jour
     if (field == 'enduitIndustrie') return enduitIndustrie;
     if (field == 'segmentDnEnduit') return segmentDnEnduit;
