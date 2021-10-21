@@ -21,10 +21,10 @@ function searchDépartement(): SearchFunction {
     if ( !term && showAll || height < 0 ) return [];
     term = term.toLowerCase();
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term) >= 0);
+    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().indexOf(term) >= 0);
 
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-      let index = node.name.toLowerCase().search(term);
+      let index = node.name.toLowerCase().indexOf(term);
       if ( index < 0 ) return null;
       let data = {info: node.parent!.name , geoTree: true, node: node};
       return !index ?
@@ -43,10 +43,10 @@ function searchBassin(): SearchFunction {
     if ( !term && showAll || height < 0 ) return [];
     term = term.toLowerCase();
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term) >= 0);
+    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().indexOf(term) >= 0);
 
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-      let index = node.name.toLowerCase().search(term);
+      let index = node.name.toLowerCase().indexOf(term);
       if ( index < 0 ) return null;
       let data = {info: node.parent!.parent!.name + ', ' + node.parent!.name, geoTree: true, node: node};
       return !index ?
@@ -71,9 +71,9 @@ function searchField(field: string): SearchFunction {
     if ( !term && showAll || height < 0 ) return [];
     term = term.toLowerCase();
     let relevantNodes = (isGeo ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().search(term) >= 0);
+    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().indexOf(term) >= 0);
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-      let index = node.name.toLowerCase().search(term);
+      let index = node.name.toLowerCase().indexOf(term);
       if ( index < 0 ) return null;
       let data = {info: '', geoTree: isGeo, node: node};
       return !index ?
@@ -98,7 +98,7 @@ function searchDashboard(): SearchFunction {
     for ( let [_id, name] of dashboards ) {
       let id = +_id, index, isGeo, dashboard, data;
       name = name[0];
-      index = name.toLowerCase().search(term.toLowerCase());
+      index = name.toLowerCase().indexOf(term.toLowerCase());
       if ( index < 0 ) continue;
       isGeo = ids.includes(id);
       dashboard = isGeo ? geoDashboards.find(d => d.id == id) : PDV.tradeTree.getAllDashboards().find(d => d.id == id);
