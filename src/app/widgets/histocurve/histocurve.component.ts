@@ -51,7 +51,6 @@ export class HistocurveComponent extends HistoColumnComponent {
           `;
         },
         position: (data: any, width: number, height: number, element: any, pos: {x: number, y: number, xAxis?: number}) => {
-          console.log(pos);
           let axisPadding = 0;
           let maxBottom = this.rectHeight - 30; //30 css padding
           return {

@@ -57,13 +57,14 @@ export class HistoRowComponent extends BasicWidget {
     return Math.round(max);
   }
 
+  maxTicks = 11;
   private getTickValues() {
-    let power = Math.floor(Math.log10(this.maxValue)),
-      exp = Math.pow(10, power),
-      leadingCoefficient = Math.ceil(this.maxValue / exp),
-      goodValue = leadingCoefficient * exp; //1 -> 9
+    let t = this.maxTicks - 1,
+      exp = Math.round(Math.log(this.maxValue) / Math.log(10))-1,
+      b = Math.pow(10, exp),
+      goodValue = Math.ceil(this.maxValue / (t*b)) * t*b,
+      ticks = (new Array(t+1)).fill(0).map((_, i) => goodValue * i / t).filter(x => x <= this.maxValue);
     
-    let ticks = [0, goodValue / 5, goodValue * 2/5, goodValue * 3/5, goodValue * 4/5, goodValue].filter(x => x <= this.maxValue);
     if ( (this.maxValue - ticks[ticks.length - 1])/this.maxValue >= 0.1 )
       ticks.push(this.maxValue);
     return ticks;
@@ -137,7 +138,7 @@ export class HistoRowComponent extends BasicWidget {
         },
         y: {
           tick: {
-            count: 6,
+            count: this.maxTicks,
             values: this.getTickValues()
           }
         },
@@ -146,7 +147,7 @@ export class HistoRowComponent extends BasicWidget {
       grid: {
         y: {
           show: true,
-          ticks: 6
+          ticks: this.maxTicks
         }
       },
       //disable clicks on legend
