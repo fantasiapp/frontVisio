@@ -166,7 +166,7 @@ class DataExtractionHelper{
   static geoHeight: number;
   static tradeHeight: number;
   static currentYear = true;
-  private static fieldsToSwitchWithyear: string[];
+  private static fieldsToSwitchWithyear: string[] = [];
 
 
   static setData(d: any){ // ici on peut mettre des this.datacar de toute façon ce sont des champs de structure donc ils sont uniques
