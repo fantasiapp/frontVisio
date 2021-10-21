@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DataExtractionHelper, { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { getGeoTree, loadAll, SliceDice } from '../middle/Slice&Dice';
+import { getGeoTree, loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { AsyncSubject } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
@@ -154,11 +154,20 @@ export class FiltersStatesService {
     this.sliceDice.geoTree = this.tree!.type == NavigationExtractionHelper;
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
-    // $stateSubject must be changed after all elements are destroyed
-    // the error doesn't crash the app
   }
 
   canSub() {
     return this.arraySubject.value.levelArray.subLevel.id.length && this.navigation.childrenHaveSameDashboard();
+  }
+
+  setYear(current: boolean) {
+    console.log('setting year', current);
+    this.navigation.setCurrentYear(current);
+    let change = this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
+    this.logger.actionComplete();
+    if ( change ) {
+      loadAll();
+      this.reset(this.tree!.type == NavigationExtractionHelper ? PDV.geoTree : PDV.tradeTree, true);
+    }
   }
 }

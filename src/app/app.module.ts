@@ -37,7 +37,7 @@ import { PieTargetComponent } from './widgets/pie-target/pie-target.component';
 
 import { AgGridModule } from 'ag-grid-angular';
 import { TableComponent } from './widgets/table/table.component';
-import { HistoColumnTargetComponent } from './widgets/historow-target/histocolumn-target.component';
+import { HistoColumnTargetComponent } from './widgets/histocolumn-target/histocolumn-target.component';
 import { EditCellRenderer, CheckboxEnduitCellRenderer, CheckboxP2cdCellRenderer, PointFeuCellRenderer, TargetCellRenderer } from './widgets/table/renderers';
 
 import { HistocurveComponent } from './widgets/histocurve/histocurve.component';

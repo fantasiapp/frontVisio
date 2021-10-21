@@ -178,6 +178,11 @@ export class Navigation {
   }
 
   getCurrentYear(){
-    return DataExtractionHelper.get('params')["currentYear"];
+    let year = (new Date).getFullYear();
+    return (DataExtractionHelper.currentYear ? year : year - 1).toString();
+  }
+
+  setCurrentYear(current: boolean) {
+    DataExtractionHelper.currentYear = current;
   }
 }

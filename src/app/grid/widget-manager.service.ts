@@ -7,7 +7,7 @@ import { HistoRowComponent } from '../widgets/historow/historow.component';
 import { GaugeComponent } from '../widgets/gauge/gauge.component';
 import { TableComponent } from '../widgets/table/table.component';
 import { PieTargetComponent } from '../widgets/pie-target/pie-target.component';
-import { HistoColumnTargetComponent } from '../widgets/historow-target/histocolumn-target.component';
+import { HistoColumnTargetComponent } from '../widgets/histocolumn-target/histocolumn-target.component';
 import { HistocurveComponent } from '../widgets/histocurve/histocurve.component';
 
 

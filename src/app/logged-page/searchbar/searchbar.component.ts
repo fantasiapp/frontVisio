@@ -74,11 +74,14 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   onFocus(e: Event) {
-    this.results.next(this.lastResults = []);
+    this.results.next(this.lastResults = this.engine.search(this.lastTerm));
   }
 
-  onFocusOut(e: Event) {
-    //this.results.next([]);
+  @HostListener('focusout', ['$event'])
+  private onFocusOut(e: Event) {
+    setTimeout(() => {
+      this.results.next(this.lastResults = []);
+    }, 150);
   }
 
   selectionIndex: number = -1;
@@ -109,14 +112,14 @@ export class SearchbarComponent implements OnDestroy {
     }
 
     if ( e.code == 'Space' && e.ctrlKey ) {
-      this.results.next(this.lastResults = this.engine.findAll());
+      this.showAllSuggestions();
     }
   }
 
   onSelectionConfirmed(suggestion?: Suggestion) {
     if ( !suggestion ) {
       this.filtersState.reset(this.filtersState.tree!, false);
-      this.pattern = '';
+      //this.pattern = '';
       return;
     };
 
@@ -125,8 +128,9 @@ export class SearchbarComponent implements OnDestroy {
       if ( type == SearchService.IS_REDIRECTION ) {
         this.filtersState.reset(this.filtersState.tree!, false);
         this.pattern = '';
-      } else
+      } else {
         this.pattern = suggestion[0] + suggestion[1];
+      }
     } else {
       let data = suggestion[2];
       if ( data.node ) {
@@ -140,6 +144,10 @@ export class SearchbarComponent implements OnDestroy {
     }
 
     this.results.next(this.lastResults = []);
+  }
+
+  showAllSuggestions() {
+    this.results.next(this.lastResults = (this.lastTerm ? this.engine.search(this.lastTerm) : this.engine.findAll()));
   }
 
   toggle() {
