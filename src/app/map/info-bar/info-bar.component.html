@@ -13,7 +13,7 @@
         <ng-container *ngIf="pdv">
             <ng-container *ngIf="currentIndex == 0">
                 <div class="main">
-                    <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.attribute('name')}}</span></h2>
                     <div class="reference">
                         <div class="definition">
                             <ul>
@@ -59,26 +59,18 @@
 
             <ng-container *ngIf="currentIndex == 1">
                 <div class="main">
-                    <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
+                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.attribute('name')}}</span></h2>
                     <!-- <p>information sur la point de vente</p> -->
                     <div class="content">
                         <div class="name">Général</div>
                         <div class="definition">
                             <ul>
-                                <li><span>Agent : </span></li>
-                                <li><span>Enseigne : </span></li>
-                                <li><span>Département : </span></li>
-                                <li><span>Client prospect : </span></li>
-                                <li><span>Segmentation marketing : </span></li>
-                                <li><span>Segmentation portefeuille : </span></li>
-                            </ul>
-                            <ul class="values">
-                                <li><p>{{ displayedInfos.agent }}</p></li>
-                                <li><p>{{ displayedInfos.enseigne }}</p></li>
-                                <li><p>{{ displayedInfos.dep }}</p></li>
-                                <li><p>{{ displayedInfos.clientProspect }}</p></li>
-                                <li><p>{{ displayedInfos.segmentMarketing }}</p></li>
-                                <li><p>{{ displayedInfos.segmentCommercial }}</p></li>
+                                <li><span>Agent : </span><label>{{ displayedInfos.agent }}</label></li>
+                                <li><span>Enseigne : </span><label>{{ displayedInfos.enseigne }}</label></li>
+                                <li><span>Département : </span><label>{{ displayedInfos.dep }}</label></li>
+                                <li><span>Client prospect : </span><label>{{ displayedInfos.clientProspect }}</label></li>
+                                <li><span>Segmentation marketing : </span><label>{{ displayedInfos.segmentMarketing }}</label></li>
+                                <li><span>Segmentation portefeuille : </span><label>{{ displayedInfos.segmentCommercial }}</label></li>
                             </ul>
                         </div>
                         <div *ngIf="getSalesVolumes().length">

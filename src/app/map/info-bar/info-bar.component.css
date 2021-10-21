@@ -6,9 +6,9 @@
     --info-bar-margin-y: 20px;
     --navigation-height: 40px;
     --navigation-ball-size: 30px;
-    --pdv-title-margin-y: 2.19em;
+    --pdv-title-margin-y: 1em;
     --pdv-fields-margin-y: 12.5px;
-    --pdv-fields-margin-bottom: 1.56em;
+    --pdv-fields-margin-bottom: 1em;
     --pdv-props-margin-y: 20px;
     --pdv-comment-margin-y: 20px;
     --pdv-section-margin-y: 30px;
@@ -159,13 +159,12 @@ ul, hr {
 }
 
 .main ul li span {
-    font: 450 20px Roboto, sans-serif;
+    /* font: 450 20px Roboto, sans-serif; */
     flex-grow: 1;
 }
-.main ul li p, input {
-    font: 300 1em Roboto, sans-serif;
+.main ul li p, input, label {
+    font: 300 0.9em Roboto, sans-serif;
     position: relative;
-    top: 0.25em;
     margin: 0;
 }
 
@@ -176,7 +175,7 @@ ul, hr {
 
 .content .name {
     padding-bottom: var(--pdv-fields-margin-bottom);
-    font: 500 1.25em Roboto, sans-serif;
+    font: 450 1.1em Roboto, sans-serif;
 }
 
 .definition, .props {
@@ -195,8 +194,8 @@ ul, hr {
     background: white;
     border-width: 1px;
     border-radius: 3px;
-    border-color: #000000;
-    border-style: solid
+    border-style: solid;
+    padding: 0.2em;
 }
 
 .definition ul li input:not(:disabled):hover {
@@ -204,7 +203,7 @@ ul, hr {
     border-color: #D6D6D6;
 }
 .definition ul li input:focus {
-    border-color: #9A9A9A;
+    border-color: #9A9A9A !important;
     /* box-shadow: inset 0 1px 3px #9A9A9A */
 }
 
@@ -272,12 +271,12 @@ span.bolder {
 
 h2 {
     margin: var(--pdv-title-margin-y) 0;
-    font-size: 1.20em;
+    font-size: 1em;
     font-weight: 300;
 }
 
 h2 .title {
-    font-weight: 400;
+    font-weight: 500;
 }
 
 
