@@ -26,7 +26,7 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
     parent: TreeNode | null;
 
     constructor(tree: DataTree, parent: TreeNode | null = null, height: number = 0) {
-      if (typeof tree == "number"){
+      if (typeof tree == "number") {
         this.id = tree;
         this.children = [];
       } else {
@@ -106,11 +106,9 @@ export class Tree {
     this.type = extractor;
     this.attributes = {}
     //compute the data field
-    if ( typeof extractor.data === 'string' )
-      extractor.data = DataExtractionHelper.get(extractor.data);
-    
+    let data = extractor.loadData();
     let constructor = createNode(this, extractor);
-    this.root = new constructor(extractor.data as DataTree);
+    this.root = new constructor(data as any);
     constructor.computeAttributes();
   }
 

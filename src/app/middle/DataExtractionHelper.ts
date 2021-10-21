@@ -238,12 +238,6 @@ class DataExtractionHelper{
 
     this.geoHeight = this.geoLevels.length;
     this.tradeHeight = this.tradeLevels.length;
-
-    //initialize other helpers
-    NavigationExtractionHelper.data = this.get('geoTree');
-    NavigationExtractionHelper.height = this.geoHeight;
-    TradeExtrationHelper.data = this.get('tradeTree');
-    TradeExtrationHelper.height = this.tradeHeight;
   }
 
   static updateData(data: UpdateData) {
@@ -513,40 +507,69 @@ class DataExtractionHelper{
 export type DataTree = [number, [DataTree]] | number;
 
 export interface TreeExtractionHelper {
-  data: DataTree;
+  levels: any[];
+  data: {levels: string; tree: string;};
   height: number;
+  loadData: () => void;
   getName: (height: number, id: number) => string;
   getLevelLabel: (height: number) => string;
   getDashboardsAt: (height: number) => number[];
 };
 
 export const NavigationExtractionHelper: TreeExtractionHelper = {
-  data: 0,
-  height: DataExtractionHelper.geoHeight,
+  levels: [],
+  data: {tree: 'geoTree', levels: 'levelGeo'},
+  height: 0,
+  loadData() {
+    let structure = DataExtractionHelper.get('structureLevel'),
+      level = DataExtractionHelper.get(this.data.levels);
+    
+    this.levels.length = 0;
+    while (true){
+      this.levels.push(level.slice(0, structure.length-1));
+      if (!(level = level[DataExtractionHelper.SUBLEVEL_INDEX])) break;
+    }
+
+    this.height = this.levels.length;
+    return DataExtractionHelper.get(this.data.tree);
+  },
   getName(height: number, id: number) {
-    return DataExtractionHelper.getGeoLevelName(height, id);
+    let name = DataExtractionHelper.get(this.levels[height][DataExtractionHelper.LABEL_INDEX])[id];
+    if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
+    if (Array.isArray(name))
+      return name[DataExtractionHelper.get('structureAgentfinitions').indexOf('name')];
+    return name;
   },
   getLevelLabel(height: number) {
-    return DataExtractionHelper.getGeoLevelLabel(height)
+    return this.levels[height][DataExtractionHelper.PRETTY_INDEX];
   },
   getDashboardsAt(height: number){
-    return DataExtractionHelper.getGeoDashboardsAt(height)
+    return this.levels[height][DataExtractionHelper.DASHBOARD_INDEX];
   }
 };
 
 export const TradeExtrationHelper: TreeExtractionHelper = {
-  data: 0,
-  height: DataExtractionHelper.tradeHeight,
+  levels: [],
+  data: {tree: 'tradeTree', levels: 'levelTrade'},
+  height: 0,
+  loadData() {
+    return NavigationExtractionHelper.loadData.call(this);
+  },
   getName(height: number, id: number) {
-    return DataExtractionHelper.getTradeLevelName(height, id);
+    if (height == 0) return '';
+    let name = DataExtractionHelper.get(this.levels[height][DataExtractionHelper.LABEL_INDEX])[id];
+    if (name === undefined) {
+      throw `No trade level with id=${id} at height=${height}`;
+    }
+    return name;
   },
   getLevelLabel(height: number) {
-    return DataExtractionHelper.getTradeLevelLabel(height);
+    return this.levels[height][DataExtractionHelper.PRETTY_INDEX];
+
   },
   getDashboardsAt(height: number){
-    return DataExtractionHelper.getTradeDashboardsAt(height)
+    return this.levels[height][DataExtractionHelper.DASHBOARD_INDEX];
   }
 };
 
 export default DataExtractionHelper;
-
