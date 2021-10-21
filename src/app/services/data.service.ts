@@ -98,7 +98,7 @@ export class DataService {
     DataExtractionHelper.updateData(data);
     if(!fromTable) this.update.next();
   }
-  private sendQueuedDataToUpdate() { //used to send data every 10 seconds to the back
+  public sendQueuedDataToUpdate() { //used to send data every 10 seconds to the back
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate

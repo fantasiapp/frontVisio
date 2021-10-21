@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UpdateData } from './data.service';
+import { DataService, UpdateData } from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -78,13 +78,8 @@ export class LocalStorageService {
   }
 
   handleDisconnect(longTermDeconnection: boolean = false) {
-    console.log("Handle delog")
     if(this.getActiveToken() === sessionStorage.getItem('token')) {
-      console.log("From active window")
-
       if(longTermDeconnection) {
-        console.log("Long term disconnection")
-
         let token = this.getActiveToken()
         let storedData = JSON.parse(this.localStorage.getItem('data') || '{}') as {[token: string]: {[field: string]: any}};
         delete storedData[token]

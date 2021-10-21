@@ -93,6 +93,7 @@ export class AuthService {
 
   logoutFromServer() {
     setTimeout(() => {
+      this.dataService.sendQueuedDataToUpdate();
       this.dataService.endUpdateThread();
       this.localStorageService.handleDisconnect(true)
       this.isLoggedIn.next(false)
