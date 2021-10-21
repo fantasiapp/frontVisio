@@ -5,7 +5,7 @@
         <mat-icon class="expand-icon">expand_more</mat-icon></div>
   </div>
 
-  <div class="ens-org" [style.visibility]="mapComponent?.shown ? 'hidden' : 'visible'">
+  <div class="ens-org" [style.visibility]="switchIsVisible ? 'visible' : 'hidden'">
     <span
       ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
     >

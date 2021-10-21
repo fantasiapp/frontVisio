@@ -15,9 +15,6 @@ export class RubixCube {
   private cube?: CubeData;
   private _segmentAxis: boolean[] | null = null;
 
-  private lastSegmentAxis: boolean[] | null = null;
-
-
   constructor(private historow: HistoRowComponent) {
     let properties = historow.properties;
     properties.description = RubixCube.DESCRIPTION_MOCK;
@@ -38,15 +35,19 @@ export class RubixCube {
     return this._segmentAxis;
   }
 
+  //perhaps this is an overkill and we only need last one
+  private segmentStack: boolean[][] = [];
+
   set enseigneCondition(index: number) { //defines segmentAxis
     if ( this._conditions[1] && this._conditions[1].length ) {
       this.mainAxis = this.historow.properties.arguments[0][0];
       this._conditions[1] = null;
-      this.segmentAxis = this.lastSegmentAxis;
+      this.segmentAxis = this.segmentStack.pop();
+      console.log(this.segmentAxis);
     } else {
       this._conditions[1] = [this.mainAxis, [ +this.cube!.enseigneIndexes[index] ]];
       this.mainAxis = this.historow.properties.arguments[0][1];
-      this.lastSegmentAxis = this.segmentAxis;
+      this.segmentStack.push(this.segmentAxis);
       this.segmentAxis = this.cube!.boolMatrix[index+1];
     }
   }
@@ -64,7 +65,7 @@ export class RubixCube {
   set rules(cube: CubeData) {
     this.cube = cube;
     this._conditions[1] = null;
-    this.lastSegmentAxis = null;
+    this.segmentStack = [];
     this.segmentAxis = this.cube!.boolMatrix[0]; //render Axis
     this.segmentCondition = 0; //add condition to the displayer
   }

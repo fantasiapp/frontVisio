@@ -81,17 +81,14 @@ export class LoggerService {
         return key;
     }
 
-    this.change = this.setValue(key, result);
-    setTimeout(() => {
-      console.log('[Logger] snapshot:', this.snapshot)
-    }, 0);
-    return key;
+    return this.change = this.setValue(key, result);
   }
 
   setValue(key: string, value: any): boolean {
     let snapshot = this.snapshot as any; //allow indexing
     if ( snapshot[key] === undefined || snapshot[key] != value ) {
       snapshot[key] = value;
+      console.log('[Logger] snapshot changed:', this.snapshot)
       return true;
     }
     return false;
