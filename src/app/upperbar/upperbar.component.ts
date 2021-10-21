@@ -7,8 +7,8 @@ import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
 import {  Observable, Subscription } from 'rxjs';
 import { DataService } from '../services/data.service';
-import { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
 import { LocalStorageService } from '../services/local-storage.service';
+import { NavigationExtractionHelper, TradeExtrationHelper } from '../middle/DataExtractionHelper';
 
 
 @Component({
@@ -81,9 +81,15 @@ export class UpperbarComponent implements OnInit, OnDestroy {
     this.updating = false;
   }
 
+  get switchIsVisible() {
+    return this.mapComponent?.shown ? false : true;
+  }
+
   toggleMap() {
     if ( !this.mapComponent?.shown ) {
       this.mapComponent!.show();
+      if ( this.filtersState.tree && this.filtersState.tree.type === TradeExtrationHelper )
+        this.filtersState.reset(PDV.geoTree, false);      
       this.mapVisible.emit(true);
     } else {
       this.mapComponent?.hide();
