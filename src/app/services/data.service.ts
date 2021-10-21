@@ -108,7 +108,8 @@ export class DataService {
   public queueSnapshot(snapshot: Snapshot) {
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate() || {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
     let snapshotAsList: any[] = []
-    for(let field of structureSnapshot) snapshotAsList.push((<any>snapshot)[field]);
+    for(let field of structureSnapshot)
+      snapshotAsList.push((<any>snapshot)[field]);
     (this.queuedDataToUpdate['logs'] as any[][]).push(snapshotAsList)
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }

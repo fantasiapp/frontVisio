@@ -1,10 +1,12 @@
-<div class="main-container">
-    <app-upperbar (mapVisible)="mapIsVisible($event)">
-        <div *ngIf="layout && layout.description && layout.description.length; else elseBlock" class="aligned description">{{ computeDescription((layout && layout.description) || '') }}</div>
-        <ng-template #elseBlock>
-            <description-widget class="aligned description"></description-widget>
-        </ng-template>
-    </app-upperbar>
-    <grid-manager [layout]="layout" (layoutChanged)="onLayoutChange($event)" #gridManager>
-    </grid-manager>
-</div>
+<ng-container *ngIf="loaded">
+    <div class="main-container">
+        <app-upperbar (mapVisible)="mapIsVisible($event)">
+            <div *ngIf="layout && layout.description && layout.description.length; else elseBlock" class="aligned description">{{ computeDescription((layout && layout.description) || '') }}</div>
+            <ng-template #elseBlock>
+                <description-widget class="aligned description"></description-widget>
+            </ng-template>
+        </app-upperbar>
+        <grid-manager [layout]="layout" (layoutChanged)="onLayoutChange($event)" #gridManager>
+        </grid-manager>
+    </div>
+</ng-container>
