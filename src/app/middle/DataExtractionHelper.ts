@@ -364,7 +364,6 @@ class DataExtractionHelper{
     if (field == 'industrieTarget')
       return Object.assign({}, this.get('industrie'), industrieTarget); 
     let data = this.data[field];
-    console.log(field, data)
     if (!justName || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
     let names: any = {},
       nameIndex = this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase()).indexOf('name');
