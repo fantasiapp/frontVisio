@@ -88,6 +88,7 @@ export class LoginPageComponent implements OnInit {
       this.alreadyConnected = true;
     } else {
       if(this.authService.isStayConnected()) {
+        LocalStorageService.getFromCache = true;
         this.userValid = true
         this.authService.handleTokenSave();
         this.dataservice.requestData();

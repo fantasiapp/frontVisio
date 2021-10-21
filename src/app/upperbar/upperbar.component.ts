@@ -8,6 +8,7 @@ import { MapComponent } from '../map/map.component';
 import {  Observable, Subscription } from 'rxjs';
 import { DataService } from '../services/data.service';
 import { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
+import { LocalStorageService } from '../services/local-storage.service';
 
 
 @Component({
@@ -34,6 +35,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   constructor(
     private filtersState: FiltersStatesService,
     private dataService: DataService,
+    private localStorageService: LocalStorageService
   ) {
     this.subscription = this.filtersState.stateSubject.subscribe(({States}) => {
       this.sldValue = this.filtersState.tree?.type == NavigationExtractionHelper ? 1 : 0;
@@ -90,6 +92,8 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   }
 
   updateData() {
+    LocalStorageService.getFromCache = false;
     this.dataService.requestData();
+    if(this.localStorageService.getToken()) LocalStorageService.getFromCache = true;
   }
 }

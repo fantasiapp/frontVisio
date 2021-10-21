@@ -19,7 +19,7 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
             return next.handle(req);
         }
 
-        if(this.localStorageService.getToken()) {
+        if(LocalStorageService.getFromCache) {
             console.log("Data from cache")
             return of(new HttpResponse<any>({'body': this.localStorageService.getData()}));
         }

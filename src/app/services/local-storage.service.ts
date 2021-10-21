@@ -8,6 +8,7 @@ export class LocalStorageService {
 
   localStorage: Storage;
   sessionStorage: Storage;
+  static getFromCache: boolean = false;
 
   constructor() {
     this.localStorage = window.localStorage;
