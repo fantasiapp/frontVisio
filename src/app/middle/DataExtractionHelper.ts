@@ -179,7 +179,7 @@ class DataExtractionHelper{
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
     this.PRETTY_INDEX = structure.indexOf('prettyPrint');
-    this.DASHBOARD_INDEX = structure.indexOf('listDashBoards');
+    this.DASHBOARD_INDEX = structure.indexOf('listDashboards');
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
     this.LAYOUT_TEMPLATE_INDEX = this.get('structureLayout').indexOf('template');
     this.DASHBOARD_LAYOUT_INDEX = this.get('structureDashboards').indexOf('layout');
@@ -338,6 +338,8 @@ class DataExtractionHelper{
 
   static get(field: string, justName=false):any{
     //redirections: (à enlever quand on rendra le code plus propre)
+    if (field == 'produit') field = 'product';
+    if (field == 'industrie') field = 'industry';
     if (field == 'structurePdv') field = 'structurePdvs';
     if (field == 'indexesPdv') field = 'indexesPdvs';
     if (field == 'structureWidgetParam') field = 'structureWidgetparams';
