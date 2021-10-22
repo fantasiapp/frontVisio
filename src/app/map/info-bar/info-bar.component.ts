@@ -137,15 +137,13 @@ export class InfoBarComponent {
     this.TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
 
     
-    filtersState.$load.subscribe(() => {
-      this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
-      this.products = PDV.getProducts() as string[];
-      this.products.splice(3, this.products.length, 'P2CD')
-      for(let i = 0; i<this.industries.length; i++)
-        this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
-      for(let i = 0; i<this.products.length-1; i++)
-        this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
-    });
+    this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
+    this.products = PDV.getProducts() as string[];
+    this.products.splice(3, this.products.length, 'P2CD')
+    for(let i = 0; i<this.industries.length; i++)
+      this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
+    for(let i = 0; i<this.products.length-1; i++)
+      this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
   }
 
   //make variable

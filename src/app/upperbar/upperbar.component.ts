@@ -68,11 +68,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   }
 
   getName() {
-    return new Observable<string>((observer) => {
-      this.filtersState.$load.subscribe(_ => {
-        observer.next(PDV.geoTree.root.name || 'national');
-      });
-    });
+    return PDV.geoTree.root.name || 'national';
   }
 
   onAnimationEnd() {
@@ -99,5 +95,10 @@ export class UpperbarComponent implements OnInit, OnDestroy {
     LocalStorageService.getFromCache = false;
     this.dataService.requestData();
     if(this.localStorageService.getToken()) LocalStorageService.getFromCache = true;
+  }
+
+  displayPDV(pdv: PDV) {
+    this.mapComponent?.show();
+    this.mapComponent?.focusPDV(pdv);
   }
 }

@@ -952,6 +952,7 @@ class SliceDice{
 
 function loadAll(){
   PDV.load(true);
+  (window as any).PDV = PDV;
 }
 
 function getGeoTree() {
