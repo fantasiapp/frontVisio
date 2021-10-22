@@ -13,6 +13,26 @@ function filterMap<U, V = U>(array: U[], filterMap: FilterMapFunction<U, V>): V[
   return array.map(filterMap).filter(x => x) as unknown as V[];
 }
 
+function searchPDV(): SearchFunction {
+  let pdvs = [...PDV.getInstances().values()];
+  
+  return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    if ( !term && showAll ) return [];
+    term = term.toLowerCase();
+    let result = filterMap<PDV, Suggestion>(pdvs, (pdv: PDV) => {
+      let name = pdv.attribute('name').toLowerCase(),
+        index = name.indexOf(term);
+      
+      if ( index < 0 ) return null;
+      let data = {info: '', pdv};
+      return !index ?
+        [name.slice(0, term.length), name.slice(term.length), data] : 
+        ['', name, data];
+    });
+    return result;
+  };
+}
+
 //Département names can be duplicates
 function searchDépartement(): SearchFunction {
   let [height,] = SearchService.findFieldHeight('Département');
@@ -21,7 +41,6 @@ function searchDépartement(): SearchFunction {
     if ( !term && showAll || height < 0 ) return [];
     term = term.toLowerCase();
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().indexOf(term) >= 0);
 
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
       let index = node.name.toLowerCase().indexOf(term);
@@ -43,7 +62,6 @@ function searchBassin(): SearchFunction {
     if ( !term && showAll || height < 0 ) return [];
     term = term.toLowerCase();
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().indexOf(term) >= 0);
 
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
       let index = node.name.toLowerCase().indexOf(term);
@@ -71,7 +89,6 @@ function searchField(field: string): SearchFunction {
     if ( !term && showAll || height < 0 ) return [];
     term = term.toLowerCase();
     let relevantNodes = (isGeo ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
-    relevantNodes = relevantNodes.filter(node => node.name.toLowerCase().indexOf(term) >= 0);
     let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
       let index = node.name.toLowerCase().indexOf(term);
       if ( index < 0 ) return null;
@@ -191,7 +208,8 @@ export class SearchService {
     [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN, searchDépartement],
     [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN, searchBassin],
     [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Enseigne', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/(?:Bord?)|(?:Table?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard]
+    [SearchService.ruleFromRegexp(/(?:Bor?d?)|(?:Tabl?e?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard],
+    [SearchService.ruleFromRegexp(/(?:pd?v?)|(?:Poin?t? d?e? V?e?n?t?e?)/i), 'Point de vente', SearchService.IS_PATTERN, searchPDV]
   ];
 
   addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {

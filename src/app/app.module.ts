@@ -113,7 +113,7 @@ import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.di
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService, LoggerService],
+  providers: [SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

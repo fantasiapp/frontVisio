@@ -20,6 +20,8 @@ function randomColor() {
   return '#'+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16)+((Math.random()*256)|0).toString(16);
 }
 
+//Can be optimized by loading all and then filtering
+//Do it when you have time
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -83,7 +85,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private interactiveMode() {
-    this.subscription = combineLatest([this.filtersService.stateSubject, this.filtersService.$load, this.ready]).subscribe(([{States}, _, __]) => {
+    this.subscription = combineLatest([this.filtersService.stateSubject, this.ready]).subscribe(([{States}, _]) => {
       let path = this.filtersService.getPath(States);
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
@@ -118,6 +120,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   onCriteriaChange(criteria: any[]) {
     this.criteria = criteria;
     this.cd.detectChanges();
+  }
+
+  focusPDV(pdv: PDV) {
+    let marker = this.createMarker(pdv);
+    this.adjustMap([marker]);
+    this.selectedPDV = pdv;
   }
 
   update() {
@@ -302,23 +310,27 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private createMarker(pdv: PDV): MarkerType {
+    let lat = pdv.attribute('latitude'),
+      lng = pdv.attribute('longitude'),
+      industrie = pdv.property('industrie'),
+      icon = builder.get([industrie, +(pdv.property('clientProspect') == 3), +pdv.attribute('pointFeu'), pdv.attribute('segmentMarketing')]);
+
+    if ( !icon ) throw 'Cannot find icon, maybe ids change';
+    return {
+      position: new google.maps.LatLng(lat, lng),
+      icon,
+      title: pdv.attribute('name'),
+      pdv
+    }
+  }
+
   private addMarkersFromPDVs() {
     if ( !this.pdvs.length )
       return;
     
     let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
-      let lat = pdv.attribute('latitude'),
-        lng = pdv.attribute('longitude'),
-        industrie = pdv.property('industrie'),
-        icon = builder.get([industrie, +(pdv.property('clientProspect') == 3), +pdv.attribute('pointFeu'), pdv.attribute('segmentMarketing')]);
-
-      if ( !icon ) throw 'Cannot find icon, maybe ids change';
-      return {
-        position: new google.maps.LatLng(lat, lng),
-        icon,
-        title: pdv.attribute('name'),
-        pdv
-      }
+      return this.createMarker(pdv);
     });
 
     this.adjustMap(markers);

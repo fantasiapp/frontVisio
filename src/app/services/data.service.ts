@@ -32,7 +32,8 @@ export class DataService {
   
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
-  
+  load: Subject<never> = new Subject;
+
   private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
@@ -51,20 +52,19 @@ export class DataService {
         })
       )
       .subscribe((data: any) => {
-        if(data.warning) {
+        if(data.warning ||data.error) {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
           this.$serverLoading.next(0 as never);
           this.$serverLoading.complete();
           setTimeout(() => this.requestData(), 30000)
         } else {
           console.log("RequestData successfull")
+          this.load.next();
           this.response.next(data);
           this.update.next()
-          this.beginUpdateThread();
           this.sendQueuedDataToUpdate();
           this.setLastUpdateDate((data as any).timestamp)
-        }
-      });
+        }});
   }
 
   public requestUpdateData() { //

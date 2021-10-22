@@ -1,4 +1,5 @@
 import { Injectable, Injector } from "@angular/core";
+import { AuthService } from "../connection/auth.service";
 import { Navigation } from "../middle/Navigation";
 import { PDV } from "../middle/Slice&Dice";
 import { DataService } from "../services/data.service";
@@ -26,7 +27,11 @@ export class LoggerService {
   protected snapshot: Snapshot = defaultSnapshot;
   protected change: boolean = false;
 
-  constructor(private dataService: DataService, private navigation: Navigation) {}
+  constructor(private dataService: DataService, private navigation: Navigation, private auth: AuthService) {
+    //set stay connected as it should be
+    this.handleEvent(LoggerService.events.STAY_CONNECTED, auth.getStayConnected());
+    this.actionComplete();
+  }
 
   reset() {
     this.snapshot = defaultSnapshot;

@@ -23,8 +23,7 @@ export class FiltersStatesService implements OnDestroy {
         DataExtractionHelper.setData(data);
         loadAll();
         this.reset(getGeoTree(), true);
-        this.$load.next(0 as never);
-        this.$load.complete();
+        this.dataservice.beginUpdateThread();
       }
     });
 
@@ -33,9 +32,7 @@ export class FiltersStatesService implements OnDestroy {
     });
   }
 
-  $load: AsyncSubject<never> = new AsyncSubject();
   pathChanged: Subject<never> = new Subject;
-
   stateSubject = new BehaviorSubject({
     States: {
       level:{
@@ -184,6 +181,5 @@ export class FiltersStatesService implements OnDestroy {
 
   ngOnDestroy() {
     this.subscription?.unsubscribe();
-    console.log('filtersState destroyed');
   }
 }

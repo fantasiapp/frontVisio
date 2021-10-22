@@ -68,11 +68,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   }
 
   getName() {
-    return new Observable<string>((observer) => {
-      this.filtersState.$load.subscribe(_ => {
-        observer.next(PDV.geoTree.root.name || 'national');
-      });
-    });
+    return PDV.geoTree.root.name || 'national';
   }
 
   onAnimationEnd() {
@@ -97,5 +93,11 @@ export class UpperbarComponent implements OnInit, OnDestroy {
 
   updateData() {
     this.dataService.requestData();
+  }
+
+  //Baptise use this to switch to table and show pdv
+  displayPDV(pdv: PDV) {
+    this.mapComponent?.show();
+    this.mapComponent?.focusPDV(pdv);
   }
 }
