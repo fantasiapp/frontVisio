@@ -22,10 +22,10 @@ export class HistoColumnComponent extends BasicWidget {
     super(ref, filtersService, sliceDice);
   }
 
-  protected rectHeight: number = 0;
-  private maxValue: number = 0;
+  protected rect?: DOMRect;
+  protected maxValue: any = 0;
 
-  private computeMax(data: any) {
+  protected computeMax(data: any): any {
     let max = 0;
     for ( let i = 1; i < data[0].length; i++ ) {
       let acc = 0;
@@ -38,16 +38,16 @@ export class HistoColumnComponent extends BasicWidget {
     return Math.round(max);
   }
 
-  maxTicks = 6;
-  private getTickValues() {
+  protected maxTicks = 6;
+  protected getTickValues(max: any = this.maxValue): any {
     let t = this.maxTicks - 1,
-      exp = Math.round(Math.log(this.maxValue) / Math.log(10))-1,
+      exp = Math.round(Math.log(max) / Math.log(10))-1,
       b = Math.pow(10, exp),
-      goodValue = Math.ceil(this.maxValue / (t*b)) * t*b,
-      ticks = (new Array(t+1)).fill(0).map((_, i) => goodValue * i / t).filter(x => x <= this.maxValue);
+      goodValue = Math.ceil(max / (t*b)) * t*b,
+      ticks = (new Array(t+1)).fill(0).map((_, i) => goodValue * i / t).filter(x => x <= max);
     
-    if ( (this.maxValue - ticks[ticks.length - 1])/this.maxValue >= 0.1 )
-      ticks.push(this.maxValue);
+    if ( (max - ticks[ticks.length - 1])/max >= 0.1 )
+      ticks.push(max);
     return ticks;
   }
 
@@ -87,7 +87,7 @@ export class HistoColumnComponent extends BasicWidget {
         }, //barely works
         position: (data, width, height, element, pos) => {
           let axisPadding = 0;
-          let maxBottom = this.rectHeight - 30; //30 css padding
+          let maxBottom = this.rect!.height - 30; //30 css padding
           return {
             top: Math.max(axisPadding, Math.min(maxBottom, pos.y - height/2 + axisPadding)),
             left: (pos.xAxis || pos.x) + 20
@@ -141,7 +141,7 @@ export class HistoColumnComponent extends BasicWidget {
       },
       onrendered() {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
-        self.rectHeight = rect.height;
+        self.rect = rect;
       },
       transition: {
         duration: 250
