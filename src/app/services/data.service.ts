@@ -98,6 +98,23 @@ export class DataService {
     DataExtractionHelper.updateData(data);
     if(!fromTable) this.update.next();
   }
+  
+  public BEFOREsendQueuedDataToUpdate() { //used jsut before getting data from the server, to send stored queued updates
+    this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
+    let currentToken = this.localStorage.getToken()
+    let lastToken = this.localStorage.getLastToken();
+    if(lastToken) this.localStorage.saveToken(lastToken)
+    if(this.queuedDataToUpdate) {
+      this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
+      , {params : {"action" : "update"}}).subscribe(
+          (response: any) => {
+            this.localStorage.removeQueueUpdate();
+            this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+            this.localStorage.saveToken(currentToken);
+          })
+    }
+  }
+
   public sendQueuedDataToUpdate() { //used to send data every 10 seconds to the back
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
     if(this.queuedDataToUpdate) {
