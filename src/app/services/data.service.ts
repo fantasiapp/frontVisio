@@ -51,6 +51,7 @@ export class DataService {
       .subscribe((data) => {
         console.log("RequestData successfull")
         this.response.next(data);
+        this.update.next()
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
       });
