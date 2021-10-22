@@ -132,23 +132,22 @@ export class DataService {
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }
   public beginUpdateThread() {
+    console.log("[Data Service] Begin update threads")
     if(!this.threadIsOn) {
-      this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000)
-      .subscribe(() => {this.requestUpdateData()})
-      this.logSubscriber = interval(60000)
-      .subscribe(() => {this.sendQueuedDataToUpdate()})
+      this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
+      this.logSubscriber = interval(60000).subscribe(() => {this.sendQueuedDataToUpdate()})
     }
     this.threadIsOn = true;
   }
 
   public endUpdateThread() {
+    console.log("[Data Service] End update threads")
     this.threadIsOn = false;
     this.updateSubscriber.unsubscribe();
     this.logSubscriber.unsubscribe();
   }
 
   setLastUpdateDate(timestamp: string) {
-    console.log("Save local updte timestamp")
     this.localStorage.saveLastUpdateTimestamp(+timestamp)
   }
   getLastUpdateDate() {

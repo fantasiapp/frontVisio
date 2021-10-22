@@ -143,6 +143,7 @@ export class SliceTable {
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
+        console.log("Slice : ", slice)
         let pdvs = []
         if (slice !== {}){
             let allPdvs = DataExtractionHelper.get('pdvs');
