@@ -88,10 +88,16 @@ export class LoggerService {
     let snapshot = this.snapshot as any; //allow indexing
     if ( snapshot[key] === undefined || snapshot[key] != value ) {
       snapshot[key] = value;
-      console.log('[Logger] snapshot changed:', this.snapshot)
       return true;
     }
     return false;
+  }
+
+  log() {
+    this.autofillFields();
+    console.log('[Logger] snapshot changed:', this.snapshot)
+    this.dataService.queueSnapshot(this.snapshot);
+    this.change = false;
   }
 
   autofillFields() {
@@ -102,9 +108,7 @@ export class LoggerService {
   actionComplete() {
     if ( !this.change ) return;
     // console.log(this.snapshot);
-    this.autofillFields();
-    this.dataService.queueSnapshot(this.snapshot);
-    this.change = false;
+    this.log();
   }
 
   static events = {

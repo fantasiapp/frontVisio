@@ -1,13 +1,9 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
 import {
-  ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
+  HostListener,
   OnInit,
-  Output,
 } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs/internal/Subject';
 import { AuthService } from '../connection/auth.service';
 import {
@@ -20,11 +16,14 @@ import {
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
 import { LocalStorageService } from '../services/local-storage.service';
+import { combineLatest, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css'],
+  providers: [FiltersStatesService],
   animations: [
     trigger('fadeOut', [
       state(
@@ -64,17 +63,19 @@ export class LoginPageComponent implements OnInit {
         setTimeout(() => elmt2?.classList.add('fadeOut'), 2000);
         setTimeout(() => {elmt3?.classList.add('rotated')
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
-        setTimeout(() => elmt5?.classList.add('scale'), 900)
-        setTimeout(() => {
+        setTimeout(() => elmt5?.classList.add('scale'), 900);
+        combineLatest([
+          this.filtersStates.$load,
+          of(null).pipe(delay(6000))
+        ]).subscribe(() => {
           this.router.navigate([
             sessionStorage.getItem('originalPath') || 'logged',
           ]);
-        }, 6000)
+        });
       }
     }
   }
   constructor(
-    cdr: ChangeDetectorRef,
     private authService: AuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,

@@ -51,7 +51,11 @@
     width: 100%;
     right: 2px;
     z-index: 3;
-    transition: all ease-out 2s;
+}
+
+@keyframes rotated {
+    0% { transform: rotateY(0deg); }
+    50%, 100% { transform: rotateY(360deg); }
 }
 
 #logo-container.translated {
@@ -63,10 +67,16 @@
     left: 76%;
     transform: scale(2.5, 2.5);
 }
+
 #logo.rotated{
-    transition-duration: 1s;
-    transform: rotateY(360deg);
+    animation-name: rotated;
+    animation-duration: 2s;
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+    animation-fill-mode: forwards;
 }
+
 .connection-container{
     position:absolute;
     display: flex;

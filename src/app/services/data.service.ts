@@ -23,12 +23,12 @@ export type UpdateData = {
   [key in UpdateFields]: { [id: number]: any[]; } | any[][];
 };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class DataService {
 
-  constructor(private http : HttpClient, private localStorage : LocalStorageService) {}
+  constructor(private http : HttpClient, private localStorage : LocalStorageService) {
+    console.log('[DataService]: On.');
+  }
   
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
