@@ -136,10 +136,6 @@ export class SliceTable {
         for(let field of this.pdvFields) {
             this.idsToFields[field] = DataExtractionHelper.get(field);
         }
-
-                    // ⚠️⚠️⚠️ Début à 0 ? Ou à 1 ? ⚠️⚠️⚠️
-
-        // this.idIndustries = {'Siniat': 0, 'Placo': 2, 'Knauf': 5}
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
