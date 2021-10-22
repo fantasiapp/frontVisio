@@ -33,6 +33,7 @@ export class DataService {
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
 
+  private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
 
@@ -130,15 +131,17 @@ export class DataService {
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }
   public beginUpdateThread() {
-    this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000)
-    // this.updateSubscriber = interval(10000)
-    .subscribe(() => {this.requestUpdateData()})
-    this.logSubscriber = interval(60000)
-    // this.updateSubscriber = interval(10000)
-    .subscribe(() => {this.sendQueuedDataToUpdate()})
+    if(!this.threadIsOn) {
+      this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000)
+      .subscribe(() => {this.requestUpdateData()})
+      this.logSubscriber = interval(60000)
+      .subscribe(() => {this.sendQueuedDataToUpdate()})
+    }
+    this.threadIsOn = true;
   }
 
   public endUpdateThread() {
+    this.threadIsOn = false;
     this.updateSubscriber.unsubscribe();
     this.logSubscriber.unsubscribe();
   }
