@@ -1,26 +1,28 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import DataExtractionHelper, { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { getGeoTree, loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
-import { AsyncSubject, Subject } from 'rxjs';
+import { AsyncSubject, Subject, Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { debounceTime } from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
-export class FiltersStatesService implements OnInit {
+@Injectable()
+export class FiltersStatesService implements OnDestroy {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
   tree?: Tree;
+  subscription?: Subscription;
+
   constructor(private navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
     console.log('[FiltersStates]: On.')
-    this.dataservice.response.subscribe((data) => {
+    this.subscription = this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
         loadAll();
-        this.reset(getGeoTree(), false);
+        this.reset(getGeoTree(), true);
         this.$load.next(0 as never);
         this.$load.complete();
         this.dataservice.beginUpdateThread();
@@ -170,8 +172,6 @@ export class FiltersStatesService implements OnInit {
     return this.arraySubject.value.levelArray.subLevel.id.length && this.navigation.childrenHaveSameDashboard();
   }
 
-  ngOnInit() { console.log('>>>>>>>>>>>>>>>>>'); }
-
   setYear(current: boolean) {
     this.navigation.setCurrentYear(current);
     let change = this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
@@ -184,6 +184,7 @@ export class FiltersStatesService implements OnInit {
   }
 
   ngOnDestroy() {
+    this.subscription?.unsubscribe();
     console.log('filtersState destroyed');
   }
 }

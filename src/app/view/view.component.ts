@@ -11,6 +11,7 @@ import { LocalStorageService } from '../services/local-storage.service';
   selector: 'app-view',
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
+  providers: [Navigation, FiltersStatesService], //<- references his own navigation, they should be similar to the ones created in login
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewComponent implements OnDestroy {
@@ -21,7 +22,7 @@ export class ViewComponent implements OnDestroy {
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
   subscription: Subscription;
-
+  
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
     this.subscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
       if ( this.layout?.id !== dashboard.id ) {
