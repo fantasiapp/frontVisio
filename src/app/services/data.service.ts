@@ -32,7 +32,7 @@ export class DataService {
   
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
-
+  
   private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
@@ -50,7 +50,8 @@ export class DataService {
       )
       .subscribe((data: any) => {
         if(data.warning) {
-          console.log("Server temporarly unavailable. Please try again in 2 minutes.")
+          console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
+          setTimeout(() => this.requestData(), 30000)
         } else {
           console.log("RequestData successfull")
           this.response.next(data);
