@@ -10,8 +10,6 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
 
     constructor(private localStorageService: LocalStorageService) {}
     
-    private cache: Map<HttpRequest<any>, HttpResponse<any>> = new Map()
-
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>{
 
         if (!this.isCacheable(req)) {
@@ -19,17 +17,12 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         }
 
         if(this.localStorageService.getStayConnected()) {
-            console.log("Data from cache")
             return of(new HttpResponse<any>({'body': this.localStorageService.getData()}));
         }
         return next.handle(req).pipe(
                 tap(stateEvent => {
                     if(stateEvent instanceof HttpResponse) {
-                        if(stateEvent.body.warning) {
-                            console.log("Serveur en cours de redémarrage. Réessayez dans 2 minutes")
-                        } else {
-                            this.localStorageService.saveData(stateEvent.body)
-                        }
+                        this.localStorageService.saveData(stateEvent.body)
                     }
                 })
         )
@@ -42,22 +35,6 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         return false;
     }
     
-
-    fetchData(
-        req: HttpRequest<any>,
-        next: HttpHandler): Observable<HttpEvent<any>> {
-            return next.handle(req).pipe(
-                tap(event => {
-                    if (event instanceof HttpResponse) {
-                        this.cache.set(req, event);
-                    }
-                })
-            )
-    }
-
-    clearCache(): void {
-        this.cache.clear()
-    }
 
 }
 

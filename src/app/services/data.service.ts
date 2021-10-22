@@ -37,7 +37,7 @@ export class DataService {
   updateSubscriber: any;
   logSubscriber: any;
 
-  public requestData(): Observable<Object|null> { //used at login, and with refresh button to ask immediatly data from the back
+  public requestData(){ //used at login, and with refresh button to ask immediatly data from the back
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         params : {"action" : "dashboard"},
@@ -48,16 +48,18 @@ export class DataService {
           return data;
         })
       )
-      .subscribe((data) => {
-        if(data)
-        console.log("RequestData successfull")
-        this.response.next(data);
-        this.update.next()
-        this.beginUpdateThread();
-        this.sendQueuedDataToUpdate();
-        this.setLastUpdateDate((data as any).timestamp)
+      .subscribe((data: any) => {
+        if(data.warning) {
+          console.log("Server temporarly unavailable. Please try again in 2 minutes.")
+        } else {
+          console.log("RequestData successfull")
+          this.response.next(data);
+          this.update.next()
+          this.beginUpdateThread();
+          this.sendQueuedDataToUpdate();
+          this.setLastUpdateDate((data as any).timestamp)
+        }
       });
-    return this.response;
   }
 
   public requestUpdateData() { //
@@ -69,6 +71,7 @@ export class DataService {
         } else {
           console.log("Updates received from back : ", response)
           DataExtractionHelper.updateData(response);
+          this.update.next()
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
           )
         }

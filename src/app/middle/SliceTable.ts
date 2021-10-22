@@ -223,7 +223,7 @@ export class SliceTable {
     }
 
     static initializeTarget() {
-        return [Math.floor(Date.now()/1000), true, true, 0, false, "r", ""]
+        return [Math.floor(Date.now()/1000), true, true, true, 0, false, "r", "", ""]
       }
 
     changeTargetTargetFinitions(pdv: {[field: string]: any}) {

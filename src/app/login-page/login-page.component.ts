@@ -45,7 +45,7 @@ import { delay } from 'rxjs/operators';
 export class LoginPageComponent implements OnInit {
   private destroy$: Subject<void> = new Subject<void>();
   private logInObserver = {
-    next: (success: any) => { //a pu se connecter, l'utilisateur précédent était peut être différent
+    next: (success: any) => { //a pu se connecter avec Internet, l'utilisateur précédent était peut être différent
       if (success) {
         let lastToken = this.localStorageService.getLastToken();
         let newToken = this.authService.getAuthorizationToken();
