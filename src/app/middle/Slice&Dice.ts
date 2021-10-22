@@ -119,7 +119,6 @@ class DataWidget{
   
   basicTreatement(km2 = false, sortLines=true, removeNullColumns:boolean=true){
     if (km2) this.m2ToKm2();
-    this.removeTooSmallValues();
     if (removeNullColumns) this.removeZeros() ; else this.removeNullLine();
     if (sortLines) this.sortLines();
   }
@@ -229,13 +228,6 @@ class DataWidget{
     for(let j = 0; j < this.columnsTitles.length; j++) 
       sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
     return sumCols
-  }
-
-  private removeTooSmallValues(){
-    let tooSmallLimit = 0.2;
-    for(let i = 0; i < this.rowsTitles.length; i++)
-      for(let j = 0; j < this.columnsTitles.length; j++)
-        if (this.data[i][j] < tooSmallLimit) this.data[i][j] = 0;
   }
 
   // à enlever dans la version finale
@@ -960,6 +952,7 @@ class SliceDice{
 
 function loadAll(){
   PDV.load(true);
+  (window as any).PDV = PDV;
 }
 
 function getGeoTree() {

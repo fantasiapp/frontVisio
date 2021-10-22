@@ -32,6 +32,7 @@ export class DataService {
   
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
+  load: Subject<never> = new Subject;
 
   private threadIsOn: boolean = false;
   updateSubscriber: any;
@@ -51,6 +52,7 @@ export class DataService {
       .subscribe((data) => {
         if(data)
         console.log("RequestData successfull")
+        this.load.next();
         this.response.next(data);
         this.update.next()
         this.beginUpdateThread();

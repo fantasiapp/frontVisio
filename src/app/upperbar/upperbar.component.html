@@ -20,14 +20,14 @@
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
-        Org. commercial
+        Org. commerciale
       </div></span
     >
   </div>
 
   <div class="right-block">
     <div class="search-div">
-     <searchbar></searchbar>
+     <searchbar (PDVfound)="displayPDV($event)"></searchbar>
     </div>
     <div class="search-div">
       <button class="button" (click)="updateData()">
@@ -40,7 +40,7 @@
       </button>
     </div>
     <div class="search-div">
-      <account-info [name]="(getName() | async) || '...'"></account-info>
+      <account-info [name]="getName() || '...'"></account-info>
     </div>
   </div>
 </div>

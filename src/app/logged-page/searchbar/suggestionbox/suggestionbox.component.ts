@@ -71,7 +71,7 @@ export class SuggestionBox implements AfterViewInit {
   capitalizeSecond(suggestion: Suggestion) {
     let term = suggestion[1];
     if ( !suggestion[0] )
-      return term.split(' ').map(part => part[0].toUpperCase() + part.slice(1).toLowerCase()).join(' ')
+      return term.split(' ').map(part => part ? part[0].toUpperCase() + part.slice(1).toLowerCase() : '').join(' ')
     return term.split(' ').map((part, index) => index == 0 ? part.toLowerCase() : part[0].toUpperCase() + part.slice(1).toLowerCase()).join(' ');
   }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, HostListener, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
@@ -25,6 +25,9 @@ export class SearchbarComponent implements OnDestroy {
   @HostBinding('class.opened')
   opened: boolean = false;
 
+  @Output()
+  PDVfound: EventEmitter<PDV> = new EventEmitter;
+
   term: Subject<string> = new Subject();
   lastTerm: string = '';
   results: Subject<Suggestion[]> = new Subject;
@@ -42,7 +45,7 @@ export class SearchbarComponent implements OnDestroy {
     this.selectionIndex = 0;
   }
 
-  private debounceDuration = 50;
+  private debounceDuration = 60;
   private subscription: Subscription = new Subscription;
 
   constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService) {
@@ -139,11 +142,13 @@ export class SearchbarComponent implements OnDestroy {
       } else if ( data.dashboard ) {
         this.navigation.setDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
         this.filtersState.refresh();
+      } else if ( data.pdv ) {
+        this.PDVfound.emit(data.pdv);
       }
       else { return console.error("Not yet"); }
     }
 
-    this.input!.nativeElement.value = '';
+    this.lastTerm = this.input!.nativeElement.value = '';
     this.results.next(this.lastResults = []);
   }
 
@@ -153,7 +158,7 @@ export class SearchbarComponent implements OnDestroy {
 
   close() {
     this.opened = !this.opened;
-    if ( this.input ) this.input.nativeElement.value = '';
+    if ( this.input ) this.lastTerm = this.input.nativeElement.value = '';
     this.results.next(this.lastResults = []);
   }
 
