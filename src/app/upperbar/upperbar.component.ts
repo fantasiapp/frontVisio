@@ -96,8 +96,6 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   }
 
   updateData() {
-    LocalStorageService.getFromCache = false;
     this.dataService.requestData();
-    if(this.localStorageService.getToken()) LocalStorageService.getFromCache = true;
   }
 }

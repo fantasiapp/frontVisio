@@ -33,7 +33,9 @@ export class DataService {
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
 
+  private threadIsOn: boolean = false;
   updateSubscriber: any;
+  logSubscriber: any;
 
   public requestData(): Observable<Object|null> { //used at login, and with refresh button to ask immediatly data from the back
     (
@@ -49,6 +51,8 @@ export class DataService {
       .subscribe((data) => {
         console.log("RequestData successfull")
         this.response.next(data);
+        this.update.next()
+        this.beginUpdateThread();
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
       });
@@ -58,7 +62,7 @@ export class DataService {
   public requestUpdateData() { //
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DataExtractionHelper.get('timestamp')}})
     .subscribe((response : any) => {
-      if( !Object.keys(response).length ) { //this is always false response !== {}
+      if( response ) { //this is always false response !== {}
         if(response.message) {
           console.debug("Empty update")
         } else {
@@ -115,8 +119,9 @@ export class DataService {
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
       , {params : {"action" : "update"}}).subscribe((response: any) => {
-          this.localStorage.removeQueueUpdate(); 
-          this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+          if(response.message != false)
+            this.localStorage.removeQueueUpdate(); 
+            this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
         })
     }
   }
@@ -129,17 +134,22 @@ export class DataService {
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }
   public beginUpdateThread() {
-    this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000)
-    // this.updateSubscriber = interval(10000)
-    .subscribe(() => {this.requestUpdateData()})
+    console.log("[Data Service] Begin update threads")
+    if(!this.threadIsOn) {
+      this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
+      this.logSubscriber = interval(60000).subscribe(() => {this.sendQueuedDataToUpdate()})
+    }
+    this.threadIsOn = true;
   }
 
   public endUpdateThread() {
-    this.updateSubscriber.unsubscribe()
+    console.log("[Data Service] End update threads")
+    this.threadIsOn = false;
+    this.updateSubscriber.unsubscribe();
+    this.logSubscriber.unsubscribe();
   }
 
   setLastUpdateDate(timestamp: string) {
-    console.log("Save local updte timestamp")
     this.localStorage.saveLastUpdateTimestamp(+timestamp)
   }
   getLastUpdateDate() {

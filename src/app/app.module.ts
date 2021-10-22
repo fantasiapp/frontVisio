@@ -53,6 +53,7 @@ import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
 import { BlankComponent } from './general/blank/blank.component';
 import { DataService } from './services/data.service';
 import { AuthService } from './connection/auth.service';
+import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.directive';
 
 @NgModule({
   declarations: [
@@ -93,7 +94,8 @@ import { AuthService } from './connection/auth.service';
     SearchbarComponent,
     SuggestionBox,
     PatternPipe,
-    BlankComponent
+    BlankComponent,
+    AgentFinitionsOnlyDirective
   ],
   imports: [
     BrowserModule,
