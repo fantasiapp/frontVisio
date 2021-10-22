@@ -3,7 +3,6 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse } fr
 import { Observable, of } from "rxjs";
 import { tap } from "rxjs/operators";
 import { LocalStorageService } from "../services/local-storage.service";
-import { AuthService } from "../connection/auth.service";
 
 
 @Injectable()
@@ -26,7 +25,11 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         return next.handle(req).pipe(
                 tap(stateEvent => {
                     if(stateEvent instanceof HttpResponse) {
-                        this.localStorageService.saveData(stateEvent.body)
+                        if(stateEvent.body.warning) {
+                            console.log("Serveur en cours de redémarrage. Réessayez dans 2 minutes")
+                        } else {
+                            this.localStorageService.saveData(stateEvent.body)
+                        }
                     }
                 })
         )

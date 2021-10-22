@@ -49,6 +49,7 @@ export class DataService {
         })
       )
       .subscribe((data) => {
+        if(data)
         console.log("RequestData successfull")
         this.response.next(data);
         this.update.next()
