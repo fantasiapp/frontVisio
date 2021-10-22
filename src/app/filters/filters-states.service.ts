@@ -8,7 +8,6 @@ import { Tree } from '../middle/Node';
 import { AsyncSubject, Subject, Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { debounceTime } from 'rxjs/operators';
-import { LocalStorageService } from '../services/local-storage.service';
 
 @Injectable()
 export class FiltersStatesService implements OnDestroy {
@@ -17,7 +16,7 @@ export class FiltersStatesService implements OnDestroy {
   tree?: Tree;
   subscription?: Subscription;
 
-  constructor(private navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService, private localStorageService: LocalStorageService) {
+  constructor(private navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
     console.log('[FiltersStates]: On.')
     this.subscription = this.dataservice.response.subscribe((data) => {
       if (data) {
@@ -26,7 +25,6 @@ export class FiltersStatesService implements OnDestroy {
         this.reset(getGeoTree(), true);
         this.$load.next(0 as never);
         this.$load.complete();
-        if(this.localStorageService.getToken()) this.dataservice.beginUpdateThread();
       }
     });
 

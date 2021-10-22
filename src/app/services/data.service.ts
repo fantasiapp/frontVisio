@@ -52,6 +52,7 @@ export class DataService {
         console.log("RequestData successfull")
         this.response.next(data);
         this.update.next()
+        this.beginUpdateThread();
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
       });
@@ -118,8 +119,9 @@ export class DataService {
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
       , {params : {"action" : "update"}}).subscribe((response: any) => {
-          this.localStorage.removeQueueUpdate(); 
-          this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+          if(response.message != false)
+            this.localStorage.removeQueueUpdate(); 
+            this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
         })
     }
   }
