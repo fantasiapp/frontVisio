@@ -101,16 +101,11 @@ export class DataService {
   
   public BEFOREsendQueuedDataToUpdate() { //used jsut before getting data from the server, to send stored queued updates
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
-    let currentToken = this.localStorage.getToken()
-    let lastToken = this.localStorage.getLastToken();
-    if(lastToken) this.localStorage.saveToken(lastToken)
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
-      , {params : {"action" : "update"}}).subscribe(
-          (response: any) => {
+      , {params : {"action" : "update"}}).subscribe((response: any) => {
             this.localStorage.removeQueueUpdate();
             this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
-            this.localStorage.saveToken(currentToken);
           })
     }
   }
@@ -119,7 +114,10 @@ export class DataService {
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
-      , {params : {"action" : "update"}}).subscribe((response: any) => {this.localStorage.removeQueueUpdate(); this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};})
+      , {params : {"action" : "update"}}).subscribe((response: any) => {
+          this.localStorage.removeQueueUpdate(); 
+          this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+        })
     }
   }
   public queueSnapshot(snapshot: Snapshot) {

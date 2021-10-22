@@ -74,10 +74,9 @@ export class LocalStorageService {
     if(token === sessionStorage.getItem('token')) {
       if(!this.getStayConnected()) {
         this.localStorage.removeItem('token')
-        this.localStorage.removeItem('removeLastUpdateTimestamp');
+        this.localStorage.removeItem('lastUpdateTimestamp');
         this.localStorage.removeItem('data');
       }
-      this.localStorage.removeItem('token')
       sessionStorage.removeItem("token")
     }
   }

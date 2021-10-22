@@ -47,8 +47,14 @@ export class LoginPageComponent implements OnInit {
   private logInObserver = {
     next: (success: any) => { //a pu se connecter, l'utilisateur précédent était peut être différent
       if (success) {
-        this.dataservice.BEFOREsendQueuedDataToUpdate();
-        this.localStorageService.saveLastToken(this.authService.getAuthorizationToken())
+        let lastToken = this.localStorageService.getLastToken();
+        let newToken = this.authService.getAuthorizationToken();
+        if(lastToken) { //quick manip to fool the auth interceptor
+          this.authService.token = lastToken;
+          this.dataservice.BEFOREsendQueuedDataToUpdate();
+          this.authService.token = newToken;
+        }
+        this.localStorageService.saveLastToken(newToken)
         this.userValid = true;
         this.dataservice.requestData();
         if(this.stayConnected) this.localStorageService.saveStayConnected(true);
