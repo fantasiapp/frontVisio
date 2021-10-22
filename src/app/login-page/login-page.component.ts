@@ -18,12 +18,12 @@ import { Router } from '@angular/router';
 import { LocalStorageService } from '../services/local-storage.service';
 import { combineLatest, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { LoggerService } from '../behaviour/logger.service';
 
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css'],
+  providers: [FiltersStatesService],
   animations: [
     trigger('fadeOut', [
       state(
