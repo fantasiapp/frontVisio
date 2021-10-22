@@ -55,7 +55,6 @@ export class DataService {
         this.load.next();
         this.response.next(data);
         this.update.next()
-        this.beginUpdateThread();
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
       });
