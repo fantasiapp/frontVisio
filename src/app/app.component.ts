@@ -15,7 +15,7 @@ export class AppComponent implements OnDestroy{
   ngOnDestroy(): void {
     this.dataService.sendQueuedDataToUpdate();
     this.dataService.endUpdateThread();
-    this.localStorage.handleDisconnect(!this.localStorage.getToken());
+    this.localStorage.handleDisconnect();
   }
   title = 'VisioFantasiapp';
 }

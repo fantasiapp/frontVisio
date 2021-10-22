@@ -68,11 +68,11 @@ export class LocalStorageService {
     this.localStorage.removeItem('queuedDataToUpdate')
   }
 
-  handleDisconnect(longTermDeconnection: boolean = false) {
+  handleDisconnect() {
     let token = this.getToken()
 
     if(token === sessionStorage.getItem('token')) {
-      if(longTermDeconnection || !this.getStayConnected()) {
+      if(!this.getStayConnected()) {
         this.localStorage.removeItem('token')
         this.localStorage.removeItem('removeLastUpdateTimestamp');
         this.localStorage.removeItem('data');
