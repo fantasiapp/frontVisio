@@ -1,21 +1,21 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import DataExtractionHelper, { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { getGeoTree, loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
-import { AsyncSubject } from 'rxjs';
+import { AsyncSubject, Subject } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
+import { debounceTime } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class FiltersStatesService {
+@Injectable({ providedIn: 'root' })
+export class FiltersStatesService implements OnInit {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
   tree?: Tree;
   constructor(private navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
+    console.log('[FiltersStates]: On.')
     this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
@@ -26,9 +26,14 @@ export class FiltersStatesService {
         this.dataservice.beginUpdateThread();
       }
     });
+
+    this.pathChanged.pipe(debounceTime(5000)).subscribe(() => {
+      this.logger.log();
+    });
   }
 
   $load: AsyncSubject<never> = new AsyncSubject();
+  pathChanged: Subject<never> = new Subject;
 
   stateSubject = new BehaviorSubject({
     States: {
@@ -92,9 +97,14 @@ export class FiltersStatesService {
       States
     };
 
-    //the path is auto computed, the only interesting thing "logwise" that can change is the dashboard
-    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
-    this.logger.actionComplete();
+    if ( superlevel !== undefined || levelId !== undefined ) {
+      this.pathChanged.next();
+    }
+
+    if ( dashboardId ) {
+      this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
+      this.logger.actionComplete();
+    }
 
     if ( emit ) {
       this.stateSubject.next(currentState);
@@ -160,8 +170,9 @@ export class FiltersStatesService {
     return this.arraySubject.value.levelArray.subLevel.id.length && this.navigation.childrenHaveSameDashboard();
   }
 
+  ngOnInit() { console.log('>>>>>>>>>>>>>>>>>'); }
+
   setYear(current: boolean) {
-    console.log('setting year', current);
     this.navigation.setCurrentYear(current);
     let change = this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
@@ -170,5 +181,9 @@ export class FiltersStatesService {
       this.reset(this.tree!.type == NavigationExtractionHelper ? PDV.geoTree : PDV.tradeTree, true);
       this.dataservice.update.next();
     }
+  }
+
+  ngOnDestroy() {
+    console.log('filtersState destroyed');
   }
 }

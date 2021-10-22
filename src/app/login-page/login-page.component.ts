@@ -1,13 +1,9 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
 import {
-  ChangeDetectorRef,
   Component,
-  EventEmitter,
-  Input,
+  HostListener,
   OnInit,
-  Output,
 } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs/internal/Subject';
 import { AuthService } from '../connection/auth.service';
 import {
@@ -22,6 +18,7 @@ import { Router } from '@angular/router';
 import { LocalStorageService } from '../services/local-storage.service';
 import { combineLatest, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { LoggerService } from '../behaviour/logger.service';
 
 @Component({
   selector: 'app-login-page',
@@ -76,7 +73,6 @@ export class LoginPageComponent implements OnInit {
     }
   }
   constructor(
-    cdr: ChangeDetectorRef,
     private authService: AuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,

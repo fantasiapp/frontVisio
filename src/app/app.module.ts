@@ -9,7 +9,6 @@ import { CheckboxComponent } from './general/checkbox/checkbox.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginFormComponent } from './login-page/login-form/login-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DataStatComponent } from './data-stat/data-stat.component';
 import { PublicPageComponent } from './public-page/public-page.component';
 import { UpperbarComponent } from './upperbar/upperbar.component';
 import { FiltersComponent } from './filters/filters.component';
@@ -52,6 +51,9 @@ import { LoggerService } from './behaviour/logger.service';
 import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
 import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionbox.component';
 import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
+import { BlankComponent } from './general/blank/blank.component';
+import { DataService } from './services/data.service';
+import { AuthService } from './connection/auth.service';
 
 @NgModule({
   declarations: [
@@ -59,7 +61,6 @@ import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
     LoginPageComponent,
     CheckboxComponent,
     LoginFormComponent,
-    DataStatComponent,
     PublicPageComponent,
     UpperbarComponent,
     FiltersComponent,
@@ -93,7 +94,8 @@ import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
     DescriptionWidgetComponent,
     SearchbarComponent,
     SuggestionBox,
-    PatternPipe
+    PatternPipe,
+    BlankComponent
   ],
   imports: [
     BrowserModule,
@@ -111,7 +113,7 @@ import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable, LoggerService],
+  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService, LoggerService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

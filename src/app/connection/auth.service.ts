@@ -96,7 +96,7 @@ export class AuthService {
       this.dataService.sendQueuedDataToUpdate();
       this.dataService.endUpdateThread();
       this.localStorageService.handleDisconnect(true)
-      this.isLoggedIn.next(false)
+      this.isLoggedIn.next(false);
       this.router.navigate(['login']);
     }, 1000);
   }
