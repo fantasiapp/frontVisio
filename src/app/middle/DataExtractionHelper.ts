@@ -73,8 +73,8 @@ const weeks = {
 }
 
 const histoCurve = {
-  1: "Curve",
-  2: "Histo"
+  1: "Cumul en pourcentage",
+  2: "Nombre de PdV complétés"
 }
 
 const pointFeuFilter = {
