@@ -34,6 +34,7 @@ export class DataService {
   update: Subject<never> = new Subject;
 
   updateSubscriber: any;
+  logSubscriber: any;
 
   public requestData(): Observable<Object|null> { //used at login, and with refresh button to ask immediatly data from the back
     (
@@ -132,10 +133,14 @@ export class DataService {
     this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000)
     // this.updateSubscriber = interval(10000)
     .subscribe(() => {this.requestUpdateData()})
+    this.logSubscriber = interval(60000)
+    // this.updateSubscriber = interval(10000)
+    .subscribe(() => {this.sendQueuedDataToUpdate()})
   }
 
   public endUpdateThread() {
-    this.updateSubscriber.unsubscribe()
+    this.updateSubscriber.unsubscribe();
+    this.logSubscriber.unsubscribe();
   }
 
   setLastUpdateDate(timestamp: string) {
