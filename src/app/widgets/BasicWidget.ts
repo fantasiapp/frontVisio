@@ -47,7 +47,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     });
   }
 
-  protected onPathChanged() { console.log('>>>>>>>>>>>>> path changed'); }
+  protected onPathChanged() { }
   
   pause() {
     if ( !this.subscription ) return;
@@ -126,7 +126,6 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   }
   
   ngOnDestroy() {
-    console.log('DESTROY <<<<<<<<<<<<<<<<<<<<');
     this.subscription?.unsubscribe();
     d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     if ( this.ref )

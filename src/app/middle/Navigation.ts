@@ -1,4 +1,4 @@
-import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
+import DataExtractionHelper, {NavigationExtractionHelper} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
@@ -10,7 +10,9 @@ export class Navigation {
   currentLevel?: Node;
   currentDashboard?: Dashboard;
 
-  constructor() { }
+  constructor() {
+    console.log('[Navigation]: On.');
+  }
 
   setTree(t: Tree){    
     this.tree = t ? t : new Tree(NavigationExtractionHelper);
@@ -178,6 +180,11 @@ export class Navigation {
   }
 
   getCurrentYear(){
-    return DataExtractionHelper.get('params')["currentYear"];
+    let year = (new Date).getFullYear();
+    return (DataExtractionHelper.currentYear ? year : year - 1).toString();
+  }
+
+  setCurrentYear(current: boolean) {
+    DataExtractionHelper.currentYear = current;
   }
 }

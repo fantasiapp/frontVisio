@@ -23,12 +23,12 @@ export type UpdateData = {
   [key in UpdateFields]: { [id: number]: any[]; } | any[][];
 };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class DataService {
 
-  constructor(private http : HttpClient, private localStorage : LocalStorageService) {}
+  constructor(private http : HttpClient, private localStorage : LocalStorageService) {
+    console.log('[DataService]: On.');
+  }
   
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
@@ -98,17 +98,33 @@ export class DataService {
     DataExtractionHelper.updateData(data);
     if(!fromTable) this.update.next();
   }
+  
+  public BEFOREsendQueuedDataToUpdate() { //used jsut before getting data from the server, to send stored queued updates
+    this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
+    if(this.queuedDataToUpdate) {
+      this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
+      , {params : {"action" : "update"}}).subscribe((response: any) => {
+            this.localStorage.removeQueueUpdate();
+            this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+          })
+    }
+  }
+
   public sendQueuedDataToUpdate() { //used to send data every 10 seconds to the back
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
-      , {params : {"action" : "update"}}).subscribe((response: any) => {this.localStorage.removeQueueUpdate(); this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};})
+      , {params : {"action" : "update"}}).subscribe((response: any) => {
+          this.localStorage.removeQueueUpdate(); 
+          this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+        })
     }
   }
   public queueSnapshot(snapshot: Snapshot) {
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate() || {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinition': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
     let snapshotAsList: any[] = []
-    for(let field of structureSnapshot) snapshotAsList.push((<any>snapshot)[field]);
+    for(let field of structureSnapshot)
+      snapshotAsList.push((<any>snapshot)[field]);
     (this.queuedDataToUpdate['logs'] as any[][]).push(snapshotAsList)
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }

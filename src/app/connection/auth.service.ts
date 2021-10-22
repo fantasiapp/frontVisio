@@ -69,33 +69,29 @@ export class AuthService {
   }
 
   handleTokenSave() {
-    this.localStorageService.setActiveToken(this.getAuthorizationToken());
+    this.localStorageService.saveToken(this.getAuthorizationToken());
     sessionStorage.setItem('token', this.getAuthorizationToken());
   }
 
   setStayConnected(val: boolean) {
-    this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!val);
-    this.logger.actionComplete();
+  //   this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!val);
+  //   this.logger.actionComplete();
   }
 
   isStayConnected(): boolean {
-    if(this.localStorageService.getToken()) {
-      this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!true);
-      this.logger.actionComplete();
+    if(this.localStorageService.getStayConnected()) {
+      // this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!true);
+      // this.logger.actionComplete();
       return true;
     } else {
       return false;}
-  }
-
-  isAlreadyConnected(): boolean {
-    return this.localStorageService.getActiveToken()?true:false;
   }
 
   logoutFromServer() {
     setTimeout(() => {
       this.dataService.sendQueuedDataToUpdate();
       this.dataService.endUpdateThread();
-      this.localStorageService.handleDisconnect(true)
+      this.localStorageService.handleDisconnect()
       this.isLoggedIn.next(false)
       this.router.navigate(['login']);
     }, 1000);

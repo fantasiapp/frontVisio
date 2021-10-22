@@ -5,7 +5,7 @@
         <mat-icon class="expand-icon">expand_more</mat-icon></div>
   </div>
 
-  <div class="ens-org" [style.visibility]="mapComponent?.shown ? 'hidden' : 'visible'">
+  <div class="ens-org" [style.visibility]="switchIsVisible ? 'visible' : 'hidden'">
     <span
       ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
     >
@@ -46,9 +46,6 @@
 </div>
 <app-sub-upper-bar></app-sub-upper-bar>
 <ng-content></ng-content>
-<!-- <div> 
-  <app-data-stat></app-data-stat>
-</div> -->
 <div *ngIf="isFilterVisible">
   <app-filters></app-filters>
 </div>

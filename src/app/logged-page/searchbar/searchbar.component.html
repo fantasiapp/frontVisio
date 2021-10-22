@@ -3,8 +3,8 @@
 </div>
 <div class="wrapper">
     <span class="pattern" (click)="pattern = ''">{{ pattern | pattern }}</span>
-    <input [placeholder]="placeholder" [style.padding-left]="(40 + patternWidth) + 'px'" #input (input)="onInput($event)" (keydown)="onKeyDown($event)" (focus)="onFocus($event)" (focusout)="onFocusOut($event)"/>
-    <img [style.visibility]="opened ? 'visible' : 'hidden'" (click)="toggle()" class="close" src="assets/X.svg"/>
+    <input [placeholder]="placeholder" [style.padding-left]="(40 + patternWidth) + 'px'" #input (input)="onInput($event)" (keydown)="onKeyDown($event)" (focus)="onFocus($event)" (dblclick)="showAllSuggestions()"/>
+    <img [style.visibility]="opened ? 'visible' : 'hidden'" (click)="close()" class="close" src="assets/X.svg"/>
 </div>
 
 <suggestionbox [suggestions]="results | async" [selection]="selectionIndex" (confirm)="onSelectionConfirmed($event)" #suggestionbox></suggestionbox>

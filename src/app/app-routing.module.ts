@@ -6,12 +6,14 @@ import { FiltersComponent } from './filters/filters.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
 import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionbox.component';
+import { BlankComponent } from './general/blank/blank.component';
 //import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
 const routes: Routes = [
+  { path: 'blank', component: BlankComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  {path: 'login', redirectTo: 'login', pathMatch: 'full'},
+  { path: 'login', redirectTo: 'login', pathMatch: 'full' },
 
   {
     path: 'login',
@@ -38,7 +40,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {onSameUrlNavigation: 'reload'})],
   exports: [RouterModule],
   providers: [AuthGuard]
 })

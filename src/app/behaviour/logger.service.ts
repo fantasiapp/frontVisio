@@ -81,11 +81,7 @@ export class LoggerService {
         return key;
     }
 
-    this.change = this.setValue(key, result);
-    setTimeout(() => {
-      console.log('[Logger] snapshot:', this.snapshot)
-    }, 0);
-    return key;
+    return this.change = this.setValue(key, result);
   }
 
   setValue(key: string, value: any): boolean {
@@ -97,6 +93,13 @@ export class LoggerService {
     return false;
   }
 
+  log() {
+    this.autofillFields();
+    console.log('[Logger] snapshot changed:', this.snapshot)
+    this.dataService.queueSnapshot(this.snapshot);
+    this.change = false;
+  }
+
   autofillFields() {
     let path = this.navigation.currentLevel?.path.map(node => node.id);
     this.snapshot.path = path?.slice(1);
@@ -105,9 +108,7 @@ export class LoggerService {
   actionComplete() {
     if ( !this.change ) return;
     // console.log(this.snapshot);
-    this.autofillFields();
-    this.dataService.queueSnapshot(this.snapshot);
-    this.change = false;
+    this.log();
   }
 
   static events = {
