@@ -143,6 +143,7 @@ export class SearchbarComponent implements OnDestroy {
       else { return console.error("Not yet"); }
     }
 
+    this.input!.nativeElement.value = '';
     this.results.next(this.lastResults = []);
   }
 
@@ -150,8 +151,9 @@ export class SearchbarComponent implements OnDestroy {
     this.results.next(this.lastResults = (this.lastTerm ? this.engine.search(this.lastTerm) : this.engine.findAll()));
   }
 
-  toggle() {
+  close() {
     this.opened = !this.opened;
+    if ( this.input ) this.input.nativeElement.value = '';
     this.results.next(this.lastResults = []);
   }
 

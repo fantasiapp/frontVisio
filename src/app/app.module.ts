@@ -9,7 +9,6 @@ import { CheckboxComponent } from './general/checkbox/checkbox.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginFormComponent } from './login-page/login-form/login-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { PublicPageComponent } from './public-page/public-page.component';
 import { UpperbarComponent } from './upperbar/upperbar.component';
 import { FiltersComponent } from './filters/filters.component';
 import { SearchFieldComponent } from './general/search-field/search-field.component';
@@ -61,7 +60,6 @@ import { AuthService } from './connection/auth.service';
     LoginPageComponent,
     CheckboxComponent,
     LoginFormComponent,
-    PublicPageComponent,
     UpperbarComponent,
     FiltersComponent,
     SearchFieldComponent,
