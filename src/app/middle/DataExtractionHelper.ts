@@ -172,7 +172,7 @@ class DataExtractionHelper{
   static setData(d: any){ // ici on peut mettre des this.datacar de toute façon ce sont des champs de structure donc ils sont uniques
     console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
-    let singleFields = ['levelGeo', 'levelTrade', 'dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'produit', 'industrie', 'ville', 'timestamp', 'root', 'industry'];
+    let singleFields = ['levelGeo', 'levelTrade', 'dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
     for (let field of Object.keys(this.data)) if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) this.fieldsToSwitchWithyear.push(field);
     console.log("[DataExtractionHelper] this.data updated")
     let structure = this.get('structureLevel');
@@ -342,7 +342,7 @@ class DataExtractionHelper{
     if (field == 'structureDashboard') fieldName = 'structureDashboards';
     if (field == 'indexesDashboard') fieldName = 'indexesDashboards';
     // to switch year
-    if (!this.currentYear && this.fieldsToSwitchWithyear.includes(field)) fieldName = field + '_ly';
+    if (!this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
     if (fieldName == 'enduitIndustrie') return enduitIndustrie;
     if (fieldName == 'segmentDnEnduit') return segmentDnEnduit;
