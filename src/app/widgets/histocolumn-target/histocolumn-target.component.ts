@@ -119,12 +119,12 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       onresized(this: any) {
         let chart = self.chart!;
         let rect = (chart.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
-        self.rectHeight = rect.height;
+        self.rect = rect;
         self.renderTargetContainer({data: null, target: self.barTargets});
       },
       onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
-        self.rectHeight = rect.height;
+        self.rect = rect;
         self.chart = this;
         self.renderTargetContainer(data); //initial render
         this.config('onrendered', null);
