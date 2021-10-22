@@ -16,14 +16,13 @@ import {
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
 import { LocalStorageService } from '../services/local-storage.service';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, of, Subscription } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css'],
-  providers: [FiltersStatesService],
   animations: [
     trigger('fadeOut', [
       state(
@@ -43,6 +42,7 @@ import { delay } from 'rxjs/operators';
   ],
 })
 export class LoginPageComponent implements OnInit {
+  private subscription?: Subscription;
   private destroy$: Subject<void> = new Subject<void>();
   private logInObserver = {
     next: (success: any) => {
@@ -61,8 +61,9 @@ export class LoginPageComponent implements OnInit {
         setTimeout(() => {elmt3?.classList.add('rotated')
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
         setTimeout(() => elmt5?.classList.add('scale'), 900);
-        combineLatest([
-          this.filtersStates.$load,
+        
+        this.subscription = combineLatest([
+          this.dataservice.load,
           of(null).pipe(delay(6000))
         ]).subscribe(() => {
           this.router.navigate([
@@ -76,7 +77,6 @@ export class LoginPageComponent implements OnInit {
     private authService: AuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,
-    private filtersStates : FiltersStatesService,
     private router: Router
   ) {}
   userValid = false;
@@ -101,6 +101,7 @@ export class LoginPageComponent implements OnInit {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.subscription?.unsubscribe();
   }
 
   onLoading(username: string, password: string, stayConnected: boolean) {

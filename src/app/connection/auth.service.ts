@@ -23,9 +23,9 @@ export class AuthService {
   // saveLocalTokenSubject = new BehaviorSubject<boolean>(false);
   errorCode: number = 0;
   // tokenSubscription: Subscription;
-  stayConnected: boolean = false;
+  private stayConnected: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router, private localStorageService: LocalStorageService, private dataService: DataService, private logger: LoggerService) {
+  constructor(private http: HttpClient, private router: Router, private localStorageService: LocalStorageService, private dataService: DataService) {
     this.token = this.localStorageService.getToken(); //usefull?
     // this.tokenSubscription = this.saveLocalTokenSubject
     // .subscribe((save: boolean) => 
@@ -74,18 +74,19 @@ export class AuthService {
   }
 
   setStayConnected(val: boolean) {
-    this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!val);
-    this.logger.actionComplete();
+    this.stayConnected = val;
   }
 
   isStayConnected(): boolean {
     if(this.localStorageService.getToken()) {
-      this.logger.handleEvent(LoggerService.events.STAY_CONNECTED, !!true);
-      this.logger.actionComplete();
-      return true;
+      return this.stayConnected = true;
     } else {
-      return false;}
+      return this.stayConnected = false;
+    }
   }
+
+  //Baptiste, is this redundant ?
+  getStayConnected() { return this.stayConnected; }
 
   isAlreadyConnected(): boolean {
     return this.localStorageService.getActiveToken()?true:false;

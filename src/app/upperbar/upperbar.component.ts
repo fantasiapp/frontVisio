@@ -97,6 +97,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
     if(this.localStorageService.getToken()) LocalStorageService.getFromCache = true;
   }
 
+  //Baptise use this to switch to table and show pdv
   displayPDV(pdv: PDV) {
     this.mapComponent?.show();
     this.mapComponent?.focusPDV(pdv);

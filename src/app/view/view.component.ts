@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
@@ -11,7 +12,7 @@ import { LocalStorageService } from '../services/local-storage.service';
   selector: 'app-view',
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
-  providers: [Navigation, FiltersStatesService], //<- references his own navigation, they should be similar to the ones created in login
+  providers: [Navigation, FiltersStatesService, LoggerService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewComponent implements OnDestroy {

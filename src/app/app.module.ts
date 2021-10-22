@@ -111,7 +111,7 @@ import { AuthService } from './connection/auth.service';
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService, LoggerService],
+  providers: [SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -32,6 +32,7 @@ export class DataService {
   
   response = new BehaviorSubject<Object|null>(null);
   update: Subject<never> = new Subject;
+  load: Subject<never> = new Subject;
 
   updateSubscriber: any;
 
@@ -49,6 +50,7 @@ export class DataService {
       .subscribe((data) => {
         console.log("RequestData successfull")
         this.response.next(data);
+        this.load.next();
         this.sendQueuedDataToUpdate();
         this.setLastUpdateDate((data as any).timestamp)
       });
