@@ -109,8 +109,10 @@ export class DataService {
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
       , {params : {"action" : "update"}}).subscribe((response: any) => {
-            this.localStorage.removeQueueUpdate();
-            this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+            if(response && !response.error) {
+              this.localStorage.removeQueueUpdate();
+              this.queuedDataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+            }
           })
     }
   }
