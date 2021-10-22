@@ -70,6 +70,7 @@ export class LoginPageComponent implements OnInit {
         setTimeout(() => {elmt3?.classList.add('rotated')
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
         setTimeout(() => elmt5?.classList.add('scale'), 900);
+        this.dataservice.$serverLoading.subscribe(() => this.serverIsLoading = true)
         combineLatest([
           this.filtersStates.$load,
           of(null).pipe(delay(6000))
@@ -92,6 +93,7 @@ export class LoginPageComponent implements OnInit {
   retry = true;
   alreadyConnected: boolean = false;
   stayConnected: boolean = false;
+  serverIsLoading: boolean = false;
 
   ngOnInit(): void {
     if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même

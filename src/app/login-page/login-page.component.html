@@ -9,13 +9,16 @@
     </div>
     
   </div>
-    <div class="connection-container">
-      <app-login-form
-        *ngIf="!userValid"
-        @fadeOut
-        (onLogin)="onLoading($event.username, $event.password, $event.isStayConnected)"
-        [errorConnection]="!userValid"
-      ></app-login-form>
-    </div>
+  <div class="connection-container">
+    <app-login-form
+      *ngIf="!userValid"
+      @fadeOut
+      (onLogin)="onLoading($event.username, $event.password, $event.isStayConnected)"
+      [errorConnection]="!userValid"
+    ></app-login-form>
+  </div>
+  <div *ngIf="serverIsLoading" class="loading-div">
+    <p>Le serveur est momentanément indisponible. <br> Veuillez patienter quelques instants (temps estimé : &lt;2 minutes)</p>
+  </div>
 
 </div>

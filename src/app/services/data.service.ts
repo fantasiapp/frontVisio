@@ -1,10 +1,10 @@
 import { HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
 import { typeofExpr } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
-import { Subject, interval, throwError } from 'rxjs';
+import { Subject, interval, AsyncSubject } from 'rxjs';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
-import { map } from 'rxjs/internal/operators/map';
+import { map, } from 'rxjs/internal/operators/map';
 import { environment } from 'src/environments/environment';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { LocalStorageService } from './local-storage.service';
@@ -36,6 +36,8 @@ export class DataService {
   private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
+  $serverLoading: AsyncSubject<never> = new AsyncSubject();
+
 
   public requestData(){ //used at login, and with refresh button to ask immediatly data from the back
     (
@@ -51,6 +53,8 @@ export class DataService {
       .subscribe((data: any) => {
         if(data.warning) {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
+          this.$serverLoading.next(0 as never);
+          this.$serverLoading.complete();
           setTimeout(() => this.requestData(), 30000)
         } else {
           console.log("RequestData successfull")
