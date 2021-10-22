@@ -7,6 +7,7 @@ import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
   selector: 'account-info',
@@ -40,7 +41,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   private mouseEvent: Subject<boolean> = new Subject();
   private subscription!: Subscription;
 
-  constructor(private filtersService: FiltersStatesService, private auth: AuthService, private dataService: DataService) {}
+  constructor(private filtersService: FiltersStatesService, private auth: AuthService, private dataService: DataService, private localStorageService: LocalStorageService) {}
 
   ngOnInit() {
     this.subscription = this.mouseEvent.pipe(debounceTime(0)).subscribe(dropped => {
@@ -92,6 +93,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    this.localStorageService.removeStayConnected();
     this.auth.logoutFromServer();
   }
 }

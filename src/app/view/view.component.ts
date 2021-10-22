@@ -73,6 +73,6 @@ export class ViewComponent implements OnDestroy {
     this.subscription.unsubscribe();
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();
-    this.localStorageService.handleDisconnect(!this.localStorageService.getToken());
+    this.localStorageService.handleDisconnect();
   }
 }
