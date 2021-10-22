@@ -19,8 +19,8 @@ export class ViewComponent implements OnDestroy {
 
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
-
   subscription: Subscription;
+  loaded: boolean = false;
 
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService) {
     this.subscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
@@ -29,6 +29,11 @@ export class ViewComponent implements OnDestroy {
         this.gridManager?.clear();
         this.layout = dashboard;
       }
+    });
+
+    //no need to clear since this is an async subject
+    filtersService.$load.subscribe(() => {
+      this.loaded = true;
     });
 
     dataservice.update.subscribe((_) => {

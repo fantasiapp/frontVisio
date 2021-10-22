@@ -1,9 +1,7 @@
-import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { getGeoTree, getTradeTree, PDV } from '../middle/Slice&Dice';
-import { SliceDice } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
 import {  Observable, Subscription } from 'rxjs';
 import { DataService } from '../services/data.service';

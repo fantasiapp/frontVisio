@@ -172,7 +172,7 @@ class DataExtractionHelper{
   static setData(d: any){ // ici on peut mettre des this.datacar de toute façon ce sont des champs de structure donc ils sont uniques
     console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
-    let singleFields = ['levelGeo', 'levelTrade', 'dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'produit', 'industrie', 'ville', 'timestamp', 'root'];
+    let singleFields = ['levelGeo', 'levelTrade', 'dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'produit', 'industrie', 'ville', 'timestamp', 'root', 'industry'];
     for (let field of Object.keys(this.data)) if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) this.fieldsToSwitchWithyear.push(field);
     console.log("[DataExtractionHelper] this.data updated")
     let structure = this.get('structureLevel');
