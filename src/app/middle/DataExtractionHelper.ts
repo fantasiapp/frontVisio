@@ -73,8 +73,8 @@ const weeks = {
 }
 
 const histoCurve = {
-  1: "Curve",
-  2: "Histo"
+  1: "Cumul en pourcentage",
+  2: "Nombre de PdV complétés"
 }
 
 const pointFeuFilter = {
@@ -330,41 +330,42 @@ class DataExtractionHelper{
     return this.get(field)[id];
   }
 
-  static get(field: string, justName=false):any{
+  static get(field: string, justNames=false):any{
+    let fieldName = field;
     //redirections: (à enlever quand on rendra le code plus propre)
-    if (field == 'produit') field = 'product';
-    if (field == 'industrie') field = 'industry';
-    if (field == 'structurePdv') field = 'structurePdvs';
-    if (field == 'indexesPdv') field = 'indexesPdvs';
-    if (field == 'structureWidgetParam') field = 'structureWidgetparams';
-    if (field == 'indexesWidgetParam') field = 'indexesWidgetparams';
-    if (field == 'structureDashboard') field = 'structureDashboards';
-    if (field == 'indexesDashboard') field = 'indexesDashboards';
+    if (field == 'produit') fieldName = 'product';
+    if (field == 'industrie') fieldName = 'industry';
+    if (field == 'structurePdv') fieldName = 'structurePdvs';
+    if (field == 'indexesPdv') fieldName = 'indexesPdvs';
+    if (field == 'structureWidgetParam') fieldName = 'structureWidgetparams';
+    if (field == 'indexesWidgetParam') fieldName = 'indexesWidgetparams';
+    if (field == 'structureDashboard') fieldName = 'structureDashboards';
+    if (field == 'indexesDashboard') fieldName = 'indexesDashboards';
     // to switch year
-    if (!this.currentYear && this.fieldsToSwitchWithyear.includes(field)) field = field + '_ly';
+    if (!this.currentYear && this.fieldsToSwitchWithyear.includes(field)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
-    if (field == 'enduitIndustrie') return enduitIndustrie;
-    if (field == 'segmentDnEnduit') return segmentDnEnduit;
-    if (field == 'paramsCompute') return paramsCompute;
-    if (field == 'clientProspect') return clientProspect;
-    if (field == "suiviAD") return suiviAD;
-    if (field == "weeks") return weeks;
-    if (field == "histo&curve") return histoCurve;    
-    if (field == 'ciblage') return ciblage;
-    if (field == 'pointFeuFilter') return pointFeuFilter;
-    if (field == 'industriel') return industriel;
-    if (field == 'segmentDnEnduitTargetVisits') return segmentDnEnduitTargetVisits;
-    if (field == 'segmentMarketingFilter') return segmentMarketingFilter;
-    if (field == 'clientProspectTarget')
+    if (fieldName == 'enduitIndustrie') return enduitIndustrie;
+    if (fieldName == 'segmentDnEnduit') return segmentDnEnduit;
+    if (fieldName == 'paramsCompute') return paramsCompute;
+    if (fieldName == 'clientProspect') return clientProspect;
+    if (fieldName == "suiviAD") return suiviAD;
+    if (fieldName == "weeks") return weeks;
+    if (fieldName == "histo&curve") return histoCurve;    
+    if (fieldName == 'ciblage') return ciblage;
+    if (fieldName == 'pointFeuFilter') return pointFeuFilter;
+    if (fieldName == 'industriel') return industriel;
+    if (fieldName == 'segmentDnEnduitTargetVisits') return segmentDnEnduitTargetVisits;
+    if (fieldName == 'segmentMarketingFilter') return segmentMarketingFilter;
+    if (fieldName == 'clientProspectTarget')
       return Object.assign({}, clientProspect, clientProspectTarget);
-    if (field == 'segmentDnEnduitTarget') 
+    if (fieldName == 'segmentDnEnduitTarget') 
       return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget);
-    if (field == 'enduitIndustrieTarget') 
+    if (fieldName == 'enduitIndustrieTarget') 
       return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
-    if (field == 'industrieTarget')
+    if (fieldName == 'industrieTarget')
       return Object.assign({}, this.get('industrie'), industrieTarget); 
-    let data = this.data[field];
-    if (!justName || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
+    let data = this.data[fieldName];
+    if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
     let names: any = {},
       nameIndex = this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase()).indexOf('name');
     for (let [id, list] of Object.entries<any[]>(data)) names[id] = list[nameIndex];
