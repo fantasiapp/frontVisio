@@ -240,9 +240,26 @@ class DataWidget{
 
   // à enlever dès qu'on a démocké le suivi de l'AD
   fillWithRandomValues(){
-    for(let i = 0; i < this.rowsTitles.length; i++)
-      for(let j = 0; j < this.columnsTitles.length; j++)
+    for (let i = 0; i < this.rowsTitles.length; i++)
+      for (let j = 0; j < this.columnsTitles.length; j++)
         this.data[i][j] = Math.random() * 100;
+  }
+
+  // à enlever dès qu'on a démocké le suivi de l'AD
+  fillFirstLineForHistoCurve(){
+    let nbPdvs = 3479;
+    for (let j = 0; j < this.columnsTitles.length; j++)
+        this.data[0][j] = Math.round(Math.random() * nbPdvs / 6);
+  }
+
+  // à adapter quand on aura les données
+  completeWithCurveForHistoCurve(){
+    let nbPdvs = 3479, // enlever ce mock
+      nbPdvsCompletedInPercent = 0;
+    for (let j = 0; j < this.columnsTitles.length; j++){
+      nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
+      this.data[1][j] = nbPdvsCompletedInPercent;
+    }
   }
 
   getTargetStartingPoint(axis1:string, axis2:string){
@@ -531,8 +548,12 @@ export class PDV{
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
       pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
-    if (axis1 == 'suiviAD' || axis2 == 'suiviAD' || axis1 == 'histo&curve') 
+    if (axis1 == 'suiviAD' || axis2 == 'suiviAD') 
       dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock de l'AD
+    else if (axis1 == 'histo&curve'){
+      dataWidget.fillFirstLineForHistoCurve();
+      dataWidget.completeWithCurveForHistoCurve();
+    }
     else {
       let irregular: string = 'no';
       if (nonRegularAxis.includes(axis1)) irregular = 'line';
@@ -915,7 +936,7 @@ class SliceDice{
     }
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
     let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false,
-      sortLines = percent !== 'classic';
+      sortLines = percent !== 'classic' && axis1 != 'suiviAD';
     dataWidget.basicTreatement(km2, sortLines);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     let sum = dataWidget.getSum();
