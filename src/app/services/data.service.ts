@@ -61,7 +61,7 @@ export class DataService {
   public requestUpdateData() { //
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DataExtractionHelper.get('timestamp')}})
     .subscribe((response : any) => {
-      if( !Object.keys(response).length ) { //this is always false response !== {}
+      if( response ) { //this is always false response !== {}
         if(response.message) {
           console.debug("Empty update")
         } else {
