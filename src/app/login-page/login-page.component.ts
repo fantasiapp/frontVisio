@@ -20,6 +20,8 @@ import {
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
 import { LocalStorageService } from '../services/local-storage.service';
+import { combineLatest, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login-page',
@@ -61,12 +63,15 @@ export class LoginPageComponent implements OnInit {
         setTimeout(() => elmt2?.classList.add('fadeOut'), 2000);
         setTimeout(() => {elmt3?.classList.add('rotated')
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
-        setTimeout(() => elmt5?.classList.add('scale'), 900)
-        setTimeout(() => {
+        setTimeout(() => elmt5?.classList.add('scale'), 900);
+        combineLatest([
+          this.filtersStates.$load,
+          of(null).pipe(delay(6000))
+        ]).subscribe(() => {
           this.router.navigate([
             sessionStorage.getItem('originalPath') || 'logged',
           ]);
-        }, 6000)
+        });
       }
     }
   }
@@ -92,9 +97,6 @@ export class LoginPageComponent implements OnInit {
         this.userValid = true
         this.authService.handleTokenSave();
         this.dataservice.requestData();
-        this.router.navigate([
-          sessionStorage.getItem('originalPath') || 'logged',
-        ]);
         this.authService.isLoggedIn.next(true);
       }
     }
