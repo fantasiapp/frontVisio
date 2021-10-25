@@ -2,7 +2,8 @@ import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { LoggerService } from '../behaviour/logger.service';
-import { Logger } from 'ag-grid-community';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
+import { PDV } from '../middle/Slice&Dice';
 
 @Component({
   selector: 'app-sub-upper-bar',
@@ -11,22 +12,24 @@ import { Logger } from 'ag-grid-community';
 })
 export class SubUpperBarComponent implements OnInit {
   constructor(private filtersStates: FiltersStatesService, private logger: LoggerService) {}
-  filtersVisibles : boolean = false
+  currentDashboardId: number = 0;
   currentDashboard: string = '';
   currentLevel: string =''
   currentYear: string = '';
   path:  string = ''
-  years:{ value: (string|number); label: string }[] = [{value : 2020, label:'Année 2020'}, {value : 2021, label:'Année 2021'}]
+  years:{ value: number; label: string }[] = [{value : 2021, label:'Année 2021'}, {value : 2020, label:'Année 2020'}]
+  otherYearDashboards: any;
+
   ngOnInit(): void {
     this.filtersStates.stateSubject.subscribe(
-      (currentState) => {
-        this.currentDashboard = currentState.States.dashboard.name;
-        this.currentLevel = currentState.States.level.name
-        this.path = (<string>currentState.States.path[currentState.States.path.length-1])
+      ({States}) => {
+        let height = States.path.length;
+        this.currentDashboard = States.dashboard.name;
+        this.currentLevel = States.level.name;
+        this.path = (<string>States.path[States.path.length-1]);
+        this.currentDashboardId = States.dashboard.id;      
+        this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(height-1);  
       }
-    );
-    this.filtersStates.filtersVisible.subscribe((val) => 
-      this.filtersVisibles = val
     );
 
     this.currentYear = this.filtersStates.getYear();
@@ -39,8 +42,9 @@ export class SubUpperBarComponent implements OnInit {
   }
 
   onYearChange(e: Event) {
-    let current = !!(((e.target as any).value) | 0)
+    let current = !!(((e.target as any).value) | 0);
     this.filtersStates.setYear(current);
+    this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(this.filtersStates.stateSubject.value.States.path.length - 1)
     this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
   }

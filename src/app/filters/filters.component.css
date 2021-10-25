@@ -164,3 +164,11 @@
     padding-left: 30px;
     text-align: left;
 }
+
+.node {
+    cursor: pointer;
+}
+
+.node:hover {
+    color: #F06D0C;
+}

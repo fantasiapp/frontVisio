@@ -71,7 +71,7 @@ export class LoginPageComponent implements OnInit {
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
         setTimeout(() => elmt5?.classList.add('scale'), 900);
         this.dataservice.$serverLoading.subscribe(() => this.serverIsLoading = true)
-        combineLatest([
+        this.subscription = combineLatest([
           this.dataservice.load,
           of(null).pipe(delay(6000))
         ]).subscribe(() => {

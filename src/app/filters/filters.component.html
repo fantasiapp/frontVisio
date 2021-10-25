@@ -3,7 +3,7 @@
     {{ levelLabel }}
   </div>
   <div class="path left-aligned">
-    {{ path }}
+    <span *ngFor="let p of path; let index = index" class="node" (click)="navigateUp(path.length-1 - index)">{{ p }} {{index == path.length-1 ? '' : ' > '}}</span>
   </div>
     
     <select

@@ -5,8 +5,8 @@
   </div>
   <div class="select-year" style="width: 134px">
     <select (change)="onYearChange($event)">
-      <option value="1">Année 2021</option>
-      <option value="0">Année 2020</option>
+      <option [value]="years[0].value - 2020">{{ years[0].label }}</option>
+      <option [value]="years[1].value - 2020" [disabled]="!otherYearDashboards.includes(currentDashboardId)">{{ years[1].label }}</option>
     </select>
   </div>
 </div>

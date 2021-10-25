@@ -27,7 +27,7 @@ interface lev {
   styleUrls: ['./filters.component.css'],
 })
 export class FiltersComponent implements OnInit , OnDestroy{
-  constructor(private filtersState: FiltersStatesService, private dataservice : DataService) {}
+  constructor(private filtersState: FiltersStatesService) {}
 
   listDashboard!: listDash;
   listLevel!: listLev;
@@ -40,7 +40,7 @@ export class FiltersComponent implements OnInit , OnDestroy{
   subLevels!: listLev;
   sort: number = 0;
   showselect: boolean = false;
-  path: string = '';
+  path: string[] = [];
   idLevel: number = 0;
   selectedDashboardId: number = 4;
   selectedDashboardName: string = '';
@@ -58,13 +58,13 @@ export class FiltersComponent implements OnInit , OnDestroy{
       this.levelName = currentStates.States.level.name;
       this.levelLabel = currentStates.States.level.label
       this.superLevel = currentsArrays.levelArray.superLevel;
-      this.path = currentStates.States.path.join(' > ');
+      this.path = currentStates.States.path;
       this.showselect = this.superLevel.name === undefined ? false : true;
       this.selectedDashboardId = currentStates.States.dashboard.id;
       this.selectedDashboardName = currentStates.States.dashboard.name;
+      this.viewList =
+        this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
     });
-    this.viewList =
-      this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
   private blockToShow(list: listDash | listLev) {}
 
@@ -77,8 +77,6 @@ export class FiltersComponent implements OnInit , OnDestroy{
 
   showSuper(level?: lev, levels?: listLev) {
     this.filtersState.updateState(undefined, undefined, true);
-    this.viewList =
-      this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
   }
 
   updateState(
@@ -105,7 +103,6 @@ export class FiltersComponent implements OnInit , OnDestroy{
       this.filtersState.updateState(undefined, indexDash, undefined);
   }
   showSub(listSub: listLev) {
-    this.viewList = listSub;
     this.showselect = true;
     this.filtersState.updateState(this.subLevels.id[0], undefined, undefined)
   }
@@ -122,4 +119,8 @@ export class FiltersComponent implements OnInit , OnDestroy{
   }
 
   canSub() { return this.filtersState.canSub(); }
+
+  navigateUp(index: number) {
+    this.filtersState.navigateUp(index);
+  }
 }
