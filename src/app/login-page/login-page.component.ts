@@ -90,20 +90,24 @@ export class LoginPageComponent implements OnInit {
   ) {}
   userValid = false;
   retry = true;
-  alreadyConnected: boolean = false;
+  alreadyConnected: boolean = this.localStorageService.getLastUpdateTimestamp() ? true: false;
+  forceLogin: boolean = false;
   stayConnected: boolean = false;
   serverIsLoading: boolean = false;
 
   ngOnInit(): void {
-    if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
-      LocalStorageService.getFromCache = true;
-      this.userValid = true;
-      this.authService.handleTokenSave();
-      this.dataservice.requestData();
-      this.router.navigate([
-        sessionStorage.getItem('originalPath') || 'logged',
-      ]);
-      this.authService.isLoggedIn.next(true);
+    if(this.localStorageService.getLastUpdateTimestamp()) return;
+    else {
+      if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
+        LocalStorageService.getFromCache = true;
+        this.userValid = true;
+        this.authService.handleTokenSave();
+        this.dataservice.requestData();
+        this.router.navigate([
+          sessionStorage.getItem('originalPath') || 'logged',
+        ]);
+        this.authService.isLoggedIn.next(true);
+      }
     }
   }
 
@@ -113,7 +117,14 @@ export class LoginPageComponent implements OnInit {
     this.subscription?.unsubscribe();
   }
 
+  isAlreadyConnected(): boolean {
+    this.localStorageService.getLastUpdateTimestamp() ? this.alreadyConnected = true : this.alreadyConnected = false;
+    return this.alreadyConnected;
+  }
+
   onLoading(username: string, password: string, stayConnected: boolean) {
+    if(!this.forceLogin) if(this.isAlreadyConnected()) return;
+    this.forceLogin = false;
     console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
     this.authService
@@ -121,4 +132,9 @@ export class LoginPageComponent implements OnInit {
       .subscribe(this.logInObserver);
   }
 
+  enableForceLogin() {
+    this.alreadyConnected = false;
+    this.forceLogin = true;
+  }
+  
 }

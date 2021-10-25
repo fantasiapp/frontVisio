@@ -9,13 +9,17 @@
     </div>
     
   </div>
-  <div class="connection-container">
+  <div *ngIf="alreadyConnected === false" class="connection-container">
     <app-login-form
       *ngIf="!userValid"
       @fadeOut
       (onLogin)="onLoading($event.username, $event.password, $event.isStayConnected)"
       [errorConnection]="!userValid"
     ></app-login-form>
+  </div>
+  <div *ngIf="alreadyConnected" class="already-connected">
+    <span>Une session est déjà en cours sur cet ordinateur.</span>
+    <button (click)="enableForceLogin()">Forcer la connexion<br>(déconseillé)</button>
   </div>
   <div *ngIf="serverIsLoading" class="loading-div">
     <p>Le serveur est momentanément indisponible. <br> Veuillez patienter quelques instants (temps estimé : &lt;2 minutes)</p>
