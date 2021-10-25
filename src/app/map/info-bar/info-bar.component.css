@@ -608,7 +608,7 @@ input[type=number] {
     color: white;
 }
 
-.invalidValue {
+.invalid-value {
     opacity: 0;
     color: red;
     font-weight: 300;

@@ -84,7 +84,11 @@
 
                         <div class="eval">
                             <ul>
-                                <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/></li>
+                                <li>
+                                    <span class="bolder">Volume visé en m² :</span>
+                                    <input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
+                                    <span class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide</span>
+                                </li>
                                 <li><span class="bolder">Capacité à faire basculer le PDV :</span>
                                     <button (click)="changeTargetLight('r')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
                                     <button (click)="changeTargetLight('o')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
@@ -104,7 +108,7 @@
                 <div class="main">
                     <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
                     <!-- <p>information sur la point de vente</p> -->
-                    <div class="invalidValue" [@fadeOut]="errorAdInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide (nombre décimal xxx.xx)</div>
+                    <div class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide (nombre décimal xxx.xx)</div>
                     <div class="content">
                         <div class="grid">
                             <div class="first row">

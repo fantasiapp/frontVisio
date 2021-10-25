@@ -40,7 +40,7 @@ export class InfoBarComponent {
   opened: boolean = false;
 
   quiting: boolean = false;
-  errorAdInput: boolean = false;
+  errorInput: boolean = false;
 
   @ViewChildren('comments')
   private comments?: QueryList<ElementRef>;
@@ -269,6 +269,8 @@ export class InfoBarComponent {
     this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID]);
+      this.errorInput = true;
+      setTimeout(() => this.errorInput = false, 1000);
       return;
     }
     this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
@@ -304,11 +306,11 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = formatStringToNumber(this.gridFormatted[i][j]).toString();
     if(Number.isNaN(+this.gridFormatted[i][j])) {
       this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
-      this.errorAdInput = true;
-      setTimeout(() => this.errorAdInput = false, 1000)
+      this.errorInput = true;
+      setTimeout(() => this.errorInput = false, 1000)
       return;
     }
-    this.errorAdInput = false;
+    this.errorInput = false;
     this.salesColors[i][j] = 'black'
     this.grid[i][j] = +this.gridFormatted[i][j];
     this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
