@@ -188,4 +188,13 @@ export class Navigation {
   setCurrentYear(current: boolean) {
     DataExtractionHelper.currentYear = current;
   }
+
+  navigateUp(n: number) {
+    let level: Node | null = this.currentLevel!;
+    while ( level && n-- )
+      level = level.parent;
+    
+    if ( !level ) level = this.tree!.root;
+    this.currentLevel = level;
+  }
 }

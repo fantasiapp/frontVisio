@@ -181,6 +181,22 @@ export class FiltersStatesService implements OnDestroy {
     }
   }
 
+  navigateUp(index: number) {
+    if ( !index ) return;
+    
+    this.navigation.navigateUp(index);
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    const States = this.navigation.getCurrent();
+    const currentState = {
+      States
+    };
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+  }
+
   ngOnDestroy() {
     this.subscription?.unsubscribe();
   }

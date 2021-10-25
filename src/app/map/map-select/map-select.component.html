@@ -11,7 +11,7 @@
 
         <div *ngFor="let entry of criteria; let idx = index; trackBy: trackById">
             <label class="checkboxed">
-                <span class="option">{{ entry[1] }}</span><span class="count">{{entry[2]}}</span>
+                <span class="option">{{ entry[1] | titlecase }}</span><span class="count">{{entry[2]}}</span>
                 <input type="checkbox" (click)="criterionClicked($event, idx)">
                 <span class="checkmark" ></span>
             </label>
