@@ -32,7 +32,7 @@
                                 <li><p>{{ displayedInfos.enseigne }}</p></li>
                                 <li><p>{{ displayedInfos.dep }}</p></li>
                                 <li><p>{{ displayedInfos.ville }}</p></li>
-                                <li><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></li>
+                                <li><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()" agentOnly></li>
                             </ul>
                         </div>
                         <div class="props">
