@@ -139,7 +139,6 @@ export class SliceTable {
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
-        console.log("Slice : ", slice)
         let pdvs = []
         if (slice !== {}){
             let allPdvs = DataExtractionHelper.get('pdvs');
@@ -281,7 +280,7 @@ export class SliceTable {
     getRowColor(pdv: any): string {
         let pdvInstance = this.getPdvInstance(pdv)!;
         let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
-        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 
         for(let sale of pdvInstance.attribute('sales')) {
@@ -316,8 +315,10 @@ export class SliceTable {
         let pdvAsList = []
         for(let field of DataExtractionHelper.getPDVFields()) {
             if(this.idsToFields[field]) {
+                // console.log("reverse engineering for ", field)
                 for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
                     if(fieldValue === pdv[field]) {
+                        // console.log("finding ", id ," for ", fieldValue)
                         pdvAsList.push(id)
                         break;
                     }

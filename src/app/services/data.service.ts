@@ -101,6 +101,7 @@ export class DataService {
   private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
+    // console.log("Data : ", data)
     DataExtractionHelper.updateData(data);
     this.update.next();
   }
