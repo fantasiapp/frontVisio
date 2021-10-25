@@ -379,7 +379,7 @@ class DataExtractionHelper{
   static getTarget(level='national', id:number, dn=false, finition=false){
     let targetType = dn ? "dn": "vol";
     let targetTypeId:number = this.get("structureTargetlevel").indexOf(targetType);
-    if (level == "agentFinitions") return this.get("targetLevelAgentFinitions")[id][targetTypeId];
+    if (level == "agentFinitions" || level == 'Agent Finitions') return this.get("targetLevelAgentFinitions")[id][targetTypeId];
     if (finition && level == 'Région'){
       let finitionAgentsids = this.findFinitionAgentsOfDrv(id, true),
         targetsAgentFinition = this.get("targetLevelAgentFinitions");
@@ -420,9 +420,11 @@ class DataExtractionHelper{
   }
 
   private static treatDescIndicator(node:any, str:string):string{
+    if (!this.currentYear) return "";
     if (str == "@ciblageP2CD") return this.getCiblage(node);
     if (str == "@ciblageP2CDdn") return this.getCiblage(node, false, true);
     if (str == "@ciblageEnduit") return this.getCiblage(node, true);
+    if (str == "@ciblageEnduitComplet") return this.getCompleteCiblageFinitions(node);
     if (str == '@DRV') return this.getObjectifDrv(node);
     if (str == '@DRVdn') return this.getObjectifDrv(node, true);
     if (str == "@objectifP2CD") return this.getObjectif(node);
@@ -433,18 +435,31 @@ class DataExtractionHelper{
     return "";
   }
 
+  private static getCompleteCiblageFinitions(node:any){
+    if (!['France', 'Région', 'Agent Finitions'].includes(node.label)) return "";
+    let ciblageDn = PDV.computeCiblage(node, true, true),
+      ciblageFinitions = PDV.computeCiblage(node, true),
+      objective = this.getTarget(node.label, node.id, false, true);
+    let percent = (objective == 0) ? 0: 0.1 * ciblageFinitions/objective;
+    return 'Ciblage: '.concat(ciblageDn.toString(), ' PdV, pour un total de ', Math.round(ciblageFinitions/1000).toString(), ' T (soit ', Math.round(percent).toString(), " % de l'objectif).");
+  }
+
   private static getCiblage(node:any, enduit=false, dn=false){
     let ciblage:number = +PDV.computeCiblage(node, enduit, dn);
     if (enduit) return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' T.');
-    else if (dn) return 'Ciblage: '.concat(ciblage.toString(), ' PdVs.');
+    else if (dn) return 'Ciblage: '.concat(ciblage.toString(), ' PdV.');
     else return 'Ciblage: '.concat(Math.round(ciblage/1000).toString(), ' km².'); // les ciblages c'est les seuls à être en m² et pas en km²
   }
 
-  private static getObjectif(node:any, finition=false, dn=false){
+  private static getObjectif(node:any, finition=false, dn=false){    
     let objective = this.getTarget(node.label, node.id, dn, finition);
-    if (finition) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
+    if (finition){
+      console.log(node.label)
+      if (['France', 'Région', 'Agent Finitions'].includes(node.label)) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
+      else return "";
+    }
     if (node.label !== 'Secteur') return "";
-    return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdVs, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');
+    return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdV, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');
   }
 
   private static getObjectifDrv(node:any, dn=false){
@@ -452,13 +467,13 @@ class DataExtractionHelper{
     let targetDrv:number;
     if (node.label == 'France') targetDrv = this.getTarget('nationalByAgent', 0, dn);
     if (node.label == 'Région') targetDrv = node.children.map((agentNode:Node) => this.getTarget('Secteur', agentNode.id, dn)).reduce((acc:number, value:number) => acc + value, 0);
-    return (dn) ? 'DRV: '.concat(targetDrv!.toString(), ' PdVs, '): 'DRV: '.concat((Math.round(targetDrv!)).toString(), ' km², ');
+    return (dn) ? 'DRV: '.concat(targetDrv!.toString(), ' PdV, '): 'DRV: '.concat((Math.round(targetDrv!)).toString(), ' km², ');
   }
 
   private static getObjectifSiege(node:any, dn=false):string{
     if (!(node.label == 'France' || node.label == 'Région')) return "";
     let targetSiege =  this.getTarget(node.label, node.id, dn);
-    return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdVs, '): 'Objectif Siège: '.concat((Math.round(targetSiege)).toString(), ' km², ');
+    return (dn) ? 'Objectif Siège: '.concat(targetSiege.toString(), ' PdV, '): 'Objectif Siège: '.concat((Math.round(targetSiege)).toString(), ' km², ');
   }
 
   static computeDescriptionWidget(slice:any): [number, number, number][]{

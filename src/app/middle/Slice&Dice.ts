@@ -724,7 +724,10 @@ export class PDV{
 
   static computeCiblage(node: Node, enduit=false, dn=false): number{
     let pdvs = PDV.childrenOfNode(node), ciblage = 0;
-    if (dn){
+    if (dn && enduit){
+      for (let pdv of pdvs) if (pdv.targetFinition) ciblage += 1;
+    }
+    else if (dn){
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
         if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
