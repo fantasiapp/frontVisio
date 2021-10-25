@@ -122,4 +122,11 @@ export class HistocurveComponent extends HistoColumnComponent {
       ...opt
     })
   }
+
+  updateGraph(data: any) {
+    super.updateGraph(data);
+    let ticks = this.getTickValues();
+    (this.chart as any).internal.config.axis_y_tick_values = ticks[0];
+    (this.chart as any).internal.config.axis_y2_tick_values = ticks[1];
+  }
 }

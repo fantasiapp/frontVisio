@@ -503,6 +503,13 @@ class DataExtractionHelper{
       node = node.goChild(id);
     return node;
   }
+
+  static getOtherYearDashboards(height: number = 0) {
+    let level = this.currentYear ? this.get('levelGeo_ly', false, false) : this.get('levelGeo', false, false);
+    while ( height-- )
+      level = level[this.SUBLEVEL_INDEX];
+    return level[this.DASHBOARD_INDEX];
+  }
 };
 
 export type DataTree = [number, [DataTree]] | number;
