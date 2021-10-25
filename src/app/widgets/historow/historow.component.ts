@@ -25,12 +25,8 @@ export class HistoRowComponent extends BasicWidget {
 
   public axisLabelLength: number = 10;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, public cd: ChangeDetectorRef) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, private cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
-  }
-
-  ngOnInit() {
-    this.cube = new RubixCube(this);
   }
 
   private axisPadding: number = 100;
@@ -199,11 +195,16 @@ export class HistoRowComponent extends BasicWidget {
         }
       });
     });
-  } 
+  }
+
+  refresh() {
+    this.onPathChanged();
+    super.refresh();
+  }
 
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube!.conditions];
+    return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube?.conditions || []];
   }
 
   updateData() {
@@ -218,5 +219,5 @@ export class HistoRowComponent extends BasicWidget {
     this.update();
   }
 
-  makeSelect() { this.cd.markForCheck(); }
+  makeSelect() { this.cd.detectChanges(); }
 }
