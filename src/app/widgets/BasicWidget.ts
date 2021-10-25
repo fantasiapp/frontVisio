@@ -120,7 +120,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   update() {
     this.updateGraph(this.updateData());
   }
-
+  
   refresh() { //for transitions without animation
     this.update();
   }

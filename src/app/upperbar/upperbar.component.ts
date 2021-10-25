@@ -32,8 +32,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   private subscription?: Subscription;;
   constructor(
     private filtersState: FiltersStatesService,
-    private dataService: DataService,
-    private localStorageService: LocalStorageService
+    private dataService: DataService
   ) {
     this.subscription = this.filtersState.stateSubject.subscribe(({States}) => {
       this.sldValue = this.filtersState.tree?.type == NavigationExtractionHelper ? 1 : 0;
