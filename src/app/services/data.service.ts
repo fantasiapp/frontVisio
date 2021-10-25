@@ -47,7 +47,8 @@ export class DataService {
       }) as Observable<Object[]>
     ) 
       .pipe(
-        map((data) => {
+        map((data: any) => {
+          // data.params['isAdOpen'] = false
           return data;
         })
       )

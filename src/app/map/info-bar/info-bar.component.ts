@@ -44,7 +44,6 @@ export class InfoBarComponent {
       this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinitions');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
-      this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
       this.isOnlySiniat = value.attribute('onlySiniat')
       this.loadGrid()
     }
@@ -69,7 +68,6 @@ export class InfoBarComponent {
   gridFormatted: string[][] = [];
   targetP2cdFormatted: string = "";
   salesColors: string[][] = [];
-  isAdOpen: boolean = false;
   isOnlySiniat: boolean = false;
 
   SALES_INDUSTRY_ID;
@@ -90,7 +88,6 @@ export class InfoBarComponent {
   doesntSellDisabled: boolean = false;
   doesntSellChecked: boolean = false;
   showNavigation: boolean = false;
-
 
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
@@ -327,7 +324,7 @@ export class InfoBarComponent {
     }
   }
   changeOnlySiniat() {
-    if(PDV.geoTree.root.label == 'Secteur' && this.noSales()) {
+    if(this.noSales()) {
       this.isOnlySiniat = !this.isOnlySiniat;
       this.hasChanged = true;
     }
