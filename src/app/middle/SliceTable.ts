@@ -19,6 +19,7 @@ export class SliceTable {
     private columnDefs: {[k: string]: any}[] = [];
 
     private idIndustries: {[key: string]: number} = {};
+    private geoTree : boolean = true;
 
     static currentGroupField: string = "enseigne";
 
@@ -30,8 +31,8 @@ export class SliceTable {
                 this.sortedPdvsList.reduce((totalSiniat: number, pdv: {}) => totalSiniat + (pdv as any).siniatSales,0),
                 this.sortedPdvsList.reduce((totalSales: number, pdv: {}) => totalSales + (pdv as any).totalSales,0)
                 ],
-            'navIds': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
-            'navNames': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
+            'navIds': () => this.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
+            'navNames': () => this.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
             // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {return params.data.siniatSales > 30000}}, {field: 'pointFeu', flex: 0.35}],
             // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
@@ -56,8 +57,9 @@ export class SliceTable {
                 this.sortedPdvsList.length,
                 this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.checkboxEnduit === true ? pdv.potential : 0),0),
                 this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)
-                ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
-            'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
+                ],
+            'navIds': () => this.geoTree ? ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'] : ['typologie', 'segmentMarketing', 'ensemble'],
+            'navNames': () => this.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkboxEnduit && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkboxEnduit', flex: 0.3}],
             'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkboxEnduit', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
@@ -143,7 +145,7 @@ export class SliceTable {
         console.log("[SliceTable] slice : ", slice)
         if (slice !== {}){
             let allPdvs = DataExtractionHelper.get('pdvs');
-            for(let pdvInfo of PDV.sliceTree(slice, this.sliceDice.geoTree)[0]) {
+            for(let pdvInfo of PDV.sliceTree(slice, this.geoTree)[0]) {
                 let newPdv = allPdvs[pdvInfo.id];
                 newPdv.instanceId = pdvInfo.id;
                 pdvs.push(newPdv);
@@ -203,13 +205,13 @@ export class SliceTable {
     }
 
     getNavIds(type: string): string[] {
-        return this.tableConfig[type]['navIds'];
+        return this.tableConfig[type]['navIds']();
     }
 
     getNavOpts(type: string): {id: any, name: any}[] {
         let array: {id: any, name: any}[] = []
-        let navIds = this.tableConfig[type]['navIds'];
-        let navNames = this.tableConfig[type]['navNames'];
+        let navIds = this.tableConfig[type]['navIds']();
+        let navNames = this.tableConfig[type]['navNames']();
         for(let i=0; i<navIds.length; i++) array.push({id: navIds[i], name: navNames[i]})
         return array;
     }
@@ -247,6 +249,7 @@ export class SliceTable {
 
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];
+        this.geoTree = this.sliceDice.geoTree;
         data.push(this.getColumnDefs(type, rowGroupId));
         data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
