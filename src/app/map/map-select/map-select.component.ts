@@ -84,6 +84,10 @@ export class MapSelectComponent implements OnChanges {
   protected lineHeight = 30;
   dropped = false;
 
+  get droppable() {
+    return this.criteria && this.criteria.length > 1;
+  }
+
   @HostBinding('style.height')
   get height() {
     if ( this.dropped )

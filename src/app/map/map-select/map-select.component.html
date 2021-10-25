@@ -1,6 +1,6 @@
 <ng-container *ngIf="criteria">
-    <h6 class="name" (click)="toggleDropdown($event)" [class.dropped]="dropped">{{ prettyCriterion }} <img class="dropicon" src="assets/icon-option.svg"/> </h6>
-    <div class="container">
+    <h6 class="name" (click)="droppable ? toggleDropdown($event) : null" [class.dropped]="dropped">{{ prettyCriterion }} {{ criteria.length == 1 ? ': ' + criteria[0][1] : '' }} <img *ngIf="droppable" class="dropicon" src="assets/icon-option.svg"/> </h6>
+    <div *ngIf="criteria.length > 1" class="container">
         <div>
             <label class="checkboxed">
                 <span class="option">Tous</span>
