@@ -144,9 +144,7 @@ export class FiltersStatesService implements OnDestroy {
     this.arraySubject.next(currentArrays);
   }
 
-  //this makes GridManager.refresh a bit silly
-  //as it refreshes almost everything and is easily accessible
-  refresh() {
+  reload() {
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
@@ -183,7 +181,7 @@ export class FiltersStatesService implements OnDestroy {
 
   navigateUp(index: number) {
     if ( !index ) return;
-    
+
     this.navigation.navigateUp(index);
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),

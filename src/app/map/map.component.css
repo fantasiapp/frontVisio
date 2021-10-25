@@ -3,6 +3,7 @@
   width: 100vw;
   height: calc(100vh - 50px);
   padding: 30px;
+  padding-top: 0;
   display: flex;
   flex-flow: column nowrap;
   z-index: 9;

@@ -60,7 +60,7 @@ export class SuggestionBox implements AfterViewInit {
     if ( x & SearchService.IS_PATTERN ) {
       return '(categorie)'
     } else if ( x & SearchService.IS_REDIRECTION ) {
-      return '(racine)'
+      return '(niveau principal)'
     } else if ( typeof x == 'object' ) {
       return x.info ? '(' + x.info + ')' : '';
     } else {
