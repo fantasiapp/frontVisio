@@ -330,7 +330,7 @@ class DataExtractionHelper{
     return this.get(field)[id];
   }
 
-  static get(field: string, justNames=false):any{
+  static get(field: string, justNames=false, changeYear=true):any{
     let fieldName = field;
     //redirections: (à enlever quand on rendra le code plus propre)
     if (field == 'produit') fieldName = 'product';
@@ -342,7 +342,7 @@ class DataExtractionHelper{
     if (field == 'structureDashboard') fieldName = 'structureDashboards';
     if (field == 'indexesDashboard') fieldName = 'indexesDashboards';
     // to switch year
-    if (!this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
+    if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
     if (fieldName == 'enduitIndustrie') return enduitIndustrie;
     if (fieldName == 'segmentDnEnduit') return segmentDnEnduit;
