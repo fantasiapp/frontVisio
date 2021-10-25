@@ -49,6 +49,7 @@ export class LoginPageComponent implements OnInit {
       if (success) {
         let lastToken = this.localStorageService.getLastToken();
         let newToken = this.authService.getAuthorizationToken();
+        this.localStorageService.setAlreadyConnected(true)
         if(lastToken) { //quick manip to fool the auth interceptor
           this.authService.token = lastToken;
           this.dataservice.BEFOREsendQueuedDataToUpdate();
@@ -95,6 +96,7 @@ export class LoginPageComponent implements OnInit {
   serverIsLoading: boolean = false;
 
   ngOnInit(): void {
+    console.log("INIT LOGIN PAGE")
     if(this.localStorageService.getLastUpdateTimestamp()) return;
     else {
       if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
@@ -123,7 +125,6 @@ export class LoginPageComponent implements OnInit {
 
   onLoading(username: string, password: string, stayConnected: boolean) {
     if(this.isAlreadyConnected()) return;
-    this.localStorageService.setAlreadyConnected(true)
     console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
     this.authService

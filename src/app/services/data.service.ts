@@ -158,8 +158,8 @@ export class DataService {
   public endUpdateThread() {
     console.log("[Data Service] End update threads")
     this.threadIsOn = false;
-    this.updateSubscriber.unsubscribe();
-    this.logSubscriber.unsubscribe();
+    this.updateSubscriber?.unsubscribe();
+    this.logSubscriber?.unsubscribe();
   }
 
   setLastUpdateDate(timestamp: string) {
