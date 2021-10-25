@@ -2,7 +2,7 @@ import { DatePipe, formatDate } from "@angular/common";
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
 import DataExtractionHelper from "./DataExtractionHelper";
-import { PDV } from "./Slice&Dice";
+import { PDV, SliceDice } from "./Slice&Dice";
 
 @Injectable({
     providedIn: 'root'
@@ -127,7 +127,7 @@ export class SliceTable {
         'instanceId': (pdv: any) => pdv.instanceId,
     }
 
-    constructor(private dataService: DataService, @Inject(LOCALE_ID) public locale: string){
+    constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
         PDV.load(false);
         this.pdvFields = DataExtractionHelper.get('structurePdv');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
@@ -140,9 +140,10 @@ export class SliceTable {
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
         let pdvs = []
+        console.log("[SliceTable] slice : ", slice)
         if (slice !== {}){
             let allPdvs = DataExtractionHelper.get('pdvs');
-            for(let pdvInfo of PDV.sliceTree(slice)[0]) {
+            for(let pdvInfo of PDV.sliceTree(slice, this.sliceDice.geoTree)[0]) {
                 let newPdv = allPdvs[pdvInfo.id];
                 newPdv.instanceId = pdvInfo.id;
                 pdvs.push(newPdv);
