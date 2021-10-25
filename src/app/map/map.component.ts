@@ -227,7 +227,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   handleClick(pdv: PDV) {
     this.selectedPDV = pdv;
-    this.cd.detectChanges();
+    this.cd.markForCheck();
   }
 
   private addMarker(markerData: MarkerType): google.maps.Marker {
