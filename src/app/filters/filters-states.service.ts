@@ -16,7 +16,7 @@ export class FiltersStatesService implements OnDestroy {
   tree?: Tree;
   subscription?: Subscription;
 
-  constructor(private navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
+  constructor(public navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
     console.log('[FiltersStates]: On.')
     this.subscription = this.dataservice.response.subscribe((data) => {
       if (data) {
@@ -30,6 +30,8 @@ export class FiltersStatesService implements OnDestroy {
     this.pathChanged.pipe(debounceTime(5000)).subscribe(() => {
       this.logger.log();
     });
+
+    (window as any).refresh = () => { this.dataservice.update.next(); }
   }
 
   pathChanged: Subject<never> = new Subject;
@@ -177,6 +179,22 @@ export class FiltersStatesService implements OnDestroy {
       this.reset(this.tree!.type == NavigationExtractionHelper ? PDV.geoTree : PDV.tradeTree, true);
       this.dataservice.update.next();
     }
+  }
+
+  navigateUp(index: number) {
+    if ( !index ) return;
+    
+    this.navigation.navigateUp(index);
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    const States = this.navigation.getCurrent();
+    const currentState = {
+      States
+    };
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
   }
 
   ngOnDestroy() {

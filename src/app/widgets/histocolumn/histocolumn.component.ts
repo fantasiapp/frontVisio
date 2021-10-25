@@ -47,7 +47,7 @@ export class HistoColumnComponent extends BasicWidget {
       ticks = (new Array(t+1)).fill(0).map((_, i) => goodValue * i / t).filter(x => x <= max);
     
     if ( (max - ticks[ticks.length - 1])/max >= 0.1 )
-      ticks.push(max);
+      ticks.push(Math.round(max*10) / 10);
     return ticks;
   }
 

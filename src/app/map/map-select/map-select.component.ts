@@ -84,6 +84,10 @@ export class MapSelectComponent implements OnChanges {
   protected lineHeight = 30;
   dropped = false;
 
+  get droppable() {
+    return this.criteria && this.criteria.length > 1;
+  }
+
   @HostBinding('style.height')
   get height() {
     if ( this.dropped )
@@ -98,9 +102,11 @@ export class MapSelectComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     let criteriaChange = changes['criteria'];
     if ( !criteriaChange || criteriaChange.firstChange ) return;
+    if ( !this.droppable ) { this.dropped = false; }
     let keys = this.criteria!.map(pair => pair[0]);
     let oldLength = this.selection.length;
     this.selection = this.selection.filter((e: number) => keys.includes(e));
+
     
     if ( !this.selection.length )
       this.all = true;

@@ -2,11 +2,8 @@ import { Component, AfterViewInit, ViewChild, ElementRef, Input, HostBinding, Ch
 import { AsyncSubject, combineLatest, Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { BasicWidget } from '../widgets/BasicWidget';
-import { MapFiltersComponent } from './map-filters/map-filters.component';
-import { InfoBarComponent } from './info-bar/info-bar.component';
 
 type MarkerType = {
   pdv: PDV;
@@ -227,7 +224,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   handleClick(pdv: PDV) {
     this.selectedPDV = pdv;
-    this.cd.detectChanges();
+    this.cd.markForCheck();
   }
 
   private addMarker(markerData: MarkerType): google.maps.Marker {

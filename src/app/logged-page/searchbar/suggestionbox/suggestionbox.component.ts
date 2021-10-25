@@ -79,4 +79,18 @@ export class SuggestionBox implements AfterViewInit {
     let suggestion = (this.suggestions as any)[index];
     this.confirm.emit(suggestion);
   }
+
+  trackByResult(index: number, result: any) {
+    if ( result.node )
+      return SuggestionBox.NODE_MASK | result.node.id;
+    else if ( result.dashboard )
+      return SuggestionBox.DASHBOARD_MASK | result.dashboard.id;
+    else if ( result.pdv )
+      return SuggestionBox.PDV_MASK | result.pdv.id;
+    return index;
+  }
+
+  static NODE_MASK = 1 << 30;
+  static DASHBOARD_MASK = 1 << 29;
+  static PDV_MASK = 1 << 28;
 }
