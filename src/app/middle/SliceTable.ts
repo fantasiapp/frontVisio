@@ -225,7 +225,7 @@ export class SliceTable {
     }
 
     static initializeTarget() {
-        return [Math.floor(Date.now()/1000), true, true, true, 0, false, "r", "", ""]
+        return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
       }
 
     changeTargetTargetFinitions(pdv: {[field: string]: any}) {
@@ -284,11 +284,12 @@ export class SliceTable {
     getRowColor(pdv: any): string {
         let pdvInstance = this.getPdvInstance(pdv)!;
         let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
-        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 
         for(let sale of pdvInstance.attribute('sales')) {
-            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'black';
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+                return 'black';
         }
 
         for(let sale of pdvInstance.attribute('sales')) {

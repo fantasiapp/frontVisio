@@ -236,7 +236,6 @@ export class InfoBarComponent {
     }
   }
   changeRedistributedFinitions() {
-    console.log("d")
     if(!this.redistributedFinitionsDisabled){
       this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
@@ -255,6 +254,7 @@ export class InfoBarComponent {
       return;
     }
     this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
+    if(this.target[this.TARGET_VOLUME_ID] === 0) this.target[this.TARGET_LIGHT_ID] = ""
     this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID])
     this.hasChanged = true;
   }
@@ -276,7 +276,7 @@ export class InfoBarComponent {
     }
   } 
 
-  changeLight(newLightValue: string) {
+  changeTargetLight(newLightValue: string) {
     if(!this.target) this.target = SliceTable.initializeTarget()
     this.target[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
