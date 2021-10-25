@@ -609,6 +609,7 @@ input[type=number] {
 }
 
 .invalidValue {
+    opacity: 0;
     color: red;
     font-weight: 300;
     font-style: italic;

@@ -6,13 +6,34 @@ import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
-
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+} from '@angular/animations';
 
 @Component({
   selector: 'info-bar',
   templateUrl: './info-bar.component.html',
   styleUrls: ['./info-bar.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('fadeOut', [
+      state('visible', style({
+        opacity: 1
+      })),
+      state('invisible', style({
+        opacity: 0
+      })),
+      transition('visible => invisible', [
+        animate('1s')
+      ]),
+      transition('* => visible', [
+        animate('0s')
+      ])
+    ])]
 })
 export class InfoBarComponent {
   @HostBinding('class.opened')
@@ -284,6 +305,7 @@ export class InfoBarComponent {
     if(Number.isNaN(+this.gridFormatted[i][j])) {
       this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
       this.errorAdInput = true;
+      setTimeout(() => this.errorAdInput = false, 1000)
       return;
     }
     this.errorAdInput = false;
