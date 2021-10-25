@@ -51,6 +51,16 @@ export class LocalStorageService {
     this.localStorage.removeItem('stayConnected')
   }
 
+  setAlreadyConnected(val: boolean) {
+    this.localStorage.setItem('alreadyConnected', JSON.stringify(val))
+  }
+  getAlreadyConnected(): boolean {
+    return JSON.parse(this.localStorage.getItem('alreadyConnected') || 'false');
+  }
+  removeAlreadyConnected() {
+    this.localStorage.removeItem('alreadyConnected')
+  }
+
   saveLastUpdateTimestamp(timestamp: number) {
     this.localStorage.setItem('lastUpdateTimestamp', JSON.stringify(timestamp))
   }
@@ -73,6 +83,7 @@ export class LocalStorageService {
 
     if(token === sessionStorage.getItem('token')) {
       if(!this.getStayConnected()) {
+        this.localStorage.removeItem('alreadyConnected')
         this.localStorage.removeItem('token')
         this.localStorage.removeItem('lastUpdateTimestamp');
         this.localStorage.removeItem('data');

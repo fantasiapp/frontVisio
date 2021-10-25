@@ -91,7 +91,6 @@ export class LoginPageComponent implements OnInit {
   userValid = false;
   retry = true;
   alreadyConnected: boolean = this.localStorageService.getLastUpdateTimestamp() ? true: false;
-  forceLogin: boolean = false;
   stayConnected: boolean = false;
   serverIsLoading: boolean = false;
 
@@ -118,13 +117,13 @@ export class LoginPageComponent implements OnInit {
   }
 
   isAlreadyConnected(): boolean {
-    this.localStorageService.getLastUpdateTimestamp() ? this.alreadyConnected = true : this.alreadyConnected = false;
+    this.alreadyConnected = this.localStorageService.getAlreadyConnected();
     return this.alreadyConnected;
   }
 
   onLoading(username: string, password: string, stayConnected: boolean) {
-    if(!this.forceLogin) if(this.isAlreadyConnected()) return;
-    this.forceLogin = false;
+    if(this.isAlreadyConnected()) return;
+    this.localStorageService.setAlreadyConnected(true)
     console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
     this.authService
@@ -134,7 +133,7 @@ export class LoginPageComponent implements OnInit {
 
   enableForceLogin() {
     this.alreadyConnected = false;
-    this.forceLogin = true;
+    this.localStorageService.removeAlreadyConnected();
   }
   
 }
