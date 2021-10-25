@@ -4,7 +4,7 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 @Directive({
   selector: '[currentYearOnly]'
 })
-export class CurrentYearOnlyDirective {
+export class CurrentYearOnlyDirective implements AfterViewInit {
 
   constructor(private el: ElementRef) { }
   private _allowed?: boolean = false;
@@ -15,6 +15,7 @@ export class CurrentYearOnlyDirective {
 
   ngAfterViewInit() {
     this._allowed = DataExtractionHelper.currentYear;
-    this.el.nativeElement.disabled = !this._allowed; 
+    if(!this.el.nativeElement.disabled)
+      this.el.nativeElement.disabled = !this._allowed; 
   }
 }

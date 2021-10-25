@@ -4,7 +4,7 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 @Directive({
   selector: '[adOpenOnly]'
 })
-export class AdOpenOnlyDirective {
+export class AdOpenOnlyDirective implements AfterViewInit {
 
   constructor(private el: ElementRef) { }
   private _allowed?: boolean = false;
@@ -15,6 +15,7 @@ export class AdOpenOnlyDirective {
 
   ngAfterViewInit() {
     this._allowed = DataExtractionHelper.get('params')['isAdOpen'];
-    this.el.nativeElement.disabled = !this._allowed; 
+    if(!this.el.nativeElement.disabled)
+      this.el.nativeElement.disabled = !this._allowed; 
   }
 }

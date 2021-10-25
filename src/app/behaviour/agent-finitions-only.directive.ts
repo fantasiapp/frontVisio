@@ -15,6 +15,7 @@ export class AgentFinitionsOnlyDirective implements AfterViewInit {
 
   ngAfterViewInit() {
     this._allowed = PDV.geoTree.root.label === 'Agent Finitions';
-    this.el.nativeElement.disabled = !this._allowed; 
+    if(!this.el.nativeElement.disabled)
+      this.el.nativeElement.disabled = !this._allowed; 
   }
 }
