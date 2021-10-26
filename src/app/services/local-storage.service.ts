@@ -78,16 +78,17 @@ export class LocalStorageService {
     this.localStorage.removeItem('queuedDataToUpdate')
   }
 
-  handleDisconnect() {
+  handleDisconnect(forceClear: boolean = false) {
     let token = this.getToken()
 
-    if(token === sessionStorage.getItem('token')) {
-      if(!this.getStayConnected()) {
-        this.localStorage.removeItem('alreadyConnected')
+    if(token === sessionStorage.getItem('token') || forceClear) {
+      if(!this.getStayConnected() || forceClear) {
+        this.localStorage.removeItem('stayConnected')
         this.localStorage.removeItem('token')
         this.localStorage.removeItem('lastUpdateTimestamp');
         this.localStorage.removeItem('data');
       }
+      this.localStorage.removeItem('alreadyConnected')
       sessionStorage.removeItem("token")
     }
   }

@@ -4,7 +4,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
-import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
+import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import {
   trigger,
@@ -58,7 +58,9 @@ export class InfoBarComponent {
       this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
-      this.redistributedFinitionsDisabled = !value.attribute('redistributedFinitions');
+      // this.redistributedFinitionsDisabled = !value.attribute('redistributedFinitions');
+      this.redistributedFinitionsDisabled = false;
+      console.log("red fin dis: ", this.redistributedFinitionsDisabled)
       this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
@@ -254,6 +256,7 @@ export class InfoBarComponent {
     }
   }
   changeRedistributedFinitions() {
+    console.log("oui oui")
     if(!this.redistributedFinitionsDisabled){
       this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
