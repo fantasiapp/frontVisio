@@ -91,13 +91,12 @@ export class LoginPageComponent implements OnInit {
   ) {}
   userValid = false;
   retry = true;
-  alreadyConnected: boolean = this.localStorageService.getLastUpdateTimestamp() ? true: false;
+  alreadyConnected: boolean = false;
   stayConnected: boolean = false;
   serverIsLoading: boolean = false;
 
   ngOnInit(): void {
-    console.log("INIT LOGIN PAGE")
-    if(this.localStorageService.getLastUpdateTimestamp()) return;
+    if(this.isAlreadyConnected()) return;
     else {
       if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
         LocalStorageService.getFromCache = true;
@@ -135,7 +134,7 @@ export class LoginPageComponent implements OnInit {
 
   enableForceLogin() {
     this.alreadyConnected = false;
-    this.localStorageService.removeAlreadyConnected();
+    this.localStorageService.handleDisconnect(true)
   }
   
 }

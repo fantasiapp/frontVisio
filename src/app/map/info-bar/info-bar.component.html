@@ -38,16 +38,16 @@
                         <div class="props">
                             <ul>
                                 <li>
-                                    <label class="container-checkbox">
+                                    <label class="container-checkbox" (click)="handleDisabled('doesntSell')" [msgId]="'doesntSell'" conditionnalDisabled>
                                         Ne vend pas de plaque
-                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [attr.disabled]="doesntSellDisabled" agentOnly>
+                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [pdv]="pdv" [sales]="sales" [conditions]="[noSale, emptySales]" [msgId]="'doesntSell'" conditionnalDisabled agentOnly>
                                         <span class="checkmark" ></span>
                                     </label>
                                 </li>
                                 <li>
-                                    <label class="container-checkbox">
+                                    <label class="container-checkbox" (click)="handleDisabled('redistributed')" [msgId]="'redistributed'" conditionnalDisabled>
                                         Point de vente redistribue
-                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [attr.disabled]="redistributedDisabled" agentOnly>
+                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributed, emptySales]" [msgId]="'redistributed'" conditionnalDisabled agentOnly>
                                         <span class="checkmark"></span>
                                     </label>
                                 </li>
@@ -166,9 +166,9 @@
                         </ul>
                     </div>
                 </div>
-                <label class="container-checkbox">
+                <label class="container-checkbox" (click)="handleDisabled('redistributedFinitions')" [msgId]="'redistributedFinitions'" conditionnalDisabled>
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.disabled]="redistributedFinitionsDisabled" [attr.checked]="redistributedFinitionsChecked" agentFinitionsOnly currentYearOnly>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributedFinitions, emptySalesFinitions]" [msgId]="'redistributedFinitions'" conditionnalDisabled agentFinitionsOnly>
                     <span class="checkmark" ></span>
                 </label>
                 <div class="values-div">
@@ -209,4 +209,8 @@
             <button class="positive button" (click)="quit(true)">Oui</button>
         </div>
     </div>
+</div>
+
+<div *ngIf="disabledMsg">
+    Action impossible : {{ disabledMsg }}
 </div>
