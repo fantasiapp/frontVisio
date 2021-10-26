@@ -1,12 +1,10 @@
 import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, OnDestroy, ViewChildren } from '@angular/core';
-import { Subscription, Subject, combineLatest } from 'rxjs';
-import { combineAll, startWith } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
-import { BasicWidget } from '../widgets/BasicWidget';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
 
 type MarkerType = {
@@ -37,9 +35,8 @@ export class MapComponent implements OnDestroy {
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
-
-  onCriteriaChanged() {
-    this.computePDVs();
+  onPDVsChange(pdvs: PDV[]) {
+    this.pdvs = pdvs;
     this.update();
   }
   
@@ -58,7 +55,6 @@ export class MapComponent implements OnDestroy {
     if ( this.shouldUpdateIcons ) {
       console.log('[MapComponent]: Updating Icons.');
       MapIconBuilder.initialize();
-      this.computePDVs();
       this.shouldUpdateIcons = false;
     }
 
@@ -73,14 +69,13 @@ export class MapComponent implements OnDestroy {
   map?: google.maps.Map;
   path: any = {};
   pdvs: PDV[] = [...PDV.getInstances().values()];
-  allPdvs: PDV[] = this.pdvs;
   infowindow: any = {};
   markerTimeout: any = 0;
-  stateSubscription?: Subscription;
+  // stateSubscription?: Subscription;
   updateSubscription?: Subscription;
   shouldUpdateIcons: boolean = false;
 
-  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
+  constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     console.log('[MapComponent]: On');
     MapIconBuilder.initialize();
     this.initializeInfowindow();
@@ -89,16 +84,16 @@ export class MapComponent implements OnDestroy {
   }
 
   private interactiveMode() {
-    this.stateSubscription = this.filtersService.stateSubject.subscribe(({States}) => {
-      let path = this.filtersService.getPath(States);
-      if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
-        this.path = path;
-        this.allPdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type)
-        this.computePDVs();
-        this.update();
-      } else if ( !this.map )
-        this.update();
-    });
+    console.log('interactive mode');
+    // this.stateSubscription = this.filtersService.stateSubject.subscribe(({States}) => {
+    //   let path = this.filtersService.getPath(States);
+    //   if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
+    //     this.path = path;
+    //     this.allPdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type)
+    //     this.update();
+    //   } else if ( !this.map )
+    //     this.update();
+    // });
     
     //unsubscribe from this
     this.updateSubscription = this.dataservice.update.subscribe(_ => {
@@ -106,15 +101,10 @@ export class MapComponent implements OnDestroy {
 
       if ( !this.hidden ) {
         MapIconBuilder.initialize();
-        this.computePDVs();
         this.update();
         this.shouldUpdateIcons = false;
       }
     });
-  }
-
-  private computePDVs() {
-    this.pdvs = this.filters?.apply(this.allPdvs) || this.allPdvs;
   }
 
   initializeInfowindow() {
@@ -139,6 +129,7 @@ export class MapComponent implements OnDestroy {
   }
 
   update() {
+    console.log('map update');
     this.removeMarkers();
     if ( !this.map )
       this.createMap();
@@ -360,7 +351,7 @@ export class MapComponent implements OnDestroy {
   };
 
   private unsubscribe() {
-    this.stateSubscription?.unsubscribe();
+    // this.stateSubscription?.unsubscribe();
     this.updateSubscription?.unsubscribe();
   }
 

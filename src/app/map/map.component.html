@@ -1,4 +1,4 @@
-<map-filters [path]="path" (criteriaChange)="onCriteriaChanged()" #filters></map-filters>
+<map-filters [shown]="shown" (pdvsChange)="onPDVsChange($event)"></map-filters>
 <div class="map-container" #mapContainer></div>
 <info-bar [(pdv)]="selectedPDV" #infobar></info-bar>
 <map-legend></map-legend>
