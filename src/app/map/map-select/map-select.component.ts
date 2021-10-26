@@ -88,6 +88,10 @@ export class MapSelectComponent implements OnChanges {
     return this.criteria && this.criteria.length > 1;
   }
 
+  get deletable() {
+    return this.selection.length > 0;
+  }
+
   @HostBinding('style.height')
   get height() {
     if ( this.dropped )
@@ -97,6 +101,11 @@ export class MapSelectComponent implements OnChanges {
 
   toggleDropdown(e: any) {
     this.dropped = !this.dropped;
+  }
+
+  tryDelete() {
+    this.selection.length = 0;
+    this.emitSelection();
   }
 
   ngOnChanges(changes: SimpleChanges) {
