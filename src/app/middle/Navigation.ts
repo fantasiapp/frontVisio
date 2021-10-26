@@ -57,7 +57,6 @@ export class Navigation {
       for ( let id of path )
         this.currentLevel = this.currentLevel!.goChild(id);
       
-      console.log(this.currentLevel!)
       this.currentDashboard = dashboard || this.currentLevel?.dashboards[0];
     }
   }

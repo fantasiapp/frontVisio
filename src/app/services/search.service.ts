@@ -201,15 +201,17 @@ export class SearchService {
   }
 
   levels: [MatchFunction, string, number, any?][] = [
-    [SearchService.ruleFromRegexp(/(?:Nat?i?o?n?a?l?)|(?:Fra?n?c?e?)/i), 'National', SearchService.IS_REDIRECTION],
+    // [SearchService.ruleFromRegexp(/(?:Nat?i?o?n?a?l?)|(?:Fra?n?c?e?)/i), 'National', SearchService.IS_REDIRECTION],
     [SearchService.ruleFromRegexp(/Tou?s?/i), 'Tous', SearchService.IS_PATTERN, () => combineResults([searchAll('Région', 'Secteur', 'Département', 'Bassin', 'Enseigne', 'Ensemble', 'Sous-Ensemble'), searchDashboard()])],
+    [SearchService.ruleFromRegexp(/(?:pd?v?)|(?:Poin?t? d?e? V?e?n?t?e?)/i), 'Point de vente', SearchService.IS_PATTERN, searchPDV],
+    [SearchService.ruleFromRegexp(/(?:Bor?d?)|(?:Tabl?e?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard],
     [SearchService.ruleFromRegexp(/R[ée]g?i?o?n?/i), 'Région', SearchService.IS_PATTERN],
     [SearchService.ruleFromRegexp(/(?:Sec?t?e?u?r?)|(?:Age?n?t?)/i), 'Secteur', SearchService.IS_PATTERN],
     [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN, searchDépartement],
     [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN, searchBassin],
     [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Enseigne', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/(?:Bor?d?)|(?:Tabl?e?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard],
-    [SearchService.ruleFromRegexp(/(?:pd?v?)|(?:Poin?t? d?e? V?e?n?t?e?)/i), 'Point de vente', SearchService.IS_PATTERN, searchPDV]
+    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Ensemble', SearchService.IS_PATTERN],
+    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Sous-Ensemble', SearchService.IS_PATTERN]
   ];
 
   addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {

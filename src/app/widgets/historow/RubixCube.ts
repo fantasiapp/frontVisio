@@ -1,3 +1,4 @@
+import DataExtractionHelper from "src/app/middle/DataExtractionHelper";
 import { HistoRowComponent } from "./historow.component";
 
 type CubeData = {
@@ -16,13 +17,14 @@ export class RubixCube {
   private _segmentAxis: boolean[] | null = null;
 
   constructor(private historow: HistoRowComponent) {
+    RubixCube.initializeDescriptionMock();
     let properties = historow.properties;
     properties.description = RubixCube.DESCRIPTION_MOCK;
     if ( !Array.isArray(properties.arguments[0]) ) { //enseigne
       properties.arguments[0] = [properties.arguments[0], 'ensemble'];
     }
-
     this.mainAxis = properties.arguments[0][0];
+    this.historow.makeSelect();
   }
 
   set segmentAxis(value: any) {
@@ -43,7 +45,6 @@ export class RubixCube {
       this.mainAxis = this.historow.properties.arguments[0][0];
       this._conditions[1] = null;
       this.segmentAxis = this.segmentStack.pop();
-      console.log(this.segmentAxis);
     } else {
       this._conditions[1] = [this.mainAxis, [ +this.cube!.enseigneIndexes[index] ]];
       this.mainAxis = this.historow.properties.arguments[0][1];
@@ -83,6 +84,17 @@ export class RubixCube {
 
   getIndexById(id: number) {
     return this.cube!.enseigneIndexes.findIndex(x => +x == id);
+  }
+
+  static initializeDescriptionMock() {
+    let segmentMarketing = DataExtractionHelper.get('segmentMarketing');
+    return this.DESCRIPTION_MOCK = [
+      ['Tous segments', []],
+      ['Purs Spécialistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!]]]],
+      ['Multi Spécialistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!]]]],
+      ['Généralistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!]]]],
+      ['Autres', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Autres')!]]]]
+    ]
   }
 
 
