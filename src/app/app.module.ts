@@ -56,6 +56,7 @@ import { AuthService } from './connection/auth.service';
 import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.directive';
 import { AdOpenOnlyDirective } from './behaviour/ad-open-only.directive';
 import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directive';
+import { MapLegendComponent } from './map/map-legend/map-legend.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +100,8 @@ import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directiv
     BlankComponent,
     AgentFinitionsOnlyDirective,
     AdOpenOnlyDirective,
-    CurrentYearOnlyDirective
+    CurrentYearOnlyDirective,
+    MapLegendComponent
   ],
   imports: [
     BrowserModule,

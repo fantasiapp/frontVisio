@@ -15,7 +15,7 @@ export class MapSelectComponent implements OnChanges {
   prettyCriterion = '';
   @Input()
   criteria: [number, any, number][] | null = null;
-
+  
   all: boolean = true;
 
   @Output()
@@ -49,6 +49,10 @@ export class MapSelectComponent implements OnChanges {
       ])
     else
       this.criteriaChange.emit([]);
+  }
+
+  get filtering() {
+    return this.selection.length > 0;
   }
 
   criterionClicked(e: any, idx: number) {
@@ -88,6 +92,10 @@ export class MapSelectComponent implements OnChanges {
     return this.criteria && this.criteria.length > 1;
   }
 
+  get deletable() {
+    return this.selection.length > 0;
+  }
+
   @HostBinding('style.height')
   get height() {
     if ( this.dropped )
@@ -96,7 +104,24 @@ export class MapSelectComponent implements OnChanges {
   }
 
   toggleDropdown(e: any) {
-    this.dropped = !this.dropped;
+    if ( this.dropped )
+      this.close();
+    else
+      this.open();
+  }
+
+  open() {
+    this.dropped = true;
+  }
+
+  close() {
+    this.dropped = false;
+  }
+
+  tryDelete() {
+    if ( !this.deletable ) return;
+    this.selection.length = 0;
+    this.emitSelection();
   }
 
   ngOnChanges(changes: SimpleChanges) {

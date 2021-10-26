@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, OnDestroy, ViewChildren } from '@angular/core';
 import { Subscription, Subject, combineLatest } from 'rxjs';
 import { combineAll, startWith } from 'rxjs/operators';
 import { LoggerService } from '../behaviour/logger.service';
@@ -7,6 +7,7 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { BasicWidget } from '../widgets/BasicWidget';
+import { MapFiltersComponent } from './map-filters/map-filters.component';
 
 type MarkerType = {
   pdv: PDV;
@@ -30,19 +31,16 @@ export class MapComponent implements OnDestroy {
     return this.hidden ? 'none' : 'flex';
   }
 
+  @ViewChild(MapFiltersComponent)
+  filters?: MapFiltersComponent;
+
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
-  private _criteria: any[] = [];
-  filterDict: any = {};
 
-  set criteria(value: any[]) {
-    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type === PDV.geoTree.type);
-    this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
-    this.filterDict = PDV.countForFilter(pdvs);
+  onCriteriaChanged() {
+    this.computePDVs();
     this.update();
-    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this._criteria.length ? this._criteria : undefined);
-    this.logger.actionComplete();
   }
   
   selectedPDV?: PDV;
@@ -74,7 +72,8 @@ export class MapComponent implements OnDestroy {
   
   map?: google.maps.Map;
   path: any = {};
-  pdvs: PDV[] = [];
+  pdvs: PDV[] = [...PDV.getInstances().values()];
+  allPdvs: PDV[] = this.pdvs;
   infowindow: any = {};
   markerTimeout: any = 0;
   stateSubscription?: Subscription;
@@ -84,7 +83,6 @@ export class MapComponent implements OnDestroy {
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     console.log('[MapComponent]: On');
     MapIconBuilder.initialize();
-
     this.initializeInfowindow();
     if ( this.shown )
       this.interactiveMode();    
@@ -93,23 +91,31 @@ export class MapComponent implements OnDestroy {
   private interactiveMode() {
     this.stateSubscription = this.filtersService.stateSubject.subscribe(({States}) => {
       let path = this.filtersService.getPath(States);
-      if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
+      if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
+        this.allPdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type)
+        console.log('path changed', this.allPdvs);
         this.computePDVs();
         this.update();
-      }
+      } else if ( !this.map )
+        this.update();
     });
     
     //unsubscribe from this
     this.updateSubscription = this.dataservice.update.subscribe(_ => {
       this.shouldUpdateIcons = true;
+
+      if ( !this.hidden ) {
+        MapIconBuilder.initialize();
+        this.computePDVs();
+        this.update();
+        this.shouldUpdateIcons = false;
+      }
     });
   }
 
   private computePDVs() {
-    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type === PDV.geoTree.type);
-    this.pdvs = PDV.reSlice(pdvs, this._criteria);
-    this.filterDict = PDV.countForFilter(pdvs);
+    this.pdvs = this.filters?.apply(this.allPdvs) || this.allPdvs;
   }
 
   initializeInfowindow() {
@@ -125,11 +131,6 @@ export class MapComponent implements OnDestroy {
     content.appendChild(title);
     content.appendChild(button);
     this.infowindow.element = new google.maps.InfoWindow();
-  }
-
-  onCriteriaChange(criteria: any[]) {
-    this.criteria = criteria;
-    this.cd.detectChanges();
   }
 
   focusPDV(pdv: PDV) {
@@ -359,12 +360,6 @@ export class MapComponent implements OnDestroy {
     return int;
   };
 
-  refresh() {
-    if ( MapIconBuilder.year != DataExtractionHelper.currentYear )
-      MapIconBuilder.initialize();
-    this.update();
-  }
-
   private unsubscribe() {
     this.stateSubscription?.unsubscribe();
     this.updateSubscription?.unsubscribe();
@@ -375,7 +370,7 @@ export class MapComponent implements OnDestroy {
   }
 };
 
-class MapIconBuilder {
+export class MapIconBuilder {
   defaultValues: any;
   axes: any[];
   axesNames: string[];
@@ -418,8 +413,8 @@ class MapIconBuilder {
   }
 
   generate() {
-    this._generateData();
-    this._generateIcons();
+    this.generateData();
+    this.generateIcons();
   }
 
   get(path: string[]) {
@@ -435,7 +430,7 @@ class MapIconBuilder {
     return dict.icon;
   }
 
-  private _generateData(previousDict=this.icons, height:number=0) {
+  private generateData(previousDict=this.icons, height:number=0) {
     if ( height >= this.axesNames.length ) return;
     let axisName = this.axesNames[height];
     let data = this.axes[height];
@@ -443,17 +438,17 @@ class MapIconBuilder {
     for ( let item of data ) {
       let key = axisName + '.' + item[0];
       previousDict[key] = {'data': {...previousDict['data'], ...item[1]}}; 
-      this._generateData(previousDict[key], height+1);
+      this.generateData(previousDict[key], height+1);
     }
   }
 
-  private _generateIcons(previousDict=this.icons, height:number=0) {
+  private generateIcons(previousDict=this.icons, height:number=0) {
     if ( height >= this.axesNames.length ) return;
     let keys = Object.getOwnPropertyNames(previousDict);
     for ( let key of keys ) {
       if ( !previousDict[key].data ) continue
       previousDict[key].icon = this.createIcon(previousDict[key]['data']);
-      this._generateIcons(previousDict[key], height+1);
+      this.generateIcons(previousDict[key], height+1);
     }
   }
 
@@ -473,25 +468,38 @@ class MapIconBuilder {
     return `<circle cx='15' cy='26' r='4' stroke='${strokeFeet}' stroke-width='1' fill='#FF0000'></circle>`;
   }
 
+  private static updated: Function[] = [];
+
+  static onUpdate(f: Function) {
+    this.updated.push(f);
+  }
+
+  static offUpdate(f: Function) {
+    let idx = this.updated.findIndex(g => f == g);
+    if ( idx > 0 )
+      this.updated.splice(idx, 1);
+  }
+
   static initialize() {
     let segmentMarketing = DataExtractionHelper.get('segmentMarketing');
+    let industriel = DataExtractionHelper.get('industriel');
 
     let builder = new MapIconBuilder({
       width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
     });
 
-    builder.axis('id', [
-      [1, {fill: '#A61F7D'}],
-      [2, {fill: '#0056A6'}],
-      [3, {fill: '#67CFFE'}],
-      [4, {fill: '#888888'}],
-    ]).axis('cp', [
+    builder.axis('industriel', [
+      [+DataExtractionHelper.getKeyByValue(industriel, 'Siniat')!, {fill: '#A61F7D'}],
+      [+DataExtractionHelper.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
+      [+DataExtractionHelper.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
+      [+DataExtractionHelper.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
+    ]).axis('clientProspect', [
       [0, {}],
       [1, {fill: '#FF0000'}]
-    ]).axis('pf', [
+    ]).axis('pointFeu', [
       [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}], //<- draw fire later, now it's a circle
       [0, {}]
-    ]).axis('sm', [
+    ]).axis('segmentMarketing', [
       [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
       [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
       [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!, {head: MapIconBuilder.diamond}],
@@ -499,6 +507,8 @@ class MapIconBuilder {
     ]).generate();
 
     this._instance = builder;
+    for ( let callback of this.updated )
+      callback.call(this._instance);
   }
 
   static year = true;
