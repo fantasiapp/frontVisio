@@ -111,3 +111,9 @@
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
 }
+
+.fixed {
+    background: #888888;
+    color: white;
+    cursor: default !important;
+}
