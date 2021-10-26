@@ -570,7 +570,7 @@ export class PDV{
       pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
     if (axis1 == 'histo&curve'){
-      dataWidget.fillFirstLineForHistoCurve();
+      PDV.fillFirstLineOfHistoCurve(dataWidget, pdvs);
       dataWidget.completeWithCurveForHistoCurve();
     }
     else {
@@ -866,7 +866,46 @@ export class PDV{
     return dictResult;
   }
 
-  getLastSaleDate(){}
+  private getFirstSaleDate(){
+    let firstSaleDateInSeconds  = Infinity;
+    for (let sale of this.sales)
+      if (sale.date !== null && sale.date.getTime() < firstSaleDateInSeconds)
+        firstSaleDateInSeconds = sale.date.getTime();
+    return firstSaleDateInSeconds;
+  }
+
+  private computeWeeksRepartitionAD(){    
+    let axe : string[]= Object.values(DataExtractionHelper.get("weeks")),
+      dnAd = new Array(axe.length).fill(0);
+    if (!this.adCompleted()) return dnAd;
+    let associatedIndex :{[key: string]: number}= {};
+    for (let i = 0; i < axe.length; i++)
+      associatedIndex[axe[i]] = i;
+    if (this.attribute("onlySiniat") || !this.attribute("redistributed")){
+      dnAd[associatedIndex["avant"]] = 1;
+      return dnAd
+    }
+    let updateDateInSeconds = this.getFirstSaleDate(),
+      currentDate = new Date(),
+      day = currentDate.getDay() == 0 ? 6: currentDate.getDay() - 1, // car dans timestamp la semaine commence le dimanche
+      BeginingOfTheWeek = currentDate.getTime() - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
+      aWeekInSeconds = 7 * 24 * 60 * 6,
+      find = false, i = 0;
+    while(!find && i < 7){
+      if (updateDateInSeconds > BeginingOfTheWeek - i * aWeekInSeconds){
+        dnAd[associatedIndex['s-'.concat(i.toString())]] = 1;
+        find = true;
+      }
+      i++;
+    }
+    if (!find) dnAd[associatedIndex["avant"]] = 1;
+    return dnAd
+  }
+
+  private static fillFirstLineOfHistoCurve(widget: DataWidget, pdvs:PDV[]){
+    for (let pdv of pdvs)
+      widget.addOnRow(1, pdv.computeWeeksRepartitionAD())// Le 1 est harcodé car c'est l'id de "Nombre de PdV complétés", il faudra changer ça
+  }
 
   hasNonSiniatSale(){
     let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID;
@@ -991,7 +1030,6 @@ class SliceDice{
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
-        console.log('-->', )
         let targetValues = 
           DataExtractionHelper.getListTarget(finition ? "agentFinitions": (node.children[0] as Node).label, elemIds, dn, finition);
         for (let i = 0; i < targetValues.length; i++) 
