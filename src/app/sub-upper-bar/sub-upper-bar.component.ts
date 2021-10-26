@@ -27,8 +27,8 @@ export class SubUpperBarComponent implements OnInit {
         this.currentDashboard = States.dashboard.name;
         this.currentLevel = States.level.name;
         this.path = (<string>States.path[States.path.length-1]);
-        this.currentDashboardId = States.dashboard.id;      
-        this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(height-1);  
+        this.currentDashboardId = States.dashboard.id;
+        this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(this.filtersStates.navigation.tree!, height-1);  
       }
     );
 
@@ -44,7 +44,7 @@ export class SubUpperBarComponent implements OnInit {
   onYearChange(e: Event) {
     let current = !!(((e.target as any).value) | 0);
     this.filtersStates.setYear(current);
-    this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(this.filtersStates.stateSubject.value.States.path.length - 1)
+    this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(this.filtersStates.navigation.tree!, this.filtersStates.stateSubject.value.States.path.length - 1)
     this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
   }

@@ -35,7 +35,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
     private dataService: DataService
   ) {
     this.subscription = this.filtersState.stateSubject.subscribe(({States}) => {
-      this.sldValue = this.filtersState.tree?.type == NavigationExtractionHelper ? 1 : 0;
+      this.sldValue = this.filtersState.navigation.tree?.type == NavigationExtractionHelper ? 1 : 0;
     });
   }
   shouldShowButtons = false;
@@ -81,7 +81,7 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   toggleMap() {
     if ( !this.mapComponent?.shown ) {
       this.mapComponent!.show();
-      if ( this.filtersState.tree && this.filtersState.tree.type === TradeExtrationHelper )
+      if ( this.filtersState.navigation.tree && this.filtersState.navigation.tree.type === TradeExtrationHelper )
         this.filtersState.reset(PDV.geoTree, false);      
       this.mapVisible.emit(true);
     } else {
