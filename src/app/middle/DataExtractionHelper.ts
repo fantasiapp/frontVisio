@@ -463,12 +463,9 @@ class DataExtractionHelper{
   }
 
   private static getObjectif(node:any, finition=false, dn=false){    
+    if ((finition && !['France', 'Région', 'Agent Finitions'].includes(node.label)) || (!finition && node.label !== 'Secteur')) return "";
     let objective = this.getTarget(node.label, node.id, dn, finition);
-    if (finition){
-      if (['France', 'Région', 'Agent Finitions'].includes(node.label)) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
-      else return "";
-    }
-    if (node.label !== 'Secteur') return "";
+    if (finition) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdV, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');
   }
 
