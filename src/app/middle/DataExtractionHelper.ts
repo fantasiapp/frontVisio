@@ -19,7 +19,8 @@ const enduitIndustrie = {
 const segmentDnEnduit = {
   1: "Pur prospect",
   2: "P2CD + Enduit",
-  3: "Enduit hors P2CD"
+  3: "Enduit hors P2CD",
+  4: "Non documenté"
 }
 
 const clientProspect = {
@@ -33,8 +34,8 @@ const clientProspectTarget = {
 }
 
 const segmentDnEnduitTarget = {
-  4: "Cible Pur Prospect",
-  5: "Cible P2CD"
+  5: "Cible Pur Prospect",
+  6: "Cible P2CD"
 }
 
 const enduitIndustrieTarget = {
