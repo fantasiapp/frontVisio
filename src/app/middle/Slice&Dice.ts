@@ -436,7 +436,7 @@ export class PDV{
         totalP2cd = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
-      if (this.sales.length == 0) dnEnduit[associatedIndex["Non documenté"]] = 1;
+      if (this.sales.length == 0 || !this.attribute("redistributedFinitions")) dnEnduit[associatedIndex["Non documenté"]] = 1;
       else {
         for (let sale of this.sales){
           if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) 
@@ -447,7 +447,8 @@ export class PDV{
           }
         }
         let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
-        if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
+        if (totalSiniatP2cd == totalP2cd && !this.attribute("onlySiniat")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+        else if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
         else if (saleEnduit){
           if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
           else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
