@@ -4,6 +4,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
+import { Condition } from 'src/app/behaviour/conditionnal-disabled.directive'
 import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import {
@@ -58,9 +59,6 @@ export class InfoBarComponent {
       this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
-      // this.redistributedFinitionsDisabled = !value.attribute('redistributedFinitions');
-      this.redistributedFinitionsDisabled = false;
-      console.log("red fin dis: ", this.redistributedFinitionsDisabled)
       this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
@@ -106,7 +104,6 @@ export class InfoBarComponent {
 
   redistributedDisabled: boolean = false;
   redistributedChecked: boolean = false;
-  redistributedFinitionsDisabled: boolean = false;
   redistributedFinitionsChecked: boolean = false;
   doesntSellDisabled: boolean = false;
   doesntSellChecked: boolean = false;
@@ -115,6 +112,11 @@ export class InfoBarComponent {
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
+
+  noRedistributedFinitions = Condition.noRedistributedFinitions;
+  emptySalesFinitions = Condition.emptySalesFinitions;
+  noSale = Condition.noSale;
+  emptySales = Condition.emptySales;
 
   myFormatNumberToString = formatNumberToString;
 
@@ -257,13 +259,11 @@ export class InfoBarComponent {
   }
   changeRedistributedFinitions() {
     console.log("oui oui")
-    if(!this.redistributedFinitionsDisabled){
-      this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
-      this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
-      if(!this.target) this.target = SliceTable.initializeTarget()
-      this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
-      this.hasChanged = true;
-    }
+    this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
+    this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
+    if(!this.target) this.target = SliceTable.initializeTarget()
+    this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
+    this.hasChanged = true;
   }
 
 

@@ -168,7 +168,7 @@
                 </div>
                 <label class="container-checkbox">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.disabled]="redistributedFinitionsDisabled" [attr.checked]="redistributedFinitionsChecked">
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributedFinitions, emptySalesFinitions]" [attr.checked]="redistributedFinitionsChecked" conditionnalDisabled>
                     <span class="checkmark" ></span>
                 </label>
                 <div class="values-div">
