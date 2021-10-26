@@ -47,7 +47,8 @@ export class DataService {
       }) as Observable<Object[]>
     ) 
       .pipe(
-        map((data) => {
+        map((data: any) => {
+          // data.params['isAdOpen'] = false
           return data;
         })
       )
@@ -108,7 +109,7 @@ export class DataService {
   private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
-    // console.log("Data : ", data)
+    console.log("Sending data for update : ", data)
     DataExtractionHelper.updateData(data);
     this.update.next();
   }
@@ -157,8 +158,8 @@ export class DataService {
   public endUpdateThread() {
     console.log("[Data Service] End update threads")
     this.threadIsOn = false;
-    this.updateSubscriber.unsubscribe();
-    this.logSubscriber.unsubscribe();
+    this.updateSubscriber?.unsubscribe();
+    this.logSubscriber?.unsubscribe();
   }
 
   setLastUpdateDate(timestamp: string) {

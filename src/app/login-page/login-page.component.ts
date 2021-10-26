@@ -49,6 +49,7 @@ export class LoginPageComponent implements OnInit {
       if (success) {
         let lastToken = this.localStorageService.getLastToken();
         let newToken = this.authService.getAuthorizationToken();
+        this.localStorageService.setAlreadyConnected(true)
         if(lastToken) { //quick manip to fool the auth interceptor
           this.authService.token = lastToken;
           this.dataservice.BEFOREsendQueuedDataToUpdate();
@@ -90,20 +91,24 @@ export class LoginPageComponent implements OnInit {
   ) {}
   userValid = false;
   retry = true;
-  alreadyConnected: boolean = false;
+  alreadyConnected: boolean = this.localStorageService.getLastUpdateTimestamp() ? true: false;
   stayConnected: boolean = false;
   serverIsLoading: boolean = false;
 
   ngOnInit(): void {
-    if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
-      LocalStorageService.getFromCache = true;
-      this.userValid = true;
-      this.authService.handleTokenSave();
-      this.dataservice.requestData();
-      this.router.navigate([
-        sessionStorage.getItem('originalPath') || 'logged',
-      ]);
-      this.authService.isLoggedIn.next(true);
+    console.log("INIT LOGIN PAGE")
+    if(this.localStorageService.getLastUpdateTimestamp()) return;
+    else {
+      if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
+        LocalStorageService.getFromCache = true;
+        this.userValid = true;
+        this.authService.handleTokenSave();
+        this.dataservice.requestData();
+        this.router.navigate([
+          sessionStorage.getItem('originalPath') || 'logged',
+        ]);
+        this.authService.isLoggedIn.next(true);
+      }
     }
   }
 
@@ -113,7 +118,13 @@ export class LoginPageComponent implements OnInit {
     this.subscription?.unsubscribe();
   }
 
+  isAlreadyConnected(): boolean {
+    this.alreadyConnected = this.localStorageService.getAlreadyConnected();
+    return this.alreadyConnected;
+  }
+
   onLoading(username: string, password: string, stayConnected: boolean) {
+    if(this.isAlreadyConnected()) return;
     console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
     this.authService
@@ -121,4 +132,9 @@ export class LoginPageComponent implements OnInit {
       .subscribe(this.logInObserver);
   }
 
+  enableForceLogin() {
+    this.alreadyConnected = false;
+    this.localStorageService.removeAlreadyConnected();
+  }
+  
 }

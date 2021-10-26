@@ -98,8 +98,7 @@ export class MapComponent implements OnDestroy {
         this.update();
       }
     });
-
-
+    
     //unsubscribe from this
     this.dataservice.update.subscribe(_ => {
       this.shouldUpdateIcons = true;
@@ -366,7 +365,7 @@ export class MapComponent implements OnDestroy {
   }
 
   private unsubscribe() {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
   }
 
   ngOnDestroy() {

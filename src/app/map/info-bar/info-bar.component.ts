@@ -6,20 +6,41 @@ import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
-
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+} from '@angular/animations';
 
 @Component({
   selector: 'info-bar',
   templateUrl: './info-bar.component.html',
   styleUrls: ['./info-bar.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('fadeOut', [
+      state('visible', style({
+        opacity: 1
+      })),
+      state('invisible', style({
+        opacity: 0
+      })),
+      transition('visible => invisible', [
+        animate('1s')
+      ]),
+      transition('* => visible', [
+        animate('0s')
+      ])
+    ])]
 })
 export class InfoBarComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
   quiting: boolean = false;
-  errorAdInput: boolean = false;
+  errorInput: boolean = false;
 
   @ViewChildren('comments')
   private comments?: QueryList<ElementRef>;
@@ -44,7 +65,6 @@ export class InfoBarComponent {
       this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinitions');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
-      this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
       this.isOnlySiniat = value.attribute('onlySiniat')
       this.loadGrid()
     }
@@ -69,7 +89,6 @@ export class InfoBarComponent {
   gridFormatted: string[][] = [];
   targetP2cdFormatted: string = "";
   salesColors: string[][] = [];
-  isAdOpen: boolean = false;
   isOnlySiniat: boolean = false;
 
   SALES_INDUSTRY_ID;
@@ -90,7 +109,6 @@ export class InfoBarComponent {
   doesntSellDisabled: boolean = false;
   doesntSellChecked: boolean = false;
   showNavigation: boolean = false;
-
 
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
@@ -236,7 +254,6 @@ export class InfoBarComponent {
     }
   }
   changeRedistributedFinitions() {
-    console.log("d")
     if(!this.redistributedFinitionsDisabled){
       this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
@@ -252,9 +269,12 @@ export class InfoBarComponent {
     this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID]);
+      this.errorInput = true;
+      setTimeout(() => this.errorInput = false, 1000);
       return;
     }
     this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
+    if(this.target[this.TARGET_VOLUME_ID] === 0) this.target[this.TARGET_LIGHT_ID] = ""
     this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID])
     this.hasChanged = true;
   }
@@ -276,7 +296,7 @@ export class InfoBarComponent {
     }
   } 
 
-  changeLight(newLightValue: string) {
+  changeTargetLight(newLightValue: string) {
     if(!this.target) this.target = SliceTable.initializeTarget()
     this.target[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
@@ -286,10 +306,11 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = formatStringToNumber(this.gridFormatted[i][j]).toString();
     if(Number.isNaN(+this.gridFormatted[i][j])) {
       this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
-      this.errorAdInput = true;
+      this.errorInput = true;
+      setTimeout(() => this.errorInput = false, 1000)
       return;
     }
-    this.errorAdInput = false;
+    this.errorInput = false;
     this.salesColors[i][j] = 'black'
     this.grid[i][j] = +this.gridFormatted[i][j];
     this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
@@ -327,7 +348,7 @@ export class InfoBarComponent {
     }
   }
   changeOnlySiniat() {
-    if(PDV.geoTree.root.label == 'Secteur' && this.noSales()) {
+    if(this.noSales()) {
       this.isOnlySiniat = !this.isOnlySiniat;
       this.hasChanged = true;
     }

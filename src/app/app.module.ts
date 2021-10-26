@@ -54,6 +54,8 @@ import { BlankComponent } from './general/blank/blank.component';
 import { DataService } from './services/data.service';
 import { AuthService } from './connection/auth.service';
 import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.directive';
+import { AdOpenOnlyDirective } from './behaviour/ad-open-only.directive';
+import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directive';
 
 @NgModule({
   declarations: [
@@ -95,7 +97,9 @@ import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.di
     SuggestionBox,
     PatternPipe,
     BlankComponent,
-    AgentFinitionsOnlyDirective
+    AgentFinitionsOnlyDirective,
+    AdOpenOnlyDirective,
+    CurrentYearOnlyDirective
   ],
   imports: [
     BrowserModule,
