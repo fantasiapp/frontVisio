@@ -71,7 +71,7 @@ export class LoginPageComponent implements OnInit {
         setTimeout(() => {elmt3?.classList.add('rotated')
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
         setTimeout(() => elmt5?.classList.add('scale'), 900);
-        this.dataservice.$serverLoading.subscribe(() => this.serverIsLoading = true)
+        this.dataservice.$serverLoading.subscribe((val: boolean) => this.serverIsLoading = val)
         this.subscription = combineLatest([
           this.dataservice.load,
           of(null).pipe(delay(6000))
@@ -110,6 +110,7 @@ export class LoginPageComponent implements OnInit {
         this.authService.isLoggedIn.next(true);
       }
     }
+    this.serverIsLoading = false;
   }
 
   ngOnDestroy(): void {

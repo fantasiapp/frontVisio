@@ -37,7 +37,7 @@ export class DataService {
   private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
-  $serverLoading: AsyncSubject<never> = new AsyncSubject();
+  $serverLoading: AsyncSubject<boolean> = new AsyncSubject();
 
 
   public requestData(){ //used at login, and with refresh button to ask immediatly data from the back
@@ -55,11 +55,12 @@ export class DataService {
       .subscribe((data: any) => {
         if(data.warning ||data.error) {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
-          this.$serverLoading.next(0 as never);
+          this.$serverLoading.next(true);
           this.$serverLoading.complete();
           setTimeout(() => this.requestData(), 30000)
         } else {
           console.log("RequestData successfull")
+          this.$serverLoading.next(false);
           this.load.next();
           this.response.next(data);
           this.update.next()
