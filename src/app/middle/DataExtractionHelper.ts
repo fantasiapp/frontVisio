@@ -113,6 +113,7 @@ const segmentDnEnduitTargetVisits = {
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
+  // plus tard il faudra créer des objects à la volée, par exemple avec Object.defineProperty(...)
   private static data: any;
   static ID_INDEX: number;
   static LABEL_INDEX: number;
@@ -169,7 +170,7 @@ class DataExtractionHelper{
   private static fieldsToSwitchWithyear: string[] = [];
 
 
-  static setData(d: any){ // ici on peut mettre des this.datacar de toute façon ce sont des champs de structure donc ils sont uniques
+  static setData(d: any){
     console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
     let singleFields = ['dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
@@ -238,6 +239,10 @@ class DataExtractionHelper{
 
     this.geoHeight = this.geoLevels.length;
     this.tradeHeight = this.tradeLevels.length;
+  }
+
+  static resetData(){
+    this.currentYear = true;
   }
 
   static updateData(data: UpdateData) {
@@ -344,32 +349,36 @@ class DataExtractionHelper{
     // to switch year
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
-    if (fieldName == 'enduitIndustrie') return enduitIndustrie;
-    if (fieldName == 'segmentDnEnduit') return segmentDnEnduit;
-    if (fieldName == 'paramsCompute') return paramsCompute;
-    if (fieldName == 'clientProspect') return clientProspect;
-    if (fieldName == "suiviAD") return suiviAD;
-    if (fieldName == "weeks") return weeks;
-    if (fieldName == "histo&curve") return histoCurve;    
-    if (fieldName == 'ciblage') return ciblage;
-    if (fieldName == 'pointFeuFilter') return pointFeuFilter;
-    if (fieldName == 'industriel') return industriel;
-    if (fieldName == 'segmentDnEnduitTargetVisits') return segmentDnEnduitTargetVisits;
-    if (fieldName == 'segmentMarketingFilter') return segmentMarketingFilter;
-    if (fieldName == 'clientProspectTarget')
-      return Object.assign({}, clientProspect, clientProspectTarget);
-    if (fieldName == 'segmentDnEnduitTarget') 
-      return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget);
-    if (fieldName == 'enduitIndustrieTarget') 
-      return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
-    if (fieldName == 'industrieTarget')
-      return Object.assign({}, this.get('industrie'), industrieTarget); 
-    let data = this.data[fieldName];
-    if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
-    let names: any = {},
-      nameIndex = this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase()).indexOf('name');
-    for (let [id, list] of Object.entries<any[]>(data)) names[id] = list[nameIndex];
-    return names;
+    switch(fieldName){
+      case 'enduitIndustrie': return enduitIndustrie;
+      case 'segmentDnEnduit': return segmentDnEnduit;
+      case 'paramsCompute': return paramsCompute;
+      case 'clientProspect': return clientProspect;
+      case "suiviAD": return suiviAD;
+      case "weeks": return weeks;
+      case "histo&curve": return histoCurve;    
+      case 'ciblage': return ciblage;
+      case 'pointFeuFilter': return pointFeuFilter;
+      case 'industriel': return industriel;
+      case 'segmentDnEnduitTargetVisits': return segmentDnEnduitTargetVisits;
+      case 'segmentMarketingFilter': return segmentMarketingFilter;
+      case 'clientProspectTarget':
+        return Object.assign({}, clientProspect, clientProspectTarget);
+      case 'segmentDnEnduitTarget': 
+        return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget);
+      case 'enduitIndustrieTarget': 
+        return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
+      case 'industrieTarget':
+        return Object.assign({}, this.get('industrie'), industrieTarget); 
+      default: {
+        let data = this.data[fieldName];
+        if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
+        let names: any = {},
+          nameIndex = this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase()).indexOf('name');
+        for (let [id, list] of Object.entries<any[]>(data)) names[id] = list[nameIndex];
+        return names
+      }
+    }
   }
 
   static getKeyByValue(object:any, value:any) {
@@ -421,18 +430,20 @@ class DataExtractionHelper{
 
   private static treatDescIndicator(node:any, str:string):string{
     if (!this.currentYear) return "";
-    if (str == "@ciblageP2CD") return this.getCiblage(node);
-    if (str == "@ciblageP2CDdn") return this.getCiblage(node, false, true);
-    if (str == "@ciblageEnduit") return this.getCiblage(node, true);
-    if (str == "@ciblageEnduitComplet") return this.getCompleteCiblageFinitions(node);
-    if (str == '@DRV') return this.getObjectifDrv(node);
-    if (str == '@DRVdn') return this.getObjectifDrv(node, true);
-    if (str == "@objectifP2CD") return this.getObjectif(node);
-    if (str == "@objectifP2CDdn") return this.getObjectif(node, false, true);
-    if (str == "@objectifEnduit") return this.getObjectif(node, true);
-    if (str == "@objectifSiege") return this.getObjectifSiege(node);
-    if (str == "@objectifSiegeDn") return this.getObjectifSiege(node, true);
-    return "";
+    switch (str){
+      case "@ciblageP2CD": return this.getCiblage(node);
+      case "@ciblageP2CDdn": return this.getCiblage(node, false, true);
+      case "@ciblageEnduit": return this.getCiblage(node, true);
+      case "@ciblageEnduitComplet": return this.getCompleteCiblageFinitions(node);
+      case "@DRV": return this.getObjectifDrv(node);
+      case "@DRVdn": return this.getObjectifDrv(node, true);
+      case "@objectifP2CD": return this.getObjectif(node);
+      case "@objectifP2CDdn": return this.getObjectif(node, false, true);
+      case "@objectifEnduit": return this.getObjectif(node, true);
+      case "@objectifSiege": return this.getObjectifSiege(node);
+      case "@objectifSiegeDn": return this.getObjectifSiege(node, true);
+      default: return "";
+    }
   }
 
   private static getCompleteCiblageFinitions(node:any){
@@ -452,13 +463,9 @@ class DataExtractionHelper{
   }
 
   private static getObjectif(node:any, finition=false, dn=false){    
+    if ((finition && !['France', 'Région', 'Agent Finitions'].includes(node.label)) || (!finition && node.label !== 'Secteur')) return "";
     let objective = this.getTarget(node.label, node.id, dn, finition);
-    if (finition){
-      console.log(node.label)
-      if (['France', 'Région', 'Agent Finitions'].includes(node.label)) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
-      else return "";
-    }
-    if (node.label !== 'Secteur') return "";
+    if (finition) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdV, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');
   }
 
@@ -519,8 +526,9 @@ class DataExtractionHelper{
     return node;
   }
 
-  static getOtherYearDashboards(height: number = 0) {
-    let level = this.currentYear ? this.get('levelGeo_ly', false, false) : this.get('levelGeo', false, false);
+  static getOtherYearDashboards(tree: Tree, height: number = 0) {
+    let name = tree.type == NavigationExtractionHelper ? 'levelGeo' : 'levelTrade';
+    let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
     while ( height-- )
       level = level[this.SUBLEVEL_INDEX];
     return level[this.DASHBOARD_INDEX];

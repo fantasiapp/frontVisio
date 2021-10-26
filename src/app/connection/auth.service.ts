@@ -96,6 +96,7 @@ export class AuthService {
       this.isLoggedIn.next(false);
       this.dataService.response.next(null);
       this.router.navigate(['login']);
+      DataExtractionHelper.resetData();
     }, 1000);
   }
 }

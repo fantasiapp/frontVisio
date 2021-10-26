@@ -37,7 +37,7 @@ export class MapComponent implements OnDestroy {
   filterDict: any = {};
 
   set criteria(value: any[]) {
-    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree?.type === PDV.geoTree.type);
+    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type === PDV.geoTree.type);
     this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
     this.filterDict = PDV.countForFilter(pdvs);
     this.update();
@@ -58,7 +58,7 @@ export class MapComponent implements OnDestroy {
 
   show() {
     if ( this.shouldUpdateIcons ) {
-      console.log('shouldUpdate');
+      console.log('[MapComponent]: Updating Icons.');
       MapIconBuilder.initialize();
       this.computePDVs();
       this.shouldUpdateIcons = false;
@@ -77,7 +77,8 @@ export class MapComponent implements OnDestroy {
   pdvs: PDV[] = [];
   infowindow: any = {};
   markerTimeout: any = 0;
-  subscription!: Subscription;
+  stateSubscription?: Subscription;
+  updateSubscription?: Subscription;
   shouldUpdateIcons: boolean = false;
 
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
@@ -90,7 +91,7 @@ export class MapComponent implements OnDestroy {
   }
 
   private interactiveMode() {
-    this.subscription = this.filtersService.stateSubject.subscribe(({States}) => {
+    this.stateSubscription = this.filtersService.stateSubject.subscribe(({States}) => {
       let path = this.filtersService.getPath(States);
       if ( !this.pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
@@ -100,13 +101,13 @@ export class MapComponent implements OnDestroy {
     });
     
     //unsubscribe from this
-    this.dataservice.update.subscribe(_ => {
+    this.updateSubscription = this.dataservice.update.subscribe(_ => {
       this.shouldUpdateIcons = true;
     });
   }
 
   private computePDVs() {
-    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree?.type === PDV.geoTree.type);
+    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type === PDV.geoTree.type);
     this.pdvs = PDV.reSlice(pdvs, this._criteria);
     this.filterDict = PDV.countForFilter(pdvs);
   }
@@ -365,7 +366,8 @@ export class MapComponent implements OnDestroy {
   }
 
   private unsubscribe() {
-    this.subscription?.unsubscribe();
+    this.stateSubscription?.unsubscribe();
+    this.updateSubscription?.unsubscribe();
   }
 
   ngOnDestroy() {

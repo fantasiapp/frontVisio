@@ -157,7 +157,7 @@ export class HistoRowComponent extends BasicWidget {
       },
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
-        if ( self.filtersService.tree?.type ===TradeExtrationHelper )
+        if ( self.filtersService.navigation.tree?.type ===TradeExtrationHelper )
           return;
         
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
