@@ -71,7 +71,7 @@ export class LoginPageComponent implements OnInit {
         setTimeout(() => {elmt3?.classList.add('rotated')
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
         setTimeout(() => elmt5?.classList.add('scale'), 900);
-        this.dataservice.$serverLoading.subscribe((val: boolean) => this.serverIsLoading = val)
+        this.dataservice.$serverLoading.subscribe(() => this.serverIsLoading = true)
         this.subscription = combineLatest([
           this.dataservice.load,
           of(null).pipe(delay(6000))
@@ -91,12 +91,13 @@ export class LoginPageComponent implements OnInit {
   ) {}
   userValid = false;
   retry = true;
-  alreadyConnected: boolean = false;
+  alreadyConnected: boolean = this.localStorageService.getLastUpdateTimestamp() ? true: false;
   stayConnected: boolean = false;
   serverIsLoading: boolean = false;
 
   ngOnInit(): void {
-    if(this.isAlreadyConnected()) return;
+    console.log("INIT LOGIN PAGE")
+    if(this.localStorageService.getLastUpdateTimestamp()) return;
     else {
       if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
         LocalStorageService.getFromCache = true;
@@ -109,7 +110,6 @@ export class LoginPageComponent implements OnInit {
         this.authService.isLoggedIn.next(true);
       }
     }
-    this.serverIsLoading = false;
   }
 
   ngOnDestroy(): void {
@@ -134,7 +134,7 @@ export class LoginPageComponent implements OnInit {
 
   enableForceLogin() {
     this.alreadyConnected = false;
-    this.localStorageService.handleDisconnect(true)
+    this.localStorageService.removeAlreadyConnected();
   }
   
 }

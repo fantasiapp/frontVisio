@@ -4,8 +4,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
-import { Condition, ConditionnalDisabledDirective } from 'src/app/behaviour/conditionnal-disabled.directive'
-import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
+import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import {
   trigger,
@@ -59,6 +58,7 @@ export class InfoBarComponent {
       this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
+      this.redistributedFinitionsDisabled = !value.attribute('redistributedFinitions');
       this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
@@ -104,6 +104,7 @@ export class InfoBarComponent {
 
   redistributedDisabled: boolean = false;
   redistributedChecked: boolean = false;
+  redistributedFinitionsDisabled: boolean = false;
   redistributedFinitionsChecked: boolean = false;
   doesntSellDisabled: boolean = false;
   doesntSellChecked: boolean = false;
@@ -112,13 +113,6 @@ export class InfoBarComponent {
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
-
-  noRedistributedFinitions = Condition.noRedistributedFinitions;
-  emptySalesFinitions = Condition.emptySalesFinitions;
-  noSale = Condition.noSale;
-  emptySales = Condition.emptySales;
-  noRedistributed = Condition.noRedistributed;
-  disabledMsg: string = ''
 
   myFormatNumberToString = formatNumberToString;
 
@@ -260,12 +254,13 @@ export class InfoBarComponent {
     }
   }
   changeRedistributedFinitions() {
-    console.log("oui oui")
-    this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
-    this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
-    if(!this.target) this.target = SliceTable.initializeTarget()
-    this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
-    this.hasChanged = true;
+    if(!this.redistributedFinitionsDisabled){
+      this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
+      this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
+      if(!this.target) this.target = SliceTable.initializeTarget()
+      this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
+      this.hasChanged = true;
+    }
   }
 
 
@@ -365,12 +360,6 @@ export class InfoBarComponent {
         return false;
     }
     return true;
-  }
-
-  handleDisabled(msgId: string) {
-    this.disabledMsg = ConditionnalDisabledDirective.messages[msgId];
-    setTimeout(() => this.disabledMsg="" , 2000);
-    console.log(ConditionnalDisabledDirective.messages[msgId])
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application

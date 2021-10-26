@@ -85,6 +85,7 @@ export class LoggerService {
         console.warn('[LoggerService]: unknown event number', event);
         return key;
     }
+
     return this.change = this.setValue(key, result);
   }
 
@@ -101,7 +102,6 @@ export class LoggerService {
     this.autofillFields();
     console.log('[Logger] snapshot changed:', this.snapshot)
     this.dataService.queueSnapshot(this.snapshot);
-    this.dataService.beginUpdateThread()
     this.change = false;
   }
 

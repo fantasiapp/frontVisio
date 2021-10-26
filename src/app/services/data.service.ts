@@ -37,7 +37,7 @@ export class DataService {
   private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
-  $serverLoading: AsyncSubject<boolean> = new AsyncSubject();
+  $serverLoading: AsyncSubject<never> = new AsyncSubject();
 
 
   public requestData(){ //used at login, and with refresh button to ask immediatly data from the back
@@ -55,12 +55,11 @@ export class DataService {
       .subscribe((data: any) => {
         if(data.warning ||data.error) {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
-          this.$serverLoading.next(true);
+          this.$serverLoading.next(0 as never);
           this.$serverLoading.complete();
           setTimeout(() => this.requestData(), 30000)
         } else {
           console.log("RequestData successfull")
-          this.$serverLoading.next(false);
           this.load.next();
           this.response.next(data);
           this.update.next()
@@ -148,11 +147,10 @@ export class DataService {
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }
   public beginUpdateThread() {
+    console.log("[Data Service] Begin update threads")
     if(!this.threadIsOn) {
-      console.log("[Data Service] Begin update threads")
-      this.updateSubscriber = interval(DataExtractionHelper.delayBetweenUpdates > 10000 ? DataExtractionHelper.delayBetweenUpdates : 20000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
+      this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
       this.logSubscriber = interval(60000).subscribe(() => {this.sendQueuedDataToUpdate()})
-      setTimeout(() => this.endUpdateThread(), 300000)
     }
     this.threadIsOn = true;
   }

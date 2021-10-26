@@ -1,13 +1,21 @@
-import { Directive } from '@angular/core';
+import { Directive, ElementRef, AfterViewInit } from '@angular/core';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
-import { DisableDirective } from './disable-directive.directive';
 
 @Directive({
   selector: '[currentYearOnly]'
 })
-export class CurrentYearOnlyDirective extends DisableDirective {
+export class CurrentYearOnlyDirective implements AfterViewInit {
 
-  computeDisabled(): boolean {
-    return !DataExtractionHelper.currentYear;
+  constructor(private el: ElementRef) { }
+  private _allowed?: boolean = false;
+
+  public get allowed(): boolean {
+    return this._allowed ? true : false;
+  }
+
+  ngAfterViewInit() {
+    this._allowed = DataExtractionHelper.currentYear;
+    if(!this.el.nativeElement.disabled)
+      this.el.nativeElement.disabled = !this._allowed; 
   }
 }

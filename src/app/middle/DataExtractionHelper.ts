@@ -158,7 +158,6 @@ class DataExtractionHelper{
   static AGENTFINITION_TARGETVISITS_ID: number;
   static AGENTFINITION_DRV_ID: number;
   static AGENTFINITION_RATIO_ID: number;
-  static delayBetweenUpdates: number;
 
 
   
@@ -221,7 +220,7 @@ class DataExtractionHelper{
     this.AGENTFINITION_TARGETVISITS_ID = this.get("structureAgentfinitions").indexOf("TargetedNbVisit");
     this.AGENTFINITION_DRV_ID = this.get("structureAgentfinitions").indexOf("drv");
     this.AGENTFINITION_RATIO_ID = this.get("structureAgentfinitions").indexOf("ratioTargetedVisit");
-    this.delayBetweenUpdates = this.get("params")['delayBetweenUpdates']
+    
     //trades have less info that geo
     
     this.geoLevels = [];

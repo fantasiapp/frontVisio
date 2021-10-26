@@ -22,6 +22,7 @@ export class FiltersStatesService implements OnDestroy {
         DataExtractionHelper.setData(data);
         loadAll();
         this.reset(getGeoTree(), true);
+        this.dataservice.beginUpdateThread();
       }
     });
 
