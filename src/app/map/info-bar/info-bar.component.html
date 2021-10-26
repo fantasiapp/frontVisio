@@ -38,14 +38,14 @@
                         <div class="props">
                             <ul>
                                 <li>
-                                    <label class="container-checkbox" [msgId]="'doesntSell'" conditionnalDisabled>
+                                    <label class="container-checkbox" (click)="handleDisabled('doesntSell')" [msgId]="'doesntSell'" conditionnalDisabled>
                                         Ne vend pas de plaque
                                         <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [pdv]="pdv" [sales]="sales" [conditions]="[noSale, emptySales]" [msgId]="'doesntSell'" conditionnalDisabled agentOnly>
                                         <span class="checkmark" ></span>
                                     </label>
                                 </li>
                                 <li>
-                                    <label class="container-checkbox" [msgId]="'redistributed'" conditionnalDisabled>
+                                    <label class="container-checkbox" (click)="handleDisabled('redistributed')" [msgId]="'redistributed'" conditionnalDisabled>
                                         Point de vente redistribue
                                         <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributed, emptySales]" [msgId]="'redistributed'" conditionnalDisabled agentOnly>
                                         <span class="checkmark"></span>
@@ -89,10 +89,10 @@
                                     <input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
                                     <span class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide</span>
                                 </li>
-                                <li [msgId]="'targetLights'" conditionnalDisabled><span class="bolder">Capacité à faire basculer le PDV :</span>
-                                    <button (click)="changeTargetLight('r')" [pdv]="pdv" [sales]="sales" [conditions]="[emptySales]" [msgId]="'targetLights'" conditionnalDisabled agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
-                                    <button (click)="changeTargetLight('o')" [pdv]="pdv" [sales]="sales" [conditions]="[emptySales]" [msgId]="'targetLights'" conditionnalDisabled agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
-                                    <button (click)="changeTargetLight('g')" [pdv]="pdv" [sales]="sales" [conditions]="[emptySales]" [msgId]="'targetLights'" conditionnalDisabled agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
+                                <li><span class="bolder">Capacité à faire basculer le PDV :</span>
+                                    <button (click)="changeTargetLight('r')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('o')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('g')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
                                 </li>
                             </ul>
                         </div>
@@ -166,7 +166,7 @@
                         </ul>
                     </div>
                 </div>
-                <label class="container-checkbox" [msgId]="'redistributedFinitions'" conditionnalDisabled>
+                <label class="container-checkbox" (click)="handleDisabled('redistributedFinitions')" [msgId]="'redistributedFinitions'" conditionnalDisabled>
                     <span>Point de vente redistribué</span>
                     <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributedFinitions, emptySalesFinitions]" [msgId]="'redistributedFinitions'" conditionnalDisabled agentFinitionsOnly>
                     <span class="checkmark" ></span>
@@ -209,4 +209,8 @@
             <button class="positive button" (click)="quit(true)">Oui</button>
         </div>
     </div>
+</div>
+
+<div *ngIf="disabledMsg">
+    Action impossible : {{ disabledMsg }}
 </div>

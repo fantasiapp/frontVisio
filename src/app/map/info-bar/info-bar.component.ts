@@ -4,7 +4,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
-import { Condition } from 'src/app/behaviour/conditionnal-disabled.directive'
+import { Condition, ConditionnalDisabledDirective } from 'src/app/behaviour/conditionnal-disabled.directive'
 import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import {
@@ -118,6 +118,7 @@ export class InfoBarComponent {
   noSale = Condition.noSale;
   emptySales = Condition.emptySales;
   noRedistributed = Condition.noRedistributed;
+  disabledMsg: string = ''
 
   myFormatNumberToString = formatNumberToString;
 
@@ -364,6 +365,12 @@ export class InfoBarComponent {
         return false;
     }
     return true;
+  }
+
+  handleDisabled(msgId: string) {
+    this.disabledMsg = ConditionnalDisabledDirective.messages[msgId];
+    setTimeout(() => this.disabledMsg = "", 2000)
+    console.log(ConditionnalDisabledDirective.messages[msgId])
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application

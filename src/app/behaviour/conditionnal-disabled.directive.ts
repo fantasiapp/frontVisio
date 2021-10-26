@@ -22,7 +22,7 @@ export class ConditionnalDisabledDirective extends DisableDirective {
   @Input() conditions: Condition[] = [];
   @Input() msgId?: string;
 
-  private static messages: {[msgId: string]: string} = {};
+  static messages: {[msgId: string]: string} = {};
 
   private conditionsParams: {[name in Condition]: {message: string, compute: () => boolean}} = {
     'noRedistributedFinitions': {
@@ -32,12 +32,8 @@ export class ConditionnalDisabledDirective extends DisableDirective {
     'emptySalesFinitions': {
       message: 'Ce pdv finitions répertorie des ventes Salsi et/ou Pregy',
       compute: () => {
-                        for(let sale of this.sales!) {
-                          if((sale[DataExtractionHelper.SALES_INDUSTRY_ID] === DataExtractionHelper.INDUSTRIE_SALSI_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) || (sale[DataExtractionHelper.SALES_INDUSTRY_ID] === DataExtractionHelper.INDUSTRIE_PREGY_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0))
-                            return false;
-                          }
-                          return true;
-                      }
+        return this.pdv!.displayIndustrieSaleVolumes(true)['Salsi']>0 || this.pdv!.displayIndustrieSaleVolumes(true)['Pregy']>0
+        }
     },
     'noSale': {
       message: 'Le siège a déclaré ce pdv comme ne vendant pas de plaques',
@@ -47,8 +43,9 @@ export class ConditionnalDisabledDirective extends DisableDirective {
       message : 'Ce pdv répertorie des ventes de volumes non-nuls pour des enseignes autres que Siniat',
       compute: () => {
                         for(let sale of this.sales!) {
-                          if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+                          if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) {
                             return true;
+                          }
                           }
                           return false;
                       }
@@ -61,11 +58,6 @@ export class ConditionnalDisabledDirective extends DisableDirective {
       message : 'Toujours bloqué',
       compute: () => true
     }
-  }
-
-  @HostListener('click')
-  onCLick() {
-    if(this.msgId) console.log(ConditionnalDisabledDirective.messages[this.msgId!]);
   }
 
   computeDisabled(): boolean {
