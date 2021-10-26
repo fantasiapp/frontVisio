@@ -241,6 +241,10 @@ class DataExtractionHelper{
     this.tradeHeight = this.tradeLevels.length;
   }
 
+  static resetData(){
+    this.currentYear = true;
+  }
+
   static updateData(data: UpdateData) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
 
