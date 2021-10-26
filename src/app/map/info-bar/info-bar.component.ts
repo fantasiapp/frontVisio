@@ -369,7 +369,7 @@ export class InfoBarComponent {
 
   handleDisabled(msgId: string) {
     this.disabledMsg = ConditionnalDisabledDirective.messages[msgId];
-    setTimeout(() => this.disabledMsg = "", 2000)
+    setTimeout(() => this.disabledMsg="" , 2000);
     console.log(ConditionnalDisabledDirective.messages[msgId])
   }
 
