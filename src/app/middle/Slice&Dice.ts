@@ -247,14 +247,14 @@ class DataWidget{
 
   // à enlever dès qu'on a démocké le suivi de l'AD
   fillFirstLineForHistoCurve(){
-    let nbPdvs = 3479;
+    let nbPdvs = PDV.getInstances().size;
     for (let j = 0; j < this.columnsTitles.length; j++)
         this.data[0][j] = Math.round(Math.random() * nbPdvs / 6);
   }
 
   // à adapter quand on aura les données
   completeWithCurveForHistoCurve(){
-    let nbPdvs = 3479, // enlever ce mock
+    let nbPdvs = PDV.getInstances().size,
       nbPdvsCompletedInPercent = 0;
     for (let j = 0; j < this.columnsTitles.length; j++){
       nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
@@ -297,7 +297,12 @@ class DataWidget{
 }
 
 class Sale {
-  constructor(private data: any[]){};
+  public date: Date|null;
+
+  constructor(private data: any[]){
+    let dataDate = this.data[DataExtractionHelper.SALES_DATE_ID]
+    this.date = dataDate ? new Date(dataDate): null;
+  };
 
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
   get industryId() {return this.data[DataExtractionHelper.SALE_INDUSTRY_ID];}
@@ -850,6 +855,11 @@ export class PDV{
     return dictResult;
   }
 
+  getLastSaleDate(){}
+
+  adCompleted(){
+    return this.attribute("onlySiniat") || !this.attribute("redistributed") || this.sales.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
+  }
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
     let pdvs = PDV.childrenOfNode(DataExtractionHelper.followSlice(slice));
     switch(indicator){
@@ -871,6 +881,12 @@ export class PDV{
         }
         return [[[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
       };
+      case 'AD': {
+        let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
+          nbPdvTotal = PDV.getInstances().size,
+          ratio = nbCompletedPdv / nbPdvTotal;
+        return [[['  ', 100 * ratio]], [33, 66, 100]];
+       }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
     }
   }
