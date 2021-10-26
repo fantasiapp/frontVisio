@@ -94,7 +94,6 @@ export class MapComponent implements OnDestroy {
       if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
         this.allPdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type)
-        console.log('path changed', this.allPdvs);
         this.computePDVs();
         this.update();
       } else if ( !this.map )

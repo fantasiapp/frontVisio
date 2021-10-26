@@ -18,18 +18,21 @@ export class MapFiltersComponent {
   criteriaNames = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'];
   criteriaPrettyNames = ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin'];
 
-  private _pdvs: PDV[] = []
-  @Input()
+  
+  //clean this;
   set allPdvs(value: PDV[]) {
-    //careful
     this.liveDict = this.currentDict = PDV.countForFilter(value);
-    //reset all filters
+    //reset all filters !!!!!!!!
     this._pdvs = value;
   }
-
+  
   get allPdvs() { return this._pdvs; }
-  private currentDict: any = {};
-  private liveDict: any = {};
+  private _pdvs: PDV[] = [...PDV.getInstances().values()];
+  private currentDict: any = PDV.countForFilter(this._pdvs);
+  private liveDict: any = this.currentDict;
+
+  @Input()
+  path: any = {};
 
   @Output()
   criteriaChange = new EventEmitter<any>();
@@ -121,6 +124,7 @@ export class MapFiltersComponent {
   }
 
   apply(pdvs: PDV[]) {
+    this.allPdvs = pdvs;
     return this.getPreviousPDVs(this.stack.length);
   }
 
