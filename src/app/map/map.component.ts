@@ -99,8 +99,7 @@ export class MapComponent implements OnDestroy {
         this.update();
       }
     });
-
-
+    
     //unsubscribe from this
     this.updateSubscription = this.dataservice.update.subscribe(_ => {
       this.shouldUpdateIcons = true;

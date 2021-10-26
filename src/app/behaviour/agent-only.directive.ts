@@ -15,6 +15,7 @@ export class AgentOnlyDirective implements AfterViewInit {
 
   ngAfterViewInit() {
     this._allowed = PDV.geoTree.root.label === 'Secteur';
-    this.el.nativeElement.disabled = !this._allowed; 
+    if(!this.el.nativeElement.disabled)
+      this.el.nativeElement.disabled = !this._allowed; 
   }
 }

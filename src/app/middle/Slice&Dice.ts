@@ -724,7 +724,10 @@ export class PDV{
 
   static computeCiblage(node: Node, enduit=false, dn=false): number{
     let pdvs = PDV.childrenOfNode(node), ciblage = 0;
-    if (dn){
+    if (dn && enduit){
+      for (let pdv of pdvs) if (pdv.targetFinition) ciblage += 1;
+    }
+    else if (dn){
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
         if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
@@ -908,19 +911,14 @@ class SliceDice{
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
     let colors: undefined;
-    if (typeof(groupsAxis1) === 'number'){
-      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
-       groupsAxis1 = labelsIds.map(
+    if ([typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')){
+      let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
+      let labelsIds = DataExtractionHelper.get("axisForGraph")[+groupsAxis][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
+       groupsAxis = labelsIds.map(
          (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map(
          (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
-    }
-    if (typeof(groupsAxis2) === 'number'){ // On peut peut-être essayer de la regrouper avec le truc du haut
-      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis2][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
-       groupsAxis2 = labelsIds.map(
-         (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
-       colors = labelsIds.map(
-         (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+      if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     }
     if (axis1 == "visits"){
       let jauge = PDV.computeJauge(slice, indicator='simple');
@@ -957,6 +955,7 @@ class SliceDice{
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
+        console.log('-->', )
         let targetValues = 
           DataExtractionHelper.getListTarget(finition ? "agentFinitions": (node.children[0] as Node).label, elemIds, dn, finition);
         for (let i = 0; i < targetValues.length; i++) 
@@ -980,13 +979,8 @@ class SliceDice{
       targetLevel['structure'] = "structureTargetlevel";
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), 
-      sum: sum, 
-      target: rodPosition, 
-      colors: colors, 
-      targetLevel: targetLevel, 
-      ciblage: rodPositionForCiblage
-    }    
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, 
+      colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage}    
   }
 
   rubiksCubeCheck(slice:any, indicator: string, percent:string){
@@ -1002,17 +996,6 @@ class SliceDice{
       industriesReverseDict[industrieName as string] = industrieId;
     return industriesReverseDict;
   }
-
-  // pathId(path: any) {
-  //   let structure = (this.geoTree ? PDV.geoTree : PDV.tradeTree).attributes['labels'],
-  //     maxHeight = structure.length,
-  //     acc = 0;
-  
-  //   for ( let i = 0; i < maxHeight; i++ )
-  //     acc += (path[structure[i]] || 0) * Math.pow(10, 3*i);
-    
-  //   return acc + (this.geoTree ? 0 : 1);
-  // }
 
   updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, 
       volumeid: number, targetLevelStructure: string) {

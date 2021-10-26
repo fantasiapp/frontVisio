@@ -47,7 +47,8 @@ export class DataService {
       }) as Observable<Object[]>
     ) 
       .pipe(
-        map((data) => {
+        map((data: any) => {
+          // data.params['isAdOpen'] = false
           return data;
         })
       )
@@ -89,9 +90,9 @@ export class DataService {
   private dataToUpdate:UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
   private queuedDataToUpdate: UpdateData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
 
-  public updatePdv(pdv: any[], id: number, fromTable: boolean = false) {
+  public updatePdv(pdv: any[], id: number) {
     this.dataToUpdate['pdvs'][id] = pdv;
-    this.sendDataToUpdate(this.dataToUpdate, fromTable);
+    this.sendDataToUpdate(this.dataToUpdate);
     this.dataToUpdate = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
   }
 
@@ -105,11 +106,12 @@ export class DataService {
   //   this.sendDataToUpdate(data)
   // }
 
-  private sendDataToUpdate(data: UpdateData, fromTable: boolean = false) { //used to send immediatly data to the back
+  private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
+    console.log("Sending data for update : ", data)
     DataExtractionHelper.updateData(data);
-    if(!fromTable) this.update.next();
+    this.update.next();
   }
   
   public BEFOREsendQueuedDataToUpdate() { //used jsut before getting data from the server, to send stored queued updates
@@ -156,8 +158,8 @@ export class DataService {
   public endUpdateThread() {
     console.log("[Data Service] End update threads")
     this.threadIsOn = false;
-    this.updateSubscriber.unsubscribe();
-    this.logSubscriber.unsubscribe();
+    this.updateSubscriber?.unsubscribe();
+    this.logSubscriber?.unsubscribe();
   }
 
   setLastUpdateDate(timestamp: string) {

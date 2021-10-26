@@ -109,3 +109,22 @@
     left: 50%;
     transform: translate(-50%, -50%)
 }
+
+.already-connected {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.already-connected span {
+    position: absolute;
+    top: 50%;
+    right: 20%;
+}
+
+.already-connected button {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: #F06D0C;
+    color: white;
+}

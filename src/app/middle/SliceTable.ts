@@ -2,7 +2,7 @@ import { DatePipe, formatDate } from "@angular/common";
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
 import DataExtractionHelper from "./DataExtractionHelper";
-import { PDV } from "./Slice&Dice";
+import { PDV, SliceDice } from "./Slice&Dice";
 
 @Injectable({
     providedIn: 'root'
@@ -19,6 +19,7 @@ export class SliceTable {
     private columnDefs: {[k: string]: any}[] = [];
 
     private idIndustries: {[key: string]: number} = {};
+    private geoTree : boolean = true;
 
     static currentGroupField: string = "enseigne";
 
@@ -30,8 +31,8 @@ export class SliceTable {
                 this.sortedPdvsList.reduce((totalSiniat: number, pdv: {}) => totalSiniat + (pdv as any).siniatSales,0),
                 this.sortedPdvsList.reduce((totalSales: number, pdv: {}) => totalSales + (pdv as any).totalSales,0)
                 ],
-            'navIds': ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
-            'navNames': ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
+            'navIds': () => this.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
+            'navNames': () => this.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
             // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {return params.data.siniatSales > 30000}}, {field: 'pointFeu', flex: 0.35}],
             // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
@@ -56,8 +57,9 @@ export class SliceTable {
                 this.sortedPdvsList.length,
                 this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.checkboxEnduit === true ? pdv.potential : 0),0),
                 this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)
-                ],            'navIds': ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'],
-            'navNames': ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'],
+                ],
+            'navIds': () => this.geoTree ? ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'] : ['typologie', 'segmentMarketing', 'ensemble'],
+            'navNames': () => this.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkboxEnduit && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkboxEnduit', flex: 0.3}],
             'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkboxEnduit', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
@@ -127,7 +129,7 @@ export class SliceTable {
         'instanceId': (pdv: any) => pdv.instanceId,
     }
 
-    constructor(private dataService: DataService, @Inject(LOCALE_ID) public locale: string){
+    constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
         PDV.load(false);
         this.pdvFields = DataExtractionHelper.get('structurePdv');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
@@ -139,11 +141,11 @@ export class SliceTable {
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
-        console.log("Slice : ", slice)
         let pdvs = []
+        console.log("[SliceTable] slice : ", slice)
         if (slice !== {}){
             let allPdvs = DataExtractionHelper.get('pdvs');
-            for(let pdvInfo of PDV.sliceTree(slice)[0]) {
+            for(let pdvInfo of PDV.sliceTree(slice, this.geoTree)[0]) {
                 let newPdv = allPdvs[pdvInfo.id];
                 newPdv.instanceId = pdvInfo.id;
                 pdvs.push(newPdv);
@@ -203,13 +205,13 @@ export class SliceTable {
     }
 
     getNavIds(type: string): string[] {
-        return this.tableConfig[type]['navIds'];
+        return this.tableConfig[type]['navIds']();
     }
 
     getNavOpts(type: string): {id: any, name: any}[] {
         let array: {id: any, name: any}[] = []
-        let navIds = this.tableConfig[type]['navIds'];
-        let navNames = this.tableConfig[type]['navNames'];
+        let navIds = this.tableConfig[type]['navIds']();
+        let navNames = this.tableConfig[type]['navNames']();
         for(let i=0; i<navIds.length; i++) array.push({id: navIds[i], name: navNames[i]})
         return array;
     }
@@ -223,7 +225,7 @@ export class SliceTable {
     }
 
     static initializeTarget() {
-        return [Math.floor(Date.now()/1000), true, true, true, 0, false, "r", "", ""]
+        return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
       }
 
     changeTargetTargetFinitions(pdv: {[field: string]: any}) {
@@ -237,7 +239,7 @@ export class SliceTable {
                 pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = 0
             }
         }
-        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'], true)
+        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
     }
 
     updateTotalTarget(increment: number) {
@@ -247,6 +249,7 @@ export class SliceTable {
 
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];
+        this.geoTree = this.sliceDice.geoTree;
         data.push(this.getColumnDefs(type, rowGroupId));
         data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
@@ -281,11 +284,12 @@ export class SliceTable {
     getRowColor(pdv: any): string {
         let pdvInstance = this.getPdvInstance(pdv)!;
         let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
-        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 
         for(let sale of pdvInstance.attribute('sales')) {
-            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'black';
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+                return 'black';
         }
 
         for(let sale of pdvInstance.attribute('sales')) {
@@ -316,8 +320,10 @@ export class SliceTable {
         let pdvAsList = []
         for(let field of DataExtractionHelper.getPDVFields()) {
             if(this.idsToFields[field]) {
+                // console.log("reverse engineering for ", field)
                 for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
                     if(fieldValue === pdv[field]) {
+                        // console.log("finding ", id ," for ", fieldValue)
                         pdvAsList.push(id)
                         break;
                     }

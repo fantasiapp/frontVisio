@@ -1,10 +1,10 @@
 import { Directive, ElementRef, AfterViewInit } from '@angular/core';
-import { PDV } from '../middle/Slice&Dice';
+import DataExtractionHelper from '../middle/DataExtractionHelper';
 
 @Directive({
-  selector: '[agentFinitionsOnly]'
+  selector: '[adOpenOnly]'
 })
-export class AgentFinitionsOnlyDirective implements AfterViewInit {
+export class AdOpenOnlyDirective implements AfterViewInit {
 
   constructor(private el: ElementRef) { }
   private _allowed?: boolean = false;
@@ -14,7 +14,7 @@ export class AgentFinitionsOnlyDirective implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this._allowed = PDV.geoTree.root.label === 'Agent Finitions';
+    this._allowed = DataExtractionHelper.get('params')['isAdOpen'];
     if(!this.el.nativeElement.disabled)
       this.el.nativeElement.disabled = !this._allowed; 
   }

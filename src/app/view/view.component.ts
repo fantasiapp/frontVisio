@@ -71,7 +71,7 @@ export class ViewComponent implements OnDestroy {
 
   @HostListener('window:beforeunload')
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();
     this.localStorageService.handleDisconnect();
