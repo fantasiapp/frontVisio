@@ -196,13 +196,13 @@ class DataWidget{
       realColumnsIndexes: number[] = [];
     for (let i = 0; i < n; i++){
       let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
-      if (lineNull) this.idToI[i] = undefined; // bizarre cette ligne
+      if (lineNull) this.idToI[DataWidget.findKeyByValue(this.idToI, i) as number] = undefined;
       if (!lineNull) realLinesIndexes.push(i);        
     }
     for (let _ in realLinesIndexes) newData.push([]);
     for (let j = 0; j < m; j++){
       let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] === 0), true);
-      if (colNull) this.idToJ[j] = undefined; // bizarre cette ligne
+      if (colNull) this.idToJ[DataWidget.findKeyByValue(this.idToJ, j) as number] = undefined;
       if (!colNull){
         realColumnsIndexes.push(j)
         for (let i = 0; i < realLinesIndexes.length; i++){
