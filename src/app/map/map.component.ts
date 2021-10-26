@@ -37,8 +37,7 @@ export class MapComponent implements OnDestroy {
   filterDict: any = {};
 
   set criteria(value: any[]) {
-    let pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type === PDV.geoTree.type);
-    this.pdvs = PDV.reSlice(pdvs, this._criteria = value);
+    let pdvs = this.pdvs = PDV.sliceMap(this.path, this._criteria = value, this.filtersService.navigation.tree?.type === PDV.geoTree.type);
     this.filterDict = PDV.countForFilter(pdvs);
     this.update();
     this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this._criteria.length ? this._criteria : undefined);

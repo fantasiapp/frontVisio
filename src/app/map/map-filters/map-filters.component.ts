@@ -29,7 +29,7 @@ export class MapFiltersComponent {
 
   private criteriaResult = this.criteriaNames.map(() => []);
 
-  constructor(private filtersState: FiltersStatesService) {
+  constructor() {
     console.log('[MapFiltersComponent]: On.');
   }
 
