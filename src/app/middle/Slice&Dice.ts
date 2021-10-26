@@ -6,12 +6,13 @@ import { DataService, UpdateFields } from '../services/data.service';
 
 // peut-être à mettre dans un fichier de config
 const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget'],
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget', "suiviAD"],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
   enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
   industrieAxis = ['industrie', 'industrieTarget'],
   clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
-  visitAxis = ['segmentDnEnduitTargetVisits'];
+  visitAxis = ['segmentDnEnduitTargetVisits'],
+  adAxis = ["suiviAD"];
 
 const attributesToCountForFilters = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 
   'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']; // à relier au code de Majed plus tard
@@ -378,9 +379,9 @@ export class PDV{
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
 
   public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, 
-      target=false, visit=false): (number | number[]){
+      target=false, visit=false, ad=false): (number | number[]){
     if (visit) return this.computeVisits(indicator);
-    if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target);
+    if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target, ad);
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
     let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd');
@@ -427,7 +428,18 @@ export class PDV{
     return visitsRepartition
   }
 
-  private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
+  private computeDn(enduit:boolean, clientProspect:boolean, target:boolean, ad:boolean){
+    if (ad){
+      let axe : string[]= Object.values(DataExtractionHelper.get("suiviAD")),
+        associatedIndex :{[key: string]: number}= {},
+        dnAd = new Array(axe.length).fill(0);
+      for (let i = 0; i < axe.length; i++)
+        associatedIndex[axe[i]] = i;
+      if (this.adCompleted()) dnAd[associatedIndex["Terminées"]] = 1;
+      else if (this.hasNonSiniatSale()) dnAd[associatedIndex["Non mises à jour"]] = 1;
+      else dnAd[associatedIndex["Non renseignées"]] = 1;
+      return dnAd;
+    }
     if (enduit){
       let axe : string[]= (target) ? Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')): 
           Object.values(DataExtractionHelper.get('segmentDnEnduit')),
@@ -557,9 +569,7 @@ export class PDV{
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
       pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
-    if (axis1 == 'suiviAD' || axis2 == 'suiviAD') 
-      dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock de l'AD
-    else if (axis1 == 'histo&curve'){
+    if (axis1 == 'histo&curve'){
       dataWidget.fillFirstLineForHistoCurve();
       dataWidget.completeWithCurveForHistoCurve();
     }
@@ -567,13 +577,14 @@ export class PDV{
       let irregular: string = 'no';
       if (nonRegularAxis.includes(axis1)) irregular = 'line';
       else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-      let byIndustries, enduit, clientProspect, target, visit;
+      let byIndustries, enduit, clientProspect, target, visit, ad;
       if (irregular == 'line' || irregular == 'col')
           byIndustries = industrieAxis.includes(axis1) || industrieAxis.includes(axis2),
           enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
           clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
           target = targetAxis.includes(axis1) || targetAxis.includes(axis2),
-          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
+          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2),
+          ad = adAxis.includes(axis1) || adAxis.includes(axis2);
       for (let pdv of newPdvs){
         if (pdv.attribute('available') && pdv.attribute('sale')){
           if (irregular == 'no') 
@@ -582,11 +593,11 @@ export class PDV{
           else if (irregular == 'line') 
             dataWidget.addOnColumn(
               pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit) as number[]);
+                clientProspect, target, visit, ad) as number[]);
           else if (irregular == 'col') 
             dataWidget.addOnRow(
               pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit) as number[]);
+                clientProspect, target, visit, ad) as number[]);
         }
       }
     }
@@ -856,6 +867,11 @@ export class PDV{
   }
 
   getLastSaleDate(){}
+
+  hasNonSiniatSale(){
+    let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID;
+    return this.sales.reduce((acc: boolean, sale:Sale) => acc || sale.industryId !== siniatId, false);
+  }
 
   adCompleted(){
     return this.attribute("onlySiniat") || !this.attribute("redistributed") || this.sales.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
