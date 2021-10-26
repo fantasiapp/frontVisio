@@ -425,7 +425,7 @@ export class PDV{
   private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
     if (enduit){
       let axe : string[]= (target) ? Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')): 
-          Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')),
+          Object.values(DataExtractionHelper.get('segmentDnEnduit')),
         associatedIndex :{[key: string]: number}= {};
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
@@ -436,22 +436,26 @@ export class PDV{
         totalP2cd = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
-      for (let sale of this.sales){
-        if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) 
-          saleEnduit = true;
-        else if (sale.type == 'p2cd'){
-          totalP2cd += sale.volume;
-          if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
+      if (this.sales.length == 0 || !this.attribute("redistributedFinitions")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+      else {
+        for (let sale of this.sales){
+          if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) 
+            saleEnduit = true;
+          else if (sale.type == 'p2cd'){
+            totalP2cd += sale.volume;
+            if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
+          }
         }
-      }
-      let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
-      if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
-      else if (saleEnduit){
-        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
-        else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
-      } else{
-        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
-        else dnEnduit[associatedIndex["Pur prospect"]] = 1;
+        let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
+        if (totalSiniatP2cd == totalP2cd && !this.attribute("onlySiniat")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+        else if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
+        else if (saleEnduit){
+          if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
+          else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
+        } else{
+          if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
+          else dnEnduit[associatedIndex["Pur prospect"]] = 1;
+        }
       }
       return dnEnduit
     } else if (clientProspect){
