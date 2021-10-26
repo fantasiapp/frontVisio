@@ -1,10 +1,10 @@
 :host {
     --filter-bar-width: 400px;
     --filter-bar-max-width: 500px;
-    --filter-bar-padding-y: 25px;
+    --filter-bar-padding-y: 0;
     --filter-bar-padding-x: 0;
     --filter-bar-elements-padding-x: 20px;
-    --filter-bar-margin-y: 20px;
+    --filter-bar-margin-y: 0;
     --navigation-height: 40px;
     --navigation-ball-size: 30px;
     --pdv-title-margin-y: 15px;
@@ -19,10 +19,10 @@
     position: absolute;
     width: var(--filter-bar-width);
     max-width: var(--filter-bar-max-width);
-    height: calc(100% - var(--filter-bar-margin-y) - var(--navigation-height));
+    height: calc(100% - var(--navigation-height) + 10px);
     padding: var(--filter-bar-padding-y) var(--filter-bar-padding-x);
     padding-right: 0;
-    top: 10px;
+    top: 0;
     left: calc(-1*var(--filter-bar-width) + 30px);
     background: white;
     z-index: 9999;

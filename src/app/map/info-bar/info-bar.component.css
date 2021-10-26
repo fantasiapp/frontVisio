@@ -3,7 +3,7 @@
     --info-bar-max-width: 1000px;
     --info-bar-padding-y: 50px;
     --info-bar-padding-x: 85px;
-    --info-bar-margin-y: 20px;
+    --info-bar-margin-y: 0;
     --navigation-height: 40px;
     --navigation-ball-size: 30px;
     --pdv-title-margin-y: 1em;
@@ -16,11 +16,11 @@
 
 
     box-sizing: border-box;
-    position: absolute;
+    position: fixed;
     width: var(--info-bar-width);
     max-width: var(--info-bar-max-width);
-    height: calc(100% - var(--info-bar-margin-y) - var(--navigation-height));
-    top: 10px;
+    height: 100vh;
+    top: 0; right: 0;
     right: calc(-1*var(--info-bar-width) - 5px);
     background: white;
     margin-top: var(--info-bar-margin-y);
@@ -32,7 +32,7 @@
     border-radius: 3px;
     overflow: auto;
     user-select: none;
-    z-index: 2
+    z-index: 99999;
 }
 
 :host(.opened) {

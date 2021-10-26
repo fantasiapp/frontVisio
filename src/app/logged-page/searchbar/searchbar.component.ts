@@ -33,7 +33,7 @@ export class SearchbarComponent implements OnDestroy {
   results: Subject<Suggestion[]> = new Subject;
   lastResults: Suggestion[] = [];
 
-  private _pattern: string = 'Tous';
+  private _pattern: string = '';
   get pattern() { return this._pattern; }
   set pattern(value: string) {
     let switched =
@@ -59,7 +59,7 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   get placeholder(): string {
-    if ( !this.pattern ) return 'Rechercher ...';
+    if ( !this.pattern ) return 'Sélectionnez une catégorie';
     return 'Rechercher dans ' + this.pattern;
   }
 
@@ -77,7 +77,10 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   onFocus(e: Event) {
-    this.results.next(this.lastResults = this.engine.search(this.lastTerm));
+    if ( this.pattern )
+      this.results.next(this.lastResults = this.engine.search(this.lastTerm));
+    else
+      this.showAllSuggestions();
   }
 
   @HostListener('focusout', ['$event'])
@@ -138,10 +141,10 @@ export class SearchbarComponent implements OnDestroy {
       let data = suggestion[2];
       if ( data.node ) {
         this.navigation.setNode(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
-        this.filtersState.refresh();
+        this.filtersState.reload();
       } else if ( data.dashboard ) {
         this.navigation.setDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
-        this.filtersState.refresh();
+        this.filtersState.reload();
       } else if ( data.pdv ) {
         this.PDVfound.emit(data.pdv);
       }
