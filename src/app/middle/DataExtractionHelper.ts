@@ -529,8 +529,9 @@ class DataExtractionHelper{
     return node;
   }
 
-  static getOtherYearDashboards(height: number = 0) {
-    let level = this.currentYear ? this.get('levelGeo_ly', false, false) : this.get('levelGeo', false, false);
+  static getOtherYearDashboards(tree: Tree, height: number = 0) {
+    let name = tree.type == NavigationExtractionHelper ? 'levelGeo' : 'levelTrade';
+    let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
     while ( height-- )
       level = level[this.SUBLEVEL_INDEX];
     return level[this.DASHBOARD_INDEX];

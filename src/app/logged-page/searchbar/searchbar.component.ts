@@ -124,7 +124,7 @@ export class SearchbarComponent implements OnDestroy {
 
   onSelectionConfirmed(suggestion?: Suggestion) {
     if ( !suggestion ) {
-      this.filtersState.reset(this.filtersState.tree!, false);
+      this.filtersState.reset(this.filtersState.navigation.tree!, false);
       //this.pattern = '';
       return;
     };
@@ -132,7 +132,7 @@ export class SearchbarComponent implements OnDestroy {
     if ( !this.pattern ) {
       let type = suggestion[2];
       if ( type == SearchService.IS_REDIRECTION ) {
-        this.filtersState.reset(this.filtersState.tree!, false);
+        this.filtersState.reset(this.filtersState.navigation.tree!, false);
         this.pattern = '';
       } else {
         this.pattern = suggestion[0] + suggestion[1];
