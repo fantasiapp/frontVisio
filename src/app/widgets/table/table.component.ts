@@ -180,7 +180,7 @@ export class TableComponent extends BasicWidget {
             case 'checkboxEnduit':
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
-                return {component : 'checkboxEnduitCellRenderer'};
+                return {component : 'noCellRenderer'};
               }
 
               break;

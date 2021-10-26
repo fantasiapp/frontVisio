@@ -117,6 +117,7 @@ export class InfoBarComponent {
   emptySalesFinitions = Condition.emptySalesFinitions;
   noSale = Condition.noSale;
   emptySales = Condition.emptySales;
+  noRedistributed = Condition.noRedistributed;
 
   myFormatNumberToString = formatNumberToString;
 

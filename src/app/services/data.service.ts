@@ -150,7 +150,7 @@ export class DataService {
   public beginUpdateThread() {
     if(!this.threadIsOn) {
       console.log("[Data Service] Begin update threads")
-      this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
+      this.updateSubscriber = interval(DataExtractionHelper.delayBetweenUpdates > 10000 ? DataExtractionHelper.delayBetweenUpdates : 20000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
       this.logSubscriber = interval(60000).subscribe(() => {this.sendQueuedDataToUpdate()})
       setTimeout(() => this.endUpdateThread(), 300000)
     }

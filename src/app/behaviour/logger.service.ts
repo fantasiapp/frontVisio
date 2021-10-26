@@ -101,6 +101,7 @@ export class LoggerService {
     this.autofillFields();
     console.log('[Logger] snapshot changed:', this.snapshot)
     this.dataService.queueSnapshot(this.snapshot);
+    this.dataService.beginUpdateThread()
     this.change = false;
   }
 
@@ -112,7 +113,6 @@ export class LoggerService {
   actionComplete() {
     if ( !this.change ) return;
     // console.log(this.snapshot);
-    this.dataService.beginUpdateThread()
     this.log();
   }
 
