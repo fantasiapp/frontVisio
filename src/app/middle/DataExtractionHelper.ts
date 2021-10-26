@@ -170,7 +170,7 @@ class DataExtractionHelper{
   private static fieldsToSwitchWithyear: string[] = [];
 
 
-  static setData(d: any){ // ici on peut mettre des this.datacar de toute façon ce sont des champs de structure donc ils sont uniques
+  static setData(d: any){
     console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
     let singleFields = ['dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
