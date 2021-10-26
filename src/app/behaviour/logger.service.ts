@@ -85,7 +85,7 @@ export class LoggerService {
         console.warn('[LoggerService]: unknown event number', event);
         return key;
     }
-
+    this.dataService.beginUpdateThread()
     return this.change = this.setValue(key, result);
   }
 

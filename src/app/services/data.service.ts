@@ -148,10 +148,11 @@ export class DataService {
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }
   public beginUpdateThread() {
-    console.log("[Data Service] Begin update threads")
     if(!this.threadIsOn) {
+      console.log("[Data Service] Begin update threads")
       this.updateSubscriber = interval(+DataExtractionHelper.get('params')['delayBetweenUpdates']*1000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
       this.logSubscriber = interval(60000).subscribe(() => {this.sendQueuedDataToUpdate()})
+      setTimeout(() => this.endUpdateThread(), 300000)
     }
     this.threadIsOn = true;
   }
