@@ -61,7 +61,6 @@ export class TableComponent extends BasicWidget {
   gridObservable = new Observable();
 
   // Render
-  pinnedRow?: {}[];
   rowClassRules = {
     'group-row': 'data.groupRow === true',
     'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
@@ -112,7 +111,6 @@ export class TableComponent extends BasicWidget {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
     this.navOpts = data[2];
     this.updateTitle()
-    this.pinnedRow = data[1][0]; //Hardest part
     groupInfos = data[3][0];
     hiddenGroups = {}
     this.gridApi.setRowData(data[1])
@@ -250,12 +248,8 @@ export class TableComponent extends BasicWidget {
         InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(event['data'])!.getValues())); //Values deepcopy
         InfoBarComponent.pdvId = event['data'].instanceId;
         this.selectedPdv = event['data'];
-        if(this.type == 'enduit') this.loadCustomData();
+        this.loadCustomData();
         this.pdv = this.sliceTable.getPdvInstance(event['data']) // => displays infoBar
-
-        // this.selectedPdv = event['data'];
-        // this.showInfoOnClick(this.selectedPdv);
-        // this.selectedPdv['target'] ? this.redistributed = this.selectedPdv['target'][DataExtractionHelper.TARGET_REDISTRIBUTED_ID] : this.redistributed = false;
       }
       if(event['column']['colId'] === 'checkboxEnduit') {
         this.updateTitle()
@@ -279,35 +273,35 @@ export class TableComponent extends BasicWidget {
     }    
   }
 
-  sideDivRight: string = "calc(-60% - 5px)";
-  showInfo: boolean = false;
-  infoData: any = {}
-  showInfoOnClick(data: any = {}) {
-    this.logger.handleEvent(LoggerService.events.PDV_SELECTED, data.instanceId);
-    this.logger.actionComplete();
+  // sideDivRight: string = "calc(-60% - 5px)";
+  // showInfo: boolean = false;
+  // infoData: any = {}
+  // showInfoOnClick(data: any = {}) {
+  //   this.logger.handleEvent(LoggerService.events.PDV_SELECTED, data.instanceId);
+  //   this.logger.actionComplete();
 
-    if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "calc(-60% - 5px)";    return}
-    this.showInfo = true
-    this.sideDivRight = "0%";
-    this.infoData = {
-      'name': data.name,
-      'enseigne': data.enseigne,
-      'dep': data.dep,
-      'typologie': data.typologie,
-      'segmentMarketing': data.segmentMarketing,
-      'segmentCommercial': data.segmentCommercial,
-      'nbVisits': data.nbVisits,
-      'siniatP2cdSales': Math.round(data.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'placoP2cdSales': Math.round(data.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'knaufP2cdSales': Math.round(data.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalP2cdSales': Math.round(data.graph.p2cd['Siniat'].value + data.graph.p2cd['Placo'].value + data.graph.p2cd['Knauf'].value + data.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.round(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'salsiEnduitSales': Math.round(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'potential': Math.round(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalSiniatEnduitSales': Math.round(data.potential + data.graph.enduit['Salsi'].value + data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalEnduitSales': Math.round(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-    };
-  }
+  //   if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "calc(-60% - 5px)";    return}
+  //   this.showInfo = true
+  //   this.sideDivRight = "0%";
+  //   this.infoData = {
+  //     'name': data.name,
+  //     'enseigne': data.enseigne,
+  //     'dep': data.dep,
+  //     'typologie': data.typologie,
+  //     'segmentMarketing': data.segmentMarketing,
+  //     'segmentCommercial': data.segmentCommercial,
+  //     'nbVisits': data.nbVisits,
+  //     'siniatP2cdSales': Math.round(data.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'placoP2cdSales': Math.round(data.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'knaufP2cdSales': Math.round(data.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'totalP2cdSales': Math.round(data.graph.p2cd['Siniat'].value + data.graph.p2cd['Placo'].value + data.graph.p2cd['Knauf'].value + data.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'pregyEnduitSales': Math.round(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'salsiEnduitSales': Math.round(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'potential': Math.round(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'totalSiniatEnduitSales': Math.round(data.potential + data.graph.enduit['Salsi'].value + data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //     'totalEnduitSales': Math.round(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  //   };
+  // }
 
   changeRedistributed() {
     // this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
@@ -355,8 +349,8 @@ export class TableComponent extends BasicWidget {
     }
     this.hasChanged = false;
     this.quiting = false;
-    this.sideDivRight = "calc(-60% - 5px)";
-    this.showInfo = false;
+    // this.sideDivRight = "calc(-60% - 5px)";
+    // this.showInfo = false;
   }
 
 }
