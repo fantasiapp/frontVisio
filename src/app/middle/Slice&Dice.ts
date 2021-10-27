@@ -879,7 +879,7 @@ export class PDV{
     let updateDateInSeconds = this.getFirstSaleDate(),
       currentDate = new Date(),
       day = currentDate.getDay() == 0 ? 6: currentDate.getDay() - 1, // car dans timestamp la semaine commence le dimanche
-      BeginingOfTheWeek = currentDate.getTime() - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
+      BeginingOfTheWeek = currentDate.getTime() / 1000 - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
       aWeekInSeconds = 7 * 24 * 60 * 6,
       find = false, i = 0;
     while(!find && i < 7){
