@@ -239,24 +239,8 @@ class DataWidget{
     return this.data;
   }
 
-  // à enlever dès qu'on a démocké le suivi de l'AD
-  fillWithRandomValues(){
-    for (let i = 0; i < this.rowsTitles.length; i++)
-      for (let j = 0; j < this.columnsTitles.length; j++)
-        this.data[i][j] = Math.random() * 100;
-  }
-
-  // à enlever dès qu'on a démocké le suivi de l'AD
-  fillFirstLineForHistoCurve(){
-    let nbPdvs = PDV.getInstances().size;
-    for (let j = 0; j < this.columnsTitles.length; j++)
-        this.data[0][j] = Math.round(Math.random() * nbPdvs / 6);
-  }
-
-  // à adapter quand on aura les données
-  completeWithCurveForHistoCurve(){
-    let nbPdvs = PDV.getInstances().size,
-      nbPdvsCompletedInPercent = 0;
+  completeWithCurveForHistoCurve(nbPdvs:number){
+    let nbPdvsCompletedInPercent = 0;
     for (let j = 0; j < this.columnsTitles.length; j++){
       nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
       this.data[1][j] = nbPdvsCompletedInPercent;
@@ -450,12 +434,13 @@ export class PDV{
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
         dnEnduit = new Array(axe.length).fill(0),
-        totalP2cd = 0,
+        totalP2cd = 0, totalSales = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
-      if (this.sales.length == 0 || !this.attribute("redistributedFinitions")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+      if (this.sales.length == 0 || !this.attribute("redistributedFinitions") || !this.attribute("redistributed")) dnEnduit[associatedIndex["Non documenté"]] = 1;
       else {
         for (let sale of this.sales){
+          totalSales += sale.volume;
           if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) 
             saleEnduit = true;
           else if (sale.type == 'p2cd'){
@@ -464,7 +449,7 @@ export class PDV{
           }
         }
         let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
-        if (totalSiniatP2cd == totalP2cd && !this.attribute("onlySiniat")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+        if (totalSiniatP2cd == totalSales && !this.attribute("onlySiniat")) dnEnduit[associatedIndex["Non documenté"]] = 1;
         else if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
         else if (saleEnduit){
           if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
@@ -566,12 +551,16 @@ export class PDV{
     return this.instances.get(id);
   }
 
+  static filterPdvs(pdvs:PDV[]){
+    return pdvs.filter(pdv => pdv.attribute('available') && pdv.attribute('sale'));
+  }
+
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
       pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
     if (axis1 == 'histo&curve'){
       PDV.fillFirstLineOfHistoCurve(dataWidget, pdvs);
-      dataWidget.completeWithCurveForHistoCurve();
+      dataWidget.completeWithCurveForHistoCurve(newPdvs.length);
     }
     else {
       let irregular: string = 'no';
@@ -670,13 +659,15 @@ export class PDV{
     return result;
   }
 
-  static countForFilter(pdvs:PDV[]){
-    // Peut-être qu'il faudrait relier cette liste à ce que Majed fait
-    let dictCounter: {[key:string]: {[key:string]:number}}= {};
-    for (let attribute of attributesToCountForFilters)
-      dictCounter[attribute] = {};
+  static countForFilter(pdvs:PDV[], attribute?:string){
+    // il faudrait relier cette liste à ce que Majed fait
+    let dictCounter: {[key:string]: {[key:string]:number}} = {};
+    if (!attribute)
+      for (let attribute of attributesToCountForFilters)
+        dictCounter[attribute] = {};
+    else dictCounter[attribute] = {};
     for (let pdv of pdvs)
-      for (let attribute of attributesToCountForFilters){
+      for (let attribute of Object.keys(dictCounter)){
         if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
           dictCounter[attribute][pdv.property(attribute)] += 1;
         else dictCounter[attribute][pdv.property(attribute)] = 1;
@@ -916,7 +907,7 @@ export class PDV{
     return this.attribute("onlySiniat") || !this.attribute("redistributed") || this.sales.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
   }
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
-    let pdvs = PDV.childrenOfNode(DataExtractionHelper.followSlice(slice));
+    let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DataExtractionHelper.followSlice(slice)));
     switch(indicator){
       case 'simple': {
         let totalVisits: number= 0,
@@ -938,8 +929,7 @@ export class PDV{
       };
       case 'AD': {
         let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
-          nbPdvTotal = PDV.getInstances().size,
-          ratio = nbCompletedPdv / nbPdvTotal;
+          ratio = nbCompletedPdv / pdvs.length;
         return [[['  ', 100 * ratio]], [33, 66, 100]];
        }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
