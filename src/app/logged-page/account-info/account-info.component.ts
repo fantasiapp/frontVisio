@@ -41,7 +41,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   private mouseEvent: Subject<boolean> = new Subject();
   private subscription!: Subscription;
 
-  constructor(private filtersService: FiltersStatesService, private auth: AuthService, private dataService: DataService, private localStorageService: LocalStorageService) {}
+  constructor(private auth: AuthService, private dataService: DataService, private localStorageService: LocalStorageService) {}
 
   ngOnInit() {
     this.subscription = this.mouseEvent.pipe(debounceTime(0)).subscribe(dropped => {
@@ -57,17 +57,21 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
     })
   }
 
+  get username() {
+    return this.auth.getUser().name;
+  }
+
   ngOnDestroy() {
     this.subscription?.unsubscribe();
   }
 
-  getShortName() {
-    let l = this.name.split(' ');
-    if ( l.length < 2 ) return this.name;
+  clearSpace(name: string) {
+    let l = name.split(' ');
+    if ( l.length < 2 ) return name;
     return l.slice(0, -1).join(' ');
   }
 
-  getProfileType() {
+  get profileType() {
     return PDV.geoTree.root.label;
   }
 

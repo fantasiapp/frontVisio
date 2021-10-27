@@ -1,10 +1,10 @@
 <div class="resume">
-    {{ getShortName() | titlecase }} <div class="toggle-dropdown"><img src="assets/icon-option.svg"/></div>
+    {{ clearSpace(username) | titlecase }} <div class="toggle-dropdown"><img src="assets/icon-option.svg"/></div>
 </div>
 <div class="dropdown" #dropdown>
     <div class="profile">
-        {{ name | uppercase }}
-        <span class="profile-description">Profil {{ getProfileType() | titlecase }}</span>
+        {{ username | uppercase }}
+        <span class="profile-description">Profil {{ profileType | titlecase }}</span>
     </div>
     <ul class="details">
         <li><img [src]="getADStatus() ? 'assets/AD ouvert.svg' : 'assets/AD Fermée.svg'"/> Saisie de l'AD : <span class="value">{{ getADStatus() ? 'Ouverte' : 'Fermée' }}</span></li>

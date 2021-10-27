@@ -66,7 +66,6 @@ export class FiltersComponent implements OnInit , OnDestroy{
         this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
     });
   }
-  private blockToShow(list: listDash | listLev) {}
 
   private destroy$: Subject<void> = new Subject<void>();
 
