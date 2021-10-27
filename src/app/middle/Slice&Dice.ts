@@ -239,24 +239,8 @@ class DataWidget{
     return this.data;
   }
 
-  // à enlever dès qu'on a démocké le suivi de l'AD
-  fillWithRandomValues(){
-    for (let i = 0; i < this.rowsTitles.length; i++)
-      for (let j = 0; j < this.columnsTitles.length; j++)
-        this.data[i][j] = Math.random() * 100;
-  }
-
-  // à enlever dès qu'on a démocké le suivi de l'AD
-  fillFirstLineForHistoCurve(){
-    let nbPdvs = PDV.getInstances().size;
-    for (let j = 0; j < this.columnsTitles.length; j++)
-        this.data[0][j] = Math.round(Math.random() * nbPdvs / 6);
-  }
-
-  // à adapter quand on aura les données
-  completeWithCurveForHistoCurve(){
-    let nbPdvs = PDV.getInstances().size,
-      nbPdvsCompletedInPercent = 0;
+  completeWithCurveForHistoCurve(nbPdvs:number){
+    let nbPdvsCompletedInPercent = 0;
     for (let j = 0; j < this.columnsTitles.length; j++){
       nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
       this.data[1][j] = nbPdvsCompletedInPercent;
@@ -571,7 +555,7 @@ export class PDV{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
     if (axis1 == 'histo&curve'){
       PDV.fillFirstLineOfHistoCurve(dataWidget, pdvs);
-      dataWidget.completeWithCurveForHistoCurve();
+      dataWidget.completeWithCurveForHistoCurve(newPdvs.length);
     }
     else {
       let irregular: string = 'no';
@@ -938,8 +922,7 @@ export class PDV{
       };
       case 'AD': {
         let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
-          nbPdvTotal = PDV.getInstances().size,
-          ratio = nbCompletedPdv / nbPdvTotal;
+          ratio = nbCompletedPdv / pdvs.length;
         return [[['  ', 100 * ratio]], [33, 66, 100]];
        }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
