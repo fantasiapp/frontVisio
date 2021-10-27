@@ -40,7 +40,7 @@
                                 <li>
                                     <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                                         Ne vend pas de plaque
-                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [attr.disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noSale'](pdv!, sales!).val"  agentOnly>
+                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noSale'](pdv!, sales!).val"  agentOnly>
                                         <span class="checkmark" ></span>
                                     </label>
                                     <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noSale'](pdv!, sales!).message }}</div>
@@ -48,7 +48,7 @@
                                 <li>
                                     <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                                         Point de vente redistribue
-                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [attr.disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributed'](pdv!, sales!).val" agentOnly>
+                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributed'](pdv!, sales!).val" agentOnly>
                                         <span class="checkmark"></span>
                                     </label>
                                     <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributed'](pdv!, sales!).message }} </div>
@@ -170,7 +170,7 @@
                 </div>
                 <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [attr.disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributedFinitions'](pdv!, sales!).val" agentFinitionsOnly>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributedFinitions'](pdv!, sales!).val" agentFinitionsOnly>
                     <span class="checkmark" ></span>
                 </label>
                 <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributedFinitions'](pdv!, sales!).message }}</div>

@@ -258,16 +258,14 @@ export class InfoBarComponent {
   }
 
   changeRedistributed() {
-    if(!this.redistributedDisabled){
+    console.log("oui oui")
       this.redistributedChecked = !this.redistributedChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.hasChanged = true;
-    }
   }
   changeRedistributedFinitions() {
-    console.log("oui oui")
     this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
     this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
     if(!this.target) this.target = SliceTable.initializeTarget()
@@ -350,14 +348,12 @@ export class InfoBarComponent {
   }
 
   changeTargetSale(){
-    if(!this.doesntSellDisabled){
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.doesntSellChecked = !this.doesntSellChecked;
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
       this.target[this.TARGET_LIGHT_ID] = 'r'
       this.hasChanged = true;
-    }
   }
   changeOnlySiniat() {
     if(this.noSales()) {
