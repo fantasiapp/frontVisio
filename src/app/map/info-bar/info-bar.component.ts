@@ -4,7 +4,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
-import { Condition, ConditionnalDisabledDirective } from 'src/app/behaviour/conditionnal-disabled.directive'
+import { disabledParams } from 'src/app/behaviour/disabled-conditions'
 import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import {
@@ -66,7 +66,6 @@ export class InfoBarComponent {
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.isOnlySiniat = value.attribute('onlySiniat')
-      console.log("loaded : ", value, "rf : ", this.redistributedFinitionsChecked)
       this.loadGrid()
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
@@ -114,12 +113,16 @@ export class InfoBarComponent {
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
 
-  noRedistributedFinitions = Condition.noRedistributedFinitions;
-  emptySalesFinitions = Condition.emptySalesFinitions;
-  noSale = Condition.noSale;
-  emptySales = Condition.emptySales;
-  noRedistributed = Condition.noRedistributed;
   disabledMsg: string = ''
+  conditionsParams = disabledParams;
+  noEmptySales(pdv: PDV, sales: any[]) {
+    for(let sale of sales!) {
+      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) {
+        return true;
+      }
+      }
+      return false;
+  }
 
   myFormatNumberToString = formatNumberToString;
 
@@ -370,9 +373,7 @@ export class InfoBarComponent {
   }
 
   handleDisabled(msgId: string) {
-    this.disabledMsg = ConditionnalDisabledDirective.messages[msgId];
-    setTimeout(() => this.disabledMsg = "", 2000)
-    console.log(ConditionnalDisabledDirective.messages[msgId])
+
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application

@@ -38,16 +38,16 @@
                         <div class="props">
                             <ul>
                                 <li>
-                                    <label class="container-checkbox" (click)="handleDisabled('doesntSell')" [msgId]="'doesntSell'" conditionnalDisabled>
+                                    <label class="container-checkbox" [title]="conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noSale'](pdv!, sales!).message">
                                         Ne vend pas de plaque
-                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [pdv]="pdv" [sales]="sales" [conditions]="[noSale, emptySales]" [msgId]="'doesntSell'" conditionnalDisabled agentOnly>
+                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [attr.disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noSale'](pdv!, sales!).val"  agentOnly>
                                         <span class="checkmark" ></span>
                                     </label>
                                 </li>
                                 <li>
-                                    <label class="container-checkbox" (click)="handleDisabled('redistributed')" [msgId]="'redistributed'" conditionnalDisabled>
+                                    <label class="container-checkbox" [title]="conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributed'](pdv!, sales!).message">
                                         Point de vente redistribue
-                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributed, emptySales]" [msgId]="'redistributed'" conditionnalDisabled agentOnly>
+                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [attr.disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributed'](pdv!, sales!).val" agentOnly>
                                         <span class="checkmark"></span>
                                     </label>
                                 </li>
@@ -166,9 +166,9 @@
                         </ul>
                     </div>
                 </div>
-                <label class="container-checkbox" (click)="handleDisabled('redistributedFinitions')" [msgId]="'redistributedFinitions'" conditionnalDisabled>
+                <label class="container-checkbox" [title]="conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributedFinitions'](pdv!, sales!).message">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributedFinitions, emptySalesFinitions]" [msgId]="'redistributedFinitions'" conditionnalDisabled agentFinitionsOnly>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [attr.disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributedFinitions'](pdv!, sales!).val" agentFinitionsOnly>
                     <span class="checkmark" ></span>
                 </label>
                 <div class="values-div">
