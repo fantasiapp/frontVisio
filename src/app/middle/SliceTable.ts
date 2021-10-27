@@ -233,10 +233,12 @@ export class SliceTable {
         if(pdv['potential'] > 0) {
             if(pdv['checkboxEnduit']) {
                 this.updateTotalTarget(pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = pdv['potential']
+                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = true;
+                pdv['checkboxEnduit'] = true;
             } else {
                 this.updateTotalTarget(-pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = 0
+                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = false;
+                pdv['checkboxEnduit'] = false;
             }
         }
         this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
