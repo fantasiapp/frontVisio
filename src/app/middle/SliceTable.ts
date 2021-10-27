@@ -101,11 +101,11 @@ export class SliceTable {
             return this.getPdvInstance(pdv)!.getPotential();
         },
         'typologie': (pdv :any) => {
-            let list = this.getPdvInstance(pdv)!.getValue('dn', false, true);
-            if ((<number[]>list)[0] === 1) return this.segmentDnEnduit[1];
-            else if ((<number[]>list)[1] === 1) return this.segmentDnEnduit[2];
-            else return this.segmentDnEnduit[3];
-
+            let list = this.getPdvInstance(pdv)!.getValue('dn', false, true) as number[];
+            for(let i = 0; i<list.length; i++) {
+                if(list[i] === 1) return this.segmentDnEnduit[i+1]
+            }
+            return 'Could not be classified'
         },
         'edit': () => {
             return true; //should return what is inside the new div ?

@@ -104,7 +104,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     
     // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
     if ( this.dynamicDescription ) {
-      this.properties.description = BasicWidget.format(data.sum, 3) + ' ' + this.properties.unit;
+      this.properties.description = BasicWidget.format(data.sum, 3, this.properties.unit.toLowerCase() == 'pdv') + ' ' + this.properties.unit;
       this.setSubtitle(this.properties.description);
     }; return data;
   }
@@ -173,10 +173,13 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     return -Math.floor(Math.log10(q));
   }
 
-  static format(q: number, n: number = 3): string {
+  static format(q: number, n: number = 3, integer: boolean = false): string {
     let p = Math.round(q);
     let base = Math.pow(10, n);
     let str = '';
+
+    if ( integer )
+      return p.toString();
     
     if ( Math.floor(q) == 0 )
       return q.toFixed(Math.min(3, this.firstDigit(q))).toString();

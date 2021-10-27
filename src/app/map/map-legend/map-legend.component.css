@@ -67,9 +67,14 @@ h4 {
 
 .item .name {
     position: absolute;
-    top: 35px;
+    top: 25px;
     left: 50%;
     transform: translateX(-50%);
     line-height: 1.1em;
     font-weight: 300;
+}
+
+.item img {
+    height: 20px;
+    width: auto;
 }

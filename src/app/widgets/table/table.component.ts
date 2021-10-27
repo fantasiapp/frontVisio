@@ -97,9 +97,9 @@ export class TableComponent extends BasicWidget {
 
   refresh() {
     console.log("REFRESH")
-    this.updateGraph(this.updateData())
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
+    this.updateTitle()
   }
 
   updateData(): any[] {

@@ -65,27 +65,33 @@ export class Navigation {
     let currentLevel = this.currentLevel!
     if (dataType == 'level'){
       //dont navigate pdv
-      let subLevel = (!this.childIsPdv(currentLevel)) ? {
-        name: currentLevel.children.map((child: any) => child.name),
-        id: currentLevel.children.map((child: any) => child.id),
-        label: currentLevel.children.map((child: any) => child.label),
-      }: {name: [], id: [], label:[]};
+      
 
       let superLevel = (currentLevel.parent && !currentLevel.parent.parent) ? {
         name: this.tree?.root.name, id: 0, label: this.tree?.root.label 
       } : {name: currentLevel.parent?.name, id: currentLevel.parent?.id, label: currentLevel.parent?.label};
 
+      let siblings = currentLevel.siblings.sort(
+        (a, b) => 1 - 2*+(a.name < b.name)
+      ), children = !this.childIsPdv(currentLevel) ? (currentLevel.children as Node[]).sort(
+        (a, b) => 1-2*+(a.name < b.name)
+      ) : [];
+
+      let subLevel = children.length ? {
+        name: children.map((child: any) => child.name),
+        id: children.map((child: any) => child.id),
+        label: children.map((child: any) => child.label),
+      }: {name: [], id: [], label:[]};
 
       return {
         currentLevel: {
-          name: currentLevel.siblings.map((sibling: any) => sibling.name),
-          id: currentLevel.siblings.map((sibling: any) => sibling.id),
-          label: currentLevel.children.map((child: any) => child.label),
+          name: siblings.map((sibling: any) => sibling.name),
+          id: siblings.map((sibling: any) => sibling.id),
+          label: siblings.map((child: any) => child.label),
         },
         subLevel,
         superLevel,
       };
-    
     } else{
       return{
         id: currentLevel.dashboards.map((dashboard) => dashboard.id),

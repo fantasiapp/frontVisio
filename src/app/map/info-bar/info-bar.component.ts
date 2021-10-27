@@ -4,7 +4,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
-import { Condition, ConditionnalDisabledDirective } from 'src/app/behaviour/conditionnal-disabled.directive'
+import { disabledParams } from 'src/app/behaviour/disabled-conditions'
 import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import {
@@ -112,13 +112,19 @@ export class InfoBarComponent {
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
+  mouseX: number = 0;
+  mouseY : number = 0;
 
-  noRedistributedFinitions = Condition.noRedistributedFinitions;
-  emptySalesFinitions = Condition.emptySalesFinitions;
-  noSale = Condition.noSale;
-  emptySales = Condition.emptySales;
-  noRedistributed = Condition.noRedistributed;
   disabledMsg: string = ''
+  conditionsParams = disabledParams;
+  noEmptySales(pdv: PDV, sales: any[]) {
+    for(let sale of sales!) {
+      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) {
+        return true;
+      }
+      }
+      return false;
+  }
 
   myFormatNumberToString = formatNumberToString;
 
@@ -159,6 +165,7 @@ export class InfoBarComponent {
     this.TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
     this.TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
     this.TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
+    this.TARGET_REDISTRIBUTED_FINITIONS_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_FINITIONS_ID;
 
     
     this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
@@ -251,16 +258,14 @@ export class InfoBarComponent {
   }
 
   changeRedistributed() {
-    if(!this.redistributedDisabled){
+    console.log("oui oui")
       this.redistributedChecked = !this.redistributedChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.hasChanged = true;
-    }
   }
   changeRedistributedFinitions() {
-    console.log("oui oui")
     this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
     this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
     if(!this.target) this.target = SliceTable.initializeTarget()
@@ -343,14 +348,12 @@ export class InfoBarComponent {
   }
 
   changeTargetSale(){
-    if(!this.doesntSellDisabled){
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.doesntSellChecked = !this.doesntSellChecked;
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
       this.target[this.TARGET_LIGHT_ID] = 'r'
       this.hasChanged = true;
-    }
   }
   changeOnlySiniat() {
     if(this.noSales()) {
@@ -367,10 +370,10 @@ export class InfoBarComponent {
     return true;
   }
 
-  handleDisabled(msgId: string) {
-    this.disabledMsg = ConditionnalDisabledDirective.messages[msgId];
-    setTimeout(() => this.disabledMsg="" , 2000);
-    console.log(ConditionnalDisabledDirective.messages[msgId])
+  getMouseCoordinnates() {
+    let e = window.event as any;
+    this.mouseX = e.pageX;
+    this.mouseY = e.pageY;
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
