@@ -493,7 +493,6 @@ export class MapIconBuilder {
     ]).generate();
 
     this._instance = builder;
-    console.log('initialization ended');
   }
 
   static year = true;

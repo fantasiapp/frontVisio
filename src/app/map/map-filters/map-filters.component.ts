@@ -122,7 +122,7 @@ export class MapFiltersComponent {
     this.criteria = result as [string, number[]][];
     this.logger.actionComplete();
     if ( change )
-      this.pdvsChange.emit(this.getPreviousPDVs(this.stack.length));
+      this.pdvsChange.emit(this.getLastPDVs());
   }
   
   private stack: [MapSelectComponent, PDV[]][] = [];
@@ -149,7 +149,6 @@ export class MapFiltersComponent {
     if ( idx < 0 ) return false;
     //console.log('removing stack');
     let [_, results] = this.stack[idx]; //<- filterdict is assigned by others
-    this.currentDict = PDV.countForFilter(this.getPreviousPDVs(idx));
     this.stack.splice(idx, 1);
     this.fixStack(idx, true);
     this.liveDict[select.criterion] = this.currentDict[select.criterion];
@@ -176,7 +175,7 @@ export class MapFiltersComponent {
         targetCriterion = target ? this.stack[index+dx+1][0].criterion : undefined;
       
       if ( !dx && skipFirst )
-        this.liveDict[criterion] = PDV.countForFilter(pdvs)[criterion];
+        this.liveDict[criterion] = PDV.countForFilter(pdvs, criterion)[criterion];
       
       names.add(select.criterion);
       //console.log(index+dx+1, criterion, targetCriterion)
@@ -201,14 +200,14 @@ export class MapFiltersComponent {
         this.stack.splice(index+dx, 1); index--;
       }
 
-      this.currentDict = PDV.countForFilter(pdvs);
       if ( target ) {
         //console.log('currentCriterion distribution', this.currentDict[targetCriterion!]);
         names.add(targetCriterion!);
-        this.liveDict[targetCriterion!] = this.currentDict[targetCriterion!];
+        this.liveDict[targetCriterion!] = PDV.countForFilter(pdvs, targetCriterion)[targetCriterion!];
       }
     });
-  
+    
+    this.currentDict = PDV.countForFilter(pdvs);
     let consequent = this.criteriaNames.filter(name => !names.has(name));
     
     //console.log('consequent names', consequent, 'and dict', this.currentDict);
