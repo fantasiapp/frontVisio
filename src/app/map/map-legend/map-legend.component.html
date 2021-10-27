@@ -1,0 +1,8 @@
+<h4>Légende</h4>
+<div class="category" *ngFor="let category of categories; trackBy: trackByName">
+    <div class="title"> {{ unCamelCase(category) }} </div>
+    <div class="item" *ngFor="let item of categories[category][0]; let idx = index; trackBy: trackByName">
+        <span class="name">{{ item }}</span>
+        <img [src]="sanitize(categories[category][1][idx])"/>
+    </div>
+</div>
