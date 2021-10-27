@@ -550,6 +550,10 @@ export class PDV{
     return this.instances.get(id);
   }
 
+  static filterPdvs(pdvs:PDV[]){
+    return pdvs.filter(pdv => pdv.attribute('available') && pdv.attribute('sale'));
+  }
+
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
       pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
@@ -900,7 +904,7 @@ export class PDV{
     return this.attribute("onlySiniat") || !this.attribute("redistributed") || this.sales.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
   }
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
-    let pdvs = PDV.childrenOfNode(DataExtractionHelper.followSlice(slice));
+    let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DataExtractionHelper.followSlice(slice)));
     switch(indicator){
       case 'simple': {
         let totalVisits: number= 0,
