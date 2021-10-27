@@ -269,7 +269,7 @@ export class TableComponent extends BasicWidget {
       'potential': Math.round(this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pregy'].value + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-    }    
+    }
   }
 
   // sideDivRight: string = "calc(-60% - 5px)";
