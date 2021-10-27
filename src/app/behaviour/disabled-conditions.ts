@@ -3,7 +3,7 @@ import { PDV } from '../middle/Slice&Dice';
 
 export const disabledParams: {[name: string]: (pdv: PDV, sales: any[]) => {message: string, val : boolean}} = {
   'noRedistributedFinitions': (pdv: PDV, sales: any[]) => {
-    let val = pdv.attribute('redistributedFinitions');
+    let val = !pdv.attribute('redistributedFinitions');
     return { message: val ? 'Le siège a déclaré ce pdv finitions redistribué\n' : '', val : val}
   },
   'noEmptySalesFinitions': (pdv: PDV, sales: any[]) => {
