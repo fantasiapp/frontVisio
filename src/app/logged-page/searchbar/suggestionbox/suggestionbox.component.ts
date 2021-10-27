@@ -60,7 +60,7 @@ export class SuggestionBox implements AfterViewInit {
     if ( x & SearchService.IS_PATTERN ) {
       return '(categorie)'
     } else if ( x & SearchService.IS_REDIRECTION ) {
-      return '(racine)'
+      return '(niveau principal)'
     } else if ( typeof x == 'object' ) {
       return x.info ? '(' + x.info + ')' : '';
     } else {
@@ -71,7 +71,7 @@ export class SuggestionBox implements AfterViewInit {
   capitalizeSecond(suggestion: Suggestion) {
     let term = suggestion[1];
     if ( !suggestion[0] )
-      return term.split(' ').map(part => part[0].toUpperCase() + part.slice(1).toLowerCase()).join(' ')
+      return term.split(' ').map(part => part ? part[0].toUpperCase() + part.slice(1).toLowerCase() : '').join(' ')
     return term.split(' ').map((part, index) => index == 0 ? part.toLowerCase() : part[0].toUpperCase() + part.slice(1).toLowerCase()).join(' ');
   }
 
@@ -79,4 +79,18 @@ export class SuggestionBox implements AfterViewInit {
     let suggestion = (this.suggestions as any)[index];
     this.confirm.emit(suggestion);
   }
+
+  trackByResult(index: number, result: any) {
+    if ( result.node )
+      return SuggestionBox.NODE_MASK | result.node.id;
+    else if ( result.dashboard )
+      return SuggestionBox.DASHBOARD_MASK | result.dashboard.id;
+    else if ( result.pdv )
+      return SuggestionBox.PDV_MASK | result.pdv.id;
+    return index;
+  }
+
+  static NODE_MASK = 1 << 30;
+  static DASHBOARD_MASK = 1 << 29;
+  static PDV_MASK = 1 << 28;
 }

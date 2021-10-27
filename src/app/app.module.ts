@@ -53,6 +53,10 @@ import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
 import { BlankComponent } from './general/blank/blank.component';
 import { DataService } from './services/data.service';
 import { AuthService } from './connection/auth.service';
+import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.directive';
+import { AdOpenOnlyDirective } from './behaviour/ad-open-only.directive';
+import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directive';
+import { MapLegendComponent } from './map/map-legend/map-legend.component';
 
 @NgModule({
   declarations: [
@@ -93,7 +97,11 @@ import { AuthService } from './connection/auth.service';
     SearchbarComponent,
     SuggestionBox,
     PatternPipe,
-    BlankComponent
+    BlankComponent,
+    AgentFinitionsOnlyDirective,
+    AdOpenOnlyDirective,
+    CurrentYearOnlyDirective,
+    MapLegendComponent
   ],
   imports: [
     BrowserModule,
@@ -111,7 +119,7 @@ import { AuthService } from './connection/auth.service';
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [Navigation, SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService, LoggerService],
+  providers: [SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

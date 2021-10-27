@@ -3,7 +3,6 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse } fr
 import { Observable, of } from "rxjs";
 import { tap } from "rxjs/operators";
 import { LocalStorageService } from "../services/local-storage.service";
-import { AuthService } from "../connection/auth.service";
 
 
 @Injectable()
@@ -11,8 +10,6 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
 
     constructor(private localStorageService: LocalStorageService) {}
     
-    private cache: Map<HttpRequest<any>, HttpResponse<any>> = new Map()
-
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>{
 
         if (!this.isCacheable(req)) {
@@ -20,7 +17,6 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         }
 
         if(this.localStorageService.getStayConnected()) {
-            console.log("Data from cache")
             return of(new HttpResponse<any>({'body': this.localStorageService.getData()}));
         }
         return next.handle(req).pipe(
@@ -39,22 +35,6 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         return false;
     }
     
-
-    fetchData(
-        req: HttpRequest<any>,
-        next: HttpHandler): Observable<HttpEvent<any>> {
-            return next.handle(req).pipe(
-                tap(event => {
-                    if (event instanceof HttpResponse) {
-                        this.cache.set(req, event);
-                    }
-                })
-            )
-    }
-
-    clearCache(): void {
-        this.cache.clear()
-    }
 
 }
 

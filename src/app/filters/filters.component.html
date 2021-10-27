@@ -3,7 +3,7 @@
     {{ levelLabel }}
   </div>
   <div class="path left-aligned">
-    {{ path }}
+    <span *ngFor="let p of path; let index = index" class="node" (click)="navigateUp(path.length-1 - index)">{{ p }} {{index == path.length-1 ? '' : ' > '}}</span>
   </div>
     
     <select
@@ -54,7 +54,7 @@
     </div>
   </ng-container>
   <div class="navigate">
-    <div class="box-nav1">
+    <div class="box box-nav1">
       <img
         src="assets/super.svg"
         class="navigate-button1"
@@ -64,7 +64,7 @@
       <br />
       {{ superLevel.label }}
     </div>
-    <div class="box-nav2" [style.display]="canSub() ? 'initial' : 'none'" [ngClass]="{ disabled: subLevels == viewList }">
+    <div class="box box-nav2" [style.display]="canSub() ? 'initial' : 'none'" [ngClass]="{ disabled: subLevels == viewList }">
       <img
         src="assets/sub.svg"
         class="navigate-button2"

@@ -99,6 +99,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         .style('width', ((this.barWidth*(1 + coeff)).toFixed(1)) + 'px')
         .style('margin', '0 ' + ((this.offsetX - this.barWidth*coeff/2).toFixed(1)) + 'px')
         .on('change', (e: Event) => {
+          console.log('change');
           let input = e.target as any,
             target = +input.value.replace(/\s+/g, '');
 
@@ -106,6 +107,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
             input.classList.add('incorrect-input');
           } else {
             input.classList.remove('incorrect-input');
+            input.value = BasicWidget.format(target).trim();
             this.changeValue(target, input.__data__, e);
           }
         })
@@ -119,12 +121,12 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       onresized(this: any) {
         let chart = self.chart!;
         let rect = (chart.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
-        self.rectHeight = rect.height;
+        self.rect = rect;
         self.renderTargetContainer({data: null, target: self.barTargets});
       },
       onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
-        self.rectHeight = rect.height;
+        self.rect = rect;
         self.chart = this;
         self.renderTargetContainer(data); //initial render
         this.config('onrendered', null);

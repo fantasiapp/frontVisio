@@ -15,7 +15,7 @@ export class MapSelectComponent implements OnChanges {
   prettyCriterion = '';
   @Input()
   criteria: [number, any, number][] | null = null;
-
+  
   all: boolean = true;
 
   @Output()
@@ -39,7 +39,13 @@ export class MapSelectComponent implements OnChanges {
       this.selection = [];
       d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
       this.emitSelection();
-    }    
+    }
+  }
+
+  reset() {
+    d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
+    d3.select(this.ref.nativeElement).select('input').property('checked', this.all = true);
+    this.selection.length = 0;
   }
 
   private emitSelection() {
@@ -49,6 +55,10 @@ export class MapSelectComponent implements OnChanges {
       ])
     else
       this.criteriaChange.emit([]);
+  }
+
+  get filtering() {
+    return this.selection.length > 0;
   }
 
   criterionClicked(e: any, idx: number) {
@@ -84,6 +94,14 @@ export class MapSelectComponent implements OnChanges {
   protected lineHeight = 30;
   dropped = false;
 
+  get droppable() {
+    return this.criteria && this.criteria.length > 1;
+  }
+
+  get deletable() {
+    return this.selection.length > 0;
+  }
+
   @HostBinding('style.height')
   get height() {
     if ( this.dropped )
@@ -92,15 +110,34 @@ export class MapSelectComponent implements OnChanges {
   }
 
   toggleDropdown(e: any) {
-    this.dropped = !this.dropped;
+    if ( this.dropped )
+      this.close();
+    else
+      this.open();
+  }
+
+  open() {
+    this.dropped = true;
+  }
+
+  close() {
+    this.dropped = false;
+  }
+
+  tryDelete() {
+    if ( !this.deletable ) return;
+    this.selection.length = 0;
+    this.emitSelection();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     let criteriaChange = changes['criteria'];
     if ( !criteriaChange || criteriaChange.firstChange ) return;
+    if ( !this.droppable ) { this.dropped = false; }
     let keys = this.criteria!.map(pair => pair[0]);
     let oldLength = this.selection.length;
     this.selection = this.selection.filter((e: number) => keys.includes(e));
+
     
     if ( !this.selection.length )
       this.all = true;

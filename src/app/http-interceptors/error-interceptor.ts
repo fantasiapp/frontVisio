@@ -34,7 +34,7 @@ export class ErrorInterceptor implements HttpInterceptor{
                   console.debug(errorMsg);
                   if(req.method === "POST" && req.urlWithParams.includes("action=update")) //not so clean
                       this.dataService.queueUpdate(req.body);
-                  if(error.status == 401) {
+                  if(error.status === 401) {
                     console.log("Unauthorized token")
                     this.auth.logoutFromServer()
                   }
