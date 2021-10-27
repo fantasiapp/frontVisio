@@ -38,18 +38,20 @@
                         <div class="props">
                             <ul>
                                 <li>
-                                    <label class="container-checkbox" (click)="handleDisabled('doesntSell')" [msgId]="'doesntSell'" conditionnalDisabled>
+                                    <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                                         Ne vend pas de plaque
-                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [pdv]="pdv" [sales]="sales" [conditions]="[noSale, emptySales]" [msgId]="'doesntSell'" conditionnalDisabled agentOnly>
+                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noSale'](pdv!, sales!).val"  agentOnly>
                                         <span class="checkmark" ></span>
                                     </label>
+                                    <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noSale'](pdv!, sales!).message }}</div>
                                 </li>
                                 <li>
-                                    <label class="container-checkbox" (click)="handleDisabled('redistributed')" [msgId]="'redistributed'" conditionnalDisabled>
+                                    <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                                         Point de vente redistribue
-                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributed, emptySales]" [msgId]="'redistributed'" conditionnalDisabled agentOnly>
+                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributed'](pdv!, sales!).val" agentOnly>
                                         <span class="checkmark"></span>
                                     </label>
+                                    <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributed'](pdv!, sales!).message }} </div>
                                 </li>
                             </ul>
                         </div>
@@ -166,11 +168,12 @@
                         </ul>
                     </div>
                 </div>
-                <label class="container-checkbox" (click)="handleDisabled('redistributedFinitions')" [msgId]="'redistributedFinitions'" conditionnalDisabled>
+                <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [pdv]="pdv" [sales]="sales" [conditions]="[noRedistributedFinitions, emptySalesFinitions]" [msgId]="'redistributedFinitions'" conditionnalDisabled agentFinitionsOnly>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributedFinitions'](pdv!, sales!).val" agentFinitionsOnly>
                     <span class="checkmark" ></span>
                 </label>
+                <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributedFinitions'](pdv!, sales!).message }}</div>
                 <div class="values-div">
                     <div>
                         <h2 class="title">P2CD</h2>

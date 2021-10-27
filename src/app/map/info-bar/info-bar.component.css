@@ -636,6 +636,19 @@ input[type=number] {
 }
 /* ***** */
 
+.disabled-description {
+    pointer-events: none;
+    display: none;
+    position: fixed;
+    font: 300 13px Roboto; 
+    background-color: #333;
+    color: white;
+    height: fit-content;
+    z-index: 10
+}
+.disabled-input:hover + .disabled-description{
+    display: block;
+}
 
 @media (max-width: 1367px) {
     :host {
