@@ -66,6 +66,7 @@ export class InfoBarComponent {
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.isOnlySiniat = value.attribute('onlySiniat')
+      console.log("loaded : ", value, "rf : ", this.redistributedFinitionsChecked)
       this.loadGrid()
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
@@ -159,6 +160,7 @@ export class InfoBarComponent {
     this.TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
     this.TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
     this.TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
+    this.TARGET_REDISTRIBUTED_FINITIONS_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_FINITIONS_ID;
 
     
     this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
