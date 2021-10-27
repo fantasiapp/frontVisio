@@ -659,13 +659,15 @@ export class PDV{
     return result;
   }
 
-  static countForFilter(pdvs:PDV[]){
-    // Peut-être qu'il faudrait relier cette liste à ce que Majed fait
-    let dictCounter: {[key:string]: {[key:string]:number}}= {};
-    for (let attribute of attributesToCountForFilters)
-      dictCounter[attribute] = {};
+  static countForFilter(pdvs:PDV[], attribute?:string){
+    // il faudrait relier cette liste à ce que Majed fait
+    let dictCounter: {[key:string]: {[key:string]:number}} = {};
+    if (!attribute)
+      for (let attribute of attributesToCountForFilters)
+        dictCounter[attribute] = {};
+    else dictCounter[attribute] = {};
     for (let pdv of pdvs)
-      for (let attribute of attributesToCountForFilters){
+      for (let attribute of Object.keys(dictCounter)){
         if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
           dictCounter[attribute][pdv.property(attribute)] += 1;
         else dictCounter[attribute][pdv.property(attribute)] = 1;
