@@ -96,7 +96,6 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    console.log("REFRESH")
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
     this.updateTitle()
@@ -126,8 +125,8 @@ export class TableComponent extends BasicWidget {
 
   updateTitle() {
     let title = this.sliceTable.getTitleData();
-    if(this.type === 'p2cd') this.title = `PdV: ${title[0]} Siniat : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} sur un total identifié de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${title[0]} ciblé : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
+    if(this.type === 'p2cd') this.title = `PdV: ${title[0]}, Siniat : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}, sur un total identifié de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
+    if(this.type === 'enduit') this.title = `PdV: ${title[0]}, ciblé : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
     this.titleContainer!.nativeElement.innerText = this.title
   }
 
