@@ -437,7 +437,7 @@ export class PDV{
         totalP2cd = 0, totalSales = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
-      if (this.sales.length == 0 || !this.attribute("redistributedFinitions")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+      if (this.sales.length == 0 || !this.attribute("redistributedFinitions") || !this.attribute("redistributed")) dnEnduit[associatedIndex["Non documenté"]] = 1;
       else {
         for (let sale of this.sales){
           totalSales += sale.volume;
