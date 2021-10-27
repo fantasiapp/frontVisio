@@ -112,6 +112,8 @@ export class InfoBarComponent {
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
+  mouseX: number = 0;
+  mouseY : number = 0;
 
   disabledMsg: string = ''
   conditionsParams = disabledParams;
@@ -372,8 +374,10 @@ export class InfoBarComponent {
     return true;
   }
 
-  handleDisabled(msgId: string) {
-
+  getMouseCoordinnates() {
+    let e = window.event as any;
+    this.mouseX = e.pageX;
+    this.mouseY = e.pageY;
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
