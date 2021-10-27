@@ -83,6 +83,11 @@ const pointFeuFilter = {
   2: 'Point feu'
 }
 
+const visitedFilter = {
+  1: 'Visité',
+  2: 'Non visité'
+}
+
 const ciblage = {
   1: 'Non ciblé',
   2: 'Ciblé'
@@ -364,6 +369,7 @@ class DataExtractionHelper{
       case 'industriel': return industriel;
       case 'segmentDnEnduitTargetVisits': return segmentDnEnduitTargetVisits;
       case 'segmentMarketingFilter': return segmentMarketingFilter;
+      case 'visitedFilter': return visitedFilter;
       case 'clientProspectTarget':
         return Object.assign({}, clientProspect, clientProspectTarget);
       case 'segmentDnEnduitTarget': 

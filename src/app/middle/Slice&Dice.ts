@@ -642,12 +642,17 @@ export class PDV{
 
   //Juste pour le reSlice
   property(propertyName:string){
-    if (propertyName == 'clientProspect') return this.clientProspect(true);
-    if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
-    if (propertyName == 'ciblage') return this.ciblage();
-    if (propertyName == 'pointFeuFilter') return (this.attribute('pointFeu'))? 2: 1;
-    if (propertyName == 'segmentMarketingFilter') return this.segmentMarketingFilter();
-    return this.attribute(propertyName);
+    switch(propertyName){
+      case 'clientProspect': return this.clientProspect(true);
+      case 'industrie': return this.industriel();
+      case 'industriel': return this.industriel();
+      case 'ciblage': return this.ciblage();
+      case 'pointFeuFilter': return this.attribute('pointFeu')? 2: 1;
+      case 'visited': return (this.attribute("nbVisits") > 0)? 1: 2;
+      case 'segmentMarketingFilter': return this.segmentMarketingFilter();
+      case 'typology': return this.typologyFilter();
+      default: return this.attribute(propertyName);
+    }
   }
 
   private segmentMarketingFilter(){
@@ -657,6 +662,14 @@ export class PDV{
     let result = parseInt(DataExtractionHelper.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
     return result;
+  }
+
+  private typologyFilter():any{
+    let dnResult = this.getValue('dn', false, true) as number[],
+      typologyIds = Object.keys(DataExtractionHelper.get('segmentDnEnduit'));
+    for (let i = 0; i < dnResult.length; i++)
+      if (dnResult[i] == 1)
+        return parseInt(typologyIds[i]);
   }
 
   static countForFilter(pdvs:PDV[], attribute?:string){
@@ -811,12 +824,11 @@ export class PDV{
   clientProspect(index=false){
     let dnResult = this.getValue('dn', false, false, true) as number[],
       clientProspectDict = DataExtractionHelper.get('clientProspect');
-    let clientProspectAxis = Object.values(clientProspectDict);
+    let clientProspectAxis = Object.values(clientProspectDict),
+      clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
-      if (dnResult[i] === 1){
-        let result = (index) ? parseInt(DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i])!): clientProspectAxis[i];
-        return result;
-      }
+      if (dnResult[i] === 1)
+        return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
 
   displayIndustrieSaleVolumes(enduit = false){
