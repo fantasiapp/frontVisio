@@ -88,7 +88,7 @@
                             <ul>
                                 <li>
                                     <span class="bolder">Volume visé en m² :</span>
-                                    <input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
+                                    <input id="targetP2cd" style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
                                     <span class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide</span>
                                 </li>
                                 <li><span class="bolder">Capacité à faire basculer le PDV :</span>
