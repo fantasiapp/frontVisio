@@ -3,8 +3,9 @@
     position: absolute;
     top: 62px;
     left: 81px;
-    width: 781px;   
-    height: 407px;
+    width: 781px;  
+    min-height: 407px; /* fallback value which works well for most */
+    height: fit-content;
     background: #FFFFFF 0% 0% no-repeat padding-box;
     box-shadow: 0px 3px 6px #00000029;
     border-radius: 5px;
@@ -35,10 +36,13 @@
     width: 400px;
     height: 20px;
     font-family: Roboto;
-    margin-top: 110px;
+    margin-top: 100px;
+
+    height: 100%;
+    padding-bottom: 30px;
 }
 .list-button {
-    margin-top: 110px;
+    margin-top: 100px;
     column-width: 100px;
 }
 
@@ -53,6 +57,11 @@
     height: 40px;
     border: none;
     padding: 0px;
+
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    display: block;
 }
 .list-elmt:active{
     background: #F06D0C 0% 0% no-repeat padding-box;
@@ -70,7 +79,7 @@
 .navigate{
     position: absolute;
     display: flex;
-    bottom: 40px;
+    bottom: 30px;
     left: 580px;
     width: 180px;
     height: 62px;
@@ -91,6 +100,13 @@
     font: normal normal normal 20px Roboto;
     color: #F06D0C;
 }
+
+.box {
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+
 .box-nav2{
     position: absolute;
     justify-content: center;
@@ -163,4 +179,12 @@
 .left-aligned{
     padding-left: 30px;
     text-align: left;
+}
+
+.node {
+    cursor: pointer;
+}
+
+.node:hover {
+    color: #F06D0C;
 }

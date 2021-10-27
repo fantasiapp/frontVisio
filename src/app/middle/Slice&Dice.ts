@@ -5,14 +5,17 @@ import { DataService, UpdateFields } from '../services/data.service';
 
 
 // peut-être à mettre dans un fichier de config
-const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget'],
+const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget', "suiviAD"],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
   enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
   industrieAxis = ['industrie', 'industrieTarget'],
   clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
-  visitAxis = ['segmentDnEnduitTargetVisits'];
+  visitAxis = ['segmentDnEnduitTargetVisits'],
+  adAxis = ["suiviAD"];
 
-const attributesToCountForFilters = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'agent', 'dep', 'bassin'];
+const attributesToCountForFilters = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 
+  'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']; // à relier au code de Majed plus tard
 
 class DataWidget{
   private data: any;
@@ -119,7 +122,6 @@ class DataWidget{
   
   basicTreatement(km2 = false, sortLines=true, removeNullColumns:boolean=true){
     if (km2) this.m2ToKm2();
-    this.removeTooSmallValues();
     if (removeNullColumns) this.removeZeros() ; else this.removeNullLine();
     if (sortLines) this.sortLines();
   }
@@ -158,7 +160,8 @@ class DataWidget{
     for (let i = 0; i < this.rowsTitles.length; i ++)
       coupleList.push([this.rowsTitles[i], this.data[i]]);
     let sortCoupleListFunct = ((couple:[string, number[]]) => sortFunct(couple[1]));
-    let sortedCoupleList = coupleList.sort((couple1: [string, number[]], couple2: [string, number[]]) => sortCoupleListFunct(couple2) - sortCoupleListFunct(couple1));
+    let sortedCoupleList = coupleList.sort(
+      (couple1: [string, number[]], couple2: [string, number[]]) => sortCoupleListFunct(couple2) - sortCoupleListFunct(couple1));
     this.rowsTitles = sortedCoupleList.map((couple: [string, number[]]) => couple[0]);
     this.data = sortedCoupleList.map((couple: [string, number[]]) => couple[1]);
   }
@@ -194,13 +197,13 @@ class DataWidget{
       realColumnsIndexes: number[] = [];
     for (let i = 0; i < n; i++){
       let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
-      if (lineNull) this.idToI[i] = undefined; // bizarre cette ligne
+      if (lineNull) this.idToI[DataWidget.findKeyByValue(this.idToI, i) as number] = undefined;
       if (!lineNull) realLinesIndexes.push(i);        
     }
     for (let _ in realLinesIndexes) newData.push([]);
     for (let j = 0; j < m; j++){
       let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] === 0), true);
-      if (colNull) this.idToJ[j] = undefined; // bizarre cette ligne
+      if (colNull) this.idToJ[DataWidget.findKeyByValue(this.idToJ, j) as number] = undefined;
       if (!colNull){
         realColumnsIndexes.push(j)
         for (let i = 0; i < realLinesIndexes.length; i++){
@@ -231,23 +234,17 @@ class DataWidget{
     return sumCols
   }
 
-  private removeTooSmallValues(){
-    let tooSmallLimit = 0.2;
-    for(let i = 0; i < this.rowsTitles.length; i++)
-      for(let j = 0; j < this.columnsTitles.length; j++)
-        if (this.data[i][j] < tooSmallLimit) this.data[i][j] = 0;
-  }
-
   // à enlever dans la version finale
   getData(){
     return this.data;
   }
 
-  // à enlever dès qu'on a démocké le suivi de l'AD
-  fillWithRandomValues(){
-    for(let i = 0; i < this.rowsTitles.length; i++)
-      for(let j = 0; j < this.columnsTitles.length; j++)
-        this.data[i][j] = Math.random() * 100;
+  completeWithCurveForHistoCurve(nbPdvs:number){
+    let nbPdvsCompletedInPercent = 0;
+    for (let j = 0; j < this.columnsTitles.length; j++){
+      nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
+      this.data[1][j] = nbPdvsCompletedInPercent;
+    }
   }
 
   getTargetStartingPoint(axis1:string, axis2:string){
@@ -266,7 +263,8 @@ class DataWidget{
   numberToBool(){
     let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
     let firstLine: boolean[] = [];
-    for (let j = 0; j < this.columnsTitles.length; j++) firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    for (let j = 0; j < this.columnsTitles.length; j++) 
+      firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
     firstLine.pop();
     let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
     for (let i = 0; i < this.rowsTitles.length; i++)
@@ -284,7 +282,12 @@ class DataWidget{
 }
 
 class Sale {
-  constructor(private data: any[]){};
+  public date: Date|null;
+
+  constructor(private data: any[]){
+    let dataDate = this.data[DataExtractionHelper.SALES_DATE_ID]
+    this.date = dataDate ? new Date(dataDate): null;
+  };
 
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
   get industryId() {return this.data[DataExtractionHelper.SALE_INDUSTRY_ID];}
@@ -359,9 +362,10 @@ export class PDV{
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
 
-  public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, target=false, visit=false): (number | number[]){
+  public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, 
+      target=false, visit=false, ad=false): (number | number[]){
     if (visit) return this.computeVisits(indicator);
-    if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target);
+    if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target, ad);
     let relevantSales = this.sales.filter(sale => sale.type == indicator);
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
     let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd');
@@ -381,11 +385,9 @@ export class PDV{
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
       visitsRepartition = new Array(6).fill(0),
-      totalP2cd = 0,
-      totalSiniatP2cd = 0,
-      totalEnduit = 0;
+      totalP2cd = 0, totalSiniatP2cd = 0, totalEnduit = 0;
     for (let sale of this.sales){
-      if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) totalEnduit += sale.volume;
+      if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') totalEnduit += sale.volume;
       else if (sale.type == 'p2cd'){
         totalP2cd += sale.volume;
         if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
@@ -393,7 +395,9 @@ export class PDV{
     }
     let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd,
       saleEnduit = totalEnduit > 0,
-      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : this.attribute("nbVisits") * Math.max(totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"], totalEnduit); // Ca c'est le calcul du volume d'enduit qu'il faudra peut-être aller chercher chez baptiste à l'avenir
+      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : 
+        this.attribute("nbVisits") * Math.max(totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"], totalEnduit); 
+        // Ca c'est le calcul du volume d'enduit qu'il faudra peut-être aller chercher chez baptiste à l'avenir
     if (saleP2cd && saleEnduit){
       if (this.targetFinition) visitsRepartition[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
       else visitsRepartition[associatedIndex["P2CD + Enduit"]] = toAdd;
@@ -408,9 +412,21 @@ export class PDV{
     return visitsRepartition
   }
 
-  private computeDn(enduit:boolean, clientProspect:boolean, target:boolean){
+  private computeDn(enduit:boolean, clientProspect:boolean, target:boolean, ad:boolean){
+    if (ad){
+      let axe : string[]= Object.values(DataExtractionHelper.get("suiviAD")),
+        associatedIndex :{[key: string]: number}= {},
+        dnAd = new Array(axe.length).fill(0);
+      for (let i = 0; i < axe.length; i++)
+        associatedIndex[axe[i]] = i;
+      if (this.adCompleted()) dnAd[associatedIndex["Terminées"]] = 1;
+      else if (this.hasNonSiniatSale()) dnAd[associatedIndex["Non mises à jour"]] = 1;
+      else dnAd[associatedIndex["Non renseignées"]] = 1;
+      return dnAd;
+    }
     if (enduit){
-      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')): Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')),
+      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')): 
+          Object.values(DataExtractionHelper.get('segmentDnEnduit')),
         associatedIndex :{[key: string]: number}= {};
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
@@ -418,28 +434,35 @@ export class PDV{
         salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
         siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
         dnEnduit = new Array(axe.length).fill(0),
-        totalP2cd = 0,
+        totalP2cd = 0, totalSales = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
-      for (let sale of this.sales){
-        if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) saleEnduit = true;
-        else if (sale.type == 'p2cd'){
-          totalP2cd += sale.volume;
-          if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
+      if (this.sales.length == 0 || !this.attribute("redistributedFinitions") || !this.attribute("redistributed")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+      else {
+        for (let sale of this.sales){
+          totalSales += sale.volume;
+          if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) 
+            saleEnduit = true;
+          else if (sale.type == 'p2cd'){
+            totalP2cd += sale.volume;
+            if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
+          }
         }
-      }
-      let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
-      if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
-      else if (saleEnduit){
-        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
-        else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
-      } else{
-        if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
-        else dnEnduit[associatedIndex["Pur prospect"]] = 1;
+        let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
+        if (totalSiniatP2cd == totalSales && !this.attribute("onlySiniat")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+        else if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
+        else if (saleEnduit){
+          if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
+          else dnEnduit[associatedIndex["Enduit hors P2CD"]] = 1;
+        } else{
+          if (target && this.targetFinition) dnEnduit[associatedIndex["Cible Pur Prospect"]] = 1;
+          else dnEnduit[associatedIndex["Pur prospect"]] = 1;
+        }
       }
       return dnEnduit
     } else if (clientProspect){
-      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('clientProspectTarget'))): Object.values(DataExtractionHelper.get(('clientProspect'))),
+      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('clientProspectTarget'))): 
+          Object.values(DataExtractionHelper.get(('clientProspect'))),
         associatedIndex :{[key: string]: number}= {};
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
@@ -482,7 +505,9 @@ export class PDV{
       for (let i = 0; i < diced.length; i++)
         if (i !== idIndustries[siniatId]) sumExceptSiniat += diced[i];
       // peut-être que ça mériterait d'être plus générique car ici on suppose que 'Potentiel' a été rajouté avec l'id 0
-      diced[idIndustries[0]] = this.targetP2cd; // j'ai fait comme si target p2cd était ce que l'on compte vendre en plus, si c'est ce que l'on compte vendre au total il faudra enlever ce que l'on vend déjà
+      // j'ai fait comme si target p2cd était ce que l'on compte vendre en plus, 
+      // si c'est ce que l'on compte vendre au total il faudra enlever ce que l'on vend déjà
+      diced[idIndustries[0]] = this.targetP2cd; 
       for (let i = 0; i < diced.length; i++)
         if ((i !== idIndustries[siniatId]) && (i !== idIndustries[0])) diced[i] *= 1 - this.targetP2cd / sumExceptSiniat;
     }  
@@ -490,7 +515,8 @@ export class PDV{
   }
 
   private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
-    let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
+    let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): 
+        Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
       associatedIndex[axe[i]] = i;
@@ -525,25 +551,42 @@ export class PDV{
     return this.instances.get(id);
   }
 
-  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, pdvs: PDV[], addConditions:[string, number[]][]): void{
+  static filterPdvs(pdvs:PDV[]){
+    return pdvs.filter(pdv => pdv.attribute('available') && pdv.attribute('sale'));
+  }
+
+  static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
+      pdvs: PDV[], addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(pdvs, addConditions);
-    if (axis1 == 'suiviAD' || axis2 == 'suiviAD' || axis1 == 'histo&curve') dataWidget.fillWithRandomValues(); // a enlever quand on enlèra le mock de l'AD
+    if (axis1 == 'histo&curve'){
+      PDV.fillFirstLineOfHistoCurve(dataWidget, pdvs);
+      dataWidget.completeWithCurveForHistoCurve(newPdvs.length);
+    }
     else {
       let irregular: string = 'no';
       if (nonRegularAxis.includes(axis1)) irregular = 'line';
       else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-      let byIndustries, enduit, clientProspect, target, visit;
+      let byIndustries, enduit, clientProspect, target, visit, ad;
       if (irregular == 'line' || irregular == 'col')
           byIndustries = industrieAxis.includes(axis1) || industrieAxis.includes(axis2),
           enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
           clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
           target = targetAxis.includes(axis1) || targetAxis.includes(axis2),
-          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
+          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2),
+          ad = adAxis.includes(axis1) || adAxis.includes(axis2);
       for (let pdv of newPdvs){
         if (pdv.attribute('available') && pdv.attribute('sale')){
-          if (irregular == 'no') dataWidget.addOnCase(pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
-          else if (irregular == 'line') dataWidget.addOnColumn(pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target, visit) as number[]);
-          else if (irregular == 'col') dataWidget.addOnRow(pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, clientProspect, target, visit) as number[]);
+          if (irregular == 'no') 
+            dataWidget.addOnCase(
+              pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
+          else if (irregular == 'line') 
+            dataWidget.addOnColumn(
+              pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
+                clientProspect, target, visit, ad) as number[]);
+          else if (irregular == 'col') 
+            dataWidget.addOnRow(
+              pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, 
+                clientProspect, target, visit, ad) as number[]);
         }
       }
     }
@@ -553,20 +596,25 @@ export class PDV{
         return this.values[PDV.index(name)];
   }
 
-  static getData(slice: any, axe1: string, axe2: string, indicator: string, geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
+  static getData(slice: any, axe1: string, axe2: string, indicator: string, 
+      geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
     // Ces conditions il va falloir les factoriser à l'avenir
     let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
     if (axe2 == 'lgp-1') axe2 = labelsToLevelName[this.geoTree.attributes['labels'][1]]; // lgp is for "level geographique du profil"
     if (axe2 == 'lg-1') { // lg is for "level geographique"
       let labels = this.geoTree.attributes['labels'];      
-      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
+      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: 
+        Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe2 = subLevelLabel;
     }
     if (axe1 == 'lt-1'){ // lt is for "level trade"
-      let labelsToLevelName: {[key: string]: string} = {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", PDV: 'site'}; //le PDV: 'site' c'est un fix le temps que jlw rajoute ça dans le back
+      let labelsToLevelName: {[key: string]: string} = 
+        {Enseigne: "enseigne", Ensemble: "ensemble", 'Sous-Ensemble': "sousEnsemble", PDV: 'site'}; 
+        //le PDV: 'site' c'est un fix le temps que jlw rajoute ça dans le back
       let labels = this.tradeTree.attributes['labels'];
-      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
+      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: 
+        Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe1 = subLevelLabel;
     }
@@ -587,7 +635,8 @@ export class PDV{
     if (conditions.length === 0) return pdvs;
     let newPdvs: PDV[] = [];
     for (let pdv of pdvs)
-      if (conditions.map(condition => condition[1].includes(pdv.property(condition[0]))).reduce((acc, bool) => acc && bool, true)) newPdvs.push(pdv);
+      if (conditions.map(condition => condition[1].includes(pdv.property(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
+        newPdvs.push(pdv);
     return newPdvs;
   }
 
@@ -610,14 +659,17 @@ export class PDV{
     return result;
   }
 
-  static countForFilter(pdvs:PDV[]){
-    // Peut-être qu'il faudrait relier cette liste à ce que Majed fait
-    let dictCounter: {[key:string]: {[key:string]:number}}= {};
-    for (let attribute of attributesToCountForFilters)
-      dictCounter[attribute] = {};
+  static countForFilter(pdvs:PDV[], attribute?:string){
+    // il faudrait relier cette liste à ce que Majed fait
+    let dictCounter: {[key:string]: {[key:string]:number}} = {};
+    if (!attribute)
+      for (let attribute of attributesToCountForFilters)
+        dictCounter[attribute] = {};
+    else dictCounter[attribute] = {};
     for (let pdv of pdvs)
-      for (let attribute of attributesToCountForFilters){
-        if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) dictCounter[attribute][pdv.property(attribute)] += 1;
+      for (let attribute of Object.keys(dictCounter)){
+        if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
+          dictCounter[attribute][pdv.property(attribute)] += 1;
         else dictCounter[attribute][pdv.property(attribute)] = 1;
       }
     return dictCounter
@@ -640,7 +692,8 @@ export class PDV{
   }
 
   //La fonction est appelée une fois par widget, ça pourrait peut-être être optimisé tous les widgets d'un dashboard ont le même slice
-  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean): PDV[]{
+  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, 
+      rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean): PDV[]{
     let pdvs: PDV[] = [], childrenOfSlice: any;
     if (sliceDict) {
       [pdvs, childrenOfSlice] = this.sliceTree(sliceDict, geoTree);
@@ -682,7 +735,10 @@ export class PDV{
 
   static computeCiblage(node: Node, enduit=false, dn=false): number{
     let pdvs = PDV.childrenOfNode(node), ciblage = 0;
-    if (dn){
+    if (dn && enduit){
+      for (let pdv of pdvs) if (pdv.targetFinition) ciblage += 1;
+    }
+    else if (dn){
       for (let pdv of pdvs){
         let target = pdv.targetP2cd;
         if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
@@ -707,11 +763,13 @@ export class PDV{
   getPotential(){
     let p2cdSalesRaw = this.displayIndustrieSaleVolumes();
     let siniatSale = p2cdSalesRaw['Siniat'];
-    let totalSale = Object.entries(p2cdSalesRaw).reduce((total: number, [_, value]: [string, number]) => total + value, 0)
+    let totalSale = Object.entries(p2cdSalesRaw).reduce(
+      (total: number, [_, value]: [string, number]) => total + value, 0)
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
     let pregySale = enduitSalesRaw['Pregy'];
     let salsiSale = enduitSalesRaw['Salsi'];
-    return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : (0.36*totalSale) - salsiSale - pregySale;
+    return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : 
+      (0.36*totalSale) - salsiSale - pregySale;
   }
 
   static heightOf(tree: Tree, label: string){
@@ -720,14 +778,16 @@ export class PDV{
 
   static childrenOfNode(node: Node | PDV):PDV[]{
     if ( node instanceof PDV ) return [node];
-    return node.children.map((child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
+    return node.children.map(
+      (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
   }
 
   static getLeaves(tree: Tree, node: Node | PDV, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
     if ( node instanceof PDV ) return [node];
     let structure = tree.attributes['labels'];
     dictChildren[structure[height]].push([node.id, node.name]);
-    return node.children.map((child: any) => this.getLeaves(tree, child, height+1, dictChildren)).reduce((a: PDV[], b: PDV[]) => a.concat(b), []);
+    return node.children.map(
+      (child: any) => this.getLeaves(tree, child, height+1, dictChildren)).reduce((a: PDV[], b: PDV[]) => a.concat(b), []);
   }
 
   static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}): PDV[]{
@@ -769,8 +829,10 @@ export class PDV{
         industrieAxis = DataExtractionHelper.get('industrie'),
         listIndustries = Object.values(industrieAxis);
         for (let i = 0; i < industriesSalevolume.length; i++){
-          if (listIndustries[i] == industrieAxis[pregyId]) dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
-          else if (listIndustries[i] == industrieAxis[salsiId]) dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
+          if (listIndustries[i] == industrieAxis[pregyId]) 
+            dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
+          else if (listIndustries[i] == industrieAxis[salsiId]) 
+            dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
         }
         dictResult['Autres'] = Math.max(totalP2cd * 0.36 - dictResult[industrieAxis[pregyId]] - dictResult[industrieAxis[salsiId]], 0);
       return dictResult;
@@ -784,16 +846,68 @@ export class PDV{
       listIndustries = Object.values(industrieAxis);
     dictResult['Autres'] = 0;
     for (let i = 0; i < industriesSalevolume.length; i++){
-      if (listIndustries[i] == industrieAxis[siniatId]) dictResult[industrieAxis[siniatId]] = industriesSalevolume[i];
-      else if (listIndustries[i] == industrieAxis[knaufId]) dictResult[industrieAxis[knaufId]] = industriesSalevolume[i];
-      else if (listIndustries[i] == industrieAxis[placoId]) dictResult[industrieAxis[placoId]] = industriesSalevolume[i];
+      if (listIndustries[i] == industrieAxis[siniatId]) 
+        dictResult[industrieAxis[siniatId]] = industriesSalevolume[i];
+      else if (listIndustries[i] == industrieAxis[knaufId]) 
+        dictResult[industrieAxis[knaufId]] = industriesSalevolume[i];
+      else if (listIndustries[i] == industrieAxis[placoId]) 
+        dictResult[industrieAxis[placoId]] = industriesSalevolume[i];
       else dictResult['Autres'] += industriesSalevolume[i];
     }
     return dictResult;
   }
 
+  private getFirstSaleDate(){
+    let firstSaleDateInSeconds  = Infinity;
+    for (let sale of this.sales)
+      if (sale.date !== null && sale.date.getTime() < firstSaleDateInSeconds)
+        firstSaleDateInSeconds = sale.date.getTime();
+    return firstSaleDateInSeconds;
+  }
+
+  private computeWeeksRepartitionAD(){    
+    let axe : string[]= Object.values(DataExtractionHelper.get("weeks")),
+      dnAd = new Array(axe.length).fill(0);
+    if (!this.adCompleted()) return dnAd;
+    let associatedIndex :{[key: string]: number}= {};
+    for (let i = 0; i < axe.length; i++)
+      associatedIndex[axe[i]] = i;
+    if (this.attribute("onlySiniat") || !this.attribute("redistributed")){
+      dnAd[associatedIndex["avant"]] = 1;
+      return dnAd
+    }
+    let updateDateInSeconds = this.getFirstSaleDate(),
+      currentDate = new Date(),
+      day = currentDate.getDay() == 0 ? 6: currentDate.getDay() - 1, // car dans timestamp la semaine commence le dimanche
+      BeginingOfTheWeek = currentDate.getTime() - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
+      aWeekInSeconds = 7 * 24 * 60 * 6,
+      find = false, i = 0;
+    while(!find && i < 7){
+      if (updateDateInSeconds > BeginingOfTheWeek - i * aWeekInSeconds){
+        dnAd[associatedIndex['s-'.concat(i.toString())]] = 1;
+        find = true;
+      }
+      i++;
+    }
+    if (!find) dnAd[associatedIndex["avant"]] = 1;
+    return dnAd
+  }
+
+  private static fillFirstLineOfHistoCurve(widget: DataWidget, pdvs:PDV[]){
+    for (let pdv of pdvs)
+      widget.addOnRow(1, pdv.computeWeeksRepartitionAD())// Le 1 est harcodé car c'est l'id de "Nombre de PdV complétés", il faudra changer ça
+  }
+
+  hasNonSiniatSale(){
+    let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID;
+    return this.sales.reduce((acc: boolean, sale:Sale) => acc || sale.industryId !== siniatId, false);
+  }
+
+  adCompleted(){
+    return this.attribute("onlySiniat") || !this.attribute("redistributed") || this.sales.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
+  }
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
-    let pdvs = PDV.childrenOfNode(DataExtractionHelper.followSlice(slice));
+    let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DataExtractionHelper.followSlice(slice)));
     switch(indicator){
       case 'simple': {
         let totalVisits: number= 0,
@@ -813,6 +927,11 @@ export class PDV{
         }
         return [[[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
       };
+      case 'AD': {
+        let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
+          ratio = nbCompletedPdv / pdvs.length;
+        return [[['  ', 100 * ratio]], [33, 66, 100]];
+       }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
     }
   }
@@ -821,8 +940,10 @@ export class PDV{
     let relevantNode = DataExtractionHelper.followSlice(slice);   
     let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DataExtractionHelper.get("agentFinitions")): 
       DataExtractionHelper.findFinitionAgentsOfDrv(slice['Région']);
-    if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce((acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_RATIO_ID], 0);
-    return finitionAgents.reduce((acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID], 0);
+    if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
+      (acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_RATIO_ID], 0);
+    return finitionAgents.reduce(
+      (acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID], 0);
   }
 
   getVolumeTarget() : number{
@@ -852,18 +973,17 @@ class SliceDice{
   private updateTargetName?: string;
   constructor(private dataService: DataService){console.log('[SliceDice]: on');}
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), groupsAxis2:(number|string[]), 
-      percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
+  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
+      groupsAxis2:(number|string[]), percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
     let colors: undefined;
-    if (typeof(groupsAxis1) === 'number'){
-      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis1][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
-       groupsAxis1 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
-       colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
-    }
-    if (typeof(groupsAxis2) === 'number'){ // On peut peut-être essayer de la regrouper avec le truc du haut
-      let labelsIds = DataExtractionHelper.get("axisForGraph")[groupsAxis2][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
-       groupsAxis2 = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
-       colors = labelsIds.map((labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+    if ([typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')){
+      let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
+      let labelsIds = DataExtractionHelper.get("axisForGraph")[+groupsAxis][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
+       groupsAxis = labelsIds.map(
+         (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
+       colors = labelsIds.map(
+         (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+      if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     }
     if (axis1 == "visits"){
       let jauge = PDV.computeJauge(slice, indicator='simple');
@@ -879,14 +999,15 @@ class SliceDice{
     }
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
     let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false,
-      sortLines = percent !== 'classic';
+      sortLines = percent !== 'classic' && axis1 != 'suiviAD';
     dataWidget.basicTreatement(km2, sortLines);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1, axis2);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined, rodPositionForCiblage = undefined,
-      targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
+      targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = 
+        {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let dn = indicator == 'dn';
@@ -899,14 +1020,19 @@ class SliceDice{
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
-        let targetValues = DataExtractionHelper.getListTarget(finition ? "agentFinitions": (node.children[0] as Node).label, elemIds, dn, finition);
-        for (let i = 0; i < targetValues.length; i++) rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+        let targetValues = 
+          DataExtractionHelper.getListTarget(finition ? "agentFinitions": (node.children[0] as Node).label, elemIds, dn, finition);
+        for (let i = 0; i < targetValues.length; i++) 
+          rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
         if (node.label == 'France' && !finition){ // This is to calculate the position of the ciblage rods
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
-          let ciblageValues = agentNodesMatrix.map((agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, dn)).reduce((acc:number, value:number) => acc + value, 0));
+          let ciblageValues = agentNodesMatrix.map(
+            (agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, dn))
+              .reduce((acc:number, value:number) => acc + value, 0));
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
-          for (let i = 0; i < targetValues.length; i++) rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+          for (let i = 0; i < targetValues.length; i++) 
+            rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
         }
       }
       targetLevel['volumeIdentifier'] = dn ? "dn": "vol";
@@ -917,13 +1043,8 @@ class SliceDice{
       targetLevel['structure'] = "structureTargetlevel";
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), 
-      sum: sum, 
-      target: rodPosition, 
-      colors: colors, 
-      targetLevel: targetLevel, 
-      ciblage: rodPositionForCiblage
-    }    
+    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, 
+      colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage}    
   }
 
   rubiksCubeCheck(slice:any, indicator: string, percent:string){
@@ -940,18 +1061,8 @@ class SliceDice{
     return industriesReverseDict;
   }
 
-  // pathId(path: any) {
-  //   let structure = (this.geoTree ? PDV.geoTree : PDV.tradeTree).attributes['labels'],
-  //     maxHeight = structure.length,
-  //     acc = 0;
-  
-  //   for ( let i = 0; i < maxHeight; i++ )
-  //     acc += (path[structure[i]] || 0) * Math.pow(10, 3*i);
-    
-  //   return acc + (this.geoTree ? 0 : 1);
-  // }
-
-  updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, volumeid: number, targetLevelStructure: string) {
+  updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, 
+      volumeid: number, targetLevelStructure: string) {
     let newTargetLevel: number[] = DataExtractionHelper.get(targetLevelName)[targetLevelId]
     newTargetLevel[+DataExtractionHelper.get(targetLevelStructure).indexOf(volumeid)] = +newValue;
     this.dataService.updateTargetLevel(newTargetLevel, targetLevelName as UpdateFields, +targetLevelId);
@@ -960,6 +1071,7 @@ class SliceDice{
 
 function loadAll(){
   PDV.load(true);
+  (window as any).PDV = PDV;
 }
 
 function getGeoTree() {

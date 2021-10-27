@@ -39,8 +39,12 @@
     text-overflow: ellipsis;
 }
 
-.suggestion.selected, .suggestion:hover {
+.suggestion.selected {
     background: #ccc;
+}
+
+.suggestion:hover {
+    background-color: #ddd;
 }
 
 .typed {

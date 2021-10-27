@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, HostListener, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
@@ -25,12 +25,15 @@ export class SearchbarComponent implements OnDestroy {
   @HostBinding('class.opened')
   opened: boolean = false;
 
+  @Output()
+  PDVfound: EventEmitter<PDV> = new EventEmitter;
+
   term: Subject<string> = new Subject();
   lastTerm: string = '';
   results: Subject<Suggestion[]> = new Subject;
   lastResults: Suggestion[] = [];
 
-  private _pattern: string = 'Tous';
+  private _pattern: string = '';
   get pattern() { return this._pattern; }
   set pattern(value: string) {
     let switched =
@@ -42,7 +45,7 @@ export class SearchbarComponent implements OnDestroy {
     this.selectionIndex = 0;
   }
 
-  private debounceDuration = 50;
+  private debounceDuration = 60;
   private subscription: Subscription = new Subscription;
 
   constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService) {
@@ -56,7 +59,7 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   get placeholder(): string {
-    if ( !this.pattern ) return 'Rechercher ...';
+    if ( !this.pattern ) return 'Sélectionnez une catégorie';
     return 'Rechercher dans ' + this.pattern;
   }
 
@@ -74,7 +77,10 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   onFocus(e: Event) {
-    this.results.next(this.lastResults = this.engine.search(this.lastTerm));
+    if ( this.pattern )
+      this.results.next(this.lastResults = this.engine.search(this.lastTerm));
+    else
+      this.showAllSuggestions();
   }
 
   @HostListener('focusout', ['$event'])
@@ -118,7 +124,7 @@ export class SearchbarComponent implements OnDestroy {
 
   onSelectionConfirmed(suggestion?: Suggestion) {
     if ( !suggestion ) {
-      this.filtersState.reset(this.filtersState.tree!, false);
+      this.filtersState.reset(this.filtersState.navigation.tree!, false);
       //this.pattern = '';
       return;
     };
@@ -126,7 +132,7 @@ export class SearchbarComponent implements OnDestroy {
     if ( !this.pattern ) {
       let type = suggestion[2];
       if ( type == SearchService.IS_REDIRECTION ) {
-        this.filtersState.reset(this.filtersState.tree!, false);
+        this.filtersState.reset(this.filtersState.navigation.tree!, false);
         this.pattern = '';
       } else {
         this.pattern = suggestion[0] + suggestion[1];
@@ -135,15 +141,17 @@ export class SearchbarComponent implements OnDestroy {
       let data = suggestion[2];
       if ( data.node ) {
         this.navigation.setNode(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
-        this.filtersState.refresh();
+        this.filtersState.reload();
       } else if ( data.dashboard ) {
         this.navigation.setDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
-        this.filtersState.refresh();
+        this.filtersState.reload();
+      } else if ( data.pdv ) {
+        this.PDVfound.emit(data.pdv);
       }
       else { return console.error("Not yet"); }
     }
 
-    this.input!.nativeElement.value = '';
+    this.lastTerm = this.input!.nativeElement.value = '';
     this.results.next(this.lastResults = []);
   }
 
@@ -153,11 +161,11 @@ export class SearchbarComponent implements OnDestroy {
 
   close() {
     this.opened = !this.opened;
-    if ( this.input ) this.input.nativeElement.value = '';
+    if ( this.input ) this.lastTerm = this.input.nativeElement.value = '';
     this.results.next(this.lastResults = []);
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
   }
 }

@@ -46,18 +46,18 @@ export class Navigation {
 
   followTree(t: Tree) {
     let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null,
-      dashboardIndex: number,
+      dashboard: Dashboard | undefined,
       sameType = this.tree?.type === t.type;
     
     if ( path )
-      dashboardIndex = this.currentLevel!.dashboards.findIndex(dashboard => dashboard.id == this.currentDashboard?.id);
-    
+      dashboard = this.currentLevel!.dashboards.find(dashboard => dashboard.id === this.currentDashboard?.id);
+      
     this.setTree(t);
     if ( sameType && path  ) {
       for ( let id of path )
         this.currentLevel = this.currentLevel!.goChild(id);
       
-      this.currentDashboard = this.currentLevel!.dashboards[dashboardIndex!] || this.currentLevel?.dashboards[0];
+      this.currentDashboard = dashboard || this.currentLevel?.dashboards[0];
     }
   }
 
@@ -186,5 +186,14 @@ export class Navigation {
 
   setCurrentYear(current: boolean) {
     DataExtractionHelper.currentYear = current;
+  }
+
+  navigateUp(n: number) {
+    let level: Node | null = this.currentLevel!;
+    while ( level && n-- )
+      level = level.parent;
+    
+    if ( !level ) level = this.tree!.root;
+    this.currentLevel = level;
   }
 }

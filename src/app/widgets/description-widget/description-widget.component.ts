@@ -61,6 +61,6 @@ export class DescriptionWidgetComponent implements OnDestroy {
 
   ngOnDestroy() {
     for ( let subscription of this.subscriptions )
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
   }
 }

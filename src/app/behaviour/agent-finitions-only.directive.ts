@@ -3,11 +3,12 @@ import { PDV } from '../middle/Slice&Dice';
 import { DisableDirective } from './disable-directive.directive';
 
 @Directive({
-  selector: '[agentOnly]',
+  selector: '[agentFinitionsOnly]'
 })
-export class AgentOnlyDirective extends DisableDirective {
+export class AgentFinitionsOnlyDirective extends DisableDirective {
   computeDisabled(): boolean {
-    return PDV.geoTree.root.label !== 'Secteur';
+    return PDV.geoTree.root.label !== 'Agent Finitions';
+
   }
 
 }

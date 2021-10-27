@@ -16,14 +16,13 @@ import {
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
 import { LocalStorageService } from '../services/local-storage.service';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, of, Subscription } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css'],
-  providers: [FiltersStatesService],
   animations: [
     trigger('fadeOut', [
       state(
@@ -43,12 +42,14 @@ import { delay } from 'rxjs/operators';
   ],
 })
 export class LoginPageComponent implements OnInit {
+  private subscription?: Subscription;
   private destroy$: Subject<void> = new Subject<void>();
   private logInObserver = {
-    next: (success: any) => { //a pu se connecter, l'utilisateur précédent était peut être différent
+    next: (success: any) => { //a pu se connecter avec Internet, l'utilisateur précédent était peut être différent
       if (success) {
         let lastToken = this.localStorageService.getLastToken();
         let newToken = this.authService.getAuthorizationToken();
+        this.localStorageService.setAlreadyConnected(true)
         if(lastToken) { //quick manip to fool the auth interceptor
           this.authService.token = lastToken;
           this.dataservice.BEFOREsendQueuedDataToUpdate();
@@ -70,8 +71,9 @@ export class LoginPageComponent implements OnInit {
         setTimeout(() => {elmt3?.classList.add('rotated')
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
         setTimeout(() => elmt5?.classList.add('scale'), 900);
-        combineLatest([
-          this.filtersStates.$load,
+        this.dataservice.$serverLoading.subscribe((val: boolean) => this.serverIsLoading = val)
+        this.subscription = combineLatest([
+          this.dataservice.load,
           of(null).pipe(delay(6000))
         ]).subscribe(() => {
           this.router.navigate([
@@ -85,33 +87,44 @@ export class LoginPageComponent implements OnInit {
     private authService: AuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,
-    private filtersStates : FiltersStatesService,
     private router: Router
   ) {}
   userValid = false;
   retry = true;
   alreadyConnected: boolean = false;
   stayConnected: boolean = false;
+  serverIsLoading: boolean = false;
 
   ngOnInit(): void {
-    if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
-      LocalStorageService.getFromCache = true;
-      this.userValid = true;
-      this.authService.handleTokenSave();
-      this.dataservice.requestData();
-      this.router.navigate([
-        sessionStorage.getItem('originalPath') || 'logged',
-      ]);
-      this.authService.isLoggedIn.next(true);
+    if(this.isAlreadyConnected()) return;
+    else {
+      if(this.authService.isStayConnected()) { //se connecte même sans internet, n'ira pas chercher les données au serveur,  l'utilisateur précédent est forcément le même
+        LocalStorageService.getFromCache = true;
+        this.userValid = true;
+        this.authService.handleTokenSave();
+        this.dataservice.requestData();
+        this.router.navigate([
+          sessionStorage.getItem('originalPath') || 'logged',
+        ]);
+        this.authService.isLoggedIn.next(true);
+      }
     }
+    this.serverIsLoading = false;
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.subscription?.unsubscribe();
+  }
+
+  isAlreadyConnected(): boolean {
+    this.alreadyConnected = this.localStorageService.getAlreadyConnected();
+    return this.alreadyConnected;
   }
 
   onLoading(username: string, password: string, stayConnected: boolean) {
+    if(this.isAlreadyConnected()) return;
     console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
     this.authService
@@ -119,4 +132,9 @@ export class LoginPageComponent implements OnInit {
       .subscribe(this.logInObserver);
   }
 
+  enableForceLogin() {
+    this.alreadyConnected = false;
+    this.localStorageService.handleDisconnect(true)
+  }
+  
 }

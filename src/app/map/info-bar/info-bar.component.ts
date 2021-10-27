@@ -4,22 +4,44 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
-import { ValueFormatted, formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
+import { disabledParams } from 'src/app/behaviour/disabled-conditions'
+import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
-
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+} from '@angular/animations';
 
 @Component({
   selector: 'info-bar',
   templateUrl: './info-bar.component.html',
   styleUrls: ['./info-bar.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('fadeOut', [
+      state('visible', style({
+        opacity: 1
+      })),
+      state('invisible', style({
+        opacity: 0
+      })),
+      transition('visible => invisible', [
+        animate('1s')
+      ]),
+      transition('* => visible', [
+        animate('0s')
+      ])
+    ])]
 })
 export class InfoBarComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
   quiting: boolean = false;
-  errorAdInput: boolean = false;
+  errorInput: boolean = false;
 
   @ViewChildren('comments')
   private comments?: QueryList<ElementRef>;
@@ -37,14 +59,12 @@ export class InfoBarComponent {
       this.displayedInfos = this.extractDisplayedInfos(value);
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
-      this.redistributedFinitionsDisabled = !value.attribute('redistributedFinitions');
       this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinitions');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
-      this.isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
       this.isOnlySiniat = value.attribute('onlySiniat')
       this.loadGrid()
     }
@@ -69,7 +89,6 @@ export class InfoBarComponent {
   gridFormatted: string[][] = [];
   targetP2cdFormatted: string = "";
   salesColors: string[][] = [];
-  isAdOpen: boolean = false;
   isOnlySiniat: boolean = false;
 
   SALES_INDUSTRY_ID;
@@ -85,16 +104,27 @@ export class InfoBarComponent {
 
   redistributedDisabled: boolean = false;
   redistributedChecked: boolean = false;
-  redistributedFinitionsDisabled: boolean = false;
   redistributedFinitionsChecked: boolean = false;
   doesntSellDisabled: boolean = false;
   doesntSellChecked: boolean = false;
   showNavigation: boolean = false;
 
-
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
+  mouseX: number = 0;
+  mouseY : number = 0;
+
+  disabledMsg: string = ''
+  conditionsParams = disabledParams;
+  noEmptySales(pdv: PDV, sales: any[]) {
+    for(let sale of sales!) {
+      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) {
+        return true;
+      }
+      }
+      return false;
+  }
 
   myFormatNumberToString = formatNumberToString;
 
@@ -135,17 +165,16 @@ export class InfoBarComponent {
     this.TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
     this.TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
     this.TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
+    this.TARGET_REDISTRIBUTED_FINITIONS_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_FINITIONS_ID;
 
     
-    filtersState.$load.subscribe(() => {
-      this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
-      this.products = PDV.getProducts() as string[];
-      this.products.splice(3, this.products.length, 'P2CD')
-      for(let i = 0; i<this.industries.length; i++)
-        this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
-      for(let i = 0; i<this.products.length-1; i++)
-        this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
-    });
+    this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
+    this.products = PDV.getProducts() as string[];
+    this.products.splice(3, this.products.length, 'P2CD')
+    for(let i = 0; i<this.industries.length; i++)
+      this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industrie'), this.industries[i])!] = i+1; //first row already used
+    for(let i = 0; i<this.products.length-1; i++)
+      this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('produit'), this.products[i])!] = i;
   }
 
   //make variable
@@ -229,23 +258,19 @@ export class InfoBarComponent {
   }
 
   changeRedistributed() {
-    if(!this.redistributedDisabled){
+    console.log("oui oui")
       this.redistributedChecked = !this.redistributedChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.hasChanged = true;
-    }
   }
   changeRedistributedFinitions() {
-    console.log("d")
-    if(!this.redistributedFinitionsDisabled){
-      this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
-      this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
-      if(!this.target) this.target = SliceTable.initializeTarget()
-      this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
-      this.hasChanged = true;
-    }
+    this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
+    this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
+    if(!this.target) this.target = SliceTable.initializeTarget()
+    this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
+    this.hasChanged = true;
   }
 
 
@@ -254,9 +279,12 @@ export class InfoBarComponent {
     this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID]);
+      this.errorInput = true;
+      setTimeout(() => this.errorInput = false, 1000);
       return;
     }
     this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
+    if(this.target[this.TARGET_VOLUME_ID] === 0) this.target[this.TARGET_LIGHT_ID] = ""
     this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID])
     this.hasChanged = true;
   }
@@ -278,7 +306,7 @@ export class InfoBarComponent {
     }
   } 
 
-  changeLight(newLightValue: string) {
+  changeTargetLight(newLightValue: string) {
     if(!this.target) this.target = SliceTable.initializeTarget()
     this.target[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
@@ -288,10 +316,11 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = formatStringToNumber(this.gridFormatted[i][j]).toString();
     if(Number.isNaN(+this.gridFormatted[i][j])) {
       this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
-      this.errorAdInput = true;
+      this.errorInput = true;
+      setTimeout(() => this.errorInput = false, 1000)
       return;
     }
-    this.errorAdInput = false;
+    this.errorInput = false;
     this.salesColors[i][j] = 'black'
     this.grid[i][j] = +this.gridFormatted[i][j];
     this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
@@ -319,17 +348,15 @@ export class InfoBarComponent {
   }
 
   changeTargetSale(){
-    if(!this.doesntSellDisabled){
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.doesntSellChecked = !this.doesntSellChecked;
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
       this.target[this.TARGET_LIGHT_ID] = 'r'
       this.hasChanged = true;
-    }
   }
   changeOnlySiniat() {
-    if(PDV.geoTree.root.label == 'Secteur' && this.noSales()) {
+    if(this.noSales()) {
       this.isOnlySiniat = !this.isOnlySiniat;
       this.hasChanged = true;
     }
@@ -341,6 +368,12 @@ export class InfoBarComponent {
         return false;
     }
     return true;
+  }
+
+  getMouseCoordinnates() {
+    let e = window.event as any;
+    this.mouseX = e.pageX;
+    this.mouseY = e.pageY;
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application

@@ -305,3 +305,28 @@ g.simple-needle line {
         --legend-font-size: 12px;
     }
 }
+
+/* scrollbars code, if it works */
+:root {
+    --scrollbarBG: #CFD8DC;
+    --thumbBG: #90A4AE;
+}
+
+*::-webkit-scrollbar {
+    width: 11px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--thumbBG) ;
+    border-radius: 6px;
+    border: 3px solid var(--scrollbarBG);
+}

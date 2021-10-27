@@ -120,7 +120,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   update() {
     this.updateGraph(this.updateData());
   }
-
+  
   refresh() { //for transitions without animation
     this.update();
   }
@@ -169,13 +169,17 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
       return 16;
   }
 
+  static firstDigit(q: number) {
+    return -Math.floor(Math.log10(q));
+  }
+
   static format(q: number, n: number = 3): string {
     let p = Math.round(q);
     let base = Math.pow(10, n);
     let str = '';
     
     if ( Math.floor(q) == 0 )
-      return q.toFixed(1).toString();
+      return q.toFixed(Math.min(3, this.firstDigit(q))).toString();
 
     while (p >= base) {
       str = (p % base).toString().padStart(n, '0') + ' ' + str;

@@ -58,7 +58,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
   }
 
   getShortName() {
@@ -68,11 +68,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   }
 
   getProfileType() {
-    return new Observable((observer: Observer<string>) => {
-      this.filtersService.$load.subscribe(_ => {
-        observer.next(PDV.geoTree.root.label);
-      });
-    });
+    return PDV.geoTree.root.label;
   }
 
   getADStatus() {

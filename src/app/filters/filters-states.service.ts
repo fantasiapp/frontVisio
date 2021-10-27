@@ -13,30 +13,26 @@ import { debounceTime } from 'rxjs/operators';
 export class FiltersStatesService implements OnDestroy {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
-  tree?: Tree;
   subscription?: Subscription;
 
-  constructor(private navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
+  constructor(public navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
     console.log('[FiltersStates]: On.')
     this.subscription = this.dataservice.response.subscribe((data) => {
       if (data) {
         DataExtractionHelper.setData(data);
         loadAll();
         this.reset(getGeoTree(), true);
-        this.$load.next(0 as never);
-        this.$load.complete();
-        this.dataservice.beginUpdateThread();
       }
     });
 
     this.pathChanged.pipe(debounceTime(5000)).subscribe(() => {
       this.logger.log();
     });
+
+    (window as any).refresh = () => { this.dataservice.update.next(); }
   }
 
-  $load: AsyncSubject<never> = new AsyncSubject();
   pathChanged: Subject<never> = new Subject;
-
   stateSubject = new BehaviorSubject({
     States: {
       level:{
@@ -123,8 +119,7 @@ export class FiltersStatesService implements OnDestroy {
   }
 
   public reset(t: Tree, follow: boolean = true) {
-    this.tree = t;
-    this.sliceDice.geoTree = this.tree!.type == NavigationExtractionHelper;
+    this.sliceDice.geoTree = t.type == NavigationExtractionHelper;
     if ( follow )
       this.navigation.followTree(t);
     else
@@ -146,9 +141,7 @@ export class FiltersStatesService implements OnDestroy {
     this.arraySubject.next(currentArrays);
   }
 
-  //this makes GridManager.refresh a bit silly
-  //as it refreshes almost everything and is easily accessible
-  refresh() {
+  reload() {
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
@@ -162,8 +155,7 @@ export class FiltersStatesService implements OnDestroy {
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
     this.logger.actionComplete();
 
-    this.tree = this.navigation.tree;
-    this.sliceDice.geoTree = this.tree!.type == NavigationExtractionHelper;
+    this.sliceDice.geoTree = this.navigation.tree!.type == NavigationExtractionHelper;
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
   }
@@ -178,13 +170,28 @@ export class FiltersStatesService implements OnDestroy {
     this.logger.actionComplete();
     if ( change ) {
       loadAll();
-      this.reset(this.tree!.type == NavigationExtractionHelper ? PDV.geoTree : PDV.tradeTree, true);
+      this.reset(this.navigation.tree!.type == NavigationExtractionHelper ? PDV.geoTree : PDV.tradeTree, true);
       this.dataservice.update.next();
     }
   }
 
+  navigateUp(index: number) {
+    if ( !index ) return;
+
+    this.navigation.navigateUp(index);
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    const States = this.navigation.getCurrent();
+    const currentState = {
+      States
+    };
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+  }
+
   ngOnDestroy() {
     this.subscription?.unsubscribe();
-    console.log('filtersState destroyed');
   }
 }

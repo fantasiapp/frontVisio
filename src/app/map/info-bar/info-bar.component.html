@@ -32,24 +32,26 @@
                                 <li><p>{{ displayedInfos.enseigne }}</p></li>
                                 <li><p>{{ displayedInfos.dep }}</p></li>
                                 <li><p>{{ displayedInfos.ville }}</p></li>
-                                <li><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></li>
+                                <li><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()" agentOnly></li>
                             </ul>
                         </div>
                         <div class="props">
                             <ul>
                                 <li>
-                                    <label class="container-checkbox">
+                                    <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                                         Ne vend pas de plaque
-                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [attr.disabled]="doesntSellDisabled" agentOnly>
+                                        <input type="checkbox" [attr.checked]="doesntSellChecked" (change)="changeTargetSale()" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noSale'](pdv!, sales!).val"  agentOnly>
                                         <span class="checkmark" ></span>
                                     </label>
+                                    <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noSale'](pdv!, sales!).message }}</div>
                                 </li>
                                 <li>
-                                    <label class="container-checkbox">
+                                    <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                                         Point de vente redistribue
-                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [attr.disabled]="redistributedDisabled" agentOnly>
+                                        <input type="checkbox" [attr.checked]="redistributedChecked" (change)="changeRedistributed()" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributed'](pdv!, sales!).val" agentOnly>
                                         <span class="checkmark"></span>
                                     </label>
+                                    <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributed'](pdv!, sales!).message }} </div>
                                 </li>
                             </ul>
                         </div>
@@ -84,18 +86,22 @@
 
                         <div class="eval">
                             <ul>
-                                <li><span class="bolder">Volume visé en m² :</span><input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly/></li>
+                                <li>
+                                    <span class="bolder">Volume visé en m² :</span>
+                                    <input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
+                                    <span class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide</span>
+                                </li>
                                 <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                                    <button (click)="changeLight('r')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
-                                    <button (click)="changeLight('o')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
-                                    <button (click)="changeLight('g')" agentOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('r')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('o')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('g')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
                                 </li>
                             </ul>
                         </div>
                     </div>
                     <div class="comments">
                         <span>Commentaires :</span>
-                        <textarea (change)="changeComment()" #comments agentOnly>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
+                        <textarea (change)="changeComment()" #comments agentOnly currentYearOnly>{{ target ? target[TARGET_COMMENT_ID] : '' }}</textarea>
                     </div>
                 </div>
             </ng-container>
@@ -104,11 +110,16 @@
                 <div class="main">
                     <h2><span class="title">{{pages[currentIndex]}}: </span>{{pdv!.attribute('name')}}</h2>
                     <!-- <p>information sur la point de vente</p> -->
-                    <div *ngIf="errorAdInput" class="invalidValue">Veuillez entrer une valeur valide (nombre décimal xxx.xx)</div>
+                    <div class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide (nombre décimal xxx.xx)</div>
                     <div class="content">
                         <div class="grid">
                             <div class="first row">
-                                <div class="first siniatOnly empty cell" [attr.checked]="isOnlySiniat" (click)="changeOnlySiniat()">100% Siniat</div>
+                                <div class="first empty only-siniat cell">
+                                    <label class="text-checkbox">
+                                        <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat" agentOnly currentYearOnly adOpenOnly>
+                                        <span>100% Siniat</span>
+                                    </label>
+                                </div>
                                 <div class="cell" *ngFor="let product of products">
                                     {{product | titlecase}}
                                 </div>
@@ -122,7 +133,7 @@
                             <div class="row" *ngFor="let industry of industries; let j = index">
                                 <div class="first cell">{{industry | titlecase}}</div>
                                 <div class="cell" *ngFor="let product of products; let i = index">
-                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]" accessControl agentOnly/>
+                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]" accessControl agentOnly adOpenOnly currentYearOnly/>
                                 </div>
                             </div>
                         </div>
@@ -157,11 +168,12 @@
                         </ul>
                     </div>
                 </div>
-                <label class="container-checkbox">
+                <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.disabled]="redistributedFinitionsDisabled" [attr.checked]="redistributedFinitionsChecked" agentOnly>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributedFinitions'](pdv!, sales!).val" agentFinitionsOnly>
                     <span class="checkmark" ></span>
                 </label>
+                <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributedFinitions'](pdv!, sales!).message }}</div>
                 <div class="values-div">
                     <div>
                         <h2 class="title">P2CD</h2>
@@ -200,4 +212,8 @@
             <button class="positive button" (click)="quit(true)">Oui</button>
         </div>
     </div>
+</div>
+
+<div id="disabledDiv" *ngIf="disabledMsg">
+    Action impossible : {{ disabledMsg }}
 </div>
