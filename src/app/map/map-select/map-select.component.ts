@@ -39,7 +39,13 @@ export class MapSelectComponent implements OnChanges {
       this.selection = [];
       d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
       this.emitSelection();
-    }    
+    }
+  }
+
+  reset() {
+    d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
+    d3.select(this.ref.nativeElement).select('input').property('checked', this.all = true);
+    this.selection.length = 0;
   }
 
   private emitSelection() {

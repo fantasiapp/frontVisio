@@ -3,7 +3,7 @@
 </button>
 <div class="main">
     <h2 class="title">Géolocalisation</h2>
-    <p class="total">Total: {{allPdvs.length}}</p>
+    <p class="total">Total: {{getLastPDVs().length}}</p>
 
     <div class="criterion" *ngFor="let criteria of criteriaNames; let idx = index; trackBy: trackById">
         <map-select [criterion]="criteria" [prettyCriterion]="criteriaPrettyNames[idx]" [criteria]="loadCriterion(idx)" (criteriaChange)="someCriteriaChange(idx, $event)">
