@@ -6,6 +6,7 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
+import { MapLegendComponent } from './map-legend/map-legend.component';
 
 type MarkerType = {
   pdv: PDV;
@@ -32,6 +33,9 @@ export class MapComponent implements OnDestroy {
   @ViewChild(MapFiltersComponent)
   filters?: MapFiltersComponent;
 
+  @ViewChild(MapLegendComponent)
+  legend?: MapLegendComponent;
+
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
 
@@ -55,6 +59,7 @@ export class MapComponent implements OnDestroy {
     if ( this.shouldUpdateIcons ) {
       console.log('[MapComponent]: Updating Icons.');
       MapIconBuilder.initialize();
+      this.legend?.update();
       this.shouldUpdateIcons = false;
     }
 
@@ -78,6 +83,7 @@ export class MapComponent implements OnDestroy {
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     console.log('[MapComponent]: On');
     MapIconBuilder.initialize();
+    this.legend?.update();
     this.initializeInfowindow();
     if ( this.shown )
       this.interactiveMode();    
@@ -101,6 +107,7 @@ export class MapComponent implements OnDestroy {
 
       if ( !this.hidden ) {
         MapIconBuilder.initialize();
+        this.legend?.update();
         this.update();
         this.shouldUpdateIcons = false;
       }
@@ -367,6 +374,7 @@ export class MapIconBuilder {
   icons: any;
 
   constructor(defaultValues: any) {
+    MapIconBuilder.instance = this;
     this.defaultValues = defaultValues;
     this.axes = [];
     this.axesNames = [];
@@ -447,7 +455,7 @@ export class MapIconBuilder {
   }
 
   static square(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
-    return `<rect x='8' y='3' width='14' height='14' stroke='${stroke}' stroke-width='1' fill='${fill}'></rect>`
+    return `<rect x='7.5' y='2.5' width='15' height='15' stroke='${stroke}' stroke-width='1' fill='${fill}'></rect>`
   }
 
   static diamond(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
@@ -456,18 +464,6 @@ export class MapIconBuilder {
 
   static fire(builder: MapIconBuilder, {strokeFeet = builder.getPropertyOf(null, 'stroke')}: any) {
     return `<circle cx='15' cy='26' r='4' stroke='${strokeFeet}' stroke-width='1' fill='#FF0000'></circle>`;
-  }
-
-  private static updated: Function[] = [];
-
-  static onUpdate(f: Function) {
-    this.updated.push(f);
-  }
-
-  static offUpdate(f: Function) {
-    let idx = this.updated.findIndex(g => f == g);
-    if ( idx > 0 )
-      this.updated.splice(idx, 1);
   }
 
   static initialize() {
@@ -483,12 +479,12 @@ export class MapIconBuilder {
       [+DataExtractionHelper.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
       [+DataExtractionHelper.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
       [+DataExtractionHelper.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
-    ]).axis('clientProspect', [
+    ]).axis('Non Documenté', [
       [0, {}],
       [1, {fill: '#FF0000'}]
     ]).axis('pointFeu', [
-      [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}], //<- draw fire later, now it's a circle
-      [0, {}]
+      [0, {}],
+      [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}] //<- draw fire later, now it's a circle
     ]).axis('segmentMarketing', [
       [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
       [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
@@ -497,12 +493,12 @@ export class MapIconBuilder {
     ]).generate();
 
     this._instance = builder;
-    for ( let callback of this.updated )
-      callback.call(this._instance);
+    console.log('initialization ended');
   }
 
   static year = true;
 
   private static _instance: MapIconBuilder | null = null;
-  static get instance() { return this._instance!; }
+  public static get instance() { return this._instance!; }
+  private static set instance(value: MapIconBuilder) { this._instance = value; } 
 };
