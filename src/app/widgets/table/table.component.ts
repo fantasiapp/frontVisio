@@ -1,10 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild, HostBinding } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, HostBinding, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
-import { Observable} from 'rxjs';
+import { AsyncSubject, Observable, Subject} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
@@ -14,7 +14,6 @@ import { LoggerService } from 'src/app/behaviour/logger.service';
   selector: 'app-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'],
-  providers: [SliceDice],
 })
 export class TableComponent extends BasicWidget {
 
@@ -56,9 +55,12 @@ export class TableComponent extends BasicWidget {
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
-      })
+      this.gridLoaded.next(null as never);
+      this.gridLoaded.complete();
+    });
   }
   gridObservable = new Observable();
+  gridLoaded = new AsyncSubject<never>();
 
   // Render
   rowClassRules = {
@@ -77,7 +79,7 @@ export class TableComponent extends BasicWidget {
     addArrowCellRenderer: AddArrowCellRenderer,
   };
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable, private logger: LoggerService) {
+  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable, private cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
     this.defaultColDef = {
       flex: 1,
@@ -92,7 +94,7 @@ export class TableComponent extends BasicWidget {
   protected start(): void {
     this.gridObservable = new Observable((observer) => {
       observer.next()
-    })
+    });
   }
 
   refresh() {
@@ -287,9 +289,10 @@ export class TableComponent extends BasicWidget {
     if(typeof(pdv) === 'number') pdv = this.getPdvOnId(pdv);
     InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(pdv)!.getValues())); //Values deepcopy
     InfoBarComponent.pdvId = pdv.instanceId;
-    this.selectedPdv = pdv;
+    this.selectedPdv = pdv.instanceId;
     if(this.type === 'enduit') this.loadCustomData();
-    this.pdv = this.sliceTable.getPdvInstance(pdv) // => displays infoBar
+    this.pdv = PDV.getInstances().get(pdv.instanceId) // => displays infoBar
+    this.cd.markForCheck();
   }
   // sideDivRight: string = "calc(-60% - 5px)";
   // showInfo: boolean = false;
@@ -371,6 +374,10 @@ export class TableComponent extends BasicWidget {
     // this.showInfo = false;
   }
 
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+  }
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)
