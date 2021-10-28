@@ -369,7 +369,8 @@ class DataExtractionHelper{
       case 'industriel': return industriel;
       case 'segmentDnEnduitTargetVisits': return segmentDnEnduitTargetVisits;
       case 'segmentMarketingFilter': return segmentMarketingFilter;
-      case 'visitedFilter': return visitedFilter;
+      case 'visited': return visitedFilter;
+      case 'typology': return segmentDnEnduit;
       case 'clientProspectTarget':
         return Object.assign({}, clientProspect, clientProspectTarget);
       case 'segmentDnEnduitTarget': 
