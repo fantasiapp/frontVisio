@@ -25,7 +25,7 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     super();
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
     this.subscription = combineLatest([filtersService.stateSubject, this.ready!]).subscribe(([{States}, _]) => {
-      this.subscription!.unsubscribe();
+      this.subscription?.unsubscribe();
       this.subscription = undefined;
       this.path = this.filtersService.getPath(States);
       this.onPathChanged();

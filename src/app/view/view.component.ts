@@ -23,10 +23,11 @@ export class ViewComponent implements OnDestroy {
 
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
-  subscription: Subscription;
+  stateSubscription: Subscription;
+  updateSubscription: Subscription;
   
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
-    this.subscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
+    this.stateSubscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
       if ( this.layout?.id !== dashboard.id ) {
         console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.');
         this.gridManager?.clear();
@@ -34,7 +35,7 @@ export class ViewComponent implements OnDestroy {
       }
     });
 
-    dataservice.update.subscribe((_) => {
+    this.updateSubscription = dataservice.update.subscribe((_) => {
       this.refresh(); //seamless transition
     });
   }
@@ -72,7 +73,8 @@ export class ViewComponent implements OnDestroy {
 
   @HostListener('window:beforeunload')
   disconnect() {
-    this.subscription.unsubscribe();
+    this.stateSubscription.unsubscribe();
+    this.updateSubscription.unsubscribe();
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();
     this.localStorageService.handleDisconnect();
@@ -88,5 +90,6 @@ export class ViewComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.disconnect();
   }
 }
