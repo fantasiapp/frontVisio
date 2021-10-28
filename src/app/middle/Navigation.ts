@@ -132,7 +132,9 @@ export class Navigation {
         areas: currentDashboard.areas
       },
       path: currentLevel.path.map(
-        (level) => level.label +': '+ level.name 
+        (level) => {
+          return level.label + (level.name ? ' : ' + level.name : '')
+        }
       ),
       _path: currentLevel.path.map(
         (level) => [level.label, level.id] 
