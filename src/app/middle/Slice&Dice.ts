@@ -642,12 +642,17 @@ export class PDV{
 
   //Juste pour le reSlice
   property(propertyName:string){
-    if (propertyName == 'clientProspect') return this.clientProspect(true);
-    if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
-    if (propertyName == 'ciblage') return this.ciblage();
-    if (propertyName == 'pointFeuFilter') return (this.attribute('pointFeu'))? 2: 1;
-    if (propertyName == 'segmentMarketingFilter') return this.segmentMarketingFilter();
-    return this.attribute(propertyName);
+    switch(propertyName){
+      case 'clientProspect': return this.clientProspect(true);
+      case 'industrie': return this.industriel();
+      case 'industriel': return this.industriel();
+      case 'ciblage': return this.ciblage();
+      case 'pointFeuFilter': return this.attribute('pointFeu')? 2: 1;
+      case 'visited': return (this.attribute("nbVisits") > 0)? 1: 2;
+      case 'segmentMarketingFilter': return this.segmentMarketingFilter();
+      case 'typology': return this.typologyFilter();
+      default: return this.attribute(propertyName);
+    }
   }
 
   private segmentMarketingFilter(){
@@ -659,13 +664,18 @@ export class PDV{
     return result;
   }
 
-  static countForFilter(pdvs:PDV[], attribute?:string){
-    // il faudrait relier cette liste à ce que Majed fait
+  private typologyFilter():any{
+    let dnResult = this.getValue('dn', false, true) as number[],
+      typologyIds = Object.keys(DataExtractionHelper.get('segmentDnEnduit'));
+    for (let i = 0; i < dnResult.length; i++)
+      if (dnResult[i] == 1)
+        return parseInt(typologyIds[i]);
+  }
+
+  static countForFilter(pdvs:PDV[], attributesToCount:string[]){
     let dictCounter: {[key:string]: {[key:string]:number}} = {};
-    if (!attribute)
-      for (let attribute of attributesToCountForFilters)
-        dictCounter[attribute] = {};
-    else dictCounter[attribute] = {};
+    for (let attribute of attributesToCount)
+      dictCounter[attribute] = {};
     for (let pdv of pdvs)
       for (let attribute of Object.keys(dictCounter)){
         if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
@@ -811,12 +821,11 @@ export class PDV{
   clientProspect(index=false){
     let dnResult = this.getValue('dn', false, false, true) as number[],
       clientProspectDict = DataExtractionHelper.get('clientProspect');
-    let clientProspectAxis = Object.values(clientProspectDict);
+    let clientProspectAxis = Object.values(clientProspectDict),
+      clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
-      if (dnResult[i] === 1){
-        let result = (index) ? parseInt(DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i])!): clientProspectAxis[i];
-        return result;
-      }
+      if (dnResult[i] === 1)
+        return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
 
   displayIndustrieSaleVolumes(enduit = false){
@@ -879,7 +888,7 @@ export class PDV{
     let updateDateInSeconds = this.getFirstSaleDate(),
       currentDate = new Date(),
       day = currentDate.getDay() == 0 ? 6: currentDate.getDay() - 1, // car dans timestamp la semaine commence le dimanche
-      BeginingOfTheWeek = currentDate.getTime() - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
+      BeginingOfTheWeek = currentDate.getTime() / 1000 - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
       aWeekInSeconds = 7 * 24 * 60 * 6,
       find = false, i = 0;
     while(!find && i < 7){
