@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
@@ -17,12 +17,19 @@ export class MapFiltersComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
-  criteriaNames = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'];
-  criteriaPrettyNames = ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin'];
+  @Input()
+  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finition';
 
-  _pdvs: PDV[] = [...PDV.getInstances().values()];
-  
-  private currentDict: any = PDV.countForFilter(this._pdvs);
+  criteriaNames = !this.isAgentFinitions ?
+    ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'] :
+    ['typology', 'visited', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'];
+
+  criteriaPrettyNames = !this.isAgentFinitions ?
+    ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin'] :
+    ['Typologie Client', 'Visité', 'Segment Marketing', 'Enseigne', 'Département', 'Bassin'];
+
+  private _pdvs: PDV[] = [...PDV.getInstances().values()];
+  private currentDict: any = PDV.countForFilter(this._pdvs, this.criteriaNames);
   private liveDict: any = this.currentDict;
 
   private _shown: boolean = false;
@@ -48,8 +55,10 @@ export class MapFiltersComponent {
   private path: any = {};
 
   stateSubscription?: Subscription;
-  constructor(private filtersService: FiltersStatesService,private logger: LoggerService) {
+  constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private logger: LoggerService) {
     console.log('[MapFiltersComponent]: On.');
+
+    console.log(this.isAgentFinitions);
 
     (window as any).filter = this;
   }
@@ -71,7 +80,7 @@ export class MapFiltersComponent {
 
   onPathChanged() {
     this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type);
-    this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs);
+    this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
     this.selects.forEach(select => select.reset());
     this.pdvsChange.emit(this._pdvs);
     //this.resetFilters();
@@ -92,8 +101,9 @@ export class MapFiltersComponent {
     
     if ( !result ) return [];
 
+    let dict = DataExtractionHelper.get(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
-      [key, DataExtractionHelper.get(criterion)[key]]
+      [key, dict[key]]
     ).sort((a, b) => {
       let firstIsBigger = a[1] >= b[1],
         secondIsBigger = b[1] >= a[1];
@@ -137,21 +147,16 @@ export class MapFiltersComponent {
   }
 
   private pushStack(select: MapSelectComponent) {
-    //console.log('pushing on stack');
     this.stack.push([select, []]);
     this.fixStack(this.stack.length-1);
   }
 
   private removeStack(select: MapSelectComponent) {
-    //console.log('attemping to remove from stack');
     let idx = this.stack.findIndex(q => q[0] == select);
-    //console.log('index was', idx, select);
     if ( idx < 0 ) return false;
-    //console.log('removing stack');
     let [_, results] = this.stack[idx]; //<- filterdict is assigned by others
     this.stack.splice(idx, 1);
     this.fixStack(idx, true);
-    this.liveDict[select.criterion] = this.currentDict[select.criterion];
     return true;
   }
 
@@ -168,52 +173,43 @@ export class MapFiltersComponent {
       conditions: [string, number[]][] = [],
       pdvs = this.getPreviousPDVs(index);
     
-    //console.log('fixStack', index, 'starting with previous', pdvs, this.stack);
     this.stack.slice(index).forEach(([select, _], dx) => {
       let criterion = select.criterion,
         target = this.stack[index+dx+1],
         targetCriterion = target ? this.stack[index+dx+1][0].criterion : undefined;
       
       if ( !dx && skipFirst )
-        this.liveDict[criterion] = PDV.countForFilter(pdvs, criterion)[criterion];
+        this.liveDict[criterion] = PDV.countForFilter(pdvs, [criterion])[criterion];
       
-      names.add(select.criterion);
-      //console.log(index+dx+1, criterion, targetCriterion)
-      if ( select.selection.length ) {
-        //console.log('adding', [criterion, select.selection], 'to', conditions);
+      names.add(criterion);
+      if ( select.selection.length )
         conditions.push([criterion, select.selection]);
-        //console.log('its now', conditions);
-      }
       
       let savedPdvs = pdvs;
-      //console.log('level conditions', conditions);
       pdvs = PDV.reSlice(pdvs, conditions);
-      //console.log('new pdvs', pdvs);
       this.stack[index+dx][1] = pdvs;
-      if ( !pdvs.length ) {
-        //console.log('retrying')
+      if ( !pdvs.length ) { //incompatible filter, cancel it
         conditions.pop();
-        //console.log('level conditions', conditions);
         pdvs = PDV.reSlice(savedPdvs, conditions);
-        //console.log('new pdvs', pdvs);
-        names.delete(select.criterion);
+        names.delete(criterion);
         this.stack.splice(index+dx, 1); index--;
       }
 
       if ( target ) {
-        //console.log('currentCriterion distribution', this.currentDict[targetCriterion!]);
         names.add(targetCriterion!);
-        this.liveDict[targetCriterion!] = PDV.countForFilter(pdvs, targetCriterion)[targetCriterion!];
+        this.liveDict[targetCriterion!] = PDV.countForFilter(pdvs, [targetCriterion!])[targetCriterion!];
       }
     });
     
-    this.currentDict = PDV.countForFilter(pdvs);
+    this.currentDict = PDV.countForFilter(pdvs, this.criteriaNames);
     let consequent = this.criteriaNames.filter(name => !names.has(name));
-    
-    //console.log('consequent names', consequent, 'and dict', this.currentDict);
-    for ( let criterion of consequent ) {
+    for ( let criterion of consequent )
       this.liveDict[criterion] = this.currentDict[criterion];
-    }
+  }
+
+  close() {
+    this.ref.nativeElement.scrollTop = 0;
+    this.opened = false;
   }
 
   ngOnDestroy() {

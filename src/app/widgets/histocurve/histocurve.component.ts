@@ -26,7 +26,9 @@ export class HistocurveComponent extends HistoColumnComponent {
   }
 
   protected getTickValues(max: any = this.maxValue): any {
-    let ticks = [super.getTickValues(this.maxValue[0]), super.getTickValues(this.maxValue[1])];
+    let ticks = [super.getTickValues(this.maxValue[0]), [0, 20, 40, 60, 80, 100]];
+    //since y2 is fixed in the histocurve
+    //close values will be an issue, so define a fixed axisfor now
     return ticks;
   }
 
@@ -62,9 +64,9 @@ export class HistocurveComponent extends HistoColumnComponent {
           let units = this.properties.unit.split('|');
           return `
             <div class="tooltip">
-              <span style="color:${color(d[0])}">${d[0].id}: </span>${BasicWidget.format(d[0].value, 3)} ${units[1]}
+              <span style="color:${color(d[0])}">${d[0].id}: </span>${BasicWidget.format(d[0].value, 3, units[1].toLowerCase() == 'pdv')} ${units[1]}
               <br/>
-              <span style="color:${color(d[1])}">${d[1].id}: </span>${BasicWidget.format(d[1].value, 3)} ${units[0]}
+              <span style="color:${color(d[1])}">${d[1].id}: </span>${BasicWidget.format(d[1].value, 3, units[0].toLowerCase() == 'pdv')} ${units[0]}
               <div class="tooltip-tail"></div>
             </div>
           `;

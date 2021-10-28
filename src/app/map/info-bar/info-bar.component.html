@@ -88,11 +88,11 @@
                             <ul>
                                 <li>
                                     <span class="bolder">Volume visé en m² :</span>
-                                    <input style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
+                                    <input id="targetP2cd" style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
                                     <span class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide</span>
                                 </li>
                                 <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                                    <button (click)="changeTargetLight('r')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
+                                    <button style="margin-left: 10px" (click)="changeTargetLight('r')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
                                     <button (click)="changeTargetLight('o')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
                                     <button (click)="changeTargetLight('g')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
                                 </li>
@@ -158,13 +158,15 @@
                             <li><span>Typologie PdV : </span></li>
                             <li><span>Segmentation marketing : </span></li>
                             <li><span>Segmentation portefeuille : </span></li>
+                            <li><span>Nombre de visites : </span></li>
                         </ul>
                         <ul>
                             <li>{{ displayedInfos.enseigne }}</li>
                             <li>{{ displayedInfos.dep }}</li>
-                            <li>{{ displayedInfos.clientProspect }}</li>
+                            <li>{{ customData.typologie }}</li>
                             <li>{{ displayedInfos.segmentMarketing }}</li>
                             <li>{{ displayedInfos.segmentCommercial }}</li>
+                            <li>{{ customData.nbVisits }}</li>
                         </ul>
                     </div>
                 </div>
@@ -190,11 +192,11 @@
                     <div>
                         <h2 class="title">Enduit</h2>
                         <ul>
-                            <li *ngIf="customData.pregyEnduitSales != 0"><span>Pregy : </span>{{ customData.pregyEnduitSales }} KG</li>
+                            <li *ngIf="customData.pregyEnduitSales != 0"><span>Prégy : </span>{{ customData.pregyEnduitSales }} KG</li>
                             <li *ngIf="customData.salsiEnduitSales != 0"><span>Salsi : </span>{{ customData.salsiEnduitSales }} KG</li>
                             <li *ngIf="customData.potential  != 0"><span>Potentiel : </span>{{ customData.potential }} KG</li>
                             <li *ngIf="customData.totalSiniatEnduitSales  != 0"><span>Total siniat : </span>{{ customData.totalSiniatEnduitSales }} KG</li>
-                            <li *ngIf="customData.totalEnduitSales  != 0"><span>Total estimé : </span>{{ displayedInfos.totalEnduitSales }} KG</li>
+                            <li *ngIf="customData.totalEnduitSales  != 0"><span>Total estimé : </span>{{ customData.totalEnduitSales }} KG</li>
                         </ul>
                     </div>
                 </div>

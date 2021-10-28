@@ -11,6 +11,7 @@
     cursor: pointer;
     transition: all 200ms ease-out 0s;
     transform: translateY(0);
+    width: 39em;
 }
 
 
@@ -37,7 +38,7 @@
 }
 
 :host(.closed) {
-    transform: translateY(100%);
+    transform: translateY(103%);
 }
 
 h4 {
@@ -58,18 +59,23 @@ h4 {
 }
 
 .item {
-    width: 6em;
-    flex: 0 0 6em;
+    flex: 0 0 7em;
     position: relative;
-    min-height: 5em;
+    min-height: 4em;
     text-align: center;
 }
 
 .item .name {
     position: absolute;
-    top: 35px;
+    width: 100%;
+    top: 25px;
     left: 50%;
     transform: translateX(-50%);
     line-height: 1.1em;
     font-weight: 300;
+}
+
+.item img {
+    height: 20px;
+    width: auto;
 }

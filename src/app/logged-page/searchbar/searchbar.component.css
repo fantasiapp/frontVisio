@@ -12,7 +12,8 @@
 
     --search-bar-width: 200px;
     --search-bar-height: 50px;
-    --search-bar-image-size: 40px;
+    --search-bar-image-width: 40px;
+    --search-bar-image-height: 30px;
 }
 
 :host > *:not(:last-child) {
@@ -39,8 +40,8 @@
 
 .left img {
     padding: 0; margin: 0;
-    height: var(--search-bar-image-size);
-    width: var(--search-bar-image-size);
+    height: var(--search-bar-image-height);
+    width: var(--search-bar-image-width);
     cursor: pointer;
     z-index: 1;
 }
@@ -60,13 +61,13 @@
 }
 
 :host(.opened) .wrapper {
-    right: calc(-1 * var(--search-bar-image-size));
-    width: calc(var(--search-bar-width) + var(--search-bar-image-size));
+    right: calc(-1 * var(--search-bar-image-width));
+    width: calc(var(--search-bar-width) + var(--search-bar-image-width));
 }
 
 .wrapper .pattern {
     position: absolute;
-    left: calc(var(--search-bar-image-size));
+    left: calc(var(--search-bar-image-width));
     top: 51%;
     transform: translateY(-50%);
     margin-right: 10px;
@@ -103,5 +104,5 @@
 }
 
 :host::ng-deep suggestionbox {
-    left: var(--search-bar-image-size);
+    left: var(--search-bar-image-width);
 }

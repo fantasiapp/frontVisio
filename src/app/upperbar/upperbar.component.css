@@ -94,7 +94,7 @@ label{
 .button-img {
     position: relative;
     width: 100%;
-    height: auto;
+    height: 100%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
