@@ -75,10 +75,10 @@ export class DataService {
       if( response ) { //this is always false response !== {}
         if(response.message) {
           console.debug("Empty update")
-          DataExtractionHelper.modifiedData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+          DataExtractionHelper.updatedData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
         } else {
           console.log("Updates received from back : ", response)
-          DataExtractionHelper.modifiedData = response;
+          DataExtractionHelper.updatedData = response;
           DataExtractionHelper.updateData(response);
           this.update.next()
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
@@ -112,7 +112,7 @@ export class DataService {
   private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
-    DataExtractionHelper.modifiedData = data;
+    DataExtractionHelper.updatedData = data;
     DataExtractionHelper.updateData(data);
     this.update.next();
     console.log("Sending data for update : ", data)

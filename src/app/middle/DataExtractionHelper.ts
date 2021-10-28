@@ -160,7 +160,7 @@ class DataExtractionHelper{
   static tradeHeight: number;
   static currentYear = true;
   private static fieldsToSwitchWithyear: string[] = [];
-  static modifiedData: UpdateData;
+  static updatedData: UpdateData;
 
 
   static setData(d: any){

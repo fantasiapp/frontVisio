@@ -139,7 +139,7 @@ export class SliceTable {
     }
 
 
-    pdvFromListToObject(pdv: any, type: string): any {
+    pdvFromListToObject(pdv: any, id: number, type: string): any {
         let newPdv: {[key:string]:any} = {}; //concrete row of the table
         let allColumns = this.getAllColumns(type);
         for(let index = 0; index < Object.keys(allColumns).length; index ++) {
@@ -150,9 +150,10 @@ export class SliceTable {
                 if(customValue !== null) newPdv[field] = customValue;
             }
             else {
-                newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
+                newPdv[field] = PDV.findById(id)!.attribute(field)
             }
         }
+        return newPdv
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
@@ -196,9 +197,11 @@ export class SliceTable {
 
     getUpdatedRows(type: string): {[k: string]: any}[] {
         let ret = []
-        for(let [id, pdv] of Object.entries(DataExtractionHelper.modifiedData['pdvs'])) {
-            (pdv as any).instanceId = +id;
-            ret.push(this.pdvFromListToObject((pdv as any), type))
+        let updatedPdvs: any[] = Object.values(DataExtractionHelper.updatedData['pdvs']);
+        let updatedIds: any[] = Object.keys(DataExtractionHelper.updatedData['pdvs'])
+        for(let i = 0; i < updatedPdvs.length; i++) {
+            updatedPdvs[i].instanceId = +updatedIds[i];
+            ret.push(this.pdvFromListToObject(updatedPdvs[i], +updatedIds[i], type))
         }
         return ret;
     }

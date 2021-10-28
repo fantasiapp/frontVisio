@@ -97,10 +97,15 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    let newRows =  this.updateData()[1];
+    let newRows =  this.sliceTable.getUpdatedRows(this.type)
     for(let i = 0; i < this.rowData.length; i++) {
-      for(let field of Object.keys(this.rowData[i]))
-      this.rowData[i][field] = newRows[i][field];
+      for(let newRow of newRows) {
+        if(newRow.name === this.rowData[i].name) {
+          for(let field of Object.keys(this.rowData[i]))
+          this.rowData[i][field] = newRow[field];
+        }
+      }
+
     }
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
