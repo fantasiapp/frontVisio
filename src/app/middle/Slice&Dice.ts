@@ -14,9 +14,6 @@ const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clie
   visitAxis = ['segmentDnEnduitTargetVisits'],
   adAxis = ["suiviAD"];
 
-const attributesToCountForFilters = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 
-  'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']; // à relier au code de Majed plus tard
-
 class DataWidget{
   private data: any;
   private dim: number;
