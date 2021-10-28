@@ -37,7 +37,7 @@ export class TableComponent extends BasicWidget {
   columnDefs: any;
 
   //Rows
-  rowData: any;
+  rowData: {[field: string]: any}[] = [];
   rowHeight?: number;
 
   //Side menus
