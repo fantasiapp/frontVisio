@@ -5,11 +5,11 @@ import { DataService, UpdateFields } from '../services/data.service';
 
 
 // peut-être à mettre dans un fichier de config ou dans le back
-const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget', "suiviAD"],
-  targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
-  enduitAxis = ['enduitIndustrie', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustrieTarget'],
-  industrieAxis = ['industrie', 'industrieTarget'],
+const nonRegularAxis = ['industry', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', "suiviAD"],
+  targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustryTarget', 'industryTarget'],
+  enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
+  industryAxis = ['industry', 'industryTarget'],
   clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
   visitAxis = ['segmentDnEnduitTargetVisits'],
   adAxis = ["suiviAD"];
@@ -246,11 +246,11 @@ class DataWidget{
 
   getTargetStartingPoint(axis1:string, axis2:string){
     if (this.dim == 1){
-      if (axis1 == "enduitIndustrieTarget") return this.data[0] + this.data[1];
-      if (axis1 == "industrieTarget" || axis1 == "clientProspectTarget") return this.data[0];
+      if (axis1 == "enduitIndustryTarget") return this.data[0] + this.data[1];
+      if (axis1 == "industryTarget" || axis1 == "clientProspectTarget") return this.data[0];
     }
-    if (axis1 == "industrieTarget" || axis1 == "clientProspectTarget") return this.data[0];  
-    if (axis1 == "enduitIndustrieTarget"){
+    if (axis1 == "industryTarget" || axis1 == "clientProspectTarget") return this.data[0];  
+    if (axis1 == "enduitIndustryTarget"){
       let startingPoints = new Array(this.columnsTitles.length).fill(0);
       for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];
       return startingPoints
@@ -491,7 +491,7 @@ export class PDV{
   }
 
   private computeIndustries(target:boolean, relevantSales:Sale[]){
-    let keys = target ? Object.keys(DataExtractionHelper.get('industrieTarget')): Object.keys(DataExtractionHelper.get('industry'));
+    let keys = target ? Object.keys(DataExtractionHelper.get('industryTarget')): Object.keys(DataExtractionHelper.get('industry'));
     let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
     keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
     for (let sale of relevantSales)
@@ -512,8 +512,8 @@ export class PDV{
   }
 
   private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
-    let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustrieTarget'))): 
-        Object.values(DataExtractionHelper.get(('enduitIndustrie'))),
+    let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustryTarget'))): 
+        Object.values(DataExtractionHelper.get(('enduitIndustry'))),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
       associatedIndex[axe[i]] = i;
@@ -565,7 +565,7 @@ export class PDV{
       else if (nonRegularAxis.includes(axis2)) irregular = 'col';
       let byIndustries, enduit, clientProspect, target, visit, ad;
       if (irregular == 'line' || irregular == 'col')
-          byIndustries = industrieAxis.includes(axis1) || industrieAxis.includes(axis2),
+          byIndustries = industryAxis.includes(axis1) || industryAxis.includes(axis2),
           enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
           clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
           target = targetAxis.includes(axis1) || targetAxis.includes(axis2),

@@ -3,7 +3,7 @@ import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
-const enduitIndustrie = {
+const enduitIndustry = {
   1: "Salsi", 
   2: "Prégy", 
   3: "Croissance", 
@@ -32,12 +32,12 @@ const segmentDnEnduitTarget = {
   6: "Cible P2CD"
 }
 
-const enduitIndustrieTarget = {
+const enduitIndustryTarget = {
   5: "Cible Croissance",
   6: "Cible Conquête"
 };
 
-const industrieTarget = {
+const industryTarget = {
   0: "Potentiel ciblé"
 }
 
@@ -335,14 +335,12 @@ class DataExtractionHelper{
   static get(field: string, justNames=false, changeYear=true):any{
     let fieldName = field;
     //redirections: (à enlever quand on rendra le code plus propre)
-    if (field == 'produit') fieldName = 'product';
-    if (field == 'industrie') fieldName = 'industry';
     if (field == 'structurePdv') fieldName = 'structurePdvs';
     // to switch year
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
     switch(fieldName){
-      case 'enduitIndustrie': return enduitIndustrie;
+      case 'enduitIndustry': return enduitIndustry;
       case 'segmentDnEnduit': return segmentDnEnduit;
       case 'clientProspect': return clientProspect;
       case "suiviAD": return suiviAD;
@@ -359,10 +357,10 @@ class DataExtractionHelper{
         return Object.assign({}, clientProspect, clientProspectTarget);
       case 'segmentDnEnduitTarget': 
         return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget);
-      case 'enduitIndustrieTarget': 
-        return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
-      case 'industrieTarget':
-        return Object.assign({}, this.get('industry'), industrieTarget); 
+      case 'enduitIndustryTarget': 
+        return Object.assign({}, enduitIndustry, enduitIndustryTarget);
+      case 'industryTarget':
+        return Object.assign({}, this.get('industry'), industryTarget); 
       default: {
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
