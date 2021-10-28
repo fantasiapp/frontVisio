@@ -267,7 +267,7 @@ export class TableComponent extends BasicWidget {
       'placoP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'knaufP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value + this.selectedPdv.graph.p2cd['Placo'].value + this.selectedPdv.graph.p2cd['Knauf'].value + this.selectedPdv.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pré"gy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'salsiEnduitSales': Math.round(this.selectedPdv.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'potential': Math.round(this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
