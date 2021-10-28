@@ -40,15 +40,6 @@ const enduitIndustrieTarget = {
 const industrieTarget = {
   0: "Potentiel ciblé"
 }
-const colTableP2cd = {
-  1: "brand",
-  2: "clientOrProspect",
-  3: "markSeg",
-  4: "ensemble",
-  5: "name",
-  6: "siniatSells",
-  7: "totalSells"
-};
 
 const suiviAD = {
   1: "Terminées",
