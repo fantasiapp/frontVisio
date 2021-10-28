@@ -672,13 +672,10 @@ export class PDV{
         return parseInt(typologyIds[i]);
   }
 
-  static countForFilter(pdvs:PDV[], attribute?:string){
-    // il faudrait relier cette liste à ce que Majed fait
+  static countForFilter(pdvs:PDV[], attributesToCount:string[]){
     let dictCounter: {[key:string]: {[key:string]:number}} = {};
-    if (!attribute)
-      for (let attribute of attributesToCountForFilters)
-        dictCounter[attribute] = {};
-    else dictCounter[attribute] = {};
+    for (let attribute of attributesToCount)
+      dictCounter[attribute] = {};
     for (let pdv of pdvs)
       for (let attribute of Object.keys(dictCounter)){
         if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
