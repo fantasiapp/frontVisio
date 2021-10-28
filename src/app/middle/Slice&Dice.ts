@@ -346,7 +346,7 @@ export class PDV{
   }
 
   static getProducts() {
-    return Object.values(DataExtractionHelper.get('produit'));
+    return Object.values(DataExtractionHelper.get('product'));
   }
   
   readonly sales: Sale[];
@@ -522,10 +522,10 @@ export class PDV{
       totalEnduit = DataExtractionHelper.getParam("ratioPlaqueFinition") * total,
       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
     for (let sale of relevantSales){
-      if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+      if (sale.industryId == pregyId) diced[associatedIndex["Prégy"]] += sale.volume;
       else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
     }
-    let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+    let salsiPlusPregy = diced[associatedIndex["Prégy"]] + diced[associatedIndex["Salsi"]];
     let other = Math.max(totalEnduit - salsiPlusPregy, 0);
     let dnEnduit = this.getValue('dn', false, true) as number[];
     // if (this.clientProspect() == 'Client'){
@@ -773,7 +773,7 @@ export class PDV{
     let totalSale = Object.entries(p2cdSalesRaw).reduce(
       (total: number, [_, value]: [string, number]) => total + value, 0)
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
-    let pregySale = enduitSalesRaw['Pregy'];
+    let pregySale = enduitSalesRaw['Prégy'];
     let salsiSale = enduitSalesRaw['Salsi'];
     return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : 
       (0.36*totalSale) - salsiSale - pregySale;
