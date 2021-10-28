@@ -54,13 +54,13 @@ export class SliceTable {
         'enduit': {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
-                this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.checkboxEnduit === true ? pdv.potential : 0),0),
+                this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.targetFinition === true ? pdv.potential : 0),0),
                 this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)
                 ],
             'navIds': () => this.geoTree ? ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'] : ['typologie', 'segmentMarketing', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkboxEnduit && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkboxEnduit', flex: 0.3}],
-            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkboxEnduit', 'id'],
+            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.targetFinition && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'targetFinition', flex: 0.3}],
+            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'targetFinition', 'id'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
             'groupRowConfig': (entry: any) => {
@@ -73,7 +73,7 @@ export class SliceTable {
                 group = group.concat(entry[1]);
                 return group;
             },
-            'updatableColumns': ['nbVisits', 'graph', 'potential', 'checkboxEnduit'],
+            'updatableColumns': ['nbVisits', 'graph', 'potential', 'targetFinition'],
         }
     }
 
@@ -109,7 +109,7 @@ export class SliceTable {
         'edit': () => {
             return true; //should return what is inside the new div ?
         },
-        'checkboxEnduit': (id: number, pdv: any) => {
+        'targetFinition': (id: number, pdv: any) => {
             return PDV.findById(id)!.targetFinition;
         },
         'checkboxP2cd': (id: number, pdv: any) => null,
@@ -252,14 +252,14 @@ export class SliceTable {
     changeTargetTargetFinitions(pdv: {[field: string]: any}) {
         if(!pdv['target']) pdv['target'] = SliceTable.initializeTarget()
         if(pdv['potential'] > 0) {
-            if(pdv['checkboxEnduit']) {
+            if(pdv['targetFinition']) {
                 this.updateTotalTarget(pdv['potential'])
                 pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = true;
-                pdv['checkboxEnduit'] = true;
+                pdv['targetFinition'] = true;
             } else {
                 this.updateTotalTarget(-pdv['potential'])
                 pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = false;
-                pdv['checkboxEnduit'] = false;
+                pdv['targetFinition'] = false;
             }
         }
         this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['id'])
