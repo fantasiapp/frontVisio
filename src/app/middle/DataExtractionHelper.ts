@@ -3,15 +3,9 @@ import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
-const paramsCompute = {
-  growthConquestLimit: 0.1,
-  theoricalRatioEnduit: 0.360,
-  clientProspectLimit: 0.1
-};
-
 const enduitIndustrie = {
   1: "Salsi", 
-  2: "Pregy", 
+  2: "Prégy", 
   3: "Croissance", 
   4: "Conquête"
 };
@@ -46,15 +40,6 @@ const enduitIndustrieTarget = {
 const industrieTarget = {
   0: "Potentiel ciblé"
 }
-const colTableP2cd = {
-  1: "brand",
-  2: "clientOrProspect",
-  3: "markSeg",
-  4: "ensemble",
-  5: "name",
-  6: "siniatSells",
-  7: "totalSells"
-};
 
 const suiviAD = {
   1: "Terminées",
@@ -196,11 +181,11 @@ class DataExtractionHelper{
     this.DASHBOARD_COMMENT_INDEX = this.get('structureDashboards').indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.get('structureWidgetparams').indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.get('structureWidgetparams').indexOf('widgetCompute');
-    this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.get('industrie'), 'Salsi');
-    this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.get('industrie'), 'Pregy');
-    this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.get('industrie'), 'Siniat');
-    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.get('industrie'), 'Knauf');
-    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.get('industrie'), 'Placo');
+    this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.get('industry'), 'Salsi');
+    this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.get('industry'), 'Prégy');
+    this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.get('industry'), 'Siniat');
+    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.get('industry'), 'Knauf');
+    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.get('industry'), 'Placo');
     this.AXISFORGRAHP_LABELS_ID = this.get("structureAxisforgraph").indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.get("structureLabelforgraph").indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.get("structureLabelforgraph").indexOf('color');
@@ -288,6 +273,10 @@ class DataExtractionHelper{
   static getGeoLevelLabel(height: number): string{
     return this.getGeoLevel(height)[this.PRETTY_INDEX];
   }
+
+  static getParam(param:string){
+    return this.get('params')[param];
+  }
   
   static getGeoLevelName(height: number, id: number): string{
     let name = this.get(this.getGeoLevel(height)[this.LABEL_INDEX])[id];
@@ -359,7 +348,6 @@ class DataExtractionHelper{
     switch(fieldName){
       case 'enduitIndustrie': return enduitIndustrie;
       case 'segmentDnEnduit': return segmentDnEnduit;
-      case 'paramsCompute': return paramsCompute;
       case 'clientProspect': return clientProspect;
       case "suiviAD": return suiviAD;
       case "weeks": return weeks;
@@ -378,7 +366,7 @@ class DataExtractionHelper{
       case 'enduitIndustrieTarget': 
         return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
       case 'industrieTarget':
-        return Object.assign({}, this.get('industrie'), industrieTarget); 
+        return Object.assign({}, this.get('industry'), industrieTarget); 
       default: {
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;

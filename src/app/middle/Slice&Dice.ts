@@ -4,7 +4,7 @@ import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
 
 
-// peut-être à mettre dans un fichier de config
+// peut-être à mettre dans un fichier de config ou dans le back
 const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget', "suiviAD"],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
@@ -300,13 +300,13 @@ export class PDV{
 
   get targetP2cd(){
     let target = this.attribute('target');
-    if (target == undefined) return 0;
+    if (!target) return 0;
     return target[DataExtractionHelper.TARGET_VOLUME_ID]
   }
 
   get targetFinition(){
     let target = this.attribute('target');
-    if (target == undefined) return 0;
+    if (!target) return false;
     return target[DataExtractionHelper.TARGET_FINITIONS_ID]
   }
 
@@ -346,7 +346,7 @@ export class PDV{
   }
 
   static getProducts() {
-    return Object.values(DataExtractionHelper.get('produit'));
+    return Object.values(DataExtractionHelper.get('product'));
   }
   
   readonly sales: Sale[];
@@ -470,7 +470,7 @@ export class PDV{
       }
       let totalP2cd = 0,
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-      clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
+      clientProspectLimit = DataExtractionHelper.getParam('ratioCustomerProspect'),
       siniatP2cd = 0;
       for (let sale of this.sales)
         if (sale.type == 'p2cd'){
@@ -519,13 +519,13 @@ export class PDV{
       associatedIndex[axe[i]] = i;
     let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-      totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+      totalEnduit = DataExtractionHelper.getParam("ratioPlaqueFinition") * total,
       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
     for (let sale of relevantSales){
-      if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+      if (sale.industryId == pregyId) diced[associatedIndex["Prégy"]] += sale.volume;
       else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
     }
-    let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+    let salsiPlusPregy = diced[associatedIndex["Prégy"]] + diced[associatedIndex["Salsi"]];
     let other = Math.max(totalEnduit - salsiPlusPregy, 0);
     let dnEnduit = this.getValue('dn', false, true) as number[];
     // if (this.clientProspect() == 'Client'){
@@ -773,7 +773,7 @@ export class PDV{
     let totalSale = Object.entries(p2cdSalesRaw).reduce(
       (total: number, [_, value]: [string, number]) => total + value, 0)
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
-    let pregySale = enduitSalesRaw['Pregy'];
+    let pregySale = enduitSalesRaw['Prégy'];
     let salsiSale = enduitSalesRaw['Salsi'];
     return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : 
       (0.36*totalSale) - salsiSale - pregySale;

@@ -7,8 +7,8 @@ export const disabledParams: {[name: string]: (pdv: PDV, sales: any[]) => {messa
     return { message: val ? 'Le siège a déclaré ce pdv finitions redistribué\n' : '', val : val}
   },
   'noEmptySalesFinitions': (pdv: PDV, sales: any[]) => {
-      let val = pdv!.displayIndustrieSaleVolumes(true)['Salsi']>0 || pdv!.displayIndustrieSaleVolumes(true)['Pregy']>0
-      return { message: val ? 'Ce pdv finitions répertorie des ventes Salsi et/ou Pregy\n' : '', val : val}
+      let val = pdv!.displayIndustrieSaleVolumes(true)['Salsi']>0 || pdv!.displayIndustrieSaleVolumes(true)['Prégy']>0
+      return { message: val ? 'Ce pdv finitions répertorie des ventes Salsi et/ou Prégy\n' : '', val : val}
   },
   'noSale': (pdv: PDV, sales: any[]) => {
     let val = !pdv!.attribute('sale')
