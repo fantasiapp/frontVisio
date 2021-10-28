@@ -95,8 +95,20 @@ export class UpperbarComponent implements OnInit, OnDestroy {
   }
 
   //Baptise use this to switch to table and show pdv
-  displayPDV(pdv: PDV) {
+  displayPDVOnMap(pdv: PDV) {
     this.mapComponent?.show();
     this.mapComponent?.focusPDV(pdv);
+  }
+
+  @Output()
+  displayPDV = new EventEmitter<number>();
+  
+  displayPDVOnTable(pdv: PDV) {
+    let transition = this.filtersState.gotoPDVsDashboard();
+    if ( !transition ) {
+      this.displayPDVOnMap(pdv);
+    } else {
+      this.displayPDV.emit(pdv.id);
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
@@ -17,8 +17,16 @@ export class MapFiltersComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
-  criteriaNames = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'];
-  criteriaPrettyNames = ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin'];
+  @Input()
+  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finition';
+
+  criteriaNames = !this.isAgentFinitions ?
+    ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'] :
+    ['typology', 'visited', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'];
+
+  criteriaPrettyNames = !this.isAgentFinitions ?
+    ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin'] :
+    ['Typologie Client', 'Visité', 'Segment Marketing', 'Enseigne', 'Département', 'Bassin'];
 
   private _pdvs: PDV[] = [...PDV.getInstances().values()];
   private currentDict: any = PDV.countForFilter(this._pdvs, this.criteriaNames);
@@ -47,8 +55,10 @@ export class MapFiltersComponent {
   private path: any = {};
 
   stateSubscription?: Subscription;
-  constructor(private filtersService: FiltersStatesService,private logger: LoggerService) {
+  constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private logger: LoggerService) {
     console.log('[MapFiltersComponent]: On.');
+
+    console.log(this.isAgentFinitions);
 
     (window as any).filter = this;
   }
@@ -91,8 +101,9 @@ export class MapFiltersComponent {
     
     if ( !result ) return [];
 
+    let dict = DataExtractionHelper.get(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
-      [key, DataExtractionHelper.get(criterion)[key]]
+      [key, dict[key]]
     ).sort((a, b) => {
       let firstIsBigger = a[1] >= b[1],
         secondIsBigger = b[1] >= a[1];
@@ -194,6 +205,11 @@ export class MapFiltersComponent {
     let consequent = this.criteriaNames.filter(name => !names.has(name));
     for ( let criterion of consequent )
       this.liveDict[criterion] = this.currentDict[criterion];
+  }
+
+  close() {
+    this.ref.nativeElement.scrollTop = 0;
+    this.opened = false;
   }
 
   ngOnDestroy() {

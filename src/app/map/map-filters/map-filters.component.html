@@ -1,4 +1,4 @@
-<button class="close" (click)="opened = false">
+<button class="close" (click)="close()">
     <img src="assets/X.svg"/>
 </button>
 <div class="main">
@@ -15,4 +15,4 @@
     <div><img src="assets/Filtre.svg"/></div>
 </div>
 
-<div class="cover" (click)="opened = false" [style.display]="opened ? 'block' : 'none'"></div>
+<div class="cover" (click)="close()" [style.display]="opened ? 'block' : 'none'"></div>

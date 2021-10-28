@@ -160,6 +160,25 @@ export class FiltersStatesService implements OnDestroy {
     this.arraySubject.next(currentArrays);
   }
 
+  gotoPDVsDashboard() {
+    let change = this.navigation.gotoPDVsDashboard();
+    if ( !change ) return false;
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
+    this.logger.actionComplete();
+
+    const currentArrays = {
+      levelArray: this.navigation.getArray('level'),
+      dashboardArray: this.navigation.getArray('dashboard'),
+    };
+    let States = this.navigation.getCurrent();
+    const currentState = {
+      States
+    };
+    this.stateSubject.next(currentState);
+    this.arraySubject.next(currentArrays);
+    return true;
+  }
+
   canSub() {
     return this.arraySubject.value.levelArray.subLevel.id.length && this.navigation.childrenHaveSameDashboard();
   }
