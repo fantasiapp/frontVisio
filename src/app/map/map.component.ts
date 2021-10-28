@@ -314,7 +314,7 @@ export class MapComponent implements OnDestroy {
         pdv.property('typology')
       ])
     } else {
-      MapIconBuilder.instance.get([
+      return MapIconBuilder.instance.get([
         pdv.property('industrie'),
         +(pdv.property('clientProspect') == 3),
         +pdv.attribute('pointFeu'),
@@ -424,9 +424,9 @@ export class MapIconBuilder {
     for ( let i = 0; i < this.axesNames.length; i++ ) {
       let name = this.axesNames[i] + '.' + path[i];
       if ( dict[name] )
-      dict = dict[name];
+        dict = dict[name];
       else
-      return null;
+        return null;
     }
     
     return dict.icon;
