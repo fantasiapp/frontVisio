@@ -56,7 +56,7 @@ export class TableComponent extends BasicWidget {
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
-      this.updateGraph(this.updateData());
+      this.createGraph(this.updateData());
       })
   }
   gridObservable = new Observable();
@@ -97,10 +97,10 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    console.log('refreshh')
     let newRows =  this.updateData()[1];
     for(let i = 0; i < this.rowData.length; i++) {
-      this.rowData[i] = newRows[i];
+      for(let field of Object.keys(this.rowData[i]))
+      this.rowData[i][field] = newRows[i][field];
     }
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
@@ -118,14 +118,7 @@ export class TableComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]): void {
-    this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
-    this.navOpts = data[2];
-    this.updateTitle()
-    groupInfos = data[3][0];
-    hiddenGroups = {}
-    this.rowData = data[1]
-    this.gridApi.setRowData(data[1])
-    this.gridApi.refreshCells()
+    this.createGraph(data)
   }
 
   updateGroups(id: string) {
@@ -145,8 +138,14 @@ export class TableComponent extends BasicWidget {
 
 
   createGraph(data: any[], opt?: {}): void {
-    throw new Error('Method not implemented.');
-  }
+    this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
+    this.navOpts = data[2];
+    this.updateTitle()
+    groupInfos = data[3][0];
+    hiddenGroups = {}
+    this.rowData = data[1]
+    this.gridApi.setRowData(this.rowData)
+    this.gridApi.refreshCells()  }
 
 
   updateCellRenderer(data: any[]): any[] {
