@@ -3,12 +3,6 @@ import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
-const paramsCompute = {
-  growthConquestLimit: 0.1,
-  theoricalRatioEnduit: 0.360,
-  clientProspectLimit: 0.1
-};
-
 const enduitIndustrie = {
   1: "Salsi", 
   2: "Pregy", 
@@ -288,6 +282,10 @@ class DataExtractionHelper{
   static getGeoLevelLabel(height: number): string{
     return this.getGeoLevel(height)[this.PRETTY_INDEX];
   }
+
+  static getParam(param:string){
+    return this.get('params')[param];
+  }
   
   static getGeoLevelName(height: number, id: number): string{
     let name = this.get(this.getGeoLevel(height)[this.LABEL_INDEX])[id];
@@ -359,7 +357,6 @@ class DataExtractionHelper{
     switch(fieldName){
       case 'enduitIndustrie': return enduitIndustrie;
       case 'segmentDnEnduit': return segmentDnEnduit;
-      case 'paramsCompute': return paramsCompute;
       case 'clientProspect': return clientProspect;
       case "suiviAD": return suiviAD;
       case "weeks": return weeks;

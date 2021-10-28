@@ -4,7 +4,7 @@ import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
 
 
-// peut-être à mettre dans un fichier de config
+// peut-être à mettre dans un fichier de config ou dans le back
 const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget', "suiviAD"],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
@@ -470,7 +470,7 @@ export class PDV{
       }
       let totalP2cd = 0,
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-      clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
+      clientProspectLimit = DataExtractionHelper.getParam('ratioCustomerProspect'),
       siniatP2cd = 0;
       for (let sale of this.sales)
         if (sale.type == 'p2cd'){
@@ -519,7 +519,7 @@ export class PDV{
       associatedIndex[axe[i]] = i;
     let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-      totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+      totalEnduit = DataExtractionHelper.getParam("ratioPlaqueFinition") * total,
       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
     for (let sale of relevantSales){
       if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
