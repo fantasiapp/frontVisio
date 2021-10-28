@@ -160,6 +160,7 @@ class DataExtractionHelper{
   static tradeHeight: number;
   static currentYear = true;
   private static fieldsToSwitchWithyear: string[] = [];
+  static modifiedData: UpdateData;
 
 
   static setData(d: any){
@@ -239,7 +240,7 @@ class DataExtractionHelper{
 
   static updateData(data: UpdateData) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
-
+    
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = this.getKeyByValue(this.getPDVFields(), 'code')

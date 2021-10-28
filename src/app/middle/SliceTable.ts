@@ -138,6 +138,23 @@ export class SliceTable {
         }
     }
 
+
+    pdvFromListToObject(pdv: any, type: string): any {
+        let newPdv: {[key:string]:any} = {}; //concrete row of the table
+        let allColumns = this.getAllColumns(type);
+        for(let index = 0; index < Object.keys(allColumns).length; index ++) {
+            let field = allColumns[index]
+            if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
+            else if(this.tableConfig[type]['specificColumns'].includes(field)) {
+                let customValue = this.customField[field](pdv);
+                if(customValue !== null) newPdv[field] = customValue;
+            }
+            else {
+                newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
+            }
+        }
+    }
+
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
         let pdvs = []
         console.log("[SliceTable] slice : ", slice)
@@ -153,7 +170,7 @@ export class SliceTable {
         let pdvsAsList =  [];
         for(let pdv of pdvs) {
             if(pdv[DataExtractionHelper.SALE_ID] === true) {
-                var newPdv: {[key:string]:any} = {}; //concrete row of the table
+                let newPdv: {[key:string]:any} = {}; //concrete row of the table
                 let allColumns = this.getAllColumns(type);
                 for(let index = 0; index < Object.keys(allColumns).length; index ++) {
                     let field = allColumns[index]
@@ -166,6 +183,7 @@ export class SliceTable {
                         newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
                     }
                 }
+                newPdv.instanceId = pdv.instanceId;
                 pdvsAsList.push(newPdv);
             }
         }
@@ -174,6 +192,15 @@ export class SliceTable {
         this.sortedPdvsList = pdvsAsList;
         this.pdvsWithGroupslist = this.buildGroups(groupField, type);
         return this.pdvsWithGroupslist;
+    }
+
+    getUpdatedRows(type: string): {[k: string]: any}[] {
+        let ret = []
+        for(let [id, pdv] of Object.entries(DataExtractionHelper.modifiedData['pdvs'])) {
+            (pdv as any).instanceId = +id;
+            ret.push(this.pdvFromListToObject((pdv as any), type))
+        }
+        return ret;
     }
 
     getAllColumns(type: string) {

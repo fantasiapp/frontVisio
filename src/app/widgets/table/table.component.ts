@@ -9,6 +9,7 @@ import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer,
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 import { LoggerService } from 'src/app/behaviour/logger.service';
+import { LoginPageComponent } from 'src/app/login-page/login-page.component';
 
 @Component({
   selector: 'app-table',
@@ -97,11 +98,9 @@ export class TableComponent extends BasicWidget {
 
   refresh() {
     console.log('refreshh')
-    let rows = this.updateData()[1];
-    for(let field of this.sliceTable.getUpdatableColumns(this.type)) {
-      for(let i = 0; i < rows.length; i++) {
-        this.rowData[i][field] = rows[i][field]
-      }
+    let newRows =  this.updateData()[1];
+    for(let i = 0; i < this.rowData.length; i++) {
+      this.rowData[i] = newRows[i];
     }
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
@@ -243,6 +242,7 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
+    console.log("TEST : ", this.rowData[1])
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {
