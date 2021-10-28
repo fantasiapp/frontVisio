@@ -338,11 +338,6 @@ class DataExtractionHelper{
     if (field == 'produit') fieldName = 'product';
     if (field == 'industrie') fieldName = 'industry';
     if (field == 'structurePdv') fieldName = 'structurePdvs';
-    if (field == 'indexesPdv') fieldName = 'indexesPdvs';
-    if (field == 'structureWidgetParam') fieldName = 'structureWidgetparams';
-    if (field == 'indexesWidgetParam') fieldName = 'indexesWidgetparams';
-    if (field == 'structureDashboard') fieldName = 'structureDashboards';
-    if (field == 'indexesDashboard') fieldName = 'indexesDashboards';
     // to switch year
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
