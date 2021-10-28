@@ -315,7 +315,7 @@ export class MapComponent implements OnDestroy {
       ])
     } else {
       return MapIconBuilder.instance.get([
-        pdv.property('industrie'),
+        pdv.property('industriel'),
         +(pdv.property('clientProspect') == 3),
         +pdv.attribute('pointFeu'),
         pdv.attribute('segmentMarketing')
