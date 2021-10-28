@@ -11,6 +11,7 @@
     cursor: pointer;
     transition: all 200ms ease-out 0s;
     transform: translateY(0);
+    width: 35em;
 }
 
 

@@ -104,6 +104,16 @@ export class Navigation {
     return <boolean>(child.children.length && child.children[0] instanceof PDV);
   }
 
+  gotoPDVsDashboard() {
+    let dashboard = this.currentLevel!.dashboards.find(dashboard => dashboard.name.indexOf('Points de Vente') >= 0);
+    if ( dashboard ) {
+      this.currentDashboard = dashboard;
+      return true;
+    } else {
+      return false; 
+    }
+  }
+
   getCurrent(): any{
     let currentLevel = this.currentLevel!
     let currentDashboard = this.currentDashboard!

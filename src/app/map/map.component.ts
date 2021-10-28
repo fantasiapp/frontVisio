@@ -43,6 +43,8 @@ export class MapComponent implements OnDestroy {
     this.pdvs = pdvs;
     this.update();
   }
+
+  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finitions';
   
   selectedPDV?: PDV;
   private hidden: boolean = true;
@@ -58,7 +60,7 @@ export class MapComponent implements OnDestroy {
   show() {
     if ( this.shouldUpdateIcons ) {
       console.log('[MapComponent]: Updating Icons.');
-      MapIconBuilder.initialize();
+      MapIconBuilder.initialize(this.isAgentFinitions);
       this.legend?.update();
       this.shouldUpdateIcons = false;
     }
@@ -76,13 +78,12 @@ export class MapComponent implements OnDestroy {
   pdvs: PDV[] = [...PDV.getInstances().values()];
   infowindow: any = {};
   markerTimeout: any = 0;
-  // stateSubscription?: Subscription;
   updateSubscription?: Subscription;
   shouldUpdateIcons: boolean = false;
 
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     console.log('[MapComponent]: On');
-    MapIconBuilder.initialize();
+    MapIconBuilder.initialize(this.isAgentFinitions );
     this.legend?.update();
     this.initializeInfowindow();
     if ( this.shown )
@@ -90,23 +91,12 @@ export class MapComponent implements OnDestroy {
   }
 
   private interactiveMode() {
-    console.log('interactive mode');
-    // this.stateSubscription = this.filtersService.stateSubject.subscribe(({States}) => {
-    //   let path = this.filtersService.getPath(States);
-    //   if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
-    //     this.path = path;
-    //     this.allPdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type)
-    //     this.update();
-    //   } else if ( !this.map )
-    //     this.update();
-    // });
-    
     //unsubscribe from this
     this.updateSubscription = this.dataservice.update.subscribe(_ => {
       this.shouldUpdateIcons = true;
 
       if ( !this.hidden ) {
-        MapIconBuilder.initialize();
+        MapIconBuilder.initialize(this.isAgentFinitions );
         this.legend?.update();
         this.update();
         this.shouldUpdateIcons = false;
@@ -136,7 +126,6 @@ export class MapComponent implements OnDestroy {
   }
 
   update() {
-    console.log('map update');
     this.removeMarkers();
     if ( !this.map )
       this.createMap();
@@ -318,11 +307,26 @@ export class MapComponent implements OnDestroy {
     });
   }
 
+  getIcon(pdv: PDV) {
+    if ( this.isAgentFinitions ) {
+      return MapIconBuilder.instance.get([
+        +(pdv.property('visited') != 2), //2 -> 0 & 1 -> 1
+        pdv.property('typology')
+      ])
+    } else {
+      MapIconBuilder.instance.get([
+        pdv.property('industrie'),
+        +(pdv.property('clientProspect') == 3),
+        +pdv.attribute('pointFeu'),
+        pdv.attribute('segmentMarketing')
+      ]);
+    }
+  }
+
   private createMarker(pdv: PDV): MarkerType {
     let lat = pdv.attribute('latitude'),
       lng = pdv.attribute('longitude'),
-      industrie = pdv.property('industrie'),
-      icon = MapIconBuilder.instance.get([industrie, +(pdv.property('clientProspect') == 3), +pdv.attribute('pointFeu'), pdv.attribute('segmentMarketing')]);
+      icon = this.getIcon(pdv);
 
     if ( !icon ) throw 'Cannot find icon, maybe ids change';
     return {
@@ -462,35 +466,66 @@ export class MapIconBuilder {
     return `<rect transform='rotate(45, 15, 10)' x='8' y='3' width='14' height='14' fill='${fill}' stroke='${stroke}' stroke-width='1'></rect>`
   }
 
+  static generateNGon(n: number, r: number = 1) {
+    let angle = 2*Math.PI/n;
+    let points = [];
+    for ( let i = 0; i < n; i++ )
+      points.push([r*Math.cos(angle*i), r*Math.sin(angle*i)]);
+    return points;
+  }
+
+  static hex(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
+    let points = MapIconBuilder.generateNGon(6, 10).map(([x, y]) => (x + 15) + ',' + (y + 10)).join(' ');
+    return `
+      <polygon fill='${fill}' stroke='${stroke}' stroke-width='1' points='${points}'></polygon>
+    `
+  }
+
   static fire(builder: MapIconBuilder, {strokeFeet = builder.getPropertyOf(null, 'stroke')}: any) {
     return `<circle cx='15' cy='26' r='4' stroke='${strokeFeet}' stroke-width='1' fill='#FF0000'></circle>`;
   }
 
-  static initialize() {
-    let segmentMarketing = DataExtractionHelper.get('segmentMarketing');
-    let industriel = DataExtractionHelper.get('industriel');
-
+  static initialize(isAgentFinition: boolean = false) {
     let builder = new MapIconBuilder({
       width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
     });
 
-    builder.axis('industriel', [
-      [+DataExtractionHelper.getKeyByValue(industriel, 'Siniat')!, {fill: '#A61F7D'}],
-      [+DataExtractionHelper.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
-      [+DataExtractionHelper.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
-      [+DataExtractionHelper.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
-    ]).axis('Non Documenté', [
-      [0, {}],
-      [1, {fill: '#FF0000'}]
-    ]).axis('pointFeu', [
-      [0, {}],
-      [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}] //<- draw fire later, now it's a circle
-    ]).axis('segmentMarketing', [
-      [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
-      [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
-      [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!, {head: MapIconBuilder.diamond}],
-      [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Autres')!, {head: MapIconBuilder.circle}]
-    ]).generate();
+    if ( isAgentFinition ) {
+      let typology = DataExtractionHelper.get('typology');
+
+      builder.axis('Visité', [
+        [0, {fill: '#0056A6'}],
+        [1, {fill: '#A61F7D'}],
+      ]).axis('typology', [
+        [+DataExtractionHelper.getKeyByValue(typology, 'Pur prospect')!, {head: MapIconBuilder.square}],
+        [+DataExtractionHelper.getKeyByValue(typology, 'Enduit hors P2CD')!, {head: MapIconBuilder.diamond}],
+        [+DataExtractionHelper.getKeyByValue(typology, 'P2CD + Enduit')!, {head: MapIconBuilder.circle}],
+        [+DataExtractionHelper.getKeyByValue(typology, 'Non documenté')!, {head: MapIconBuilder.hex}]
+      ]).generate();
+    } else {
+      let segmentMarketing = DataExtractionHelper.get('segmentMarketing'),
+        industriel = DataExtractionHelper.get('industriel');
+      
+      builder.axis('industriel', [
+        [+DataExtractionHelper.getKeyByValue(industriel, 'Siniat')!, {fill: '#A61F7D'}],
+        [+DataExtractionHelper.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
+        [+DataExtractionHelper.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
+        [+DataExtractionHelper.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
+      ]).axis('Non Documenté', [
+        [0, {}],
+        [1, {fill: '#FF0000'}]
+      ]).axis('pointFeu', [
+        [0, {}],
+        [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}] //<- draw fire later, now it's a circle
+      ]).axis('segmentMarketing', [
+        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
+        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
+        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!, {head: MapIconBuilder.diamond}],
+        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Autres')!, {head: MapIconBuilder.circle}]
+      ]).generate();
+    }
+
+    console.log(builder);
 
     this._instance = builder;
   }

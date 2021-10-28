@@ -3,6 +3,7 @@ import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { EventEmitter } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
+import { Subject } from 'rxjs';
 
 type WidgetParams = [string, string, string, string[], string[], boolean];
 export type Widget= [string, string, string, string, WidgetParams];
@@ -53,6 +54,8 @@ export class GridManager implements AfterViewInit, OnChanges {
   @ViewChild('target', {read: ViewContainerRef})
   ref!: ViewContainerRef;
 
+  componentsLoaded: Subject<any[]> = new Subject;
+
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
     console.log('[GridManager]: On.')
   }
@@ -93,6 +96,7 @@ export class GridManager implements AfterViewInit, OnChanges {
       this.ref.insert(component.hostView);
     }
     this.cd.detectChanges();
+    this.componentsLoaded.next(this.instances);
   }
 
   interactiveMode() {
@@ -135,6 +139,7 @@ export class GridManager implements AfterViewInit, OnChanges {
 
   ngOnDestroy() {
     this.clear();
+    this.componentsLoaded.complete();
   }
 
   private computeLayout() {

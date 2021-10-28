@@ -7,6 +7,7 @@ import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
+import { TableComponent } from '../widgets/table/table.component';
 
 @Component({
   selector: 'app-view',
@@ -75,6 +76,15 @@ export class ViewComponent implements OnDestroy {
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();
     this.localStorageService.handleDisconnect();
+  }
+
+  displayPDV(id: number) {
+    let subscription: any = null;
+    subscription = this.gridManager!.componentsLoaded.subscribe((instances) => {
+      let table = instances[0] as TableComponent;
+      table.displayInfobar(id);
+      if ( subscription ) {subscription.unsubscribe(); subscription = null;};
+    });
   }
 
   ngOnDestroy(): void {
