@@ -936,7 +936,7 @@ export class PDV{
       case 'AD': {
         let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
           ratio = nbCompletedPdv / pdvs.length;
-        return [[['  ', 100 * ratio]], [33, 66, 100]];
+        return [[[nbCompletedPdv.toString().concat(' PdV complétés sur un total de ', pdvs.length.toString()), 100 * ratio]], [33, 66, 100]];
        }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
     }
