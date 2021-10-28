@@ -34,8 +34,6 @@ export class SliceTable {
             'navIds': () => this.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
-            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {return params.data.siniatSales > 30000}}, {field: 'pointFeu', flex: 0.35}],
-            // 'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35}, {field: 'pointFeu', flex: 0.35}],
             'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
@@ -50,6 +48,7 @@ export class SliceTable {
                 group = group.concat(entry[1]);
                 return group;
             },
+            'updatableColumns': ['totalSales', 'checkboxP2cd'],
         },
 
         'enduit': {
@@ -75,6 +74,7 @@ export class SliceTable {
                 group = group.concat(entry[1]);
                 return group;
             },
+            'updatableColumns': ['nbVisits', 'graph', 'potential', 'checkboxEnduit'],
         }
     }
 
@@ -92,7 +92,7 @@ export class SliceTable {
             for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
                 p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': this.getColor('industry', industry)}
             }
-            for(let industry of ['Pregy', 'Salsi', 'Autres']) {
+            for(let industry of ['Prégy', 'Salsi', 'Autres']) {
                 enduitSales[industry] = {'value': enduitRaw[industry], 'color': this.getColor('indFinition', industry)}
             }
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
@@ -111,9 +111,7 @@ export class SliceTable {
             return true; //should return what is inside the new div ?
         },
         'checkboxEnduit': (pdv: any) => {
-            let target = this.getPdvInstance(pdv)!.attribute('target')    
-            if(!target) return false;
-            return target[DataExtractionHelper.TARGET_FINITIONS_ID]>0;
+            return PDV.findById(pdv.instanceId)?.targetFinition;
         },
         'checkboxP2cd': (pdv: any) => null,
 
@@ -224,6 +222,10 @@ export class SliceTable {
         return this.titleData;
     }
 
+    getUpdatableColumns(type: string) {
+        return this.tableConfig[type]['updatableColumns'];
+    }
+
     static initializeTarget() {
         return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
       }
@@ -310,7 +312,7 @@ export class SliceTable {
             'Autres': '#888888',
             },
             'indFinition': {
-            'Pregy': '#7B145C',
+            'Prégy': '#7B145C',
             'Salsi': '#D00000',
             'Autres': '#B0B0B0'
             }

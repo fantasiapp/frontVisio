@@ -96,6 +96,13 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
+    console.log('refreshh')
+    let rows = this.updateData()[1];
+    for(let field of this.sliceTable.getUpdatableColumns(this.type)) {
+      for(let i = 0; i < rows.length; i++) {
+        this.rowData[i][field] = rows[i][field]
+      }
+    }
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
     this.updateTitle()
@@ -106,12 +113,18 @@ export class TableComponent extends BasicWidget {
     return this.sliceTable.getData(this.path, this.currentOpt, this.type);
   }
 
+  createData(): any[] {
+    this.type = this.properties.arguments[2];
+    return this.sliceTable.getData(this.path, this.currentOpt, this.type);
+  }
+
   updateGraph(data: any[]): void {
     this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
     this.navOpts = data[2];
     this.updateTitle()
     groupInfos = data[3][0];
     hiddenGroups = {}
+    this.rowData = data[1]
     this.gridApi.setRowData(data[1])
     this.gridApi.refreshCells()
   }
@@ -238,24 +251,13 @@ export class TableComponent extends BasicWidget {
       if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
       else arrowImg!.style.transform = "rotate(-0.5turn)"
     } else {
-      if(event['column']['colId'] === 'edit') {
-        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(event['data'])!.getValues())); //Values deepcopy
-        InfoBarComponent.pdvId = event['data'].instanceId;
-        this.selectedPdv = event['data'];
-        this.pdv = this.sliceTable.getPdvInstance(event['data']) // => displays infoBar
-      }
-      if(event['column']['colId'] === 'info') {
-        InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(event['data'])!.getValues())); //Values deepcopy
-        InfoBarComponent.pdvId = event['data'].instanceId;
-        this.selectedPdv = event['data'];
-        this.loadCustomData();
-        this.pdv = this.sliceTable.getPdvInstance(event['data']) // => displays infoBar
+      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') {
+        this.displayInfobar(event['data'])
       }
       if(event['column']['colId'] === 'checkboxEnduit') {
         this.updateTitle()
       }
     }
-
   }
 
   loadCustomData() {
@@ -265,14 +267,30 @@ export class TableComponent extends BasicWidget {
       'placoP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'knaufP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value + this.selectedPdv.graph.p2cd['Placo'].value + this.selectedPdv.graph.p2cd['Knauf'].value + this.selectedPdv.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pré"gy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'salsiEnduitSales': Math.round(this.selectedPdv.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'potential': Math.round(this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pregy'].value + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'totalEnduitSales': Math.round(this.selectedPdv.graph.enduit['Prégy'].value + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'typologie': this.selectedPdv.typologie,
     }
   }
 
+  getPdvOnId(id: number): {[key:string]:any} {
+    for(let pdv of this.rowData) {
+      if(pdv.instanceId === id) return pdv;
+    }
+    return this.rowData[0];
+  }
+
+  displayInfobar(pdv: {[key:string]:any} | number) {
+    if(typeof(pdv) === 'number') pdv = this.getPdvOnId(pdv);
+    InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(pdv)!.getValues())); //Values deepcopy
+    InfoBarComponent.pdvId = pdv.instanceId;
+    this.selectedPdv = pdv;
+    if(this.type === 'enduit') this.loadCustomData();
+    this.pdv = this.sliceTable.getPdvInstance(pdv) // => displays infoBar
+  }
   // sideDivRight: string = "calc(-60% - 5px)";
   // showInfo: boolean = false;
   // infoData: any = {}
