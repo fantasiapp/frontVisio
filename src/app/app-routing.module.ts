@@ -11,8 +11,6 @@ import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionb
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', redirectTo: 'login', pathMatch: 'full' },
-
   {
     path: 'login',
     component: LoginPageComponent,
@@ -21,19 +19,9 @@ const routes: Routes = [
     path: 'logged',
     component: ViewComponent, 
     canActivate:[AuthGuard],
-  },
-  {
-    path: 'filters',
-    component: FiltersComponent,
-    canActivate:[AuthGuard],
-  },
-  {
-    path: 'search',
-    component: SearchbarComponent
-  },
-  {
-    path: 'box',
-    component: SuggestionBox
+  }, {
+    path: '**',
+    redirectTo: 'login'
   }
 ];
 

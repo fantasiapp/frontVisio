@@ -362,7 +362,6 @@ export class MapComponent implements OnDestroy {
   };
 
   private unsubscribe() {
-    // this.stateSubscription?.unsubscribe();
     this.updateSubscription?.unsubscribe();
   }
 

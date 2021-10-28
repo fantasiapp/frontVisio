@@ -66,7 +66,7 @@ export class InfoBarComponent {
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       this.isOnlySiniat = value.attribute('onlySiniat')
-      this.loadGrid()
+      this.loadGrid();
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
     this.logger.actionComplete();

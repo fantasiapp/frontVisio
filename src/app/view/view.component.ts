@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
@@ -16,26 +16,40 @@ import { TableComponent } from '../widgets/table/table.component';
   providers: [Navigation, FiltersStatesService, LoggerService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ViewComponent implements OnDestroy {
+export class ViewComponent implements OnDestroy, AfterViewInit {
 
   public layout: (Layout & {id: number}) | null = null;
   private mapVisible: boolean = false;
 
   @ViewChild('gridManager', {static: false, read: GridManager})
   gridManager?: GridManager;
-  subscription: Subscription;
-  
+  stateSubscription: Subscription;
+  updateSubscription: Subscription;
+  loadSubscription?: Subscription;
+
+  componentsLoaded: boolean = false;
+
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
-    this.subscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
+    this.stateSubscription = filtersService.stateSubject.subscribe(({States: {dashboard}}) => {
       if ( this.layout?.id !== dashboard.id ) {
         console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.');
         this.gridManager?.clear();
+        console.log('components unloaded')
+        this.componentsLoaded = false;
         this.layout = dashboard;
       }
     });
+    
 
-    dataservice.update.subscribe((_) => {
+    this.updateSubscription = dataservice.update.subscribe((_) => {
       this.refresh(); //seamless transition
+    });
+  }
+
+  ngAfterViewInit() {
+    this.loadSubscription = this.gridManager!.componentsLoaded.subscribe(() => {
+      console.log('components loaded')
+      this.componentsLoaded = true;
     });
   }
 
@@ -72,21 +86,38 @@ export class ViewComponent implements OnDestroy {
 
   @HostListener('window:beforeunload')
   disconnect() {
-    this.subscription.unsubscribe();
+    this.stateSubscription.unsubscribe();
+    this.updateSubscription.unsubscribe();
+    this.loadSubscription?.unsubscribe();
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();
     this.localStorageService.handleDisconnect();
   }
 
-  displayPDV(id: number) {
-    let subscription: any = null;
-    subscription = this.gridManager!.componentsLoaded.subscribe((instances) => {
-      let table = instances[0] as TableComponent;
+  private displayInfobarOnce(table: TableComponent, id: number) {
+    let creationSubscription: Subscription | null = null;
+    creationSubscription = table.gridLoaded!.subscribe(() => {
       table.displayInfobar(id);
-      if ( subscription ) {subscription.unsubscribe(); subscription = null;};
+      creationSubscription?.unsubscribe()
     });
   }
 
+
+  displayPDV(id: number) {
+    if ( this.componentsLoaded ) {
+      (window as any).table = this.gridManager!.instances[0];
+      this.gridManager!.instances[0].displayInfobar(id);
+    } else {
+      let subscription: Subscription | null = null;
+      subscription = this.gridManager!.componentsLoaded.subscribe((instances) => {
+        let table = instances[0] as TableComponent;
+        this.displayInfobarOnce(table, id);
+        subscription?.unsubscribe();
+     });
+    }
+  }
+
   ngOnDestroy(): void {
+    this.disconnect();
   }
 }
