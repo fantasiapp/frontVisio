@@ -262,7 +262,7 @@ class DataExtractionHelper{
   }
 
   static getPDVFields() {
-    return this.get('structurePdv');
+    return this.get('structurePdvs');
   }
 
   static getGeoLevel(height: number){
@@ -334,8 +334,6 @@ class DataExtractionHelper{
 
   static get(field: string, justNames=false, changeYear=true):any{
     let fieldName = field;
-    //redirections: (à enlever quand on rendra le code plus propre)
-    if (field == 'structurePdv') fieldName = 'structurePdvs';
     // to switch year
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour

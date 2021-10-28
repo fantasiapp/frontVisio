@@ -129,7 +129,7 @@ export class SliceTable {
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
         PDV.load(false);
-        this.pdvFields = DataExtractionHelper.get('structurePdv');
+        this.pdvFields = DataExtractionHelper.get('structurePdvs');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
 
         //Get idsToFields, to match id values in pdv to string values
