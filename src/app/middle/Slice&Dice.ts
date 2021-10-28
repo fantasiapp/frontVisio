@@ -920,7 +920,8 @@ export class PDV{
           cibleVisits:number = PDV.computeTargetVisits(slice) as number,
           threshold = [50, 99.99, 100];
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
-        return [[[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
+        let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
+        return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
       };
       case 'target': {
         let totalVisits = 0,
@@ -931,12 +932,14 @@ export class PDV{
           totalVisits += pdv.attribute("nbVisits");
           if (pdv.targetFinition) totalCibleVisits += pdv.attribute("nbVisits");
         }
-        return [[[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
+        let adaptedVersion = (totalCibleVisits >= 2) ? ' visites ciblées': ' visite ciblée';
+        return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
       };
       case 'AD': {
         let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
-          ratio = nbCompletedPdv / pdvs.length;
-        return [[[nbCompletedPdv.toString().concat(' PdV complétés sur un total de ', pdvs.length.toString()), 100 * ratio]], [33, 66, 100]];
+          ratio = nbCompletedPdv / pdvs.length,
+          adaptedVersion = (nbCompletedPdv >= 2) ? ' PdV complétés':  'PdV complété';
+        return [[[nbCompletedPdv.toString().concat(adaptedVersion, ' sur un total de ', pdvs.length.toString()), 100 * ratio]], [33, 66, 100]];
        }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
     }
