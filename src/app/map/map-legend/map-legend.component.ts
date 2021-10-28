@@ -31,7 +31,7 @@ export class MapLegendComponent {
   }
 
   @HostBinding('class.closed')
-  closed: boolean = false;
+  closed: boolean = true;
 
   @HostListener('click')
   onClick() {
