@@ -95,8 +95,8 @@ export class AuthService {
       this.localStorageService.handleDisconnect();
       this.isLoggedIn.next(false);
       this.dataService.response.next(null);
-      this.router.navigate(['login']);
       DataExtractionHelper.resetData();
+      this.router.navigate(['login']);
     }, 1000);
   }
 }
