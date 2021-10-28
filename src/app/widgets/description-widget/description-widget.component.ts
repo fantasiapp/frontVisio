@@ -45,7 +45,7 @@ export class DescriptionWidgetComponent implements OnDestroy {
   }
 
   get DN() {
-    return BasicWidget.format(this.values[1 - this.currentSelection][1]);
+    return BasicWidget.format(this.values[1 - this.currentSelection][1], 0, true);
   }
 
   get ratio() {

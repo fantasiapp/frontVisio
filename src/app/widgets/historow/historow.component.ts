@@ -95,7 +95,7 @@ export class HistoRowComponent extends BasicWidget {
           return `
             <div class="historow-tooltip tooltip">
               ${d.map((data: any) => `
-                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}
               `).join('<br/>')}
               <div class="tooltip-tail"></div>
             </div>

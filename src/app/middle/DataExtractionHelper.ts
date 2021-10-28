@@ -3,15 +3,9 @@ import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
-const paramsCompute = {
-  growthConquestLimit: 0.1,
-  theoricalRatioEnduit: 0.360,
-  clientProspectLimit: 0.1
-};
-
 const enduitIndustrie = {
   1: "Salsi", 
-  2: "Pregy", 
+  2: "Prégy", 
   3: "Croissance", 
   4: "Conquête"
 };
@@ -46,15 +40,6 @@ const enduitIndustrieTarget = {
 const industrieTarget = {
   0: "Potentiel ciblé"
 }
-const colTableP2cd = {
-  1: "brand",
-  2: "clientOrProspect",
-  3: "markSeg",
-  4: "ensemble",
-  5: "name",
-  6: "siniatSells",
-  7: "totalSells"
-};
 
 const suiviAD = {
   1: "Terminées",
@@ -81,6 +66,11 @@ const histoCurve = {
 const pointFeuFilter = {
   1: 'Non point Feu',
   2: 'Point feu'
+}
+
+const visitedFilter = {
+  1: 'Visité',
+  2: 'Non visité'
 }
 
 const ciblage = {
@@ -170,6 +160,7 @@ class DataExtractionHelper{
   static tradeHeight: number;
   static currentYear = true;
   private static fieldsToSwitchWithyear: string[] = [];
+  static modifiedData: UpdateData;
 
 
   static setData(d: any){
@@ -191,11 +182,11 @@ class DataExtractionHelper{
     this.DASHBOARD_COMMENT_INDEX = this.get('structureDashboards').indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.get('structureWidgetparams').indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.get('structureWidgetparams').indexOf('widgetCompute');
-    this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.get('industrie'), 'Salsi');
-    this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.get('industrie'), 'Pregy');
-    this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.get('industrie'), 'Siniat');
-    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.get('industrie'), 'Knauf');
-    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.get('industrie'), 'Placo');
+    this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.get('industry'), 'Salsi');
+    this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.get('industry'), 'Prégy');
+    this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.get('industry'), 'Siniat');
+    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.get('industry'), 'Knauf');
+    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.get('industry'), 'Placo');
     this.AXISFORGRAHP_LABELS_ID = this.get("structureAxisforgraph").indexOf("labels");
     this.LABELFORGRAPH_LABEL_ID = this.get("structureLabelforgraph").indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.get("structureLabelforgraph").indexOf('color');
@@ -249,7 +240,7 @@ class DataExtractionHelper{
 
   static updateData(data: UpdateData) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
-
+    
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = this.getKeyByValue(this.getPDVFields(), 'code')
@@ -282,6 +273,10 @@ class DataExtractionHelper{
 
   static getGeoLevelLabel(height: number): string{
     return this.getGeoLevel(height)[this.PRETTY_INDEX];
+  }
+
+  static getParam(param:string){
+    return this.get('params')[param];
   }
   
   static getGeoLevelName(height: number, id: number): string{
@@ -343,18 +338,12 @@ class DataExtractionHelper{
     if (field == 'produit') fieldName = 'product';
     if (field == 'industrie') fieldName = 'industry';
     if (field == 'structurePdv') fieldName = 'structurePdvs';
-    if (field == 'indexesPdv') fieldName = 'indexesPdvs';
-    if (field == 'structureWidgetParam') fieldName = 'structureWidgetparams';
-    if (field == 'indexesWidgetParam') fieldName = 'indexesWidgetparams';
-    if (field == 'structureDashboard') fieldName = 'structureDashboards';
-    if (field == 'indexesDashboard') fieldName = 'indexesDashboards';
     // to switch year
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
     switch(fieldName){
       case 'enduitIndustrie': return enduitIndustrie;
       case 'segmentDnEnduit': return segmentDnEnduit;
-      case 'paramsCompute': return paramsCompute;
       case 'clientProspect': return clientProspect;
       case "suiviAD": return suiviAD;
       case "weeks": return weeks;
@@ -364,6 +353,8 @@ class DataExtractionHelper{
       case 'industriel': return industriel;
       case 'segmentDnEnduitTargetVisits': return segmentDnEnduitTargetVisits;
       case 'segmentMarketingFilter': return segmentMarketingFilter;
+      case 'visited': return visitedFilter;
+      case 'typology': return segmentDnEnduit;
       case 'clientProspectTarget':
         return Object.assign({}, clientProspect, clientProspectTarget);
       case 'segmentDnEnduitTarget': 
@@ -371,7 +362,7 @@ class DataExtractionHelper{
       case 'enduitIndustrieTarget': 
         return Object.assign({}, enduitIndustrie, enduitIndustrieTarget);
       case 'industrieTarget':
-        return Object.assign({}, this.get('industrie'), industrieTarget); 
+        return Object.assign({}, this.get('industry'), industrieTarget); 
       default: {
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
@@ -390,7 +381,7 @@ class DataExtractionHelper{
   static getTarget(level='national', id:number, dn=false, finition=false){
     let targetType = dn ? "dn": "vol";
     let targetTypeId:number = this.get("structureTargetlevel").indexOf(targetType);
-    if (level == "agentFinitions" || level == 'Agent Finitions') return this.get("targetLevelAgentFinitions")[id][targetTypeId];
+    if (level == 'Agent Finition') return this.get("targetLevelAgentFinitions")[id][targetTypeId];
     if (finition && level == 'Région'){
       let finitionAgentsids = this.findFinitionAgentsOfDrv(id, true),
         targetsAgentFinition = this.get("targetLevelAgentFinitions");
@@ -449,7 +440,7 @@ class DataExtractionHelper{
   }
 
   private static getCompleteCiblageFinitions(node:any){
-    if (!['France', 'Région', 'Agent Finitions'].includes(node.label)) return "";
+    if (!['France', 'Région', 'Agent Finition'].includes(node.label)) return "";
     let ciblageDn = PDV.computeCiblage(node, true, true),
       ciblageFinitions = PDV.computeCiblage(node, true),
       objective = this.getTarget(node.label, node.id, false, true);
@@ -465,7 +456,7 @@ class DataExtractionHelper{
   }
 
   private static getObjectif(node:any, finition=false, dn=false){    
-    if ((finition && !['France', 'Région', 'Agent Finitions'].includes(node.label)) || (!finition && node.label !== 'Secteur')) return "";
+    if ((finition && !['France', 'Région', 'Agent Finition'].includes(node.label)) || (!finition && node.label !== 'Secteur')) return "";
     let objective = this.getTarget(node.label, node.id, dn, finition);
     if (finition) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdV, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');

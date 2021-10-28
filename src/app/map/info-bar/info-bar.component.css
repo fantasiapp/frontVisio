@@ -1,7 +1,7 @@
 :host {
     --info-bar-width: 60%;
     --info-bar-max-width: 1000px;
-    --info-bar-padding-y: 50px;
+    --info-bar-padding-y: 65px;
     --info-bar-padding-x: 85px;
     --info-bar-margin-y: 0;
     --navigation-height: 40px;
@@ -188,7 +188,7 @@ ul, hr {
     min-width: max-content;
 }
 
-.definition ul li input, .eval input {
+.definition ul li input, .eval #targetP2cd {
     padding-left: 0.2em;
     flex-grow: 0;
     background: white;
@@ -196,15 +196,15 @@ ul, hr {
     border-radius: 3px;
     border-style: solid;
     padding: 0.2em;
+    box-shadow: none;
 }
 
-.definition ul li input:not(:disabled):hover, .eval input:not(:disabled):hover {
+.definition ul li input:not(:disabled):hover, .eval #targetP2cd:not(:disabled):hover {
     cursor: pointer;
     border-color: #D6D6D6;
 }
-.definition ul li input:focus, .eval input:focus {
+.definition ul li input:focus, .eval #targetP2cd:focus {
     border-color: #9A9A9A !important;
-    /* box-shadow: inset 0 1px 3px #9A9A9A */
 }
 
 span.bolder {

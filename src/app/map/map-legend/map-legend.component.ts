@@ -31,7 +31,7 @@ export class MapLegendComponent {
   }
 
   @HostBinding('class.closed')
-  closed: boolean = false;
+  closed: boolean = true;
 
   @HostListener('click')
   onClick() {
@@ -60,10 +60,16 @@ export class MapLegendComponent {
     let category = keys[0].split('.')[0],
       ids = keys.map(key => +key.split('.')[1]),
       mapping = DataExtractionHelper.get(category),
-      values = mapping ? ids.map(id => mapping[id]) : ids.map(id => id ? 'Oui' : 'Non');
+      values;
     
-    this.categories[category] = [values, keys.map(key => dict[key]['icon'].url)];
-    this.findCategories(dict[category + '.' + (ids[0] ? ids[ids.length-1] : ids[0]) ]);
+    if ( mapping ) {
+      ids.sort((x, y) => 1-2*+(mapping[x] < mapping[y]));
+      values = ids.map(id => mapping[id]);
+    } else {
+      values = ids.map(id => id ? 'Oui' : 'Non');
+    }
+    this.categories[category] = [values, ids.map(id => dict[category + '.' + id]['icon'].url)];
+    this.findCategories(dict[category + '.' + ids[0]]);
   }
 
   ngOnChanges(changes: SimpleChanges) {

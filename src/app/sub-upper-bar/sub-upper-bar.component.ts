@@ -47,5 +47,6 @@ export class SubUpperBarComponent implements OnInit {
     this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(this.filtersStates.navigation.tree!, this.filtersStates.stateSubject.value.States.path.length - 1)
     this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
+    this.currentYear = current ? this.filtersStates.getYear() : '';
   }
 }

@@ -4,7 +4,7 @@ import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
 
 
-// peut-être à mettre dans un fichier de config
+// peut-être à mettre dans un fichier de config ou dans le back
 const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustrieTarget', 'industrieTarget', "suiviAD"],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustrieTarget', 'industrieTarget'],
@@ -13,9 +13,6 @@ const nonRegularAxis = ['industrie', 'enduitIndustrie', 'segmentDnEnduit', 'clie
   clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
   visitAxis = ['segmentDnEnduitTargetVisits'],
   adAxis = ["suiviAD"];
-
-const attributesToCountForFilters = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 
-  'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']; // à relier au code de Majed plus tard
 
 class DataWidget{
   private data: any;
@@ -303,13 +300,13 @@ export class PDV{
 
   get targetP2cd(){
     let target = this.attribute('target');
-    if (target == undefined) return 0;
+    if (!target) return 0;
     return target[DataExtractionHelper.TARGET_VOLUME_ID]
   }
 
   get targetFinition(){
     let target = this.attribute('target');
-    if (target == undefined) return 0;
+    if (!target) return false;
     return target[DataExtractionHelper.TARGET_FINITIONS_ID]
   }
 
@@ -349,7 +346,7 @@ export class PDV{
   }
 
   static getProducts() {
-    return Object.values(DataExtractionHelper.get('produit'));
+    return Object.values(DataExtractionHelper.get('product'));
   }
   
   readonly sales: Sale[];
@@ -473,7 +470,7 @@ export class PDV{
       }
       let totalP2cd = 0,
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-      clientProspectLimit = DataExtractionHelper.get('paramsCompute')['clientProspectLimit'],
+      clientProspectLimit = DataExtractionHelper.getParam('ratioCustomerProspect'),
       siniatP2cd = 0;
       for (let sale of this.sales)
         if (sale.type == 'p2cd'){
@@ -522,13 +519,13 @@ export class PDV{
       associatedIndex[axe[i]] = i;
     let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
       salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-      totalEnduit = DataExtractionHelper.get('paramsCompute')['theoricalRatioEnduit'] * total,
+      totalEnduit = DataExtractionHelper.getParam("ratioPlaqueFinition") * total,
       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
     for (let sale of relevantSales){
-      if (sale.industryId == pregyId) diced[associatedIndex["Pregy"]] += sale.volume;
+      if (sale.industryId == pregyId) diced[associatedIndex["Prégy"]] += sale.volume;
       else if (sale.industryId == salsiId) diced[associatedIndex["Salsi"]] += sale.volume;    
     }
-    let salsiPlusPregy = diced[associatedIndex["Pregy"]] + diced[associatedIndex["Salsi"]];
+    let salsiPlusPregy = diced[associatedIndex["Prégy"]] + diced[associatedIndex["Salsi"]];
     let other = Math.max(totalEnduit - salsiPlusPregy, 0);
     let dnEnduit = this.getValue('dn', false, true) as number[];
     // if (this.clientProspect() == 'Client'){
@@ -642,12 +639,17 @@ export class PDV{
 
   //Juste pour le reSlice
   property(propertyName:string){
-    if (propertyName == 'clientProspect') return this.clientProspect(true);
-    if (propertyName == 'industriel' || propertyName == 'industrie') return this.industriel();
-    if (propertyName == 'ciblage') return this.ciblage();
-    if (propertyName == 'pointFeuFilter') return (this.attribute('pointFeu'))? 2: 1;
-    if (propertyName == 'segmentMarketingFilter') return this.segmentMarketingFilter();
-    return this.attribute(propertyName);
+    switch(propertyName){
+      case 'clientProspect': return this.clientProspect(true);
+      case 'industrie': return this.industriel();
+      case 'industriel': return this.industriel();
+      case 'ciblage': return this.ciblage();
+      case 'pointFeuFilter': return this.attribute('pointFeu')? 2: 1;
+      case 'visited': return (this.attribute("nbVisits") > 0)? 1: 2;
+      case 'segmentMarketingFilter': return this.segmentMarketingFilter();
+      case 'typology': return this.typologyFilter();
+      default: return this.attribute(propertyName);
+    }
   }
 
   private segmentMarketingFilter(){
@@ -659,13 +661,18 @@ export class PDV{
     return result;
   }
 
-  static countForFilter(pdvs:PDV[], attribute?:string){
-    // il faudrait relier cette liste à ce que Majed fait
+  private typologyFilter():any{
+    let dnResult = this.getValue('dn', false, true) as number[],
+      typologyIds = Object.keys(DataExtractionHelper.get('segmentDnEnduit'));
+    for (let i = 0; i < dnResult.length; i++)
+      if (dnResult[i] == 1)
+        return parseInt(typologyIds[i]);
+  }
+
+  static countForFilter(pdvs:PDV[], attributesToCount:string[]){
     let dictCounter: {[key:string]: {[key:string]:number}} = {};
-    if (!attribute)
-      for (let attribute of attributesToCountForFilters)
-        dictCounter[attribute] = {};
-    else dictCounter[attribute] = {};
+    for (let attribute of attributesToCount)
+      dictCounter[attribute] = {};
     for (let pdv of pdvs)
       for (let attribute of Object.keys(dictCounter)){
         if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
@@ -766,7 +773,7 @@ export class PDV{
     let totalSale = Object.entries(p2cdSalesRaw).reduce(
       (total: number, [_, value]: [string, number]) => total + value, 0)
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
-    let pregySale = enduitSalesRaw['Pregy'];
+    let pregySale = enduitSalesRaw['Prégy'];
     let salsiSale = enduitSalesRaw['Salsi'];
     return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : 
       (0.36*totalSale) - salsiSale - pregySale;
@@ -811,12 +818,11 @@ export class PDV{
   clientProspect(index=false){
     let dnResult = this.getValue('dn', false, false, true) as number[],
       clientProspectDict = DataExtractionHelper.get('clientProspect');
-    let clientProspectAxis = Object.values(clientProspectDict);
+    let clientProspectAxis = Object.values(clientProspectDict),
+      clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
-      if (dnResult[i] === 1){
-        let result = (index) ? parseInt(DataExtractionHelper.getKeyByValue(clientProspectDict, clientProspectAxis[i])!): clientProspectAxis[i];
-        return result;
-      }
+      if (dnResult[i] === 1)
+        return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
 
   displayIndustrieSaleVolumes(enduit = false){
@@ -879,7 +885,7 @@ export class PDV{
     let updateDateInSeconds = this.getFirstSaleDate(),
       currentDate = new Date(),
       day = currentDate.getDay() == 0 ? 6: currentDate.getDay() - 1, // car dans timestamp la semaine commence le dimanche
-      BeginingOfTheWeek = currentDate.getTime() - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
+      BeginingOfTheWeek = currentDate.getTime() / 1000 - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day))),
       aWeekInSeconds = 7 * 24 * 60 * 6,
       find = false, i = 0;
     while(!find && i < 7){
@@ -914,7 +920,8 @@ export class PDV{
           cibleVisits:number = PDV.computeTargetVisits(slice) as number,
           threshold = [50, 99.99, 100];
         for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
-        return [[[totalVisits.toString().concat(' visites sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
+        let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
+        return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
       };
       case 'target': {
         let totalVisits = 0,
@@ -925,12 +932,14 @@ export class PDV{
           totalVisits += pdv.attribute("nbVisits");
           if (pdv.targetFinition) totalCibleVisits += pdv.attribute("nbVisits");
         }
-        return [[[totalCibleVisits.toString().concat(' visites ciblées sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
+        let adaptedVersion = (totalCibleVisits >= 2) ? ' visites ciblées': ' visite ciblée';
+        return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
       };
       case 'AD': {
         let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
-          ratio = nbCompletedPdv / pdvs.length;
-        return [[['  ', 100 * ratio]], [33, 66, 100]];
+          ratio = nbCompletedPdv / pdvs.length,
+          adaptedVersion = (nbCompletedPdv >= 2) ? ' PdV complétés':  'PdV complété';
+        return [[[nbCompletedPdv.toString().concat(adaptedVersion, ' sur un total de ', pdvs.length.toString()), 100 * ratio]], [33, 66, 100]];
        }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
     }
@@ -938,8 +947,10 @@ export class PDV{
 
   static computeTargetVisits(slice:any, threshold=false){
     let relevantNode = DataExtractionHelper.followSlice(slice);   
+    console.log(relevantNode.id)
     let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DataExtractionHelper.get("agentFinitions")): 
-      DataExtractionHelper.findFinitionAgentsOfDrv(slice['Région']);
+      ((relevantNode.label == 'Région') ? DataExtractionHelper.findFinitionAgentsOfDrv(slice['Région']): 
+      [DataExtractionHelper.get("agentFinitions")[relevantNode.id]]);
     if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
       (acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_RATIO_ID], 0);
     return finitionAgents.reduce(

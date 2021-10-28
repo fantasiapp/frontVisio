@@ -79,7 +79,7 @@ export class HistoColumnComponent extends BasicWidget {
           return `
             <div class="histocolumn-tooltip tooltip">
               ${d.filter((data: any) => data.value > 0.5).map((data: any) => `
-                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3)} ${this.properties.unit}
+                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}
               `).join('<br/>')}
               <div class="tooltip-tail"></div>
             </div>
