@@ -7,7 +7,7 @@ import { DisableDirective } from './disable-directive.directive';
 })
 export class AgentFinitionsOnlyDirective extends DisableDirective {
   computeDisabled(): boolean {
-    return PDV.geoTree.root.label !== 'Agent Finitions';
+    return PDV.geoTree.root.label !== 'Agent Finition';
 
   }
 

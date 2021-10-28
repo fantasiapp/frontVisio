@@ -385,7 +385,7 @@ class DataExtractionHelper{
   static getTarget(level='national', id:number, dn=false, finition=false){
     let targetType = dn ? "dn": "vol";
     let targetTypeId:number = this.get("structureTargetlevel").indexOf(targetType);
-    if (level == "agentFinitions" || level == 'Agent Finitions') return this.get("targetLevelAgentFinitions")[id][targetTypeId];
+    if (level == 'Agent Finition') return this.get("targetLevelAgentFinitions")[id][targetTypeId];
     if (finition && level == 'Région'){
       let finitionAgentsids = this.findFinitionAgentsOfDrv(id, true),
         targetsAgentFinition = this.get("targetLevelAgentFinitions");
@@ -444,7 +444,7 @@ class DataExtractionHelper{
   }
 
   private static getCompleteCiblageFinitions(node:any){
-    if (!['France', 'Région', 'Agent Finitions'].includes(node.label)) return "";
+    if (!['France', 'Région', 'Agent Finition'].includes(node.label)) return "";
     let ciblageDn = PDV.computeCiblage(node, true, true),
       ciblageFinitions = PDV.computeCiblage(node, true),
       objective = this.getTarget(node.label, node.id, false, true);
@@ -460,7 +460,7 @@ class DataExtractionHelper{
   }
 
   private static getObjectif(node:any, finition=false, dn=false){    
-    if ((finition && !['France', 'Région', 'Agent Finitions'].includes(node.label)) || (!finition && node.label !== 'Secteur')) return "";
+    if ((finition && !['France', 'Région', 'Agent Finition'].includes(node.label)) || (!finition && node.label !== 'Secteur')) return "";
     let objective = this.getTarget(node.label, node.id, dn, finition);
     if (finition) return 'Objectif: '.concat(Math.round(objective).toString(), ' T, ');
     return (dn) ? 'Objectif: '.concat(objective.toString(), ' PdV, '): 'Objectif: '.concat((Math.round(objective)).toString(), ' km², ');
