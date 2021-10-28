@@ -67,7 +67,6 @@ export class SliceTable {
                 let group: {}[] = [];
                 group = group.concat({
                     'name': {'name': entry[0], 'number': entry[1].length},
-                    // 'target': 0,
                     'potential': entry[1].reduce((totalPotential: number, pdv: {}) => totalPotential + ((pdv as any).potential > 0 ? (pdv as any).potential : 0), 0),
                     'groupRow': true
                     })
@@ -90,10 +89,10 @@ export class SliceTable {
             let enduitSales: any =  {}; let enduitRaw = PDV.findById(id)!.displayIndustrieSaleVolumes(true)
             p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
             for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
-                p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': this.getColor('industry', industry)}
+                p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getColor('industry', industry)}
             }
             for(let industry of ['Prégy', 'Salsi', 'Autres']) {
-                enduitSales[industry] = {'value': enduitRaw[industry], 'color': this.getColor('indFinition', industry)}
+                enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getColor('indFinition', industry)}
             }
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
@@ -319,7 +318,7 @@ export class SliceTable {
         return 'red'
     }
 
-    getColor(axis: string, enseigne: string): string {
+    static getColor(axis: string, enseigne: string): string {
         let hardCodedColors: {[key: string]: {[key: string]: string}} = {
             'industry': {
             'Siniat': '#A61F7D',
@@ -340,10 +339,8 @@ export class SliceTable {
         let pdvAsList = []
         for(let field of DataExtractionHelper.getPDVFields()) {
             if(this.idsToFields[field]) {
-                // console.log("reverse engineering for ", field)
                 for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
                     if(fieldValue === pdv[field]) {
-                        // console.log("finding ", id ," for ", fieldValue)
                         pdvAsList.push(id)
                         break;
                     }
@@ -352,12 +349,4 @@ export class SliceTable {
         }
         return pdvAsList;
     }
-    
-    // updateData() {
-    //     this.dataService.requestUpdateData()
-    //     .subscribe((updatedData) => {
-    //         DataExtractionHelper.updateData(updatedData as {[field: string]: []})
-    //     })
-    // }
-
 }

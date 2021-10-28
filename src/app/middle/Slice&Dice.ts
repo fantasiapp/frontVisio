@@ -2,6 +2,7 @@ import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} 
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
+import { SliceTable } from './SliceTable';
 
 
 // peut-être à mettre dans un fichier de config ou dans le back
@@ -297,6 +298,34 @@ export class PDV{
   static geoTree: Tree;
   static tradeTree: Tree;
   private static indexMapping: Map<string, number>;
+
+  get name(){return this.attribute('name')}
+  get enseigne() {return this.attribute('enseigne')}
+  get segmentMarketing() {return this.attribute('segmentMarketing')}
+  get segmentCommercial() {return this.attribute('segmentCommercial')}
+  get ensemble() {return this.attribute('ensemble')}
+
+  get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
+  get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
+  get graph() {
+    let p2cdSales: any =  {}; let p2cdRaw = this.displayIndustrieSaleVolumes()
+    let enduitSales: any =  {}; let enduitRaw = this.displayIndustrieSaleVolumes(true)
+    p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
+    for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
+        p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getColor('industry', industry)}
+    }
+    for(let industry of ['Prégy', 'Salsi', 'Autres']) {
+        enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getColor('indFinition', industry)}
+    }
+    return {'p2cd': p2cdSales, 'enduit': enduitSales};
+  }
+  get potential() {return this.getPotential()}
+  get typologie() {return this.typologyFilter()}
+  get edit() {return true}
+  get info() {return true}
+  // get clientProspect(){return this.clientProspect(true)}
+
+
 
   get targetP2cd(){
     let target = this.attribute('target');
