@@ -18,7 +18,7 @@ export class MapFiltersComponent {
   opened: boolean = false;
 
   @Input()
-  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finitions';
+  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finition';
 
   criteriaNames = !this.isAgentFinitions ?
     ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'] :

@@ -11,7 +11,7 @@
     cursor: pointer;
     transition: all 200ms ease-out 0s;
     transform: translateY(0);
-    width: 35em;
+    width: 39em;
 }
 
 
@@ -59,15 +59,15 @@ h4 {
 }
 
 .item {
-    width: 6em;
-    flex: 0 0 6em;
+    flex: 0 0 7em;
     position: relative;
-    min-height: 5em;
+    min-height: 4em;
     text-align: center;
 }
 
 .item .name {
     position: absolute;
+    width: 100%;
     top: 25px;
     left: 50%;
     transform: translateX(-50%);

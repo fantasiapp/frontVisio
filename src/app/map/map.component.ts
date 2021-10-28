@@ -44,7 +44,7 @@ export class MapComponent implements OnDestroy {
     this.update();
   }
 
-  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finitions';
+  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finition';
   
   selectedPDV?: PDV;
   private hidden: boolean = true;
