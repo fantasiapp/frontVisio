@@ -204,7 +204,7 @@ export class SliceTable {
     }
 
     getAllColumns(type: string) {
-        let allColumns = DataExtractionHelper.getPDVFields().concat(this.tableConfig[type]['specificColumns']);
+        let allColumns = DataExtractionHelper.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']);
         return allColumns;
     }
 
@@ -349,7 +349,7 @@ export class SliceTable {
   
     pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
         let pdvAsList = []
-        for(let field of DataExtractionHelper.getPDVFields()) {
+        for(let field of DataExtractionHelper.get('structurePdvs')) {
             if(this.idsToFields[field]) {
                 // console.log("reverse engineering for ", field)
                 for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {

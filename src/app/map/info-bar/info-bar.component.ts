@@ -378,7 +378,7 @@ export class InfoBarComponent {
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
     let pdvAsList = []
-    for(let field of DataExtractionHelper.getPDVFields()) {
+    for(let field of DataExtractionHelper.get('structurePdvs')) {
       if(field == 'target') pdvAsList.push(this.target)
       else if (field == 'onlySiniat') pdvAsList.push(this.isOnlySiniat);
       else pdvAsList.push(pdv.attribute(field))

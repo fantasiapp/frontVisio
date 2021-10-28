@@ -243,7 +243,7 @@ class DataExtractionHelper{
     
     // Check how deletions are managed 
     //update this.pdv
-    let idCode : any  = this.getKeyByValue(this.getPDVFields(), 'code')
+    let idCode : any  = this.getKeyByValue(this.get('structurePdvs'), 'code')
     for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
           this.data.pdvs[newPdvId] = newPdv;
     }
@@ -259,10 +259,6 @@ class DataExtractionHelper{
     localStorageService.saveData(this.data)
     DataExtractionHelper.setData(this.data);
     PDV.load(true);
-  }
-
-  static getPDVFields() {
-    return this.get('structurePdvs');
   }
 
   static getGeoLevel(height: number){
