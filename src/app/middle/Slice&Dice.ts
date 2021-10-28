@@ -300,10 +300,10 @@ export class PDV{
   private static indexMapping: Map<string, number>;
 
   get name(){return this.attribute('name')}
-  get enseigne() {return this.attribute('enseigne')}
-  get segmentMarketing() {return this.attribute('segmentMarketing')}
-  get segmentCommercial() {return this.attribute('segmentCommercial')}
-  get ensemble() {return this.attribute('ensemble')}
+  get enseigne() {return DataExtractionHelper.get('enseigne')[this.attribute('enseigne')]}
+  get segmentMarketing() {return DataExtractionHelper.get('segmentMarketing')[this.attribute('segmentMarketing')]}
+  get segmentCommercial() {return DataExtractionHelper.get('segmentCommercial')[this.attribute('segmentCommercial')]}
+  get ensemble() {return DataExtractionHelper.get('ensemble')[this.attribute('ensemble')]}
   get nbVisits() {return this.attribute('nbVisits')}
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
