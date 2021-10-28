@@ -34,7 +34,7 @@ export class SliceTable {
             'navIds': () => this.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
-            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'instanceId'],
+            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'id'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
             'groupRowConfig': (entry: any) => {
@@ -60,7 +60,7 @@ export class SliceTable {
             'navIds': () => this.geoTree ? ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'] : ['typologie', 'segmentMarketing', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkboxEnduit && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkboxEnduit', flex: 0.3}],
-            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkboxEnduit', 'instanceId'],
+            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkboxEnduit', 'id'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
             'groupRowConfig': (entry: any) => {
@@ -78,16 +78,16 @@ export class SliceTable {
         }
     }
 
-    private customField: {[name: string]: (pdv: any) => {} | null}  = { //the way to compute them
-        'siniatSales': (pdv: any) => {
-            return this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()['Siniat']
+    private customField: {[name: string]: (id: number, pdv: any) => {} | null}  = { //the way to compute them
+        'siniatSales': (id: number, pdv: any) => {
+            return PDV.findById(id)!.displayIndustrieSaleVolumes()['Siniat']
         },
-        'totalSales': (pdv: any) => {
-            return Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)
+        'totalSales': (id: number, pdv: any) => {
+            return Object.entries(PDV.findById(id)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)
         },
-        'graph': (pdv: any) => {
-            let p2cdSales: any =  {}; let p2cdRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()
-            let enduitSales: any =  {}; let enduitRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)
+        'graph': (id: number, pdv: any) => {
+            let p2cdSales: any =  {}; let p2cdRaw = PDV.findById(id)!.displayIndustrieSaleVolumes()
+            let enduitSales: any =  {}; let enduitRaw = PDV.findById(id)!.displayIndustrieSaleVolumes(true)
             p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
             for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
                 p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': this.getColor('industry', industry)}
@@ -97,11 +97,11 @@ export class SliceTable {
             }
             return {'p2cd': p2cdSales, 'enduit': enduitSales};
         },
-        'potential': (pdv: any) => {
-            return this.getPdvInstance(pdv)!.getPotential();
+        'potential': (id: number, pdv: any) => {
+            return PDV.findById(id)!.getPotential();
         },
-        'typologie': (pdv :any) => {
-            let list = this.getPdvInstance(pdv)!.getValue('dn', false, true) as number[];
+        'typologie': (id: number, pdv: any) => {
+            let list = PDV.findById(id)!.getValue('dn', false, true) as number[];
             for(let i = 0; i<list.length; i++) {
                 if(list[i] === 1) return this.segmentDnEnduit[i+1]
             }
@@ -110,13 +110,13 @@ export class SliceTable {
         'edit': () => {
             return true; //should return what is inside the new div ?
         },
-        'checkboxEnduit': (pdv: any) => {
-            return PDV.findById(pdv.instanceId)?.targetFinition;
+        'checkboxEnduit': (id: number, pdv: any) => {
+            return PDV.findById(id)!.targetFinition;
         },
-        'checkboxP2cd': (pdv: any) => null,
+        'checkboxP2cd': (id: number, pdv: any) => null,
 
-        'clientProspect': (pdv: any) => {
-            let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
+        'clientProspect': (id: number, pdv: any) => {
+            let array: any = PDV.findById(id)!.getValue('dn', false, false, true);
             if(array[0] === 1) return DataExtractionHelper.get('clientProspect')[1]
             if(array[1] === 1) return DataExtractionHelper.get('clientProspect')[2]
             return DataExtractionHelper.get('clientProspect')[3]
@@ -124,7 +124,7 @@ export class SliceTable {
         'info': () => {
             return true;
         },
-        'instanceId': (pdv: any) => pdv.instanceId,
+        'id': (id: number, pdv: any) => id,
     }
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
@@ -146,7 +146,7 @@ export class SliceTable {
             let field = allColumns[index]
             if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
             else if(this.tableConfig[type]['specificColumns'].includes(field)) {
-                let customValue = this.customField[field](pdv);
+                let customValue = this.customField[field](id, pdv);
                 if(customValue !== null) newPdv[field] = customValue;
             }
             else {
@@ -159,17 +159,9 @@ export class SliceTable {
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
         let pdvs = []
         console.log("[SliceTable] slice : ", slice)
-        if (slice !== {}){
-            let allPdvs = DataExtractionHelper.get('pdvs');
-            for(let pdvInfo of PDV.sliceTree(slice, this.geoTree)[0]) {
-                let newPdv = allPdvs[pdvInfo.id];
-                newPdv.instanceId = pdvInfo.id;
-                pdvs.push(newPdv);
-            }
-        }
-        this.pdvs = pdvs;
+        pdvs = DataExtractionHelper.get('pdvs');
         let pdvsAsList =  [];
-        for(let pdv of pdvs) {
+        for(let [id, pdv] of Object.entries(pdvs) as any[]) {
             if(pdv[DataExtractionHelper.SALE_ID] === true) {
                 let newPdv: {[key:string]:any} = {}; //concrete row of the table
                 let allColumns = this.getAllColumns(type);
@@ -177,14 +169,13 @@ export class SliceTable {
                     let field = allColumns[index]
                     if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
                     else if(this.tableConfig[type]['specificColumns'].includes(field)) {
-                        let customValue = this.customField[field](pdv);
+                        let customValue = this.customField[field](+id, pdv);
                         if(customValue !== null) newPdv[field] = customValue;
                     }
                     else {
-                        newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
+                        newPdv[field] = PDV.findById(+id)!.attribute(field)
                     }
                 }
-                newPdv.instanceId = pdv.instanceId;
                 pdvsAsList.push(newPdv);
             }
         }
@@ -200,7 +191,6 @@ export class SliceTable {
         let updatedPdvs: any[] = Object.values(DataExtractionHelper.updatedData['pdvs']);
         let updatedIds: any[] = Object.keys(DataExtractionHelper.updatedData['pdvs'])
         for(let i = 0; i < updatedPdvs.length; i++) {
-            updatedPdvs[i].instanceId = +updatedIds[i];
             ret.push(this.pdvFromListToObject(updatedPdvs[i], +updatedIds[i], type))
         }
         return ret;
@@ -273,7 +263,7 @@ export class SliceTable {
                 pdv['checkboxEnduit'] = false;
             }
         }
-        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
+        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['id'])
     }
 
     updateTotalTarget(increment: number) {
@@ -311,12 +301,8 @@ export class SliceTable {
         return groupList.flat()
     }
 
-    getPdvInstance(pdv: any) {
-        return PDV.getInstances().get(pdv.instanceId);
-    }
-
-    getRowColor(pdv: any): string {
-        let pdvInstance = this.getPdvInstance(pdv)!;
+    getRowColor(id: number): string {
+        let pdvInstance = PDV.findById(id)!;
         let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
         if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
