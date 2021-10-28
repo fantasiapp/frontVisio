@@ -97,18 +97,18 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    let newRows =  this.sliceTable.getUpdatedRows(this.type)
-    for(let i = 0; i < this.rowData.length; i++) {
-      for(let newRow of newRows) {
-        if(newRow.name === this.rowData[i].name) {
-          for(let field of Object.keys(this.rowData[i]))
-          this.rowData[i][field] = newRow[field];
-        }
-      }
+    // let newRows =  this.sliceTable.getUpdatedRows(this.type)
+    // for(let i = 0; i < this.rowData.length; i++) {
+    //   for(let newRow of newRows) {
+    //     if(newRow.name === this.rowData[i].name) {
+    //       for(let field of Object.keys(this.rowData[i]))
+    //       this.rowData[i][field] = newRow[field];
+    //     }
+    //   }
 
-    }
-    this.gridApi.refreshCells()
-    this.gridApi.redrawRows()
+    // }
+    // this.gridApi.refreshCells()
+    // this.gridApi.redrawRows()
     this.updateTitle()
   }
 
@@ -287,13 +287,12 @@ export class TableComponent extends BasicWidget {
     return this.rowData[0];
   }
 
-  displayInfobar(pdv: {[key:string]:any} | number) {
-    if(typeof(pdv) === 'number') { let id = pdv; pdv = this.getPdvOnId(pdv); pdv.instanceId = id;}
-    InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(PDV.findById(pdv.id)!.getValues())); //Values deepcopy
-    InfoBarComponent.pdvId = pdv.instanceId;
-    this.selectedPdv = pdv.instanceId;
+  displayInfobar(pdv: PDV | number) {
+    if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
+    InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(pdv.getValues())); //Values deepcopy
+    this.selectedPdv = pdv;
     if(this.type === 'enduit') this.loadCustomData();
-    this.pdv = PDV.getInstances().get(pdv.instanceId) // => displays infoBar
+    this.pdv = PDV.getInstances().get(pdv.id) // => displays infoBar
     this.cd.markForCheck();
   }
   // sideDivRight: string = "calc(-60% - 5px)";

@@ -1,4 +1,3 @@
-import { DatePipe, formatDate } from "@angular/common";
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
 import DataExtractionHelper from "./DataExtractionHelper";
@@ -8,7 +7,6 @@ import { PDV, SliceDice } from "./Slice&Dice";
     providedIn: 'root'
   })
 export class SliceTable {
-    private pdvs: any[] = []; //Raw pdvs data, as list. Will be usefull to emit data updates to the back
     private sortedPdvsList: {}[] = [];
     private pdvsWithGroupslist: {}[] = [];
     groupInfos: {field: string, values: string[]} = {field : '', values: []};
@@ -31,10 +29,10 @@ export class SliceTable {
                 this.sortedPdvsList.reduce((totalSiniat: number, pdv: {}) => totalSiniat + (pdv as any).siniatSales,0),
                 this.sortedPdvsList.reduce((totalSales: number, pdv: {}) => totalSales + (pdv as any).totalSales,0)
                 ],
-            'navIds': () => this.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
+            'navIds': () => this.geoTree ? ['enseigne', 'clientProspectProperty', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspectProperty', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
-            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'id'],
+            'specificColumns': ['clientProspectProperty', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'id'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
             'groupRowConfig': (entry: any) => {
@@ -114,7 +112,7 @@ export class SliceTable {
         },
         'checkboxP2cd': (id: number, pdv: any) => null,
 
-        'clientProspect': (id: number, pdv: any) => {
+        'clientProspectProperty': (id: number, pdv: any) => {
             let array: any = PDV.findById(id)!.getValue('dn', false, false, true);
             if(array[0] === 1) return DataExtractionHelper.get('clientProspect')[1]
             if(array[1] === 1) return DataExtractionHelper.get('clientProspect')[2]
@@ -156,31 +154,9 @@ export class SliceTable {
     }
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
-        let pdvs = []
-        console.log("[SliceTable] slice : ", slice)
-        pdvs = DataExtractionHelper.get('pdvs');
-        let pdvsAsList =  [];
-        for(let [id, pdv] of Object.entries(pdvs) as any[]) {
-            if(pdv[DataExtractionHelper.SALE_ID] === true) {
-                let newPdv: {[key:string]:any} = {}; //concrete row of the table
-                let allColumns = this.getAllColumns(type);
-                for(let index = 0; index < Object.keys(allColumns).length; index ++) {
-                    let field = allColumns[index]
-                    if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
-                    else if(this.tableConfig[type]['specificColumns'].includes(field)) {
-                        let customValue = this.customField[field](+id, pdv);
-                        if(customValue !== null) newPdv[field] = customValue;
-                    }
-                    else {
-                        newPdv[field] = PDV.findById(+id)!.attribute(field)
-                    }
-                }
-                pdvsAsList.push(newPdv);
-            }
-        }
-        
-        pdvsAsList.sort(this.tableConfig[type]['customSort'])
-        this.sortedPdvsList = pdvsAsList;
+        let pdvs = PDV.sliceTree(slice, this.geoTree)[0];
+        pdvs.sort(this.tableConfig[type]['customSort'])
+        this.sortedPdvsList = pdvs;
         this.pdvsWithGroupslist = this.buildGroups(groupField, type);
         return this.pdvsWithGroupslist;
     }
@@ -249,20 +225,21 @@ export class SliceTable {
         return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
       }
 
-    changeTargetTargetFinitions(pdv: {[field: string]: any}) {
-        if(!pdv['target']) pdv['target'] = SliceTable.initializeTarget()
-        if(pdv['potential'] > 0) {
-            if(pdv['targetFinition']) {
-                this.updateTotalTarget(pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = true;
-                pdv['targetFinition'] = true;
+    changeTargetTargetFinitions(pdv: PDV) {
+        let list: any[] = this.pdvFromObjectToList(pdv);
+        if(!list[DataExtractionHelper.TARGET_ID]) list[DataExtractionHelper.TARGET_ID] = SliceTable.initializeTarget()
+        if(pdv.potential > 0) {
+            if(!pdv.targetFinition) {
+                this.updateTotalTarget(pdv.potential)
+                list[DataExtractionHelper.TARGET_ID][DataExtractionHelper.TARGET_FINITIONS_ID] = true;
+                list[DataExtractionHelper.TARGET_FINITIONS_ID] = true;
             } else {
-                this.updateTotalTarget(-pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = false;
-                pdv['targetFinition'] = false;
+                this.updateTotalTarget(-pdv.potential)
+                list[DataExtractionHelper.TARGET_ID][DataExtractionHelper.TARGET_FINITIONS_ID] = false;
+                list[DataExtractionHelper.TARGET_FINITIONS_ID] = false;
             }
         }
-        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['id'])
+        this.dataService.updatePdv(list, pdv.id)
     }
 
     updateTotalTarget(increment: number) {
@@ -335,17 +312,10 @@ export class SliceTable {
         return hardCodedColors[axis][enseigne];
     }
   
-    pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
+    pdvFromObjectToList(pdv: PDV) { //operation inverse de la construction de row du tableau
         let pdvAsList = []
         for(let field of DataExtractionHelper.getPDVFields()) {
-            if(this.idsToFields[field]) {
-                for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
-                    if(fieldValue === pdv[field]) {
-                        pdvAsList.push(id)
-                        break;
-                    }
-                }
-            } else pdvAsList.push(pdv[field])
+            pdvAsList.push(pdv.attribute(field))
         }
         return pdvAsList;
     }

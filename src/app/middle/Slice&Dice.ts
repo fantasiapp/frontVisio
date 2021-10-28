@@ -304,7 +304,7 @@ export class PDV{
   get segmentMarketing() {return this.attribute('segmentMarketing')}
   get segmentCommercial() {return this.attribute('segmentCommercial')}
   get ensemble() {return this.attribute('ensemble')}
-
+  get nbVisits() {return this.attribute('nbVisits')}
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
   get graph() {
@@ -320,12 +320,14 @@ export class PDV{
     return {'p2cd': p2cdSales, 'enduit': enduitSales};
   }
   get potential() {return this.getPotential()}
-  get typologie() {return this.typologyFilter()}
+  get typologie() {return DataExtractionHelper.get('segmentDnEnduit')[this.typologyFilter()]}
   get edit() {return true}
   get info() {return true}
-  // get clientProspect(){return this.clientProspect(true)}
-
-
+  get checkboxP2cd() {return this.ciblage() === 2}
+  get clientProspectProperty(){return this.clientProspect()}
+  get sale(){return this.attribute('sale')}
+  get onlySiniat(){return this.attribute('onlySiniat')}
+  get redistributedFinitions(){return this.attribute('redistributedFinitions')}
 
   get targetP2cd(){
     let target = this.attribute('target');
@@ -338,6 +340,7 @@ export class PDV{
     if (!target) return false;
     return target[DataExtractionHelper.TARGET_FINITIONS_ID]
   }
+
 
   static getInstances(): Map<number, PDV> {
     if (!this.instances)

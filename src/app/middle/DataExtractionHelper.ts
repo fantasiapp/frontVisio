@@ -252,13 +252,19 @@ class DataExtractionHelper{
       for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
             this.get(targetType)[newTargetId] = newTarget;
       }
-    }      
+    }
     //Build trees !!! CUSTOM THIS
 
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
     DataExtractionHelper.setData(this.data);
     PDV.load(true);
+    
+    // for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
+    //   let values: any[] = PDV.findById(+newPdvId)!.getValues();
+    //   for(let i = 0; i < values.length; i++) values[i] = newPdv[i];
+    //   PDV.findById(+newPdvId)!.setValues(values)
+    // }
   }
 
   static getPDVFields() {
