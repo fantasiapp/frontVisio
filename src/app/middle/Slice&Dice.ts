@@ -303,13 +303,13 @@ export class PDV{
 
   get targetP2cd(){
     let target = this.attribute('target');
-    if (target == undefined) return 0;
+    if (!target) return 0;
     return target[DataExtractionHelper.TARGET_VOLUME_ID]
   }
 
   get targetFinition(){
     let target = this.attribute('target');
-    if (target == undefined) return 0;
+    if (!target) return false;
     return target[DataExtractionHelper.TARGET_FINITIONS_ID]
   }
 
