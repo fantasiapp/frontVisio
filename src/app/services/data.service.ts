@@ -76,7 +76,10 @@ export class DataService {
         if(response.message) {
           console.debug("Empty update")
           DataExtractionHelper.updatedData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
-        } else {
+        } else if(response.warning) {
+          console.debug("Server temporarly unavailable")
+        }
+        else {
           console.log("Updates received from back : ", response)
           DataExtractionHelper.updatedData = response;
           DataExtractionHelper.updateData(response);
