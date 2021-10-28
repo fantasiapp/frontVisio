@@ -20,9 +20,8 @@ export class MapFiltersComponent {
   criteriaNames = ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'];
   criteriaPrettyNames = ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin'];
 
-  _pdvs: PDV[] = [...PDV.getInstances().values()];
-  
-  private currentDict: any = PDV.countForFilter(this._pdvs);
+  private _pdvs: PDV[] = [...PDV.getInstances().values()];
+  private currentDict: any = PDV.countForFilter(this._pdvs, this.criteriaNames);
   private liveDict: any = this.currentDict;
 
   private _shown: boolean = false;
@@ -71,7 +70,7 @@ export class MapFiltersComponent {
 
   onPathChanged() {
     this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type);
-    this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs);
+    this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
     this.selects.forEach(select => select.reset());
     this.pdvsChange.emit(this._pdvs);
     //this.resetFilters();
@@ -169,7 +168,7 @@ export class MapFiltersComponent {
         targetCriterion = target ? this.stack[index+dx+1][0].criterion : undefined;
       
       if ( !dx && skipFirst )
-        this.liveDict[criterion] = PDV.countForFilter(pdvs, criterion)[criterion];
+        this.liveDict[criterion] = PDV.countForFilter(pdvs, [criterion])[criterion];
       
       names.add(criterion);
       if ( select.selection.length )
@@ -187,11 +186,11 @@ export class MapFiltersComponent {
 
       if ( target ) {
         names.add(targetCriterion!);
-        this.liveDict[targetCriterion!] = PDV.countForFilter(pdvs, targetCriterion)[targetCriterion!];
+        this.liveDict[targetCriterion!] = PDV.countForFilter(pdvs, [targetCriterion!])[targetCriterion!];
       }
     });
     
-    this.currentDict = PDV.countForFilter(pdvs);
+    this.currentDict = PDV.countForFilter(pdvs, this.criteriaNames);
     let consequent = this.criteriaNames.filter(name => !names.has(name));
     for ( let criterion of consequent )
       this.liveDict[criterion] = this.currentDict[criterion];
