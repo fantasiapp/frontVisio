@@ -160,6 +160,7 @@ class DataExtractionHelper{
   static tradeHeight: number;
   static currentYear = true;
   private static fieldsToSwitchWithyear: string[] = [];
+  static modifiedData: UpdateData;
 
 
   static setData(d: any){
@@ -239,7 +240,7 @@ class DataExtractionHelper{
 
   static updateData(data: UpdateData) {
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
-
+    
     // Check how deletions are managed 
     //update this.pdv
     let idCode : any  = this.getKeyByValue(this.getPDVFields(), 'code')
@@ -337,11 +338,6 @@ class DataExtractionHelper{
     if (field == 'produit') fieldName = 'product';
     if (field == 'industrie') fieldName = 'industry';
     if (field == 'structurePdv') fieldName = 'structurePdvs';
-    if (field == 'indexesPdv') fieldName = 'indexesPdvs';
-    if (field == 'structureWidgetParam') fieldName = 'structureWidgetparams';
-    if (field == 'indexesWidgetParam') fieldName = 'indexesWidgetparams';
-    if (field == 'structureDashboard') fieldName = 'structureDashboards';
-    if (field == 'indexesDashboard') fieldName = 'indexesDashboards';
     // to switch year
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour

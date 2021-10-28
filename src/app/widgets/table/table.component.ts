@@ -9,6 +9,7 @@ import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer,
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 import { LoggerService } from 'src/app/behaviour/logger.service';
+import { LoginPageComponent } from 'src/app/login-page/login-page.component';
 
 @Component({
   selector: 'app-table',
@@ -36,7 +37,7 @@ export class TableComponent extends BasicWidget {
   columnDefs: any;
 
   //Rows
-  rowData: any;
+  rowData: {[field: string]: any}[] = [];
   rowHeight?: number;
 
   //Side menus
@@ -55,7 +56,7 @@ export class TableComponent extends BasicWidget {
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
-      this.updateGraph(this.updateData());
+      this.createGraph(this.updateData());
       })
   }
   gridObservable = new Observable();
@@ -96,12 +97,10 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    console.log('refreshh')
-    let rows = this.updateData()[1];
-    for(let field of this.sliceTable.getUpdatableColumns(this.type)) {
-      for(let i = 0; i < rows.length; i++) {
-        this.rowData[i][field] = rows[i][field]
-      }
+    let newRows =  this.updateData()[1];
+    for(let i = 0; i < this.rowData.length; i++) {
+      for(let field of Object.keys(this.rowData[i]))
+      this.rowData[i][field] = newRows[i][field];
     }
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
@@ -119,14 +118,7 @@ export class TableComponent extends BasicWidget {
   }
 
   updateGraph(data: any[]): void {
-    this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
-    this.navOpts = data[2];
-    this.updateTitle()
-    groupInfos = data[3][0];
-    hiddenGroups = {}
-    this.rowData = data[1]
-    this.gridApi.setRowData(data[1])
-    this.gridApi.refreshCells()
+    this.createGraph(data)
   }
 
   updateGroups(id: string) {
@@ -146,8 +138,14 @@ export class TableComponent extends BasicWidget {
 
 
   createGraph(data: any[], opt?: {}): void {
-    throw new Error('Method not implemented.');
-  }
+    this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
+    this.navOpts = data[2];
+    this.updateTitle()
+    groupInfos = data[3][0];
+    hiddenGroups = {}
+    this.rowData = data[1]
+    this.gridApi.setRowData(this.rowData)
+    this.gridApi.refreshCells()  }
 
 
   updateCellRenderer(data: any[]): any[] {
@@ -243,6 +241,7 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
+    console.log("TEST : ", this.rowData[1])
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {
@@ -267,7 +266,7 @@ export class TableComponent extends BasicWidget {
       'placoP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'knaufP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value + this.selectedPdv.graph.p2cd['Placo'].value + this.selectedPdv.graph.p2cd['Knauf'].value + this.selectedPdv.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Pré"gy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'salsiEnduitSales': Math.round(this.selectedPdv.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'potential': Math.round(this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
@@ -284,7 +283,7 @@ export class TableComponent extends BasicWidget {
   }
 
   displayInfobar(pdv: {[key:string]:any} | number) {
-    if(typeof(pdv) === 'number') pdv = this.getPdvOnId(pdv);
+    if(typeof(pdv) === 'number') { let id = pdv; pdv = this.getPdvOnId(pdv); pdv.instanceId = id;}
     InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(pdv)!.getValues())); //Values deepcopy
     InfoBarComponent.pdvId = pdv.instanceId;
     this.selectedPdv = pdv;
