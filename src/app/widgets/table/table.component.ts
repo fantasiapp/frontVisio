@@ -284,7 +284,7 @@ export class TableComponent extends BasicWidget {
   }
 
   displayInfobar(pdv: {[key:string]:any} | number) {
-    if(typeof(pdv) === 'number') pdv = this.getPdvOnId(pdv);
+    if(typeof(pdv) === 'number') { let id = pdv; pdv = this.getPdvOnId(pdv); pdv.instanceId = id;}
     InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(pdv)!.getValues())); //Values deepcopy
     InfoBarComponent.pdvId = pdv.instanceId;
     this.selectedPdv = pdv;
