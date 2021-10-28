@@ -161,6 +161,9 @@ export class FiltersStatesService implements OnDestroy {
   }
 
   gotoPDVsDashboard() {
+    if ( this.navigation.currentDashboard!.name.indexOf('Points de Vente') >= 0 )
+      return true;
+    
     let change = this.navigation.gotoPDVsDashboard();
     if ( !change ) return false;
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
