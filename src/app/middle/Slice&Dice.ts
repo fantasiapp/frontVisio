@@ -4,16 +4,18 @@ import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
 
 
-// peut-être à mettre dans un fichier de config ou dans le back
+// à mettre dans le back
 const nonRegularAxis = ['industry', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', "suiviAD"],
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustryTarget', 'industryTarget'],
   enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
   industryAxis = ['industry', 'industryTarget'],
   clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
   visitAxis = ['segmentDnEnduitTargetVisits'],
-  adAxis = ["suiviAD"],
-  gaugesAxis = ['visits', 'targetedVisits', 'avancementAD'];
+  adAxis = ['suiviAD'],
+  gaugesAxis = ['visits', 'targetedVisits', 'avancementAD'],
+  rodAfterFirstCategAxis = ['industryTarget', 'clientProspectTarget'],
+  rodAfterSecondCategAxis = ['enduitIndustryTarget'];
 
 class DataWidget{
   private data: any;
@@ -245,17 +247,14 @@ class DataWidget{
     }
   }
 
-  getTargetStartingPoint(axis1:string, axis2:string){
-    if (this.dim == 1){
-      if (axis1 == "enduitIndustryTarget") return this.data[0] + this.data[1];
-      if (axis1 == "industryTarget" || axis1 == "clientProspectTarget") return this.data[0];
-    }
-    if (axis1 == "industryTarget" || axis1 == "clientProspectTarget") return this.data[0];  
-    if (axis1 == "enduitIndustryTarget"){
+  getTargetStartingPoint(axis:string){
+    if (rodAfterFirstCategAxis.includes(axis)) return this.data[0];  
+    if (rodAfterSecondCategAxis.includes(axis)){
+      if (this.dim == 1) return this.data[0] + this.data[1];
       let startingPoints = new Array(this.columnsTitles.length).fill(0);
       for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];
       return startingPoints
-    }        
+    }       
   }
 
   numberToBool(){
@@ -976,7 +975,6 @@ export class PDV{
 };
 
 
-// can lead to an error, potentially
 @Injectable({providedIn: 'root'})
 class SliceDice{
   geoTree: boolean = true;
@@ -1005,7 +1003,7 @@ class SliceDice{
     dataWidget.basicTreatement(km2, sortLines);
     dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
     let sum = dataWidget.getSum();
-    let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1, axis2);
+    let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1);
     if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined, rodPositionForCiblage = undefined,
       targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = 
