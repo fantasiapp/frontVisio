@@ -18,15 +18,15 @@
     }
 }
 
-@media (min-width: 1366px) and (max-width: 1920px) {
+@media (min-width: 1366px) and (max-width: 1500px) {
     :host {
-        font-size: 12px;
+        font-size: 11px;
     }
 }
 
 @media (min-width: 1500px) {
     :host {
-        font-size: 13px;
+        font-size: 12px;
     }
 }
 

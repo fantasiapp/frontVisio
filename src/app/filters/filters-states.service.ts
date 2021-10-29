@@ -76,7 +76,11 @@ export class FiltersStatesService implements OnDestroy {
 
   public getYear() {
     return this.navigation.getCurrentYear();
-  };
+  }
+
+  public getMonth(): string {
+    return DataExtractionHelper.get('params')['month']!;
+  }
 
   public updateState(
     levelId?: number,
