@@ -4,7 +4,7 @@ import { debounceTime } from 'rxjs/operators';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { AuthService } from 'src/app/connection/auth.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -76,15 +76,15 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   }
 
   getADStatus() {
-    return DataExtractionHelper.get('params')['isAdOpen'];
+    return DEH.get('params')['isAdOpen'];
   }
   
   getAppVersion() {
-    return DataExtractionHelper.get('params')['softwareVersion'];
+    return DEH.get('params')['softwareVersion'];
   }
 
   getRefValue() {
-    return DataExtractionHelper.get('params')['referentielVersion'];
+    return DEH.get('params')['referentielVersion'];
   }
 
   getLastUpdateDate() {

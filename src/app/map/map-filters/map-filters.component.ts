@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEm
 import { Subscription } from 'rxjs';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { MapSelectComponent } from '../map-select/map-select.component';
 import { BasicWidget } from 'src/app/widgets/BasicWidget'; 
@@ -101,7 +101,7 @@ export class MapFiltersComponent {
     
     if ( !result ) return [];
 
-    let dict = DataExtractionHelper.get(criterion);
+    let dict = DEH.get(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
       [key, dict[key]]
     ).sort((a, b) => {

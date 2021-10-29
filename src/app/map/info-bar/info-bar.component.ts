@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { PDV, Sale } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
@@ -119,7 +119,7 @@ export class InfoBarComponent {
   conditionsParams = disabledParams;
   noEmptySales(pdv: PDV, sales: any[]) {
     for(let sale of sales!) {
-      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) {
+      if(sale[DEH.SALES_INDUSTRY_ID] != DEH.INDUSTRIE_SINIAT_ID && sale[DEH.SALES_VOLUME_ID] > 0) {
         return true;
       }
       }
@@ -142,39 +142,39 @@ export class InfoBarComponent {
 
   extractDisplayedInfos(pdv: PDV) {
     return {
-      name: this._pdv!.name,
-      agent: DataExtractionHelper.get('agent')[this._pdv!.agent],
-      segmentMarketing: DataExtractionHelper.get('segmentMarketing')[this._pdv!.segmentMarketing],
-      segmentCommercial: DataExtractionHelper.get('segmentCommercial')[this._pdv!.segmentCommercial],
-      enseigne: DataExtractionHelper.get('enseigne')[this._pdv!.enseigne],
-      dep: DataExtractionHelper.get('dep')[this._pdv!.dep],
-      ville: DataExtractionHelper.get('ville')[this._pdv!.ville],
-      bassin: this.target[DataExtractionHelper.TARGET_BASSIN_ID] || DataExtractionHelper.get('bassin')[this._pdv!.bassin],
+      name: this._pdv!.attribute('name'),
+      agent: DEH.get('agent')[this._pdv!.attribute('agent')],
+      segmentMarketing: DEH.get('segmentMarketing')[this._pdv!.attribute('segmentMarketing')],
+      segmentCommercial: DEH.get('segmentCommercial')[this._pdv!.attribute('segmentCommercial')],
+      enseigne: DEH.get('enseigne')[this._pdv!.attribute('enseigne')],
+      dep: DEH.get('dep')[this._pdv!.attribute('dep')],
+      ville: DEH.get('ville')[this._pdv!.attribute('ville')],
+      bassin: this.target[DEH.TARGET_BASSIN_ID] || DEH.get('bassin')[this._pdv!.attribute('bassin')],
       clientProspect: pdv!.clientProspect() || "Non documenté"
     }
   }
 
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
     console.log('[InfobarComponent]: On')
-    this.SALES_INDUSTRY_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'industry')
-    this.SALES_PRODUCT_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'product')
-    this.SALES_VOLUME_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'volume')
-    this.SALES_DATE_ID = DataExtractionHelper.getKeyByValue(DataExtractionHelper.get("structureSales"), 'date')
-    this.TARGET_VOLUME_ID = DataExtractionHelper.TARGET_VOLUME_ID;
-    this.TARGET_LIGHT_ID = DataExtractionHelper.TARGET_LIGHT_ID;
-    this.TARGET_REDISTRIBUTED_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_ID;
-    this.TARGET_SALE_ID = DataExtractionHelper.TARGET_SALE_ID;
-    this.TARGET_COMMENT_ID = DataExtractionHelper.TARGET_COMMENT_ID;
-    this.TARGET_REDISTRIBUTED_FINITIONS_ID = DataExtractionHelper.TARGET_REDISTRIBUTED_FINITIONS_ID;
+    this.SALES_INDUSTRY_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'industry')
+    this.SALES_PRODUCT_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'product')
+    this.SALES_VOLUME_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'volume')
+    this.SALES_DATE_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'date')
+    this.TARGET_VOLUME_ID = DEH.TARGET_VOLUME_ID;
+    this.TARGET_LIGHT_ID = DEH.TARGET_LIGHT_ID;
+    this.TARGET_REDISTRIBUTED_ID = DEH.TARGET_REDISTRIBUTED_ID;
+    this.TARGET_SALE_ID = DEH.TARGET_SALE_ID;
+    this.TARGET_COMMENT_ID = DEH.TARGET_COMMENT_ID;
+    this.TARGET_REDISTRIBUTED_FINITIONS_ID = DEH.TARGET_REDISTRIBUTED_FINITIONS_ID;
 
     
-    this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
-    this.products = Object.values(DataExtractionHelper.get('product')) as string[];
+    this.industries = Object.values(DEH.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
+    this.products = Object.values(DEH.get('produit')) as string[];
     this.products.splice(3, this.products.length, 'P2CD')
     for(let i = 0; i<this.industries.length; i++)
-      this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industry'), this.industries[i])!] = i+1; //first row already used
+      this.industryIdToIndex[+DEH.getKeyByValue(DEH.get('industry'), this.industries[i])!] = i+1; //first row already used
     for(let i = 0; i<this.products.length-1; i++)
-      this.productIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('product'), this.products[i])!] = i;
+      this.productIdToIndex[+DEH.getKeyByValue(DEH.get('product'), this.products[i])!] = i;
   }
 
   //make variable
@@ -209,7 +209,7 @@ export class InfoBarComponent {
   loadGrid() {
     // console.log("Id retenus : ", this.productIdToIndex)
     // console.log("Sales totales : ", this._pdv!.attribute("sales"))
-    // console.log("Sales retenues : ", this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())))
+    // console.log("Sales retenues : ", this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DEH.SALES_PRODUCT_ID].toString())))
     this.grid = new Array(this.industries.length + 1);
     this.gridFormatted = new Array(this.industries.length+1);
     this.salesColors = new Array(this.industries.length + 1);
@@ -230,7 +230,7 @@ export class InfoBarComponent {
   }
 
   getSaleColor(sale: Sale): string {
-    if(this._pdv!.sale === false || this._pdv!.onlySiniat === true || sale.industryId == DataExtractionHelper.INDUSTRIE_SINIAT_ID) return 'black'
+    if(this._pdv!.sale === false || this._pdv!.onlySiniat === true || sale.industryId == DEH.INDUSTRIE_SINIAT_ID) return 'black'
     if(Math.floor(Date.now()/1000) - 15778476 > sale.date) return 'orange'
     else return 'black'
 }
@@ -262,7 +262,7 @@ export class InfoBarComponent {
       this.redistributedChecked = !this.redistributedChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
       if(!this.target) this.target = SliceTable.initializeTarget()
-      this.target[DataExtractionHelper.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
+      this.target[DEH.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.hasChanged = true;
   }
   changeRedistributedFinitions() {
@@ -298,10 +298,10 @@ export class InfoBarComponent {
   }
 
   changeTargetBassin() {
-    if(!this.displayedInfos.bassin) this.displayedInfos.bassin = DataExtractionHelper.get('bassin')[this.target[DataExtractionHelper.TARGET_BASSIN_ID]] || DataExtractionHelper.get('bassin')[this._pdv!.bassin];
+    if(!this.displayedInfos.bassin) this.displayedInfos.bassin = DEH.get('bassin')[this.target[DEH.TARGET_BASSIN_ID]] || DEH.get('bassin')[this._pdv!.attribute('bassin')];
     else {
       if(!this.target) this.target = SliceTable.initializeTarget()
-      this.target[DataExtractionHelper.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
+      this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
       this.hasChanged = true;
     }
   } 
@@ -339,8 +339,8 @@ export class InfoBarComponent {
     //arriving here means that a new sale has to be created
     this._pdv!.salesObject.push(new Sale([
       Math.floor(Date.now() / 1000),
-      +DataExtractionHelper.getKeyByValue(this.industryIdToIndex, i)!,
-      +DataExtractionHelper.getKeyByValue(this.productIdToIndex, j)!,
+      +DEH.getKeyByValue(this.industryIdToIndex, i)!,
+      +DEH.getKeyByValue(this.productIdToIndex, j)!,
       this.grid[i][j]
     ]));
     this.hasChanged = true;
@@ -364,7 +364,7 @@ export class InfoBarComponent {
 
   noSales(): boolean { //check if they are no sales, or only with a null volume (other than Siniat)
     for(let sale of this.sales!) {
-      if(sale.industryId != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale.volume > 0)
+      if(sale.industryId != DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0)
         return false;
     }
     return true;

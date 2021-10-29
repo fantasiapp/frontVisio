@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, SimpleChange, SimpleChanges } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { MapIconBuilder } from '../map.component';
 
 let PropertyIterator = function(this: any) {
@@ -59,7 +59,7 @@ export class MapLegendComponent {
     if ( !dict || !keys.length ) return;
     let category = keys[0].split('.')[0],
       ids = keys.map(key => +key.split('.')[1]),
-      mapping = DataExtractionHelper.get(category),
+      mapping = DEH.get(category),
       values;
     
     if ( mapping ) {
