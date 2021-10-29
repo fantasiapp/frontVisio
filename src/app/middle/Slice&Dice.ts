@@ -655,7 +655,6 @@ export class PDV extends SimplePdv{
     }
   }
 
-  // ok
   private static ComputeAxisName(slice:any, axis:string, geoTree:boolean){
     let prettyPrintToKey:any = {Région: 'drv', Secteur: 'agent', Enseigne: 'enseigne', Ensemble: 'ensemble', 'Sous-Ensemble': 'sousEnsemble', PDV: 'site'}; // à mettre dans le back ou à tej
     if (axis == 'lgp-1') return prettyPrintToKey[this.geoTree.attributes['labels'][1]];
@@ -666,7 +665,6 @@ export class PDV extends SimplePdv{
     return axis
   }
 
-  // ok
   private static computeAxis(slice:any, axis:string, geoTree:boolean){
     axis = this.ComputeAxisName(slice, axis, geoTree);
     let dataAxis = DEH.get(axis, true), titles = Object.values(dataAxis),
@@ -675,7 +673,6 @@ export class PDV extends SimplePdv{
     return [axis, titles, idToX];
   }
 
-  // ok
   static getData(slice: any, axis1: string, axis2: string, indicator: string, 
       geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
     let [newAxis1, rowsTitles, idToI] = this.computeAxis(slice, axis1, geoTree),
@@ -797,31 +794,16 @@ export class PDV extends SimplePdv{
     return nodes.map(node => dn ? PDV.computeCiblage(node, false, dn): PDV.computeCiblage(node, false, dn)/1000);
   }
 
-  static computeCiblage(node: Node, enduit=false, dn=false): number{
+  private getCiblage(enduit:boolean, dn:boolean){
+    if (dn && enduit) return this.targetFinition ? 1: 0;
+    if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.getLightTarget() == 'r') ? 0: 1;
+    if (enduit) return Math.max(this.getPotential(), 0);
+    return (isNaN(this.targetP2cd) || this.getLightTarget() == 'r') ? 0: this.targetP2cd;
+  }
+
+  static computeCiblage(node: Node, enduit=false, dn=false){
     let pdvs = PDV.childrenOfNode(node), ciblage = 0;
-    if (dn && enduit){
-      for (let pdv of pdvs) if (pdv.targetFinition) ciblage += 1;
-    }
-    else if (dn){
-      for (let pdv of pdvs){
-        let target = pdv.targetP2cd;
-        if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
-        let toAdd = (target > 0) ? 1: 0;
-        ciblage += toAdd;
-      };
-    }
-    else if (enduit){
-      for (let pdv of pdvs)
-        if (pdv.targetFinition) ciblage += Math.max(pdv.getPotential(), 0);
-    }
-    else {
-      for (let pdv of pdvs){
-        let target = pdv.targetP2cd;
-        if (isNaN(target) || pdv.getLightTarget() == 'r') target = 0;
-        ciblage += target;
-      };
-    }
-    return ciblage;
+    return pdvs.reduce((acc, pdv) => acc + pdv.getCiblage(enduit, dn), 0);
   }
 
   getPotential(){
