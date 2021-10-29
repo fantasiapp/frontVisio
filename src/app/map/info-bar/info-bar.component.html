@@ -163,10 +163,10 @@
                         <ul>
                             <li>{{ displayedInfos.enseigne }}</li>
                             <li>{{ displayedInfos.dep }}</li>
-                            <li>{{ customData.typologie }}</li>
+                            <li>{{ displayedInfos.typology }}</li>
                             <li>{{ displayedInfos.segmentMarketing }}</li>
                             <li>{{ displayedInfos.segmentCommercial }}</li>
-                            <li>{{ customData.nbVisits }}</li>
+                            <li>{{ displayedInfos.nbVisits }}</li>
                         </ul>
                     </div>
                 </div>
@@ -180,10 +180,10 @@
                     <div>
                         <h2 class="title">P2CD</h2>
                         <ul>
-                            <li *ngIf="customData.siniatP2cdSales  != 0"><span>Siniat : </span>{{ customData.siniatP2cdSales }} m²</li>
-                            <li *ngIf="customData.placoP2cdSales  != 0"><span>Placo : </span>{{ customData.placoP2cdSales }} m²</li>
-                            <li *ngIf="customData.knaufP2cdSales  != 0"><span>Knauf : </span>{{ customData.knaufP2cdSales }} m²</li>
-                            <li *ngIf="customData.totalP2cdSales  != 0"><span>Total P2CD estimé : </span>{{ customData.totalP2cdSales }} m²</li>
+                            <li *ngIf="displayedInfos.siniatP2cdSales  != 0"><span>Siniat : </span>{{ displayedInfos.siniatP2cdSales }} m²</li>
+                            <li *ngIf="displayedInfos.placoP2cdSales  != 0"><span>Placo : </span>{{ displayedInfos.placoP2cdSales }} m²</li>
+                            <li *ngIf="displayedInfos.knaufP2cdSales  != 0"><span>Knauf : </span>{{ displayedInfos.knaufP2cdSales }} m²</li>
+                            <li *ngIf="displayedInfos.totalP2cdSales  != 0"><span>Total P2CD estimé : </span>{{ displayedInfos.totalP2cdSales }} m²</li>
                         </ul>
                     </div>
                     <div>
@@ -192,11 +192,11 @@
                     <div>
                         <h2 class="title">Enduit</h2>
                         <ul>
-                            <li *ngIf="customData.pregyEnduitSales != 0"><span>Prégy : </span>{{ customData.pregyEnduitSales }} KG</li>
-                            <li *ngIf="customData.salsiEnduitSales != 0"><span>Salsi : </span>{{ customData.salsiEnduitSales }} KG</li>
-                            <li *ngIf="customData.potential  != 0"><span>Potentiel : </span>{{ customData.potential }} KG</li>
-                            <li *ngIf="customData.totalSiniatEnduitSales  != 0"><span>Total siniat : </span>{{ customData.totalSiniatEnduitSales }} KG</li>
-                            <li *ngIf="customData.totalEnduitSales  != 0"><span>Total estimé : </span>{{ customData.totalEnduitSales }} KG</li>
+                            <li *ngIf="displayedInfos.pregyEnduitSales != 0"><span>Prégy : </span>{{ displayedInfos.pregyEnduitSales }} KG</li>
+                            <li *ngIf="displayedInfos.salsiEnduitSales != 0"><span>Salsi : </span>{{ displayedInfos.salsiEnduitSales }} KG</li>
+                            <li *ngIf="displayedInfos.potential  != 0"><span>Potentiel : </span>{{ displayedInfos.potential }} KG</li>
+                            <li *ngIf="displayedInfos.totalSiniatEnduitSales  != 0"><span>Total siniat : </span>{{ displayedInfos.totalSiniatEnduitSales }} KG</li>
+                            <li *ngIf="displayedInfos.totalEnduitSales  != 0"><span>Total estimé : </span>{{ displayedInfos.totalEnduitSales }} KG</li>
                         </ul>
                     </div>
                 </div>

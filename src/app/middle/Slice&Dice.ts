@@ -347,6 +347,8 @@ class SimplePdv { // Theses attributes are directly those received from the back
   public attribute(attribute: string) {
     return this.values[SimplePdv.indexMapping.get(attribute)!]
   }
+
+  public get(field: string) {return DEH.getNameOfRegularObject(field, this.attribute(field))}
 }
 
 export class PDV extends SimplePdv{
@@ -376,7 +378,7 @@ export class PDV extends SimplePdv{
     return {'p2cd': p2cdSales, 'enduit': enduitSales};
   }
   get potential(): number {return this.getPotential()}
-  get typologie(): string {return DEH.get('segmentDnEnduit')[this.typologyFilter()]}
+  get typology(): number {return this.typologyFilter()}
   get edit(): boolean {return true}
   get info(): boolean {return true}
   get checkboxP2cd(): boolean {return this.ciblage() === 2}

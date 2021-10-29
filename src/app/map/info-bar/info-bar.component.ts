@@ -74,8 +74,6 @@ export class InfoBarComponent {
   @Input()
   display: string = 'p2cd';
   @Input()
-  customData: {[field: string]: any} = {};
-
 
   @Output()
   pdvChange = new EventEmitter<PDV | undefined>();
@@ -142,15 +140,26 @@ export class InfoBarComponent {
 
   extractDisplayedInfos(pdv: PDV) {
     return {
-      name: this._pdv!.attribute('name'),
-      agent: DEH.get('agent')[this._pdv!.attribute('agent')],
-      segmentMarketing: DEH.get('segmentMarketing')[this._pdv!.attribute('segmentMarketing')],
-      segmentCommercial: DEH.get('segmentCommercial')[this._pdv!.attribute('segmentCommercial')],
-      enseigne: DEH.get('enseigne')[this._pdv!.attribute('enseigne')],
-      dep: DEH.get('dep')[this._pdv!.attribute('dep')],
-      ville: DEH.get('ville')[this._pdv!.attribute('ville')],
-      bassin: this.target[DEH.TARGET_BASSIN_ID] || DEH.get('bassin')[this._pdv!.attribute('bassin')],
-      clientProspect: pdv!.clientProspect || "Non documenté"
+      name: this._pdv!.name,
+      agent: this._pdv!.get('agent'),
+      segmentMarketing: this._pdv!.get('segmentMarketing'),
+      segmentCommercial: this._pdv!.get('segmentCommercial'),
+      enseigne: this._pdv!.get('enseigne'),
+      dep: this._pdv!.get('dep'),
+      ville: this._pdv!.get('ville'),
+      bassin: this._pdv!.get('bassin'),
+      clientProspect: this._pdv!.clientProspect2(),
+      nbVisits: this._pdv!.nbVisits,
+      siniatP2cdSales: Math.round(this._pdv!.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      placoP2cdSales: Math.round(this._pdv!.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      knaufP2cdSales: Math.round(this._pdv!.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalP2cdSales: Math.round(this._pdv!.graph.p2cd['Siniat'].value + this._pdv!.graph.p2cd['Placo'].value + this._pdv!.graph.p2cd['Knauf'].value + this._pdv!.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      pregyEnduitSales: Math.round(this._pdv!.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      salsiEnduitSales: Math.round(this._pdv!.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      potential: Math.round(this._pdv!.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalSiniatEnduitSales: Math.round(this._pdv!.potential + this._pdv!.graph.enduit['Salsi'].value + this._pdv!.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalEnduitSales: Math.round(this._pdv!.graph.enduit['Prégy'].value + this._pdv!.graph.enduit['Salsi'].value + this._pdv!.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      typology: this._pdv!.typology,
     }
   }
 
