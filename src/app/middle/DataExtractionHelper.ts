@@ -101,6 +101,57 @@ const segmentDnEnduitTargetVisits = {
   6: "Cible Pur Prospect"
 }
 
+//Proxy Class
+export class Params {
+  static get coeffGreenLight() {
+    return DataExtractionHelper.get('params')['coeffGreenLight'];
+  }
+
+  static get currentYear() {
+    return DataExtractionHelper.get('params')['currentYear'];
+  }
+
+  static get currentMonth() {
+    return DataExtractionHelper.get('params')['currentMonth'];
+  }
+
+  static get delayBetweenUpdates() {
+    return DataExtractionHelper.get('params')['delayBetweenUpdates'];
+  }
+
+  static get isAdOpen() {
+    return DataExtractionHelper.get('params')['isAdOpen'];
+  }
+
+  static get pseudo() {
+    return DataExtractionHelper.get('params')['pseudo'];
+  }
+
+  static get ratioCustomerProspect() {
+    return DataExtractionHelper.get('params')['ratioCustomerProspect'];
+  }
+
+  static get ratioPlaqueFinition() {
+    return DataExtractionHelper.get('params')['ratioPlaqueFinition'];
+  }
+
+  static get referentielVersion() {
+    return DataExtractionHelper.get('params')['referentielVersion'];
+  }
+
+  static get softwareVersion() {
+    return DataExtractionHelper.get('params')['softwareVersion'];
+  }
+
+  static get rootName() {
+    return PDV.geoTree.root.name;
+  }
+
+  static get rootLabel() {
+    return DataExtractionHelper.geoLevels[0][DataExtractionHelper.LABEL_INDEX];
+  }
+}
+
 
 //Will have to make this non static one day
 class DataExtractionHelper{  
@@ -149,8 +200,6 @@ class DataExtractionHelper{
   static AGENTFINITION_DRV_ID: number;
   static AGENTFINITION_RATIO_ID: number;
   static delayBetweenUpdates: number;
-
-
   
   //Represent levels as a vertical array rather than a recursive structure
   static geoLevels: any[] = [];
@@ -512,7 +561,7 @@ class DataExtractionHelper{
   }
 
   static getOtherYearDashboards(tree: Tree, height: number = 0) {
-    let name = tree.type == NavigationExtractionHelper ? 'levelGeo' : 'levelTrade';
+    let name = tree.is(NavigationExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
     while ( height-- )
       level = level[this.SUBLEVEL_INDEX];

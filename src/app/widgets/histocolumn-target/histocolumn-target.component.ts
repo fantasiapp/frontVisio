@@ -4,7 +4,6 @@ import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { formatNumberToString, formatStringToNumber } from 'src/app/general/valueFormatter';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
@@ -79,7 +78,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   private getTargetValue(d: number): string {
-    return formatNumberToString(DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
+    return BasicWidget.format(DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
   }
 
   private renderTargetControl() {
@@ -98,8 +97,12 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         .attr('type', 'text')
         .style('width', ((this.barWidth*(1 + coeff)).toFixed(1)) + 'px')
         .style('margin', '0 ' + ((this.offsetX - this.barWidth*coeff/2).toFixed(1)) + 'px')
+        .on('input', (e: Event) => {
+          let input = e.target as any,
+            target = +input.value.replace(/\s+/g, '');
+          input.value = BasicWidget.format(target);
+        })
         .on('change', (e: Event) => {
-          console.log('change');
           let input = e.target as any,
             target = +input.value.replace(/\s+/g, '');
 
@@ -107,7 +110,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
             input.classList.add('incorrect-input');
           } else {
             input.classList.remove('incorrect-input');
-            input.value = BasicWidget.format(target).trim();
+            input.value = BasicWidget.format(target);
             this.changeValue(target, input.__data__, e);
           }
         })

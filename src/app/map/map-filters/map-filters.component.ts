@@ -79,7 +79,7 @@ export class MapFiltersComponent {
   }
 
   onPathChanged() {
-    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type);
+    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.is(PDV.geoTree));
     this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
     this.selects.forEach(select => select.reset());
     this.pdvsChange.emit(this._pdvs);

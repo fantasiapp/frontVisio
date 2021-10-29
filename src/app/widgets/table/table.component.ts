@@ -56,12 +56,12 @@ export class TableComponent extends BasicWidget {
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
       this.updateGraph(this.updateData());
-      this.gridLoaded.next(null as never);
+      this.gridLoaded.next(null);
       this.gridLoaded.complete();
     });
   }
   gridObservable = new Observable();
-  gridLoaded = new AsyncSubject<never>();
+  gridLoaded = new AsyncSubject<null>();
 
   // Render
   rowClassRules = {

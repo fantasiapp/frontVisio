@@ -1,7 +1,7 @@
 import { DatePipe, formatDate } from "@angular/common";
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
-import DataExtractionHelper from "./DataExtractionHelper";
+import DataExtractionHelper, { Params } from "./DataExtractionHelper";
 import { PDV, SliceDice } from "./Slice&Dice";
 
 @Injectable({
@@ -314,7 +314,7 @@ export class SliceTable {
 
     getRowColor(pdv: any): string {
         let pdvInstance = this.getPdvInstance(pdv)!;
-        let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
+        let isAdOpen = Params.isAdOpen;
         if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 

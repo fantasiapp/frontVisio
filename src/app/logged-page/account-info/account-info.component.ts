@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Observable, Observer, Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { LoggerService } from 'src/app/behaviour/logger.service';
 import { AuthService } from 'src/app/connection/auth.service';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import { SubscriptionManager } from 'src/app/interfaces/Common';
+import { Params } from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -15,7 +14,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
   styleUrls: ['./account-info.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AccountInfoComponent implements OnInit, OnDestroy {
+export class AccountInfoComponent extends SubscriptionManager {
   @HostListener('mouseover')
   openDropDown() {
     this.mouseEvent.next(true);
@@ -39,12 +38,13 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   name: string = '';
   dropped: boolean = false;
   private mouseEvent: Subject<boolean> = new Subject();
-  private subscription!: Subscription;
 
-  constructor(private auth: AuthService, private dataService: DataService, private localStorageService: LocalStorageService) {}
+  constructor(private auth: AuthService, private dataService: DataService, private localStorageService: LocalStorageService) {
+    super();
+  }
 
   ngOnInit() {
-    this.subscription = this.mouseEvent.pipe(debounceTime(0)).subscribe(dropped => {
+    this.subscribe(this.mouseEvent.pipe(debounceTime(0)), (dropped) => {
       let dropdownStyle = this.dropdown!.nativeElement.style;
       if ( dropped && !this.dropped ) {
         dropdownStyle.visibility = 'visible';
@@ -54,40 +54,37 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
       }
       
       this.dropped = dropped;
-    })
+    });
   }
 
   get username() {
-    return this.auth.getUser().name || DataExtractionHelper.get('params')['pseudo'];
-  }
-
-  ngOnDestroy() {
-    this.subscription?.unsubscribe();
-  }
-
-  clearSpace(name: string) {
-    let l = name.split(' ');
-    if ( l.length < 2 ) return name;
-    return l.slice(0, -1).join(' ');
+    return this.clearSpace(this.auth.getUser().name || Params.pseudo);
   }
 
   get profileType() {
     return PDV.geoTree.root.label;
   }
 
-  getADStatus() {
-    return DataExtractionHelper.get('params')['isAdOpen'];
+  private clearSpace(name: string) {
+    let l = name.split(' ');
+    if ( l.length < 2 ) return name;
+    return l.slice(0, -1).join(' ');
+  }
+
+
+  get ADStatus(): boolean {
+    return Params.isAdOpen;
   }
   
-  getAppVersion() {
-    return DataExtractionHelper.get('params')['softwareVersion'];
+  get appVersion(): string {
+    return Params.softwareVersion;
   }
 
-  getRefValue() {
-    return DataExtractionHelper.get('params')['referentielVersion'];
+  get refValue(): string {
+    return Params.referentielVersion;
   }
 
-  getLastUpdateDate() {
+  get lastUpdateDate(): string {
     let date = this.dataService.getLastUpdateDate();
     return date.toUTCString().split(',')[1].slice(1, 12) + ' à ' + date.toTimeString().slice(0, 5).replace(':', 'h');
   }
@@ -95,5 +92,9 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   logout() {
     this.localStorageService.removeStayConnected();
     this.auth.logoutFromServer();
+  }
+
+  ngOnDestroy() {
+    this.unsubscribeAll();
   }
 }

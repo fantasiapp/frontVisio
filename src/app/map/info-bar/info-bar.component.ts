@@ -5,7 +5,6 @@ import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
-import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import {
   trigger,
@@ -14,6 +13,7 @@ import {
   animate,
   transition,
 } from '@angular/animations';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
 
 @Component({
   selector: 'info-bar',
@@ -60,7 +60,7 @@ export class InfoBarComponent {
       this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
       this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
       this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
-      this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
+      this.targetP2cdFormatted = BasicWidget.format(this.target[this.TARGET_VOLUME_ID] || 0);
       this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
       this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinitions');
       this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
@@ -126,8 +126,6 @@ export class InfoBarComponent {
       return false;
   }
 
-  myFormatNumberToString = formatNumberToString;
-
   get pdv() {
     return this._pdv;
   }
@@ -182,6 +180,10 @@ export class InfoBarComponent {
     return (this.pdv ? Object.entries(this.pdv.displayIndustrieSaleVolumes()) : []).filter(entry => entry[1] != 0);
   }
 
+  format(entry: any) {
+    return BasicWidget.format(entry);
+  }
+
   quit(save: boolean) {
     if(save && this.hasChanged) this.updatePdv(this._pdv!);
     else this._pdv!.setValues(InfoBarComponent.valuesSave)
@@ -221,7 +223,7 @@ export class InfoBarComponent {
     for(let sale of this.sales!) {
       let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
       this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]
-      this.gridFormatted[i][j] = formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
+      this.gridFormatted[i][j] = BasicWidget.format(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
       this.updateSum(i,j)
       this.salesColors[i][j] = this.getSaleColor(sale);
     }
@@ -248,12 +250,12 @@ export class InfoBarComponent {
       sum += this.grid[j+1][i] | 0;
     }
     this.grid[0][i] = sum;
-    this.gridFormatted[0][i] = formatNumberToString(sum);
+    this.gridFormatted[0][i] = BasicWidget.format(sum);
     diff = this.grid[row][0] + this.grid[row][1] + this.grid[row][2] - this.grid[row][3];
     this.grid[row][3] += diff;
     this.grid[0][3] += diff;
-    this.gridFormatted[row][3] = formatNumberToString(this.grid[row][3]);
-    this.gridFormatted[0][3] = formatNumberToString(this.grid[0][3]);
+    this.gridFormatted[row][3] = BasicWidget.format(this.grid[row][3]);
+    this.gridFormatted[0][3] = BasicWidget.format(this.grid[0][3]);
     return sum;
   }
 
@@ -276,16 +278,16 @@ export class InfoBarComponent {
 
   changeTargetP2CD() {
     if(!this.target) this.target = SliceTable.initializeTarget()
-    this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
+    this.targetP2cdFormatted = BasicWidget.convert(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
-      this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID]);
+      this.targetP2cdFormatted = BasicWidget.format(this.target[this.TARGET_VOLUME_ID]);
       this.errorInput = true;
       setTimeout(() => this.errorInput = false, 1000);
       return;
     }
     this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
     if(this.target[this.TARGET_VOLUME_ID] === 0) this.target[this.TARGET_LIGHT_ID] = ""
-    this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID])
+    this.targetP2cdFormatted = BasicWidget.format(this.target[this.TARGET_VOLUME_ID])
     this.hasChanged = true;
   }
 
@@ -313,9 +315,9 @@ export class InfoBarComponent {
   }
 
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
-    this.gridFormatted[i][j] = formatStringToNumber(this.gridFormatted[i][j]).toString();
+    this.gridFormatted[i][j] = BasicWidget.convert(this.gridFormatted[i][j]).toString();
     if(Number.isNaN(+this.gridFormatted[i][j])) {
-      this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
+      this.gridFormatted[i][j] = BasicWidget.format(this.grid[i][j]);
       this.errorInput = true;
       setTimeout(() => this.errorInput = false, 1000)
       return;
@@ -323,7 +325,7 @@ export class InfoBarComponent {
     this.errorInput = false;
     this.salesColors[i][j] = 'black'
     this.grid[i][j] = +this.gridFormatted[i][j];
-    this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
+    this.gridFormatted[i][j] = BasicWidget.format(this.grid[i][j]);
     this.updateSum(i,j)
 
     for(let sale of this._pdv!.attribute('sales')) {

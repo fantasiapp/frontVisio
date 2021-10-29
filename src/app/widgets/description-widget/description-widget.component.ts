@@ -1,6 +1,5 @@
-import { EventEmitter, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, Output, QueryList, ViewChildren, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { combineAll } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { DataService } from 'src/app/services/data.service';
 import { TargetService } from './description-service.service';
@@ -13,7 +12,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
   styleUrls: ['./description-widget.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DescriptionWidgetComponent implements OnDestroy {
+export class DescriptionWidgetComponent {
 
   @ViewChildren('input', {read: ElementRef})
   inputs?: QueryList<ElementRef>;
@@ -56,7 +55,7 @@ export class DescriptionWidgetComponent implements OnDestroy {
     let input = this.inputs?.get(idx);
     if ( !input ) throw `[DescriptionWidget]: cannot find input`;
     this.currentSelection = idx;
-    this.targetService.setTarget(input.nativeElement.value);
+    this.targetService.target = input.nativeElement.value;
   }
 
   ngOnDestroy() {

@@ -1,15 +1,16 @@
 import { Directive, ElementRef, Injectable, OnDestroy, OnInit } from "@angular/core";
 import { Chart } from "billboard.js";
 import * as d3 from "d3";
-import { combineLatest, Subscription } from "rxjs";
+import { combineLatest, Subject, Subscription } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 import { FiltersStatesService } from "../filters/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
+import { Interactive } from "../interfaces/Common";
 import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
 
 @Directive()
-export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy {
-  protected subscription?: Subscription;
+export abstract class BasicWidget extends GridArea implements Interactive {
   protected path = {};
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
@@ -17,43 +18,45 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   protected chart: Chart | null = null;
   /* for processing @sum and similar */
   protected dynamicDescription: boolean = false;
-
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
+
+  protected _paused: boolean = true;
+  get paused() { return this._paused; }
   
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
-    this.subscription = combineLatest([filtersService.stateSubject, this.ready!]).subscribe(([{States}, _]) => {
-      this.subscription?.unsubscribe();
-      this.subscription = undefined;
+  }
+  
+  interactiveMode() {
+    if ( !this._paused ) return;
+    this._paused = false;
+    this.subscribe(this.filtersService.stateSubject, ({States}) => {
+      let path = this.filtersService.getPath(States);
+      if ( BasicWidget.shallowObjectEquality(this.path, path) ) return;
+      this.path = path;
+      this.onPathChanged();
+      this.update();
+    });
+  }
+
+  pause() {
+    if ( this._paused ) return;
+    this._paused = true;
+    this.unsubscribe(this.filtersService.stateSubject);
+  }
+
+  onReady() {
+    this.once(this.filtersService.stateSubject, ({States}) => {
       this.path = this.filtersService.getPath(States);
       this.onPathChanged();
-      //view is initialized
       this.interactiveMode();
       this.start();
     });
   }
-  
-  interactiveMode() {
-    if ( this.subscription ) return;
-    this.subscription = this.filtersService.stateSubject.subscribe(({States}) => {
-      let path = this.filtersService.getPath(States);
-      if ( !BasicWidget.shallowObjectEquality(this.path, path) ) {
-        this.path = path;
-        this.onPathChanged();
-        this.update();
-      }
-    });
-  }
 
-  protected onPathChanged() { }
-  
-  pause() {
-    if ( !this.subscription ) return;
-    this.subscription.unsubscribe();
-    this.subscription = undefined;
-  }
+  protected onPathChanged() {}
   
   ngOnInit() {
     if ( this.properties.description == '@sum' )
@@ -62,7 +65,6 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   
   protected start(): void {
     let data = this.updateData();
-    //used to wait for css to render components correctly <--> needs investigation   v
     requestAnimationFrame((_: any) => {
       this.createGraph(data);
     });
@@ -91,18 +93,8 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
   
   updateData(): {} {
     this.chart?.tooltip.hide();
-    let data;
-    //let pathId = this.sliceDice.pathId(this.path);
-    //if ( this.savedData[pathId] ) {
-  //  console.log('data already here')
-  //  data = this.savedData[pathId]
-  //} else {
-    //  console.log('fetching data');
-    data = this.sliceDice.getWidgetData(...this.getDataArguments());
-    //  this.savedData[this.sliceDice.pathId(this.path)] = data;
-    //}
+    let data = this.sliceDice.getWidgetData(...this.getDataArguments());
     
-    // ⚠️⚠️⚠️ find how to trigger change detection -- this works but doesn't use angular capabilities
     if ( this.dynamicDescription ) {
       this.properties.description = BasicWidget.format(data.sum, 3, this.properties.unit.toLowerCase() == 'pdv') + ' ' + this.properties.unit;
       this.setSubtitle(this.properties.description);
@@ -117,16 +109,11 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
   }
   
-  update() {
-    this.updateGraph(this.updateData());
-  }
-  
-  refresh() { //for transitions without animation
-    this.update();
-  }
+  update() { this.updateGraph(this.updateData()); }
+  refresh() { this.update(); }
   
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
+    this.unsubscribeAll();
     d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
@@ -136,11 +123,11 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     console.log('[BasicWidget -- noData]: No data is supplied, this is most probably a error.');
     d3.select(content.nativeElement).select('div > svg').remove();
     content.nativeElement.innerHTML = `
-    <div class="nodata">Il n'y a pas de données.</div>
+      <div class="nodata">Il n'y a pas de données.</div>
     `;
   }
   
-  static legendItemHeight: number = BasicWidget.getLegendItemHeight(window.innerWidth);
+  static legendItemHeight: number = 12;
   static shallowArrayEquality(obj: any[], other: any[]): boolean {
     let l = obj.length;
     if ( l != other.length ) return false;
@@ -191,25 +178,30 @@ export abstract class BasicWidget extends GridArea implements OnInit, OnDestroy 
     if ( p ) str = p.toString() + ' ' + str;
     if ( !str ) str = '0';
 
-    return str;
+    return str.trim();
+  }
+
+  static convert(str: string): number {
+    return +(str.replace(/\s+/g, '').replace(/\,/g, '.'));
+  }
+
+  private static resizeSubject = new Subject<never>();
+  private static onResize = () => {
+    BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(window.innerWidth);
+  }
+  static globalEvents() {
+    window.addEventListener('load', (e: Event) => {
+      this.onResize();
+    });
+
+    window.addEventListener('resize', (e: Event) => {
+      BasicWidget.resizeSubject.next();
+    });
+
+    BasicWidget.resizeSubject.pipe(debounceTime(100)).subscribe(() => {
+      BasicWidget.onResize();
+    });
   }
 };
 
-//perhaps will be useful
-let timeoutId: any = null;
-let windowResize = (e: Event) => {
-  let width = window.innerWidth;
-  BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(width);
-  timeoutId = null;
-};
-
-(window as any).addEventListener('resize', (e: Event) => {
-  if ( timeoutId )
-    clearTimeout(timeoutId);
-  
-  timeoutId = setTimeout(windowResize, 100, [e]);
-});
-
-(window as any).addEventListener('load', (e: Event) => {
-  BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(window.innerWidth);
-})
+BasicWidget.globalEvents();

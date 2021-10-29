@@ -1,4 +1,4 @@
-import DataExtractionHelper, {NavigationExtractionHelper} from './DataExtractionHelper';
+import DataExtractionHelper, {NavigationExtractionHelper, Params} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
@@ -34,7 +34,7 @@ export class Navigation {
     if ( !dashboard )
       throw 'uh oh';
     
-    if ( this.tree!.type !== t.type) {
+    if ( this.tree?.is(t) ) {
       this.tree = t;
       this.currentLevel = this.tree.root;
     }
@@ -47,7 +47,7 @@ export class Navigation {
   followTree(t: Tree) {
     let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null,
       dashboard: Dashboard | undefined,
-      sameType = this.tree?.type === t.type;
+      sameType = this.tree?.is(t);
     
     if ( path )
       dashboard = this.currentLevel!.dashboards.find(dashboard => dashboard.id === this.currentDashboard?.id);
@@ -198,7 +198,7 @@ export class Navigation {
   }
 
   getCurrentYear(){
-    let year = (new Date).getFullYear();
+    let year = Params.currentYear;
     return (DataExtractionHelper.currentYear ? year : year - 1).toString();
   }
 

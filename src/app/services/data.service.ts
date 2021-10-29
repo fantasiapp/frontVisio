@@ -31,8 +31,8 @@ export class DataService {
   }
   
   response = new BehaviorSubject<Object|null>(null);
-  update: Subject<never> = new Subject;
-  load: Subject<never> = new Subject;
+  update: Subject<null> = new Subject;
+  load: Subject<null> = new Subject;
 
   private threadIsOn: boolean = false;
   updateSubscriber: any;

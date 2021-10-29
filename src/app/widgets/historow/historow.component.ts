@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import bb, {bar, Chart} from 'billboard.js';
+import bb, {bar} from 'billboard.js';
 import { RubixCube } from './RubixCube';
-import DataExtractionHelper, { TradeExtrationHelper } from 'src/app/middle/DataExtractionHelper';
+import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 
 
 @Component({
@@ -157,7 +157,7 @@ export class HistoRowComponent extends BasicWidget {
       },
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
-        if ( self.filtersService.navigation.tree?.type ===TradeExtrationHelper )
+        if ( self.filtersService.treeIs(PDV.tradeTree) )
           return;
         
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {

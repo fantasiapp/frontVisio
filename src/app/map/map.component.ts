@@ -1,8 +1,7 @@
 import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, OnDestroy, ViewChildren } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
-import { FiltersStatesService } from '../filters/filters-states.service';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DataExtractionHelper, { Params } from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
@@ -24,7 +23,7 @@ type MarkerType = {
   styleUrls: ['./map.component.css'],
   //changeDetection: ChangeDetectionStrategy.OnPush //we want easy mode here
 })
-export class MapComponent implements OnDestroy {
+export class MapComponent {
   @HostBinding('style.display')
   private get display() {
     return this.hidden ? 'none' : 'flex';
@@ -44,7 +43,7 @@ export class MapComponent implements OnDestroy {
     this.update();
   }
 
-  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finition';
+  isAgentFinitions = Params.rootLabel == 'agentFinitions';
   
   selectedPDV?: PDV;
   private hidden: boolean = true;

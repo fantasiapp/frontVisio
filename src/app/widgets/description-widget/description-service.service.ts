@@ -9,13 +9,12 @@ export class TargetService {
   private _target: string = 'Objectif';
   constructor() { }
 
-  setTarget(value: string) {
+  set target(value: string) {
     if ( this._target === value)
-      return false;
+      return;
     this._target = value;
     this.targetChange.emit(this._target);
-    return false;
   }
 
-  getTarget() { return this._target; }
+  get target() { return this._target; }
 }
