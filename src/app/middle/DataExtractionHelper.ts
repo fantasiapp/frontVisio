@@ -393,15 +393,11 @@ class DEH{  // for DataExtractionHelper
     if (level == 'Secteur') return this.get('targetLevelAgentP2CD')[id][targetTypeId];
     if (level == 'Région') return this.get('targetLevelDrv')[id][targetTypeId];
     if (level == 'nationalByAgent'){
-      let agentTargets: number[][] = Object.values(this.get('targetLevelAgentP2CD')); //mettre la version enduit après
-      let target = 0;
-      for (let agentTarget of agentTargets) target += agentTarget[targetTypeId];
-    return target;
+      let agentTargets: number[][] = Object.values(this.get('targetLevelAgentP2CD'));
+      return agentTargets.reduce((acc, agentTarget) => acc + agentTarget[targetTypeId], 0)
     }
     let drvTargets: number[][] = Object.values(this.get('targetLevelDrv'));
-    let target = 0;
-    for (let drvTarget of drvTargets) target += drvTarget[targetTypeId];
-    return target;
+    return drvTargets.reduce((acc, drvTarget) => acc + drvTarget[targetTypeId], 0);
   }
 
   static getListTarget(level:string, ids: number[], dn: boolean, finition: boolean){
