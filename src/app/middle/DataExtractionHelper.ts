@@ -103,7 +103,7 @@ const segmentDnEnduitTargetVisits = {
 
 
 //Will have to make this non static one day
-class DataExtractionHelper{  
+class DEH{  // for Data Extraction Helper
   // plus tard il faudra créer des objects à la volée, par exemple avec Object.defineProperty(...)
   private static data: any;
   static ID_INDEX: number;
@@ -164,11 +164,11 @@ class DataExtractionHelper{
 
 
   static setData(d: any){
-    console.log('[DataExtractionHelper] setData:', d);
+    console.log('[DEH] setData:', d);
     this.data = d;
     let singleFields = ['dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
     for (let field of Object.keys(this.data)) if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) this.fieldsToSwitchWithyear.push(field);
-    console.log("[DataExtractionHelper] this.data updated")
+    console.log("[DEH] this.data updated")
     let structure = this.get('structureLevel');
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
@@ -257,7 +257,7 @@ class DataExtractionHelper{
 
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
-    DataExtractionHelper.setData(this.data);
+    DEH.setData(this.data);
     PDV.load(true);
   }
 
@@ -328,6 +328,11 @@ class DataExtractionHelper{
     return this.get(field)[id];
   }
 
+  // Ca ne marche pas encore pour les exceptions
+  static getStructure(field:string){
+    return this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase());
+  }
+
   static get(field: string, justNames=false, changeYear=true):any{
     let fieldName = field;
     // to switch year
@@ -359,7 +364,7 @@ class DataExtractionHelper{
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
         let names: any = {},
-          nameIndex = this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase()).indexOf('name');
+          nameIndex = this.getStructure(field).indexOf('name');
         for (let [id, list] of Object.entries<any[]>(data)) names[id] = list[nameIndex];
         return names
       }
@@ -537,30 +542,30 @@ export const NavigationExtractionHelper: TreeExtractionHelper = {
   data: {tree: 'geoTree', levels: 'levelGeo'},
   height: 0,
   loadData() {
-    let structure = DataExtractionHelper.get('structureLevel'),
-      level = DataExtractionHelper.get(this.data.levels);
+    let structure = DEH.get('structureLevel'),
+      level = DEH.get(this.data.levels);
     
     this.levels.length = 0;
     while (true){
       this.levels.push(level.slice(0, structure.length-1));
-      if (!(level = level[DataExtractionHelper.SUBLEVEL_INDEX])) break;
+      if (!(level = level[DEH.SUBLEVEL_INDEX])) break;
     }
 
     this.height = this.levels.length;
-    return DataExtractionHelper.get(this.data.tree);
+    return DEH.get(this.data.tree);
   },
   getName(height: number, id: number) {
-    let name = DataExtractionHelper.get(this.levels[height][DataExtractionHelper.LABEL_INDEX])[id];
+    let name = DEH.get(this.levels[height][DEH.LABEL_INDEX])[id];
     if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
     if (Array.isArray(name))
-      return name[DataExtractionHelper.get('structureAgentfinitions').indexOf('name')];
+      return name[DEH.get('structureAgentfinitions').indexOf('name')];
     return name;
   },
   getLevelLabel(height: number) {
-    return this.levels[height][DataExtractionHelper.PRETTY_INDEX];
+    return this.levels[height][DEH.PRETTY_INDEX];
   },
   getDashboardsAt(height: number){
-    return this.levels[height][DataExtractionHelper.DASHBOARD_INDEX];
+    return this.levels[height][DEH.DASHBOARD_INDEX];
   }
 };
 
@@ -573,19 +578,19 @@ export const TradeExtrationHelper: TreeExtractionHelper = {
   },
   getName(height: number, id: number) {
     if (height == 0) return '';
-    let name = DataExtractionHelper.get(this.levels[height][DataExtractionHelper.LABEL_INDEX])[id];
+    let name = DEH.get(this.levels[height][DEH.LABEL_INDEX])[id];
     if (name === undefined) {
       throw `No trade level with id=${id} at height=${height}`;
     }
     return name;
   },
   getLevelLabel(height: number) {
-    return this.levels[height][DataExtractionHelper.PRETTY_INDEX];
+    return this.levels[height][DEH.PRETTY_INDEX];
 
   },
   getDashboardsAt(height: number){
-    return this.levels[height][DataExtractionHelper.DASHBOARD_INDEX];
+    return this.levels[height][DEH.DASHBOARD_INDEX];
   }
 };
 
-export default DataExtractionHelper;
+export default DEH;

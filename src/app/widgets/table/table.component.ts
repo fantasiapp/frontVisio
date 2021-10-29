@@ -6,7 +6,7 @@ import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject, Observable, Subject} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { LoginPageComponent } from 'src/app/login-page/login-page.component';

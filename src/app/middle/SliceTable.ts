@@ -1,7 +1,7 @@
 import { DatePipe, formatDate } from "@angular/common";
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
-import DataExtractionHelper from "./DataExtractionHelper";
+import DEH from "./DataExtractionHelper";
 import { PDV, SliceDice } from "./Slice&Dice";
 
 @Injectable({
@@ -117,9 +117,9 @@ export class SliceTable {
 
         'clientProspect': (pdv: any) => {
             let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
-            if(array[0] === 1) return DataExtractionHelper.get('clientProspect')[1]
-            if(array[1] === 1) return DataExtractionHelper.get('clientProspect')[2]
-            return DataExtractionHelper.get('clientProspect')[3]
+            if(array[0] === 1) return DEH.get('clientProspect')[1]
+            if(array[1] === 1) return DEH.get('clientProspect')[2]
+            return DEH.get('clientProspect')[3]
         },
         'info': () => {
             return true;
@@ -129,12 +129,12 @@ export class SliceTable {
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
         PDV.load(false);
-        this.pdvFields = DataExtractionHelper.get('structurePdvs');
-        this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
+        this.pdvFields = DEH.get('structurePdvs');
+        this.segmentDnEnduit = DEH.get('segmentDnEnduit')
 
         //Get idsToFields, to match id values in pdv to string values
         for(let field of this.pdvFields) {
-            this.idsToFields[field] = DataExtractionHelper.get(field);
+            this.idsToFields[field] = DEH.get(field);
         }
     }
 
@@ -159,7 +159,7 @@ export class SliceTable {
         let pdvs = []
         console.log("[SliceTable] slice : ", slice)
         if (slice !== {}){
-            let allPdvs = DataExtractionHelper.get('pdvs');
+            let allPdvs = DEH.get('pdvs');
             for(let pdvInfo of PDV.sliceTree(slice, this.geoTree)[0]) {
                 let newPdv = allPdvs[pdvInfo.id];
                 newPdv.instanceId = pdvInfo.id;
@@ -169,7 +169,7 @@ export class SliceTable {
         this.pdvs = pdvs;
         let pdvsAsList =  [];
         for(let pdv of pdvs) {
-            if(pdv[DataExtractionHelper.SALE_ID] === true) {
+            if(pdv[DEH.SALE_ID] === true) {
                 let newPdv: {[key:string]:any} = {}; //concrete row of the table
                 let allColumns = this.getAllColumns(type);
                 for(let index = 0; index < Object.keys(allColumns).length; index ++) {
@@ -196,7 +196,7 @@ export class SliceTable {
 
     getUpdatedRows(type: string): {[k: string]: any}[] {
         let ret = []
-        for(let [id, pdv] of Object.entries(DataExtractionHelper.modifiedData['pdvs'])) {
+        for(let [id, pdv] of Object.entries(DEH.modifiedData['pdvs'])) {
             (pdv as any).instanceId = +id;
             ret.push(this.pdvFromListToObject((pdv as any), type))
         }
@@ -204,7 +204,7 @@ export class SliceTable {
     }
 
     getAllColumns(type: string) {
-        let allColumns = DataExtractionHelper.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']);
+        let allColumns = DEH.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']);
         return allColumns;
     }
 
@@ -262,11 +262,11 @@ export class SliceTable {
         if(pdv['potential'] > 0) {
             if(pdv['checkboxEnduit']) {
                 this.updateTotalTarget(pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = true;
+                pdv['target'][DEH.TARGET_FINITIONS_ID] = true;
                 pdv['checkboxEnduit'] = true;
             } else {
                 this.updateTotalTarget(-pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = false;
+                pdv['target'][DEH.TARGET_FINITIONS_ID] = false;
                 pdv['checkboxEnduit'] = false;
             }
         }
@@ -314,17 +314,17 @@ export class SliceTable {
 
     getRowColor(pdv: any): string {
         let pdvInstance = this.getPdvInstance(pdv)!;
-        let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
-        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+        let isAdOpen = DEH.get('params')['isAdOpen']
+        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DEH.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DEH.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 
         for(let sale of pdvInstance.attribute('sales')) {
-            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DEH.SALES_DATE_ID] && sale[DEH.SALES_INDUSTRY_ID] !== DEH.INDUSTRIE_SINIAT_ID && sale[DEH.SALES_VOLUME_ID] > 0)
                 return 'black';
         }
 
         for(let sale of pdvInstance.attribute('sales')) {
-            if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'orange'
+            if(sale[DEH.SALES_INDUSTRY_ID] != DEH.INDUSTRIE_SINIAT_ID && sale[DEH.SALES_VOLUME_ID] > 0) return 'orange'
         }
 
         return 'red'
@@ -349,7 +349,7 @@ export class SliceTable {
   
     pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
         let pdvAsList = []
-        for(let field of DataExtractionHelper.get('structurePdvs')) {
+        for(let field of DEH.get('structurePdvs')) {
             if(this.idsToFields[field]) {
                 // console.log("reverse engineering for ", field)
                 for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
@@ -367,7 +367,7 @@ export class SliceTable {
     // updateData() {
     //     this.dataService.requestUpdateData()
     //     .subscribe((updatedData) => {
-    //         DataExtractionHelper.updateData(updatedData as {[field: string]: []})
+    //         DEH.updateData(updatedData as {[field: string]: []})
     //     })
     // }
 

@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { map, } from 'rxjs/internal/operators/map';
 import { environment } from 'src/environments/environment';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DEH from '../middle/DataExtractionHelper';
 import { LocalStorageService } from './local-storage.service';
 import { catchError } from "rxjs/operators";
 import { Snapshot, structureSnapshot } from '../behaviour/logger.service';
@@ -70,16 +70,16 @@ export class DataService {
   }
 
   public requestUpdateData() { //
-    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DataExtractionHelper.get('timestamp')}})
+    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DEH.get('timestamp')}})
     .subscribe((response : any) => {
       if( response ) { //this is always false response !== {}
         if(response.message) {
           console.debug("Empty update")
-          DataExtractionHelper.modifiedData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
+          DEH.modifiedData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
         } else {
           console.log("Updates received from back : ", response)
-          DataExtractionHelper.modifiedData = response;
-          DataExtractionHelper.updateData(response);
+          DEH.modifiedData = response;
+          DEH.updateData(response);
           this.update.next()
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
           )
@@ -112,8 +112,8 @@ export class DataService {
   private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
-    DataExtractionHelper.modifiedData = data;
-    DataExtractionHelper.updateData(data);
+    DEH.modifiedData = data;
+    DEH.updateData(data);
     this.update.next();
     console.log("Sending data for update : ", data)
   }
@@ -153,7 +153,7 @@ export class DataService {
   public beginUpdateThread() {
     if(!this.threadIsOn) {
       console.log("[Data Service] Begin update threads")
-      this.updateSubscriber = interval(DataExtractionHelper.delayBetweenUpdates > 10000 ? DataExtractionHelper.delayBetweenUpdates : 20000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
+      this.updateSubscriber = interval(DEH.delayBetweenUpdates > 10000 ? DEH.delayBetweenUpdates : 20000).subscribe(() => {console.log("the thread are ON"); this.requestUpdateData()})
       this.logSubscriber = interval(60000).subscribe(() => {this.sendQueuedDataToUpdate()})
       setTimeout(() => this.endUpdateThread(), 300000)
     }

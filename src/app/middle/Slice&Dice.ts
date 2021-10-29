@@ -1,4 +1,4 @@
-import DataExtractionHelper, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
+import DEH, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
@@ -268,8 +268,8 @@ class DataWidget{
       extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
     let lineIds = new Array(this.columnsTitles.length).fill(0),
       columnsIds = new Array(this.columnsTitles.length).fill(0);
-    let industriesDict = DataExtractionHelper.get('enseigne')
-    lineIds = this.rowsTitles.map(title => DataExtractionHelper.getKeyByValue(industriesDict, title)); // ) changer quand le idToJ sera à jour
+    let industriesDict = DEH.get('enseigne')
+    lineIds = this.rowsTitles.map(title => DEH.getKeyByValue(industriesDict, title)); // ) changer quand le idToJ sera à jour
     for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
     return {boolMatrix: extendedBoolMatrix,
       enseigneIndexes: lineIds,
@@ -282,14 +282,14 @@ class Sale {
   public date: Date|null;
 
   constructor(private data: any[]){
-    let dataDate = this.data[DataExtractionHelper.SALES_DATE_ID]
+    let dataDate = this.data[DEH.SALES_DATE_ID]
     this.date = dataDate ? new Date(dataDate): null;
   };
 
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
-  get industryId() {return this.data[DataExtractionHelper.SALE_INDUSTRY_ID];}
-  get productId() {return this.data[DataExtractionHelper.SALE_PRODUCT_ID];}
-  get volume() {return this.data[DataExtractionHelper.SALE_VOLUME_ID];}
+  get industryId() {return this.data[DEH.SALE_INDUSTRY_ID];}
+  get productId() {return this.data[DEH.SALE_PRODUCT_ID];}
+  get volume() {return this.data[DEH.SALE_VOLUME_ID];}
 };
 
 export class PDV{
@@ -301,13 +301,13 @@ export class PDV{
   get targetP2cd(){
     let target = this.attribute('target');
     if (!target) return 0;
-    return target[DataExtractionHelper.TARGET_VOLUME_ID]
+    return target[DEH.TARGET_VOLUME_ID]
   }
 
   get targetFinition(){
     let target = this.attribute('target');
     if (!target) return false;
-    return target[DataExtractionHelper.TARGET_FINITIONS_ID]
+    return target[DEH.TARGET_FINITIONS_ID]
   }
 
   static getInstances(): Map<number, PDV> {
@@ -320,7 +320,7 @@ export class PDV{
   static load(loadTrees = true){
     this.instances.clear(); //<- clear before
     this.createIndexMapping();
-    for (let [id, data] of Object.entries(DataExtractionHelper.get('pdvs'))){
+    for (let [id, data] of Object.entries(DEH.get('pdvs'))){
       let intId = parseInt(id);
       if (Number.isNaN(intId)) continue;
       this.instances.set(intId, new PDV(intId, <any[]>data));
@@ -329,7 +329,7 @@ export class PDV{
   };
 
   private static createIndexMapping(){
-    const fields = DataExtractionHelper.get('structurePdvs') as string[];
+    const fields = DEH.get('structurePdvs') as string[];
     this.indexMapping = new Map<string, number>();
     fields.forEach((value: string, index: number) => 
       this.indexMapping.set(value, index)
@@ -346,7 +346,7 @@ export class PDV{
   }
 
   static getProducts() {
-    return Object.values(DataExtractionHelper.get('product'));
+    return Object.values(DEH.get('product'));
   }
   
   readonly sales: Sale[];
@@ -374,13 +374,13 @@ export class PDV{
 
   //Assez sale pour le moment, il faut factoriser avec le code d'en dessous après
   private computeVisits(indicator:string){
-    let axe : string[]= Object.values(DataExtractionHelper.get('segmentDnEnduitTargetVisits')),
+    let axe : string[]= Object.values(DEH.get('segmentDnEnduitTargetVisits')),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
       associatedIndex[axe[i]] = i;
-    let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
-      salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-      siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+    let pregyId = DEH.INDUSTRIE_PREGY_ID,
+      salsiId = DEH.INDUSTRIE_SALSI_ID,
+      siniatId = DEH.INDUSTRIE_SINIAT_ID,
       visitsRepartition = new Array(6).fill(0),
       totalP2cd = 0, totalSiniatP2cd = 0, totalEnduit = 0;
     for (let sale of this.sales){
@@ -390,10 +390,10 @@ export class PDV{
         if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
       }
     }
-    let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd,
+    let saleP2cd = totalSiniatP2cd > DEH.get("params")["ratioCustomerProspect"] * totalP2cd,
       saleEnduit = totalEnduit > 0,
       toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : 
-        this.attribute("nbVisits") * Math.max(totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"], totalEnduit); 
+        this.attribute("nbVisits") * Math.max(totalP2cd * DEH.get("params")["ratioPlaqueFinition"], totalEnduit); 
         // Ca c'est le calcul du volume d'enduit qu'il faudra peut-être aller chercher chez baptiste à l'avenir
     if (saleP2cd && saleEnduit){
       if (this.targetFinition) visitsRepartition[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
@@ -411,7 +411,7 @@ export class PDV{
 
   private computeDn(enduit:boolean, clientProspect:boolean, target:boolean, ad:boolean){
     if (ad){
-      let axe : string[]= Object.values(DataExtractionHelper.get("suiviAD")),
+      let axe : string[]= Object.values(DEH.get("suiviAD")),
         associatedIndex :{[key: string]: number}= {},
         dnAd = new Array(axe.length).fill(0);
       for (let i = 0; i < axe.length; i++)
@@ -422,14 +422,14 @@ export class PDV{
       return dnAd;
     }
     if (enduit){
-      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get('segmentDnEnduitTarget')): 
-          Object.values(DataExtractionHelper.get('segmentDnEnduit')),
+      let axe : string[]= (target) ? Object.values(DEH.get('segmentDnEnduitTarget')): 
+          Object.values(DEH.get('segmentDnEnduit')),
         associatedIndex :{[key: string]: number}= {};
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
-      let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
-        salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-        siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+      let pregyId = DEH.INDUSTRIE_PREGY_ID,
+        salsiId = DEH.INDUSTRIE_SALSI_ID,
+        siniatId = DEH.INDUSTRIE_SINIAT_ID,
         dnEnduit = new Array(axe.length).fill(0),
         totalP2cd = 0, totalSales = 0,
         totalSiniatP2cd = 0,
@@ -445,7 +445,7 @@ export class PDV{
             if (sale.industryId == siniatId) totalSiniatP2cd += sale.volume;
           }
         }
-        let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
+        let saleP2cd = totalSiniatP2cd > DEH.get("params")["ratioCustomerProspect"] * totalP2cd;
         if (totalSiniatP2cd == totalSales && !this.attribute("onlySiniat")) dnEnduit[associatedIndex["Non documenté"]] = 1;
         else if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
         else if (saleEnduit){
@@ -458,8 +458,8 @@ export class PDV{
       }
       return dnEnduit
     } else if (clientProspect){
-      let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('clientProspectTarget'))): 
-          Object.values(DataExtractionHelper.get(('clientProspect'))),
+      let axe : string[]= (target) ? Object.values(DEH.get(('clientProspectTarget'))): 
+          Object.values(DEH.get(('clientProspect'))),
         associatedIndex :{[key: string]: number}= {};
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
@@ -469,8 +469,8 @@ export class PDV{
         return resultTemplate; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
       }
       let totalP2cd = 0,
-      siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-      clientProspectLimit = DataExtractionHelper.getParam('ratioCustomerProspect'),
+      siniatId = DEH.INDUSTRIE_SINIAT_ID,
+      clientProspectLimit = DEH.getParam('ratioCustomerProspect'),
       siniatP2cd = 0;
       for (let sale of this.sales)
         if (sale.type == 'p2cd'){
@@ -491,13 +491,13 @@ export class PDV{
   }
 
   private computeIndustries(target:boolean, relevantSales:Sale[]){
-    let keys = target ? Object.keys(DataExtractionHelper.get('industryTarget')): Object.keys(DataExtractionHelper.get('industry'));
+    let keys = target ? Object.keys(DEH.get('industryTarget')): Object.keys(DEH.get('industry'));
     let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
     keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
     for (let sale of relevantSales)
       diced[idIndustries[sale.industryId]] += sale.volume;    
     if (target && this.targetP2cd > 0 && this.getLightTarget() !== 'r'){
-      let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
+      let siniatId = DEH.INDUSTRIE_SINIAT_ID,
         sumExceptSiniat = 0;
       for (let i = 0; i < diced.length; i++)
         if (i !== idIndustries[siniatId]) sumExceptSiniat += diced[i];
@@ -512,14 +512,14 @@ export class PDV{
   }
 
   private computeEnduit(target:boolean, relevantSales:Sale[], total:number){
-    let axe : string[]= (target) ? Object.values(DataExtractionHelper.get(('enduitIndustryTarget'))): 
-        Object.values(DataExtractionHelper.get(('enduitIndustry'))),
+    let axe : string[]= (target) ? Object.values(DEH.get(('enduitIndustryTarget'))): 
+        Object.values(DEH.get(('enduitIndustry'))),
       associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
       associatedIndex[axe[i]] = i;
-    let pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
-      salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-      totalEnduit = DataExtractionHelper.getParam("ratioPlaqueFinition") * total,
+    let pregyId = DEH.INDUSTRIE_PREGY_ID,
+      salsiId = DEH.INDUSTRIE_SALSI_ID,
+      totalEnduit = DEH.getParam("ratioPlaqueFinition") * total,
       diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
     for (let sale of relevantSales){
       if (sale.industryId == pregyId) diced[associatedIndex["Prégy"]] += sale.volume;
@@ -615,8 +615,8 @@ export class PDV{
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe1 = subLevelLabel;
     }
-    let dataAxe1 = DataExtractionHelper.get(axe1, true);
-    let dataAxe2 = DataExtractionHelper.get(axe2, true);
+    let dataAxe1 = DEH.get(axe1, true);
+    let dataAxe2 = DEH.get(axe2, true);
     let rowsTitles = Object.values(dataAxe1) as string[];
     let columnsTitles = Object.values(dataAxe2) as string[];
     let idToI:any = {}, idToJ:any = {};    
@@ -652,17 +652,17 @@ export class PDV{
   }
 
   private segmentMarketingFilter(){
-    let dictSegment = DataExtractionHelper.get('segmentMarketingFilter'),
-      dictAllSegments = DataExtractionHelper.get('segmentMarketing')
+    let dictSegment = DEH.get('segmentMarketingFilter'),
+      dictAllSegments = DEH.get('segmentMarketing')
     let pdvSegment = this.attribute('segmentMarketing');
-    let result = parseInt(DataExtractionHelper.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
+    let result = parseInt(DEH.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
     return result;
   }
 
   private typologyFilter():any{
     let dnResult = this.getValue('dn', false, true) as number[],
-      typologyIds = Object.keys(DataExtractionHelper.get('segmentDnEnduit'));
+      typologyIds = Object.keys(DEH.get('segmentDnEnduit'));
     for (let i = 0; i < dnResult.length; i++)
       if (dnResult[i] == 1)
         return parseInt(typologyIds[i]);
@@ -683,12 +683,12 @@ export class PDV{
 
   industriel(){
     let dnIndustries = this.getValue('p2cd', true) as number[],
-      industriesDict = DataExtractionHelper.get('industriel'),
+      industriesDict = DEH.get('industriel'),
       iMax = 0;
-    let industriesList = Object.values(DataExtractionHelper.get('industry'));
+    let industriesList = Object.values(DEH.get('industry'));
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    let result = parseInt(DataExtractionHelper.getKeyByValue(industriesDict, industriesList[iMax])!);
+    let result = parseInt(DEH.getKeyByValue(industriesDict, industriesList[iMax])!);
     if (Number.isNaN(result)) result = 4;
     return result;
   }
@@ -816,7 +816,7 @@ export class PDV{
 
   clientProspect(index=false){
     let dnResult = this.getValue('dn', false, false, true) as number[],
-      clientProspectDict = DataExtractionHelper.get('clientProspect');
+      clientProspectDict = DEH.get('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),
       clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
@@ -829,9 +829,9 @@ export class PDV{
       let industriesSalevolume = this.getValue('enduit', true) as number[],
         totalP2cd = this.getValue('p2cd') as number,
         dictResult:{[key:string]:number} = {},
-        pregyId = DataExtractionHelper.INDUSTRIE_PREGY_ID,
-        salsiId = DataExtractionHelper.INDUSTRIE_SALSI_ID,
-        industrieAxis = DataExtractionHelper.get('industry'),
+        pregyId = DEH.INDUSTRIE_PREGY_ID,
+        salsiId = DEH.INDUSTRIE_SALSI_ID,
+        industrieAxis = DEH.get('industry'),
         listIndustries = Object.values(industrieAxis);
         for (let i = 0; i < industriesSalevolume.length; i++){
           if (listIndustries[i] == industrieAxis[pregyId]) 
@@ -844,10 +844,10 @@ export class PDV{
     }
     let industriesSalevolume = this.getValue('p2cd', true) as number[],
       dictResult:{[key:string]:number} = {},
-      siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
-      knaufId = DataExtractionHelper.INDUSTRIE_KNAUF_ID,
-      placoId = DataExtractionHelper.INDUSTRIE_PLACO_ID,
-      industrieAxis = DataExtractionHelper.get('industry'),
+      siniatId = DEH.INDUSTRIE_SINIAT_ID,
+      knaufId = DEH.INDUSTRIE_KNAUF_ID,
+      placoId = DEH.INDUSTRIE_PLACO_ID,
+      industrieAxis = DEH.get('industry'),
       listIndustries = Object.values(industrieAxis);
     dictResult['Autres'] = 0;
     for (let i = 0; i < industriesSalevolume.length; i++){
@@ -871,7 +871,7 @@ export class PDV{
   }
 
   private computeWeeksRepartitionAD(){    
-    let axe : string[]= Object.values(DataExtractionHelper.get("weeks")),
+    let axe : string[]= Object.values(DEH.get("weeks")),
       dnAd = new Array(axe.length).fill(0);
     if (!this.adCompleted()) return dnAd;
     let associatedIndex :{[key: string]: number}= {};
@@ -904,7 +904,7 @@ export class PDV{
   }
 
   hasNonSiniatSale(){
-    let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID;
+    let siniatId = DEH.INDUSTRIE_SINIAT_ID;
     return this.sales.reduce((acc: boolean, sale:Sale) => acc || sale.industryId !== siniatId, false);
   }
 
@@ -912,7 +912,7 @@ export class PDV{
     return this.attribute("onlySiniat") || !this.attribute("redistributed") || this.sales.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
   }
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
-    let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DataExtractionHelper.followSlice(slice)));
+    let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DEH.followSlice(slice)));
     switch(indicator){
       case 'visits': {
         let totalVisits: number= 0,
@@ -945,32 +945,32 @@ export class PDV{
   }
 
   static computeTargetVisits(slice:any, threshold=false){
-    let relevantNode = DataExtractionHelper.followSlice(slice);
-    let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DataExtractionHelper.get("agentFinitions")): 
-      ((relevantNode.label == 'Région') ? DataExtractionHelper.findFinitionAgentsOfDrv(relevantNode.id): 
-      [DataExtractionHelper.get("agentFinitions")[relevantNode.id]]);
+    let relevantNode = DEH.followSlice(slice);
+    let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DEH.get("agentFinitions")): 
+      ((relevantNode.label == 'Région') ? DEH.findFinitionAgentsOfDrv(relevantNode.id): 
+      [DEH.get("agentFinitions")[relevantNode.id]]);
     if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
-      (acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_RATIO_ID], 0);
+      (acc, agent) => acc + agent[DEH.AGENTFINITION_RATIO_ID], 0);
     return finitionAgents.reduce(
-      (acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_TARGETVISITS_ID], 0);
+      (acc, agent) => acc + agent[DEH.AGENTFINITION_TARGETVISITS_ID], 0);
   }
 
   getVolumeTarget() : number{
     let target = this.attribute('target');
     if (!target) return 0;
-    return target[DataExtractionHelper.TARGET_VOLUME_ID]
+    return target[DEH.TARGET_VOLUME_ID]
   }
 
   getLightTarget(){
     let target = this.attribute('target');
     if (!target) return "";
-    return target[DataExtractionHelper.TARGET_LIGHT_ID]
+    return target[DEH.TARGET_LIGHT_ID]
   }
 
   getCommentTarget(){
     let target = this.attribute('target');
     if (!target) return "";
-    return target[DataExtractionHelper.TARGET_COMMENT_ID]
+    return target[DEH.TARGET_COMMENT_ID]
   }
 };
 
@@ -986,11 +986,11 @@ class SliceDice{
     let colors: undefined;
     if ([typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')){
       let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
-      let labelsIds = DataExtractionHelper.get("axisForGraph")[+groupsAxis][DataExtractionHelper.AXISFORGRAHP_LABELS_ID];
+      let labelsIds = DEH.get("axisForGraph")[+groupsAxis][DEH.AXISFORGRAHP_LABELS_ID];
        groupsAxis = labelsIds.map(
-         (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_LABEL_ID]);
+         (labelId:number) => DEH.get("labelForGraph")[labelId][DEH.LABELFORGRAPH_LABEL_ID]);
        colors = labelsIds.map(
-         (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
+         (labelId:number) => DEH.get("labelForGraph")[labelId][DEH.LABELFORGRAPH_COLOR_ID]);
       if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     }
     if (gaugesAxis.includes(axis1)){
@@ -1011,9 +1011,9 @@ class SliceDice{
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let dn = indicator == 'dn';
-      let node = DataExtractionHelper.followSlice(slice);      
+      let node = DEH.followSlice(slice);      
       if(typeof(sum) == 'number'){
-        let targetValue = DataExtractionHelper.getTarget(node.label, node.id, dn, finition);      
+        let targetValue = DEH.getTarget(node.label, node.id, dn, finition);      
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
@@ -1021,14 +1021,14 @@ class SliceDice{
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
         let targetValues = 
-          DataExtractionHelper.getListTarget(finition ? "agentFinitions": (node.children[0] as Node).label, elemIds, dn, finition);
+          DEH.getListTarget(finition ? "agentFinitions": (node.children[0] as Node).label, elemIds, dn, finition);
         for (let i = 0; i < targetValues.length; i++) 
           rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
         if (node.label == 'France' && !finition){ // This is to calculate the position of the ciblage rods
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
           let ciblageValues = agentNodesMatrix.map(
-            (agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DataExtractionHelper.getTarget('Secteur', agentNode.id, dn))
+            (agentNodesOfADrv: Node[]) => agentNodesOfADrv.map((agentNode: Node) => DEH.getTarget('Secteur', agentNode.id, dn))
               .reduce((acc:number, value:number) => acc + value, 0));
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
           for (let i = 0; i < targetValues.length; i++) 
@@ -1056,15 +1056,15 @@ class SliceDice{
 
   getIndustriesReverseDict(){
     let industriesReverseDict:{[key:string]:string} = {};
-    for (let [industrieId, industrieName] of Object.entries(DataExtractionHelper.get('industry')))
+    for (let [industrieId, industrieName] of Object.entries(DEH.get('industry')))
       industriesReverseDict[industrieName as string] = industrieId;
     return industriesReverseDict;
   }
 
   updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, 
       volumeid: number, targetLevelStructure: string) {
-    let newTargetLevel: number[] = DataExtractionHelper.get(targetLevelName)[targetLevelId]
-    newTargetLevel[+DataExtractionHelper.get(targetLevelStructure).indexOf(volumeid)] = +newValue;
+    let newTargetLevel: number[] = DEH.get(targetLevelName)[targetLevelId]
+    newTargetLevel[+DEH.get(targetLevelStructure).indexOf(volumeid)] = +newValue;
     this.dataService.updateTargetLevel(newTargetLevel, targetLevelName as UpdateFields, +targetLevelId);
   }
 };

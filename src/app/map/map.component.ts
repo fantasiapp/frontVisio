@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, OnDes
 import { Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DEH from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
@@ -490,26 +490,26 @@ export class MapIconBuilder {
     });
 
     if ( isAgentFinition ) {
-      let typology = DataExtractionHelper.get('typology');
+      let typology = DEH.get('typology');
 
       builder.axis('Visité', [
         [0, {fill: '#0056A6'}],
         [1, {fill: '#A61F7D'}],
       ]).axis('typology', [
-        [+DataExtractionHelper.getKeyByValue(typology, 'Pur prospect')!, {head: MapIconBuilder.square}],
-        [+DataExtractionHelper.getKeyByValue(typology, 'Enduit hors P2CD')!, {head: MapIconBuilder.diamond}],
-        [+DataExtractionHelper.getKeyByValue(typology, 'P2CD + Enduit')!, {head: MapIconBuilder.circle}],
-        [+DataExtractionHelper.getKeyByValue(typology, 'Non documenté')!, {head: MapIconBuilder.hex}]
+        [+DEH.getKeyByValue(typology, 'Pur prospect')!, {head: MapIconBuilder.square}],
+        [+DEH.getKeyByValue(typology, 'Enduit hors P2CD')!, {head: MapIconBuilder.diamond}],
+        [+DEH.getKeyByValue(typology, 'P2CD + Enduit')!, {head: MapIconBuilder.circle}],
+        [+DEH.getKeyByValue(typology, 'Non documenté')!, {head: MapIconBuilder.hex}]
       ]).generate();
     } else {
-      let segmentMarketing = DataExtractionHelper.get('segmentMarketing'),
-        industriel = DataExtractionHelper.get('industriel');
+      let segmentMarketing = DEH.get('segmentMarketing'),
+        industriel = DEH.get('industriel');
       
       builder.axis('industriel', [
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Siniat')!, {fill: '#A61F7D'}],
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
+        [+DEH.getKeyByValue(industriel, 'Siniat')!, {fill: '#A61F7D'}],
+        [+DEH.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
+        [+DEH.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
+        [+DEH.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
       ]).axis('Non Documenté', [
         [0, {}],
         [1, {fill: '#FF0000'}]
@@ -517,10 +517,10 @@ export class MapIconBuilder {
         [0, {}],
         [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}] //<- draw fire later, now it's a circle
       ]).axis('segmentMarketing', [
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!, {head: MapIconBuilder.diamond}],
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Autres')!, {head: MapIconBuilder.circle}]
+        [+DEH.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
+        [+DEH.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
+        [+DEH.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!, {head: MapIconBuilder.diamond}],
+        [+DEH.getKeyByValue(segmentMarketing, 'Autres')!, {head: MapIconBuilder.circle}]
       ]).generate();
     }
 
