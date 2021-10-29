@@ -126,7 +126,7 @@ export class SliceTable {
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
         PDV.load(false);
-        this.pdvFields = DataExtractionHelper.get('structurePdv');
+        this.pdvFields = DataExtractionHelper.get('structurePdvs');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
 
         //Get idsToFields, to match id values in pdv to string values
@@ -172,7 +172,7 @@ export class SliceTable {
     }
 
     getAllColumns(type: string) {
-        let allColumns = DataExtractionHelper.getPDVFields().concat(this.tableConfig[type]['specificColumns']);
+        let allColumns = DataExtractionHelper.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']);
         return allColumns;
     }
 
@@ -314,8 +314,15 @@ export class SliceTable {
   
     pdvFromObjectToList(pdv: PDV) { //operation inverse de la construction de row du tableau
         let pdvAsList = []
-        for(let field of DataExtractionHelper.getPDVFields()) {
-            pdvAsList.push(pdv.attribute(field))
+        for(let field of DataExtractionHelper.get('structurePdvs')) {
+            if(this.idsToFields[field]) {
+                for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
+                    if(fieldValue === pdv.attribute(field)) {
+                        pdvAsList.push(id)
+                        break;
+                    }
+                }
+            } else pdvAsList.push(pdv.attribute(field))
         }
         return pdvAsList;
     }

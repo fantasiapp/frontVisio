@@ -361,7 +361,7 @@ export class PDV{
   };
 
   private static createIndexMapping(){
-    const fields = DataExtractionHelper.get('structurePdv') as string[];
+    const fields = DataExtractionHelper.get('structurePdvs') as string[];
     this.indexMapping = new Map<string, number>();
     fields.forEach((value: string, index: number) => 
       this.indexMapping.set(value, index)
