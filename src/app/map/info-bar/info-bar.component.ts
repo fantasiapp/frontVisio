@@ -6,7 +6,6 @@ import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
 import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
-import { SliceTable } from 'src/app/middle/SliceTable';
 import {
   trigger,
   state,
@@ -48,24 +47,22 @@ export class InfoBarComponent {
   
   @Input()
   set pdv(value: PDV | undefined) {
-    this._pdv = value;
     this.opened = value ? true : false;
     this.currentIndex = 0;
     this.pdvChange.emit(value);
     if ( value ) {
-      InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
-      InfoBarComponent.pdvId = value.id;
-      this.target = this._pdv!.target
-      this.displayedInfos = this.extractDisplayedInfos(value);
-      this.sales = Object.assign([], this._pdv!.salesObject.filter((sale: Sale) => Object.keys(this.productIdToIndex).includes(sale.productId.toString())));
-      this.redistributedDisabled = !value.redistributed || !this.noSales();
-      this.doesntSellDisabled = !value.sale || !this.noSales();
-      this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
-      this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.redistributed;
-      this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.redistributedFinitions;
-      this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.sale
+      this._pdv = new PDV(-1, value.getValues());
+      this._pdv.updateField('target', PDV.initializeTarget())
+      this.target = <any[]>this._pdv.target
+      this.displayedInfos = this.extractDisplayedInfos(this.pdv!);
+      this.redistributedDisabled = !this.pdv!.redistributed || !this.noSales();
+      this.doesntSellDisabled = !this.pdv!.sale || !this.noSales();
+      this.targetP2cdFormatted = formatNumberToString((this.pdv!.target as any[])[DEH.TARGET_VOLUME_ID]);
+      this.redistributedChecked = (this.pdv!.target as any[])[DEH.TARGET_REDISTRIBUTED_ID] || !this.pdv!.redistributed;
+      this.redistributedFinitionsChecked = (this.pdv!.target as any[])[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] || !this.pdv!.redistributedFinitions;
+      this.doesntSellChecked = (this.pdv!.target as any[])[DEH.TARGET_SALE_ID] || !this.pdv!.sale
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
-      this.isOnlySiniat = value.onlySiniat
+      this.isOnlySiniat = this.pdv!.onlySiniat
       this.loadGrid();
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
@@ -80,6 +77,7 @@ export class InfoBarComponent {
 
   pages: string[] = ['Référentiel', 'Ciblage', 'Saisie de l\'AD'];
   currentIndex: number = 0;
+  target: any[] = [];
 
   industries: string[] = [];
   products: string[] = [];
@@ -132,34 +130,30 @@ export class InfoBarComponent {
 
   private _pdv: PDV | undefined;
   displayedInfos: {[field: string]: any} = {};
-  target?: any;
-  sales?: Sale[];
-  static valuesSave: any[] = [];
-  static pdvId: number = 0;
   redistributed?: boolean;
 
   extractDisplayedInfos(pdv: PDV) {
     return {
-      name: this._pdv!.name,
-      agent: this._pdv!.get('agent'),
-      segmentMarketing: this._pdv!.get('segmentMarketing'),
-      segmentCommercial: this._pdv!.get('segmentCommercial'),
-      enseigne: this._pdv!.get('enseigne'),
-      dep: this._pdv!.get('dep'),
-      ville: this._pdv!.get('ville'),
-      bassin: this._pdv!.get('bassin'),
-      clientProspect: this._pdv!.clientProspect2(),
-      nbVisits: this._pdv!.nbVisits,
-      siniatP2cdSales: Math.round(this._pdv!.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      placoP2cdSales: Math.round(this._pdv!.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      knaufP2cdSales: Math.round(this._pdv!.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      totalP2cdSales: Math.round(this._pdv!.graph.p2cd['Siniat'].value + this._pdv!.graph.p2cd['Placo'].value + this._pdv!.graph.p2cd['Knauf'].value + this._pdv!.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      pregyEnduitSales: Math.round(this._pdv!.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      salsiEnduitSales: Math.round(this._pdv!.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      potential: Math.round(this._pdv!.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      totalSiniatEnduitSales: Math.round(this._pdv!.potential + this._pdv!.graph.enduit['Salsi'].value + this._pdv!.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      totalEnduitSales: Math.round(this._pdv!.graph.enduit['Prégy'].value + this._pdv!.graph.enduit['Salsi'].value + this._pdv!.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      typology: this._pdv!.typology,
+      name: this.pdv!.name,
+      agent: this.pdv!.get('agent'),
+      segmentMarketing: this.pdv!.get('segmentMarketing'),
+      segmentCommercial: this.pdv!.get('segmentCommercial'),
+      enseigne: this.pdv!.get('enseigne'),
+      dep: this.pdv!.get('dep'),
+      ville: this.pdv!.get('ville'),
+      bassin: this.pdv!.get('bassin'),
+      clientProspect: this.pdv!.clientProspect2(),
+      nbVisits: this.pdv!.nbVisits,
+      siniatP2cdSales: Math.round(this.pdv!.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      placoP2cdSales: Math.round(this.pdv!.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      knaufP2cdSales: Math.round(this.pdv!.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalP2cdSales: Math.round(this.pdv!.graph.p2cd['Siniat'].value + this.pdv!.graph.p2cd['Placo'].value + this.pdv!.graph.p2cd['Knauf'].value + this.pdv!.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      pregyEnduitSales: Math.round(this.pdv!.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      salsiEnduitSales: Math.round(this.pdv!.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      potential: Math.round(this.pdv!.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalSiniatEnduitSales: Math.round(this.pdv!.potential + this.pdv!.graph.enduit['Salsi'].value + this.pdv!.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalEnduitSales: Math.round(this.pdv!.graph.enduit['Prégy'].value + this.pdv!.graph.enduit['Salsi'].value + this.pdv!.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      typology: this.pdv!.typology,
     }
   }
 
@@ -192,8 +186,7 @@ export class InfoBarComponent {
   }
 
   quit(save: boolean) {
-    if(save && this.hasChanged) this.updatePdv(this._pdv!);
-    else this._pdv!.setValues(InfoBarComponent.valuesSave)
+    if(save && this.hasChanged) this.updatePdv(this.pdv!);
     this.quiting = false;
     let fn: any;
     this.ref!.nativeElement.addEventListener('transitionend', fn = (_: any) => {
@@ -217,8 +210,8 @@ export class InfoBarComponent {
 
   loadGrid() {
     // console.log("Id retenus : ", this.productIdToIndex)
-    // console.log("Sales totales : ", this._pdv!.attribute("sales"))
-    // console.log("Sales retenues : ", this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DEH.SALES_PRODUCT_ID].toString())))
+    // console.log("Sales totales : ", this.pdv!.attribute("sales"))
+    // console.log("Sales retenues : ", this.pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DEH.SALES_PRODUCT_ID].toString())))
     this.grid = new Array(this.industries.length + 1);
     this.gridFormatted = new Array(this.industries.length+1);
     this.salesColors = new Array(this.industries.length + 1);
@@ -227,7 +220,7 @@ export class InfoBarComponent {
       this.gridFormatted[i] = new Array(this.products.length).fill('');
       this.salesColors[i] = new Array(this.products.length).fill('red');
     }
-    for(let sale of this.sales!) {
+    for(let sale of this.pdv!.salesObject) {
       let i = this.industryIdToIndex[sale.industryId], j = this.productIdToIndex[sale.productId];
       this.grid[i][j] = sale.volume
       this.gridFormatted[i][j] = formatNumberToString(sale.volume);
@@ -239,7 +232,7 @@ export class InfoBarComponent {
   }
 
   getSaleColor(sale: Sale): string {
-    if(this._pdv!.sale === false || this._pdv!.onlySiniat === true || sale.industryId == DEH.INDUSTRIE_SINIAT_ID) return 'black'
+    if(this.pdv!.sale === false || this.pdv!.onlySiniat === true || sale.industryId == DEH.INDUSTRIE_SINIAT_ID) return 'black'
     if(Math.floor(Date.now()/1000) - 15778476 > sale.date) return 'orange'
     else return 'black'
 }
@@ -267,57 +260,41 @@ export class InfoBarComponent {
   }
 
   changeRedistributed() {
-    console.log("oui oui")
       this.redistributedChecked = !this.redistributedChecked
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
-      if(!this.target) this.target = SliceTable.initializeTarget()
-      this.target[DEH.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.hasChanged = true;
   }
   changeRedistributedFinitions() {
     this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
     this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
-    if(!this.target) this.target = SliceTable.initializeTarget()
-    this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
     this.hasChanged = true;
   }
 
 
   changeTargetP2CD() {
-    if(!this.target) this.target = SliceTable.initializeTarget()
     this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
-      this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID]);
+      this.targetP2cdFormatted = formatNumberToString((this.pdv!.target as any[])[DEH.TARGET_VOLUME_ID]);
       this.errorInput = true;
       setTimeout(() => this.errorInput = false, 1000);
       return;
     }
-    this.target[this.TARGET_VOLUME_ID] = +this.targetP2cdFormatted;
-    if(this.target[this.TARGET_VOLUME_ID] === 0) this.target[this.TARGET_LIGHT_ID] = ""
-    this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID])
+    this.targetP2cdFormatted = formatNumberToString(+this.targetP2cdFormatted)
     this.hasChanged = true;
   }
 
   changeComment() { //PB : newValue isn't a number
     let ref = this.comments!.get(0); //<- the current text area is the first in view
     if ( !ref ) return;
-    if(!this.target) this.target = SliceTable.initializeTarget()
-    this.target[this.TARGET_COMMENT_ID] = ref.nativeElement.value;
     this.hasChanged = true;
+
   }
 
   changeTargetBassin() {
-    if(!this.displayedInfos.bassin) this.displayedInfos.bassin = DEH.get('bassin')[this.target[DEH.TARGET_BASSIN_ID]] || DEH.get('bassin')[this._pdv!.attribute('bassin')];
-    else {
-      if(!this.target) this.target = SliceTable.initializeTarget()
-      this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
       this.hasChanged = true;
-    }
   } 
 
   changeTargetLight(newLightValue: string) {
-    if(!this.target) this.target = SliceTable.initializeTarget()
-    this.target[this.TARGET_LIGHT_ID] = newLightValue
     this.hasChanged = true;
   }
 
@@ -335,18 +312,18 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
     this.updateSum(i,j)
 
-    for(let sale of this._pdv!.salesObject) {
+    for(let sale of this.pdv!.salesObject) {
       if(i === this.industryIdToIndex[sale.industryId] && j === this.productIdToIndex[sale.productId]) {
         sale.volume = this.grid[i][j];
         sale.date = Math.floor(Date.now() / 1000);
         this.hasChanged = true;
-        this.redistributedDisabled = !this._pdv!.redistributed || !this.noSales();
-        this.doesntSellDisabled = !this._pdv!.sale || !this.noSales();
+        this.redistributedDisabled = !this.pdv!.redistributed || !this.noSales();
+        this.doesntSellDisabled = !this.pdv!.sale || !this.noSales();
         return;
       }
     }
     //arriving here means that a new sale has to be created
-    this._pdv!.salesObject.push(new Sale([
+    this.pdv!.salesObject.push(new Sale([
       Math.floor(Date.now() / 1000),
       +DEH.getKeyByValue(this.industryIdToIndex, i)!,
       +DEH.getKeyByValue(this.productIdToIndex, j)!,
@@ -357,11 +334,8 @@ export class InfoBarComponent {
   }
 
   changeTargetSale(){
-      if(!this.target) this.target = SliceTable.initializeTarget()
       this.doesntSellChecked = !this.doesntSellChecked;
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
-      this.target[this.TARGET_SALE_ID] = !this.doesntSellChecked;
-      this.target[this.TARGET_LIGHT_ID] = 'r'
       this.hasChanged = true;
   }
   changeOnlySiniat() {
@@ -372,7 +346,7 @@ export class InfoBarComponent {
   }
 
   noSales(): boolean { //check if they are no sales, or only with a null volume (other than Siniat)
-    for(let sale of this.sales!) {
+    for(let sale of this.pdv!.salesObject) {
       if(sale.industryId != DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0)
         return false;
     }
@@ -388,13 +362,13 @@ export class InfoBarComponent {
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
     let pdvAsList = pdv.getValues();
     pdvAsList[PDV.index('onlySiniat')] = this.isOnlySiniat
-    pdvAsList[PDV.index('target')] = this.target
+    pdvAsList[PDV.index('target')] = this.pdv!.target
     return pdvAsList;
   }
 
   updatePdv(pdv: PDV) { //Field that may be changed here : target.commentTargetP2CD, target.redistributed, target.greenLight, target.targetP2CD
     let newPdv = this.pdvFromPDVToList(pdv);
-    this.dataService.updatePdv(newPdv, InfoBarComponent.pdvId);
+    this.dataService.updatePdv(newPdv, pdv.id);
     this.hasChanged = false;
   }
 }

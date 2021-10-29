@@ -288,6 +288,24 @@ export class Sale {
 
 };
 
+// export class Target {
+//   private data: any[]
+//   constructor(data: any[] | false) {
+//     if(data === false) this.data = PDV.initializeTarget()
+//     else this.data = data;
+//   }
+
+//   get date(): number {return this.data[DEH.TARGET_DATE_ID]}
+//   get redistributed(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_ID]}
+//   get redistributedFinitions(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID]}
+//   get sale(): boolean {return this.data[DEH.TARGET_SALE_ID]}
+//   get targetP2cd(): number {return this.data[DEH.TARGET_VOLUME_ID]}
+//   get targetFinitions(): boolean {return this.data[DEH.TARGET_FINITIONS_ID]}
+//   get greenLight(): string {return this.data[DEH.TARGET_ID]}
+//   get commentTargetP2cd(): string {return this.data[DEH.TARGET_COMMENT_ID]}
+//   get bassin(): string {return this.data[DEH.TARGET_BASSIN_ID]}
+// }
+
 
 class SimplePdv { // Theses attributes are directly those received from the back
   private static indexMapping: Map<string, number>;
@@ -344,11 +362,19 @@ class SimplePdv { // Theses attributes are directly those received from the back
      this.values[PDV.index(field)] = value;
   }
 
+  static initializeTarget() {
+    return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
+  }
+  public updateTargetField(id: number, value: any) {
+    if(!this.target) this.updateField('target', SimplePdv.initializeTarget())
+    this.values[DEH.TARGET_ID][id]
+  }
+
   public attribute(attribute: string) {
     return this.values[SimplePdv.indexMapping.get(attribute)!]
   }
 
-  public get(field: string) {return DEH.getNameOfRegularObject(field, this.attribute(field))}
+  public get(field: string) {return DEH.getNameOfRegularObject(field, this.attribute(field))} //useless ?
 }
 
 export class PDV extends SimplePdv{
@@ -363,6 +389,7 @@ export class PDV extends SimplePdv{
 
 
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
+  // get targetObject(): Target {return new Target(this.target)}
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
   get graph() {

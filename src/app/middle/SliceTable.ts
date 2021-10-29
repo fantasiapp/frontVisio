@@ -126,14 +126,12 @@ export class SliceTable {
         return this.tableConfig[type]['updatableColumns'];
     }
 
-    static initializeTarget() {
-        return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
-      }
+
 
     changeTargetTargetFinitions(pdv: PDV) {
         let list: any[] = pdv.getValues();
         console.log("list : ", list)
-        if(!list[DEH.TARGET_ID]) list[DEH.TARGET_ID] = SliceTable.initializeTarget()
+        if(!list[DEH.TARGET_ID]) list[DEH.TARGET_ID] = PDV.initializeTarget()
         if(pdv.potential > 0) {
             if(!pdv.targetFinition) {
                 this.updateTotalTarget(pdv.potential)

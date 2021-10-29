@@ -272,7 +272,6 @@ export class TableComponent extends BasicWidget {
 
   displayInfobar(pdv: PDV | number) {
     if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
-    InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(pdv.getValues())); //Values deepcopy
     this.selectedPdv = pdv;
     this.pdv = PDV.getInstances().get(pdv.id) // => displays infoBar
     this.cd.markForCheck();
