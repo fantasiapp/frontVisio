@@ -28,7 +28,6 @@ export class SliceTable {
             'navIds': () => this.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
-            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'id'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
             'groupRowConfig': (entry: any) => {
@@ -52,7 +51,6 @@ export class SliceTable {
             'navIds': () => this.geoTree ? ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'] : ['typologie', 'segmentMarketing', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.targetFinition && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'targetFinition', flex: 0.3}],
-            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'targetFinition', 'id'],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
             'groupRowConfig': (entry: any) => {
@@ -151,7 +149,6 @@ export class SliceTable {
     updateTotalTarget(increment: number) {
         this.titleData[1]+=increment
     }
-
 
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];

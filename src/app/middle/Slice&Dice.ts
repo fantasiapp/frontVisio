@@ -307,7 +307,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   }
 
   constructor(protected values: any[],) {
-    this.sales = this.values[SimplePdv.index('sales')]
+    this.updateField('sales', this.values[SimplePdv.index('sales')])
   }
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
@@ -340,16 +340,9 @@ class SimplePdv { // Theses attributes are directly those received from the back
   get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
 
   //Modifiable fields : bassin, available, sale, redistributed, redistributedFinitions, pointFeu, onlySiniat, nbVisits, target, sales
-  set bassin(val: number) {this.values[PDV.index('bassin')] = val;}
-  set available(val: boolean) {this.values[PDV.index('available')] = val;}
-  set sale(val: boolean) {this.values[PDV.index('sale')] = val;}
-  set redistributed(val: boolean) {this.values[PDV.index('redistributed')] = val;}
-  set redistributedFinitions(val: boolean) {this.values[PDV.index('redistributedFinitions')] = val;}
-  set pointFeu(val: boolean) {this.values[PDV.index('pointFeu')] = val;}
-  set onlySiniat(val: boolean) {this.values[PDV.index('onlySiniat')] = val;}
-  set nbVisits(val: number) {this.values[PDV.index('nbVisits')] = val;}
-  set target(val: any[] | false) {this.values[PDV.index('target')] = val;}
-  set sales(val: number[][]) {this.values[PDV.index('sales')] = val;}
+  public updateField(field: string, value: any) {
+     this.values[PDV.index(field)] = value;
+  }
 
   public attribute(attribute: string) {
     return this.values[SimplePdv.indexMapping.get(attribute)!]
