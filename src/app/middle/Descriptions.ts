@@ -36,8 +36,9 @@ export class CD{ //For ComputeDescription
     let ciblageDn = PDV.computeCiblage(node, true, true),
         ciblageFinitions = PDV.computeCiblage(node, true),
         objective = DEH.getTarget(node.label, node.id, false, true);
-    let percent = (objective == 0) ? 0: 0.1 * ciblageFinitions/objective;
-    return "Ciblage: ".concat(ciblageDn.toString(), " PdV, pour un total de ", Math.round(ciblageFinitions/1000).toString(), " T (soit ", Math.round(percent).toString(), " % de l'objectif).");
+    let percent = (objective == 0) ? 0: 0.1 * ciblageFinitions/objective,
+      appropriatePresentation = (percent <= 100) ? Math.round(percent).toString().concat(" %"): "plus de 100 %";
+    return "Ciblage: ".concat(ciblageDn.toString(), " PdV, pour un total de ", Math.round(ciblageFinitions/1000).toString(), " T (soit ", appropriatePresentation, " de l'objectif).");
   }
 
   private static getCiblage(node:any, enduit=false, dn=false){
