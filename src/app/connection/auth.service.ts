@@ -6,9 +6,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, of,Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { LoggerService } from '../behaviour/logger.service';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
-import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
 

@@ -279,32 +279,104 @@ class DataWidget{
   }
 }
 
-class Sale {
-  public date: Date|null;
-
+export class Sale {
+  
   constructor(private data: any[]){
-    let dataDate = this.data[DataExtractionHelper.SALES_DATE_ID]
-    this.date = dataDate ? new Date(dataDate): null;
+    this.date = this.data[DataExtractionHelper.SALES_DATE_ID]
   };
 
+  get date() {return this.data[DataExtractionHelper.SALES_DATE_ID]}
+  get industryId(): number {return this.data[DataExtractionHelper.SALE_INDUSTRY_ID];}
+  get productId(): number {return this.data[DataExtractionHelper.SALE_PRODUCT_ID];}
+  get volume(): number {return this.data[DataExtractionHelper.SALE_VOLUME_ID];}
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
-  get industryId() {return this.data[DataExtractionHelper.SALE_INDUSTRY_ID];}
-  get productId() {return this.data[DataExtractionHelper.SALE_PRODUCT_ID];}
-  get volume() {return this.data[DataExtractionHelper.SALE_VOLUME_ID];}
+
+
+  set volume(val: number) {this.data[DataExtractionHelper.SALE_VOLUME_ID] = val;}
+  set date(val: number) {this.data[DataExtractionHelper.SALES_DATE_ID] = val}
+
 };
 
-export class PDV{
+
+class SimplePdv { // Theses attributes are directly those received from the back
+  private static indexMapping: Map<string, number>;
+
+  private static createIndexMapping(){
+    const fields = DataExtractionHelper.get('structurePdvs') as string[];
+    this.indexMapping = new Map<string, number>();
+    fields.forEach((value: string, index: number) => 
+      this.indexMapping.set(value, index)
+    );
+  }
+  static index(attribute: string): number {
+    return SimplePdv.indexMapping.get(attribute)!;
+  }
+  public static _initialize(){
+    SimplePdv.createIndexMapping();
+  }
+
+  constructor(protected values: any[]) {
+    this.sales = this.values[SimplePdv.index('sales')]
+  }
+  public getValues() {return this.values;}
+  public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
+
+  get code(): string{return this.values[SimplePdv.indexMapping.get('code')!]}
+  get name(): string{return this.values[SimplePdv.indexMapping.get('name')!]}
+  get drv(): string{return this.values[SimplePdv.indexMapping.get('drv')!]}
+  get agent(): number{return this.values[SimplePdv.indexMapping.get('agent')!]}
+  get agentFinitions(): number{return this.values[SimplePdv.indexMapping.get('agentFinitions')!]}
+  get dep(): number{return this.values[SimplePdv.indexMapping.get('dep')!]}
+  get bassin(): number{return this.values[SimplePdv.indexMapping.get('bassin')!]}
+  get ville(): number{return this.values[SimplePdv.indexMapping.get('ville')!]}
+  get latitude(): number{return this.values[SimplePdv.indexMapping.get('latitude')!]}
+  get longitude(): number{return this.values[SimplePdv.indexMapping.get('longitude')!]}
+  get segmentCommercial(){return this.values[SimplePdv.indexMapping.get('segmentCommercial')!]}
+  get segmentMarketing(): number{return this.values[SimplePdv.indexMapping.get('segmentMarketing')!]}
+  get enseigne(): number{return this.values[SimplePdv.indexMapping.get('enseigne')!]}
+  get ensemble(): number{return this.values[SimplePdv.indexMapping.get('ensemble')!]}
+  get sousEnsemble(): number{return this.values[SimplePdv.indexMapping.get('sousEnsemble')!]}
+  get site(): number{return this.values[SimplePdv.indexMapping.get('site')!]}
+  get available(): boolean{return this.values[SimplePdv.indexMapping.get('available')!]}
+  get sale(): boolean{return this.values[SimplePdv.indexMapping.get('sale')!]}
+  get redistributed(): boolean{return this.values[SimplePdv.indexMapping.get('redistributed')!]}
+  get redistributedFinitions(): boolean{return this.values[SimplePdv.indexMapping.get('redistributedFinitions')!]}
+  get pointFeu(): boolean{return this.values[SimplePdv.indexMapping.get('pointFeu')!]}
+  get onlySiniat(): boolean{return this.values[SimplePdv.indexMapping.get('onlySiniat')!]}
+  get closedAt(){return this.values[SimplePdv.indexMapping.get('closedAt')!]}
+  get nbVisits(): number{return this.values[SimplePdv.indexMapping.get('nbVisits')!]}
+  get target(): any[] | false{return this.values[SimplePdv.indexMapping.get('target')!]}
+  get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
+
+  //Modifiable fields : bassin, available, sale, redistributed, redistributedFinitions, pointFeu, onlySiniat, nbVisits, target, sales
+  set bassin(val: number) {this.values[PDV.index('bassin')] = val;}
+  set available(val: boolean) {this.values[PDV.index('available')] = val;}
+  set sale(val: boolean) {this.values[PDV.index('sale')] = val;}
+  set redistributed(val: boolean) {this.values[PDV.index('redistributed')] = val;}
+  set redistributedFinitions(val: boolean) {this.values[PDV.index('redistributedFinitions')] = val;}
+  set pointFeu(val: boolean) {this.values[PDV.index('pointFeu')] = val;}
+  set onlySiniat(val: boolean) {this.values[PDV.index('onlySiniat')] = val;}
+  set nbVisits(val: number) {this.values[PDV.index('nbVisits')] = val;}
+  set target(val: any[] | false) {this.values[PDV.index('target')] = val;}
+  set sales(val: number[][]) {this.values[PDV.index('sales')] = val;}
+
+  public attribute(attribute: string) {
+    return this.values[SimplePdv.indexMapping.get(attribute)!]
+  }
+}
+
+export class PDV extends SimplePdv{
+
   private static instances: Map<number, PDV> = new Map<number, PDV>();
   static geoTree: Tree;
   static tradeTree: Tree;
-  private static indexMapping: Map<string, number>;
 
-  get name(){return this.attribute('name')}
-  get enseigne() {return DataExtractionHelper.get('enseigne')[this.attribute('enseigne')]}
-  get segmentMarketing() {return DataExtractionHelper.get('segmentMarketing')[this.attribute('segmentMarketing')]}
-  get segmentCommercial() {return DataExtractionHelper.get('segmentCommercial')[this.attribute('segmentCommercial')]}
-  get ensemble() {return DataExtractionHelper.get('ensemble')[this.attribute('ensemble')]}
-  get nbVisits() {return this.attribute('nbVisits')}
+  constructor(readonly id: number, values: any[]){
+    super(values);
+  };
+
+
+  get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
   get graph() {
@@ -319,28 +391,22 @@ export class PDV{
     }
     return {'p2cd': p2cdSales, 'enduit': enduitSales};
   }
-  get potential() {return this.getPotential()}
-  get typologie() {return DataExtractionHelper.get('segmentDnEnduit')[this.typologyFilter()]}
-  get edit() {return true}
-  get info() {return true}
-  get checkboxP2cd() {return this.ciblage() === 2}
+  get potential(): number {return this.getPotential()}
+  get typologie(): string {return DataExtractionHelper.get('segmentDnEnduit')[this.typologyFilter()]}
+  get edit(): boolean {return true}
+  get info(): boolean {return true}
+  get checkboxP2cd(): boolean {return this.ciblage() === 2}
   get clientProspectProperty(){return this.clientProspect()}
-  get sale(){return this.attribute('sale')}
-  get onlySiniat(){return this.attribute('onlySiniat')}
-  get redistributedFinitions(){return this.attribute('redistributedFinitions')}
 
   get targetP2cd(){
-    let target = this.attribute('target');
-    if (!target) return 0;
-    return target[DataExtractionHelper.TARGET_VOLUME_ID]
+    if (!this.target) return 0;
+    return this.target[DataExtractionHelper.TARGET_VOLUME_ID]
   }
 
   get targetFinition(){
-    let target = this.attribute('target');
-    if (!target) return false;
-    return target[DataExtractionHelper.TARGET_FINITIONS_ID]
+    if (!this.target) return false;
+    return this.target[DataExtractionHelper.TARGET_FINITIONS_ID]
   }
-
 
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
@@ -350,8 +416,8 @@ export class PDV{
 
   // Il faudra penser à delete la requête de la ram après l'avoir utilisée
   static load(loadTrees = true){
+    SimplePdv._initialize();
     this.instances.clear(); //<- clear before
-    this.createIndexMapping();
     for (let [id, data] of Object.entries(DataExtractionHelper.get('pdvs'))){
       let intId = parseInt(id);
       if (Number.isNaN(intId)) continue;
@@ -359,45 +425,20 @@ export class PDV{
     }
     if (loadTrees) this.loadTrees();
   };
-
-  private static createIndexMapping(){
-    const fields = DataExtractionHelper.get('structurePdvs') as string[];
-    this.indexMapping = new Map<string, number>();
-    fields.forEach((value: string, index: number) => 
-      this.indexMapping.set(value, index)
-    );
-  }
-
-  static index(attribute: string): number {
-    return PDV.indexMapping.get(attribute)!;
-  }
   
   private static loadTrees(){
     this.geoTree = new Tree(NavigationExtractionHelper);
     this.tradeTree = new Tree(TradeExtrationHelper);
   }
 
-  static getProducts() {
-    return Object.values(DataExtractionHelper.get('product'));
-  }
-  
-  readonly sales: Sale[];
-  constructor(readonly id: number, private values: any[]){
-    this.sales = [];
-    for (let d of this.attribute('sales'))
-      this.sales.push(new Sale(d));
-  };
-
-  public getValues() {return this.values;}
-  public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
 
   public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, 
       target=false, visit=false, ad=false): (number | number[]){
     if (visit) return this.computeVisits(indicator);
     if (indicator == 'dn') return this.computeDn(enduit, clientProspect, target, ad);
-    let relevantSales = this.sales.filter(sale => sale.type == indicator);
+    let relevantSales = this.salesObject.filter(sale => sale.type == indicator);
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
-    let p2cdSales = this.sales.filter(sale => sale.type == 'p2cd');
+    let p2cdSales = this.salesObject.filter(sale => sale.type == 'p2cd');
     if (byIndustries) return this.computeIndustries(target, relevantSales);      
     let total = p2cdSales.reduce((acc, sale) => acc + sale.volume, 0);
     if (enduit) return this.computeEnduit(target, relevantSales, total);
@@ -415,7 +456,7 @@ export class PDV{
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
       visitsRepartition = new Array(6).fill(0),
       totalP2cd = 0, totalSiniatP2cd = 0, totalEnduit = 0;
-    for (let sale of this.sales){
+    for (let sale of this.salesObject){
       if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit') totalEnduit += sale.volume;
       else if (sale.type == 'p2cd'){
         totalP2cd += sale.volume;
@@ -424,8 +465,8 @@ export class PDV{
     }
     let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd,
       saleEnduit = totalEnduit > 0,
-      toAdd = (indicator == 'visits') ? this.attribute("nbVisits") : 
-        this.attribute("nbVisits") * Math.max(totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"], totalEnduit); 
+      toAdd = (indicator == 'visits') ? this.nbVisits : 
+        this.nbVisits * Math.max(totalP2cd * DataExtractionHelper.get("params")["ratioPlaqueFinition"], totalEnduit); 
         // Ca c'est le calcul du volume d'enduit qu'il faudra peut-être aller chercher chez baptiste à l'avenir
     if (saleP2cd && saleEnduit){
       if (this.targetFinition) visitsRepartition[associatedIndex["Cible P2CD + Enduit"]] = toAdd;
@@ -466,9 +507,9 @@ export class PDV{
         totalP2cd = 0, totalSales = 0,
         totalSiniatP2cd = 0,
         saleEnduit = false;
-      if (this.sales.length == 0 || !this.attribute("redistributedFinitions") || !this.attribute("redistributed")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+      if (this.sales.length == 0 || !this.redistributedFinitions || !this.redistributed) dnEnduit[associatedIndex["Non documenté"]] = 1;
       else {
-        for (let sale of this.sales){
+        for (let sale of this.salesObject){
           totalSales += sale.volume;
           if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) 
             saleEnduit = true;
@@ -478,7 +519,7 @@ export class PDV{
           }
         }
         let saleP2cd = totalSiniatP2cd > DataExtractionHelper.get("params")["ratioCustomerProspect"] * totalP2cd;
-        if (totalSiniatP2cd == totalSales && !this.attribute("onlySiniat")) dnEnduit[associatedIndex["Non documenté"]] = 1;
+        if (totalSiniatP2cd == totalSales && !this.onlySiniat) dnEnduit[associatedIndex["Non documenté"]] = 1;
         else if (saleP2cd && saleEnduit) dnEnduit[associatedIndex["P2CD + Enduit"]] = 1;
         else if (saleEnduit){
           if (target && this.targetFinition) dnEnduit[associatedIndex["Cible P2CD"]] = 1;
@@ -504,7 +545,7 @@ export class PDV{
       siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID,
       clientProspectLimit = DataExtractionHelper.getParam('ratioCustomerProspect'),
       siniatP2cd = 0;
-      for (let sale of this.sales)
+      for (let sale of this.salesObject)
         if (sale.type == 'p2cd'){
           totalP2cd += sale.volume;
           if (sale.industryId == siniatId) siniatP2cd += sale.volume;
@@ -581,7 +622,7 @@ export class PDV{
   }
 
   static filterPdvs(pdvs:PDV[]){
-    return pdvs.filter(pdv => pdv.attribute('available') && pdv.attribute('sale'));
+    return pdvs.filter(pdv => pdv.available && pdv.sale);
   }
 
   static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
@@ -604,7 +645,7 @@ export class PDV{
           visit = visitAxis.includes(axis1) || visitAxis.includes(axis2),
           ad = adAxis.includes(axis1) || adAxis.includes(axis2);
       for (let pdv of newPdvs){
-        if (pdv.attribute('available') && pdv.attribute('sale')){
+        if (pdv.available && pdv.sale){
           if (irregular == 'no') 
             dataWidget.addOnCase(
               pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
@@ -619,10 +660,6 @@ export class PDV{
         }
       }
     }
-  }
-
-  attribute(name: string){
-        return this.values[PDV.index(name)];
   }
 
   static getData(slice: any, axe1: string, axe2: string, indicator: string, 
@@ -675,8 +712,8 @@ export class PDV{
       case 'clientProspect': return this.clientProspect(true);
       case 'industriel': return this.industriel();
       case 'ciblage': return this.ciblage();
-      case 'pointFeuFilter': return this.attribute('pointFeu')? 2: 1;
-      case 'visited': return (this.attribute("nbVisits") > 0)? 1: 2;
+      case 'pointFeuFilter': return this.pointFeu? 2: 1;
+      case 'visited': return (this.nbVisits > 0)? 1: 2;
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
       case 'typology': return this.typologyFilter();
       default: return this.attribute(propertyName);
@@ -686,7 +723,7 @@ export class PDV{
   private segmentMarketingFilter(){
     let dictSegment = DataExtractionHelper.get('segmentMarketingFilter'),
       dictAllSegments = DataExtractionHelper.get('segmentMarketing')
-    let pdvSegment = this.attribute('segmentMarketing');
+    let pdvSegment = this.segmentMarketing;
     let result = parseInt(DataExtractionHelper.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
     return result;
@@ -896,9 +933,9 @@ export class PDV{
 
   private getFirstSaleDate(){
     let firstSaleDateInSeconds  = Infinity;
-    for (let sale of this.sales)
-      if (sale.date !== null && sale.date.getTime() < firstSaleDateInSeconds)
-        firstSaleDateInSeconds = sale.date.getTime();
+    for (let sale of this.salesObject)
+      if (sale.date !== null && sale.date < firstSaleDateInSeconds)
+        firstSaleDateInSeconds = sale.date;
     return firstSaleDateInSeconds;
   }
 
@@ -909,7 +946,7 @@ export class PDV{
     let associatedIndex :{[key: string]: number}= {};
     for (let i = 0; i < axe.length; i++)
       associatedIndex[axe[i]] = i;
-    if (this.attribute("onlySiniat") || !this.attribute("redistributed")){
+    if (this.onlySiniat || !this.redistributed){
       dnAd[associatedIndex["avant"]] = 1;
       return dnAd
     }
@@ -937,11 +974,11 @@ export class PDV{
 
   hasNonSiniatSale(){
     let siniatId = DataExtractionHelper.INDUSTRIE_SINIAT_ID;
-    return this.sales.reduce((acc: boolean, sale:Sale) => acc || sale.industryId !== siniatId, false);
+    return this.salesObject.reduce((acc: boolean, sale:Sale) => acc || sale.industryId !== siniatId, false);
   }
 
   adCompleted(){
-    return this.attribute("onlySiniat") || !this.attribute("redistributed") || this.sales.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
+    return this.onlySiniat || !this.redistributed || this.salesObject.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
   }
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
     let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DataExtractionHelper.followSlice(slice)));
@@ -950,7 +987,7 @@ export class PDV{
         let totalVisits: number= 0,
           cibleVisits:number = PDV.computeTargetVisits(slice) as number,
           threshold = [50, 99.99, 100];
-        for (let pdv of pdvs) totalVisits += pdv.attribute("nbVisits");
+        for (let pdv of pdvs) totalVisits += pdv.nbVisits;
         let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
         return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
       };
@@ -960,8 +997,8 @@ export class PDV{
           thresholdForGreen = 100 * PDV.computeTargetVisits(slice, true),
           threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
         for (let pdv of pdvs){
-          totalVisits += pdv.attribute("nbVisits");
-          if (pdv.targetFinition) totalCibleVisits += pdv.attribute("nbVisits");
+          totalVisits += pdv.nbVisits;
+          if (pdv.targetFinition) totalCibleVisits += pdv.nbVisits;
         }
         let adaptedVersion = (totalCibleVisits >= 2) ? ' visites ciblées': ' visite ciblée';
         return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
@@ -989,21 +1026,18 @@ export class PDV{
   }
 
   getVolumeTarget() : number{
-    let target = this.attribute('target');
-    if (!target) return 0;
-    return target[DataExtractionHelper.TARGET_VOLUME_ID]
+    if (!this.target) return 0;
+    return this.target[DataExtractionHelper.TARGET_VOLUME_ID]
   }
 
   getLightTarget(){
-    let target = this.attribute('target');
-    if (!target) return "";
-    return target[DataExtractionHelper.TARGET_LIGHT_ID]
+    if (!this.target) return "";
+    return this.target[DataExtractionHelper.TARGET_LIGHT_ID]
   }
 
   getCommentTarget(){
-    let target = this.attribute('target');
-    if (!target) return "";
-    return target[DataExtractionHelper.TARGET_COMMENT_ID]
+    if (!this.target) return "";
+    return this.target[DataExtractionHelper.TARGET_COMMENT_ID]
   }
 };
 

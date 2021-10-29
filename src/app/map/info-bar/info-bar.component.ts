@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
-import { PDV } from 'src/app/middle/Slice&Dice';
+import { PDV, Sale } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
@@ -55,17 +55,17 @@ export class InfoBarComponent {
     if ( value ) {
       InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(value.getValues())); //Values deepcopy
       InfoBarComponent.pdvId = value.id;
-      this.target = this._pdv!.attribute('target')
+      this.target = this._pdv!.target
       this.displayedInfos = this.extractDisplayedInfos(value);
-      this.sales = Object.assign([], this._pdv!.attribute('sales').filter((sale: any) => Object.keys(this.productIdToIndex).includes(sale[DataExtractionHelper.SALES_PRODUCT_ID].toString())));
-      this.redistributedDisabled = !value.attribute('redistributed') || !this.noSales();
-      this.doesntSellDisabled = !value.attribute('sale') || !this.noSales();
+      this.sales = Object.assign([], this._pdv!.salesObject.filter((sale: Sale) => Object.keys(this.productIdToIndex).includes(sale.productId.toString())));
+      this.redistributedDisabled = !value.redistributed || !this.noSales();
+      this.doesntSellDisabled = !value.sale || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString(this.target[this.TARGET_VOLUME_ID] || 0);
-      this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.attribute('redistributed');
-      this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.attribute('redistributedFinitions');
-      this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.attribute('sale')
+      this.redistributedChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_ID] : false) || !value.redistributed;
+      this.redistributedFinitionsChecked = (this.target ? !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] : false) || !value.redistributedFinitions;
+      this.doesntSellChecked = (this.target ? !this.target[this.TARGET_SALE_ID]: false) || !value.sale
       this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
-      this.isOnlySiniat = value.attribute('onlySiniat')
+      this.isOnlySiniat = value.onlySiniat
       this.loadGrid();
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
@@ -83,8 +83,8 @@ export class InfoBarComponent {
   pages: string[] = ['Référentiel', 'Ciblage', 'Saisie de l\'AD'];
   currentIndex: number = 0;
 
-  industries: string[] = [];//(PDV.getIndustries() as string[]);
-  products: string[] = [];//PDV.getProducts() as string[];
+  industries: string[] = [];
+  products: string[] = [];
   grid: number[][] = [];
   gridFormatted: string[][] = [];
   targetP2cdFormatted: string = "";
@@ -135,21 +135,21 @@ export class InfoBarComponent {
   private _pdv: PDV | undefined;
   displayedInfos: {[field: string]: any} = {};
   target?: any;
-  sales?: [][];
+  sales?: Sale[];
   static valuesSave: any[] = [];
   static pdvId: number = 0;
   redistributed?: boolean;
 
   extractDisplayedInfos(pdv: PDV) {
     return {
-      name: this._pdv!.attribute('name'),
-      agent: DataExtractionHelper.get('agent')[this._pdv!.attribute('agent')],
-      segmentMarketing: DataExtractionHelper.get('segmentMarketing')[this._pdv!.attribute('segmentMarketing')],
-      segmentCommercial: DataExtractionHelper.get('segmentCommercial')[this._pdv!.attribute('segmentCommercial')],
-      enseigne: DataExtractionHelper.get('enseigne')[this._pdv!.attribute('enseigne')],
-      dep: DataExtractionHelper.get('dep')[this._pdv!.attribute('dep')],
-      ville: DataExtractionHelper.get('ville')[this._pdv!.attribute('ville')],
-      bassin: this.target[DataExtractionHelper.TARGET_BASSIN_ID] || DataExtractionHelper.get('bassin')[this._pdv!.attribute('bassin')],
+      name: this._pdv!.name,
+      agent: DataExtractionHelper.get('agent')[this._pdv!.agent],
+      segmentMarketing: DataExtractionHelper.get('segmentMarketing')[this._pdv!.segmentMarketing],
+      segmentCommercial: DataExtractionHelper.get('segmentCommercial')[this._pdv!.segmentCommercial],
+      enseigne: DataExtractionHelper.get('enseigne')[this._pdv!.enseigne],
+      dep: DataExtractionHelper.get('dep')[this._pdv!.dep],
+      ville: DataExtractionHelper.get('ville')[this._pdv!.ville],
+      bassin: this.target[DataExtractionHelper.TARGET_BASSIN_ID] || DataExtractionHelper.get('bassin')[this._pdv!.bassin],
       clientProspect: pdv!.clientProspect() || "Non documenté"
     }
   }
@@ -169,7 +169,7 @@ export class InfoBarComponent {
 
     
     this.industries = Object.values(DataExtractionHelper.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
-    this.products = PDV.getProducts() as string[];
+    this.products = Object.values(DataExtractionHelper.get('product')) as string[];
     this.products.splice(3, this.products.length, 'P2CD')
     for(let i = 0; i<this.industries.length; i++)
       this.industryIdToIndex[+DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('industry'), this.industries[i])!] = i+1; //first row already used
@@ -219,9 +219,9 @@ export class InfoBarComponent {
       this.salesColors[i] = new Array(this.products.length).fill('red');
     }
     for(let sale of this.sales!) {
-      let i = this.industryIdToIndex[sale[DataExtractionHelper.SALES_INDUSTRY_ID!]], j = this.productIdToIndex[sale[DataExtractionHelper.SALES_PRODUCT_ID!]];
-      this.grid[i][j] = +sale[DataExtractionHelper.SALES_VOLUME_ID!]
-      this.gridFormatted[i][j] = formatNumberToString(sale[DataExtractionHelper.SALES_VOLUME_ID!]);
+      let i = this.industryIdToIndex[sale.industryId], j = this.productIdToIndex[sale.productId];
+      this.grid[i][j] = sale.volume
+      this.gridFormatted[i][j] = formatNumberToString(sale.volume);
       this.updateSum(i,j)
       this.salesColors[i][j] = this.getSaleColor(sale);
     }
@@ -229,9 +229,9 @@ export class InfoBarComponent {
       this.salesColors[row][3] = 'black'
   }
 
-  getSaleColor(sale: number[]): string {
-    if(this._pdv!.attribute('sale') === false || this._pdv!.attribute('onlySiniat') === true || sale[DataExtractionHelper.SALES_INDUSTRY_ID] == DataExtractionHelper.INDUSTRIE_SINIAT_ID) return 'black'
-    if(Math.floor(Date.now()/1000) - 15778476 > sale[DataExtractionHelper.SALES_DATE_ID]) return 'orange'
+  getSaleColor(sale: Sale): string {
+    if(this._pdv!.sale === false || this._pdv!.onlySiniat === true || sale.industryId == DataExtractionHelper.INDUSTRIE_SINIAT_ID) return 'black'
+    if(Math.floor(Date.now()/1000) - 15778476 > sale.date) return 'orange'
     else return 'black'
 }
 
@@ -298,7 +298,7 @@ export class InfoBarComponent {
   }
 
   changeTargetBassin() {
-    if(!this.displayedInfos.bassin) this.displayedInfos.bassin = DataExtractionHelper.get('bassin')[this.target[DataExtractionHelper.TARGET_BASSIN_ID]] || DataExtractionHelper.get('bassin')[this._pdv!.attribute('bassin')];
+    if(!this.displayedInfos.bassin) this.displayedInfos.bassin = DataExtractionHelper.get('bassin')[this.target[DataExtractionHelper.TARGET_BASSIN_ID]] || DataExtractionHelper.get('bassin')[this._pdv!.bassin];
     else {
       if(!this.target) this.target = SliceTable.initializeTarget()
       this.target[DataExtractionHelper.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
@@ -326,23 +326,23 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j]);
     this.updateSum(i,j)
 
-    for(let sale of this._pdv!.attribute('sales')) {
-      if(i === this.industryIdToIndex[sale[this.SALES_INDUSTRY_ID!]] && j === this.productIdToIndex[sale[this.SALES_PRODUCT_ID!]]) {
-        sale[this.SALES_VOLUME_ID!] = this.grid[i][j];
-        sale[this.SALES_DATE_ID!] = Math.floor(Date.now() / 1000);
+    for(let sale of this._pdv!.salesObject) {
+      if(i === this.industryIdToIndex[sale.industryId] && j === this.productIdToIndex[sale.productId]) {
+        sale.volume = this.grid[i][j];
+        sale.date = Math.floor(Date.now() / 1000);
         this.hasChanged = true;
-        this.redistributedDisabled = !this._pdv!.attribute('redistributed') || !this.noSales();
-        this.doesntSellDisabled = !this._pdv!.attribute('sale') || !this.noSales();
+        this.redistributedDisabled = !this._pdv!.redistributed || !this.noSales();
+        this.doesntSellDisabled = !this._pdv!.sale || !this.noSales();
         return;
       }
     }
     //arriving here means that a new sale has to be created
-    this._pdv!.attribute('sales').push([
+    this._pdv!.salesObject.push(new Sale([
       Math.floor(Date.now() / 1000),
       +DataExtractionHelper.getKeyByValue(this.industryIdToIndex, i)!,
       +DataExtractionHelper.getKeyByValue(this.productIdToIndex, j)!,
       this.grid[i][j]
-    ]);
+    ]));
     this.hasChanged = true;
     return;
   }
@@ -364,7 +364,7 @@ export class InfoBarComponent {
 
   noSales(): boolean { //check if they are no sales, or only with a null volume (other than Siniat)
     for(let sale of this.sales!) {
-      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+      if(sale.industryId != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale.volume > 0)
         return false;
     }
     return true;
@@ -377,12 +377,9 @@ export class InfoBarComponent {
   }
 
   pdvFromPDVToList(pdv: PDV) { //suitable format to update back, DataExtractionHelper, and then the rest of the application
-    let pdvAsList = []
-    for(let field of DataExtractionHelper.get('structurePdvs')) {
-      if(field == 'target') pdvAsList.push(this.target)
-      else if (field == 'onlySiniat') pdvAsList.push(this.isOnlySiniat);
-      else pdvAsList.push(pdv.attribute(field))
-    }
+    let pdvAsList = pdv.getValues();
+    pdvAsList[PDV.index('onlySiniat')] = this.isOnlySiniat
+    pdvAsList[PDV.index('target')] = this.target
     return pdvAsList;
   }
 

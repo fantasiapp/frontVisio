@@ -107,8 +107,8 @@ export class TableComponent extends BasicWidget {
     //   }
 
     // }
-    // this.gridApi.refreshCells()
-    // this.gridApi.redrawRows()
+    this.gridApi.refreshCells()
+    this.gridApi.redrawRows()
     this.updateTitle()
   }
 
@@ -246,7 +246,6 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    console.log("TEST : ", this.rowData[1])
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {

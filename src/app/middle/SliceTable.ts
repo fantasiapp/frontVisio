@@ -125,7 +125,6 @@ export class SliceTable {
     }
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
-        PDV.load(false);
         this.pdvFields = DataExtractionHelper.get('structurePdvs');
         this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
 
@@ -226,7 +225,7 @@ export class SliceTable {
       }
 
     changeTargetTargetFinitions(pdv: PDV) {
-        let list: any[] = this.pdvFromObjectToList(pdv);
+        let list: any[] = pdv.getValues();
         if(!list[DataExtractionHelper.TARGET_ID]) list[DataExtractionHelper.TARGET_ID] = SliceTable.initializeTarget()
         if(pdv.potential > 0) {
             if(!pdv.targetFinition) {
@@ -280,16 +279,16 @@ export class SliceTable {
     getRowColor(id: number): string {
         let pdvInstance = PDV.findById(id)!;
         let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
-        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+        if(pdvInstance.onlySiniat === true || pdvInstance.sale === false || pdvInstance.redistributed === false || (pdvInstance.target && (!pdvInstance.target[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 
-        for(let sale of pdvInstance.attribute('sales')) {
-            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+        for(let sale of pdvInstance.salesObject) {
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale.date && sale.industryId !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale.volume > 0)
                 return 'black';
         }
 
-        for(let sale of pdvInstance.attribute('sales')) {
-            if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'orange'
+        for(let sale of pdvInstance.salesObject) {
+            if(sale.industryId != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale.volume > 0) return 'orange'
         }
 
         return 'red'

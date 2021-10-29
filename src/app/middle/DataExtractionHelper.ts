@@ -258,13 +258,23 @@ class DataExtractionHelper{
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
     DataExtractionHelper.setData(this.data);
-    // PDV.load(true);
+    PDV.load(true);
     
-    for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
-      let values: any[] = PDV.findById(+newPdvId)!.getValues();
-      for(let i = 0; i < values.length; i++) values[i] = newPdv[i];
-      PDV.findById(+newPdvId)!.setValues(values)
-    }
+    // for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
+    //   let pdv = PDV.findById(+newPdvId);
+    //   if(pdv) {
+    //   pdv.bassin = newPdv[PDV.index('bassin')];
+    //   pdv.available = newPdv[PDV.index('available')];
+    //   pdv.sale = newPdv[PDV.index('sale')];
+    //   pdv.redistributed = newPdv[PDV.index('redistributed')];
+    //   pdv.redistributedFinitions = newPdv[PDV.index('redistributedFinitions')];
+    //   pdv.pointFeu = newPdv[PDV.index('pointFeu')];
+    //   pdv.onlySiniat = newPdv[PDV.index('onlySiniat')];
+    //   pdv.nbVisits = newPdv[PDV.index('nbVisits')];
+    //   pdv.target = newPdv[PDV.index('target')];
+    //   pdv.sales = newPdv[PDV.index('sales')];
+    //   }
+    // }
   }
 
   static getGeoLevel(height: number){
