@@ -655,28 +655,20 @@ export class PDV extends SimplePdv{
     }
   }
 
+  static computeAxis(slice:any, axis:string, geoTree:boolean){
+    let prettyPrintToKey:any = {Région: 'drv', Secteur: 'agent', Enseigne: 'enseigne', Ensemble: 'ensemble', 'Sous-Ensemble': 'sousEnsemble', PDV: 'site'}; // à mettre dans le back ou à tej
+    if (axis == 'lgp-1') return prettyPrintToKey[this.geoTree.attributes['labels'][1]];
+    if (['lg-1', 'lt-1'].includes(axis)){
+      let relevantNode = DEH.followSlice(slice, geoTree ? this.geoTree : this.tradeTree);
+      return prettyPrintToKey[(relevantNode.children[0] as Node).label];
+    }
+    return axis
+  }
+
   static getData(slice: any, axe1: string, axe2: string, indicator: string, 
       geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
-    // Ces conditions il va falloir les factoriser à l'avenir
-    let labelsToLevelName: {[key: string]: string} = {Région: 'drv', Secteur: 'agent'};
-    if (axe2 == 'lgp-1') axe2 = labelsToLevelName[this.geoTree.attributes['labels'][1]]; // lgp is for "level geographique du profil"
-    if (axe2 == 'lg-1') { // lg is for "level geographique"
-      let labels = this.geoTree.attributes['labels'];      
-      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length == 0) ? 0: 
-        Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
-      let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
-      axe2 = subLevelLabel;
-    }
-    if (axe1 == 'lt-1'){ // lt is for "level trade"
-      let labelsToLevelName: {[key: string]: string} = 
-        {Enseigne: 'enseigne', Ensemble: 'ensemble', 'Sous-Ensemble': 'sousEnsemble', PDV: 'site'}; 
-        //le PDV: 'site' c'est un fix le temps que jlw rajoute ça dans le back
-      let labels = this.tradeTree.attributes['labels'];
-      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length == 0) ? 0: 
-        Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
-      let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
-      axe1 = subLevelLabel;
-    }
+    axe1 = this.computeAxis(slice, axe1, geoTree);
+    axe2 = this.computeAxis(slice, axe2, geoTree);
     let dataAxe1 = DEH.get(axe1, true);
     let dataAxe2 = DEH.get(axe2, true);
     let rowsTitles = Object.values(dataAxe1) as string[];
