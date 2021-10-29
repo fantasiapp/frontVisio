@@ -248,7 +248,7 @@ export class TableComponent extends BasicWidget {
 
   onCellClicked(event: any) {
     console.log("Data : ", event['data'], event)
-    
+    console.log("Values : ", event['data'].getValues())
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
       let arrowImg = document.getElementById(event['node'].data.name.name);

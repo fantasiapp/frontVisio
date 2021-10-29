@@ -134,16 +134,15 @@ export class SliceTable {
 
     changeTargetTargetFinitions(pdv: PDV) {
         let list: any[] = pdv.getValues();
+        console.log("list : ", list)
         if(!list[DEH.TARGET_ID]) list[DEH.TARGET_ID] = SliceTable.initializeTarget()
         if(pdv.potential > 0) {
             if(!pdv.targetFinition) {
                 this.updateTotalTarget(pdv.potential)
                 list[DEH.TARGET_ID][DEH.TARGET_FINITIONS_ID] = true;
-                list[DEH.TARGET_FINITIONS_ID] = true;
             } else {
                 this.updateTotalTarget(-pdv.potential)
                 list[DEH.TARGET_ID][DEH.TARGET_FINITIONS_ID] = false;
-                list[DEH.TARGET_FINITIONS_ID] = false;
             }
         }
         this.dataService.updatePdv(list, pdv.id)

@@ -306,7 +306,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
     SimplePdv.createIndexMapping();
   }
 
-  constructor(protected values: any[]) {
+  constructor(protected values: any[],) {
     this.sales = this.values[SimplePdv.index('sales')]
   }
   public getValues() {return this.values;}
