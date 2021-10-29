@@ -375,10 +375,10 @@ export class PDV extends SimplePdv{
     let enduitSales: any =  {}; let enduitRaw = this.displayIndustrieSaleVolumes(true)
     p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
     for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
-        p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getColor('industry', industry)}
+      p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getColor('industry', industry)}
     }
     for(let industry of ['Prégy', 'Salsi', 'Autres']) {
-        enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getColor('indFinition', industry)}
+      enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getColor('indFinition', industry)}
     }
     return {'p2cd': p2cdSales, 'enduit': enduitSales};
   }
@@ -388,22 +388,40 @@ export class PDV extends SimplePdv{
   get info(): boolean {return true}
   get checkboxP2cd(): boolean {return this.ciblage() === 2}
   get clientProspectProperty(){return this.clientProspect()}
-
+  
   get targetP2cd(){
     let target = this.attribute('target');
     if (!target) return 0;
     return target[DEH.TARGET_VOLUME_ID]
   }
-
+  
   get targetFinition(){
     let target = this.attribute('target');
     if (!target) return false;
     return target[DEH.TARGET_FINITIONS_ID]
   }
+  
+  get volumeTarget(){
+    let target = this.attribute('target');
+    if (!target) return 0;
+    return target[DEH.TARGET_VOLUME_ID];
+  }
+
+  get lightTarget(){
+    let target = this.attribute('target');
+    if (!target) return '';
+    return target[DEH.TARGET_LIGHT_ID]
+  }
+
+  get commentTarget(){
+    let target = this.attribute('target');
+    if (!target) return "";
+    return target[DEH.TARGET_COMMENT_ID]
+  }
 
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
-      this.load(false);
+    this.load(false);
     return this.instances;
   }
 
@@ -530,7 +548,7 @@ export class PDV extends SimplePdv{
       for (let i = 0; i < axe.length; i++)
         associatedIndex[axe[i]] = i;
       let resultTemplate = new Array(axe.length).fill(0);
-      if (target && this.targetP2cd > 0 && this.getLightTarget() !== 'r'){
+      if (target && this.targetP2cd > 0 && this.lightTarget !== 'r'){
         resultTemplate[associatedIndex['Potentiel ciblé']] = 1;
         return resultTemplate; // Peut-être qu'il faut que le potentiel soit > 10% pour le rajouter...
       }
@@ -562,7 +580,7 @@ export class PDV extends SimplePdv{
     keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
     for (let sale of relevantSales)
       diced[idIndustries[sale.industryId]] += sale.volume;    
-    if (target && this.targetP2cd > 0 && this.getLightTarget() !== 'r'){
+    if (target && this.targetP2cd > 0 && this.lightTarget !== 'r'){
       let siniatId = DEH.INDUSTRIE_SINIAT_ID,
         sumExceptSiniat = 0;
       for (let i = 0; i < diced.length; i++)
@@ -638,7 +656,7 @@ export class PDV extends SimplePdv{
           visit = visitAxis.includes(axis1) || visitAxis.includes(axis2),
           ad = adAxis.includes(axis1) || adAxis.includes(axis2);
       for (let pdv of newPdvs){
-        if (pdv.available && pdv.sale){
+        if (pdv.available && pdv.sale){// condition à mettre dans le reslice peut-être
           if (irregular == 'no') 
             dataWidget.addOnCase(
               pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator) as number);
@@ -749,22 +767,22 @@ export class PDV extends SimplePdv{
   }
 
   ciblage(){
-    return (this.targetP2cd > 0 && this.getLightTarget() !== 'r') ? 2: 1;
+    return (this.targetP2cd > 0 && this.lightTarget !== 'r') ? 2: 1;
   }
 
   //La fonction est appelée une fois par widget, ça pourrait peut-être être optimisé tous les widgets d'un dashboard ont le même slice
-  static slice(sliceDict: {[key: string]: number}, axe1:string, axe2:string, 
+  static slice(sliceDict: {[key: string]: number}, axis1:string, axis2:string, 
       rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean): PDV[]{
     let pdvs: PDV[] = [], childrenOfSlice: any;
     if (sliceDict) {
       [pdvs, childrenOfSlice] = this.sliceTree(sliceDict, geoTree);
-      if (childrenOfSlice.hasOwnProperty(axe1)){
-        rowsTitles = childrenOfSlice[axe1].map((node: any) => node.name);
-        childrenOfSlice[axe1].forEach((id: number, index: number) => idToI[id] = index);
+      if (childrenOfSlice.hasOwnProperty(axis1)){
+        rowsTitles = childrenOfSlice[axis1].map((node: any) => node.name);
+        childrenOfSlice[axis1].forEach((id: number, index: number) => idToI[id] = index);
       }
-      if (childrenOfSlice.hasOwnProperty(axe2)){
-        rowsTitles = childrenOfSlice[axe2].map((node: any) => node.name);
-        childrenOfSlice[axe2].forEach((id: number, index: number) => idToJ[id] = index);
+      if (childrenOfSlice.hasOwnProperty(axis2)){
+        rowsTitles = childrenOfSlice[axis2].map((node: any) => node.name);
+        childrenOfSlice[axis2].forEach((id: number, index: number) => idToJ[id] = index);
       }
     } else pdvs = [...this.instances.values()];
     return pdvs;
@@ -796,9 +814,9 @@ export class PDV extends SimplePdv{
 
   private getCiblage(enduit:boolean, dn:boolean){
     if (dn && enduit) return this.targetFinition ? 1: 0;
-    if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.getLightTarget() == 'r') ? 0: 1;
+    if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
     if (enduit) return Math.max(this.getPotential(), 0);
-    return (isNaN(this.targetP2cd) || this.getLightTarget() == 'r') ? 0: this.targetP2cd;
+    return (isNaN(this.targetP2cd) || this.lightTarget == 'r') ? 0: this.targetP2cd;
   }
 
   static computeCiblage(node: Node, enduit=false, dn=false){
@@ -812,8 +830,8 @@ export class PDV extends SimplePdv{
     let totalSale = Object.entries(p2cdSalesRaw).reduce(
       (total: number, [_, value]: [string, number]) => total + value, 0)
     let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
-    let pregySale = enduitSalesRaw['Prégy'];
-    let salsiSale = enduitSalesRaw['Salsi'];
+    let pregySale = enduitSalesRaw['Prégy'],
+      salsiSale = enduitSalesRaw['Salsi'];
     return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : 
       (0.36*totalSale) - salsiSale - pregySale;
   }
@@ -883,12 +901,9 @@ export class PDV extends SimplePdv{
       return dictResult;
     }
     let industriesSalevolume = this.getValue('p2cd', true) as number[],
-      dictResult:{[key:string]:number} = {},
-      siniatId = DEH.INDUSTRIE_SINIAT_ID,
-      knaufId = DEH.INDUSTRIE_KNAUF_ID,
-      placoId = DEH.INDUSTRIE_PLACO_ID,
-      industrieAxis = DEH.get('industry'),
-      listIndustries = Object.values(industrieAxis);
+      dictResult:{[key:string]:number} = {}, siniatId = DEH.INDUSTRIE_SINIAT_ID,
+      knaufId = DEH.INDUSTRIE_KNAUF_ID, placoId = DEH.INDUSTRIE_PLACO_ID,
+      industrieAxis = DEH.get('industry'), listIndustries = Object.values(industrieAxis);
     dictResult['Autres'] = 0;
     for (let i = 0; i < industriesSalevolume.length; i++){
       if (listIndustries[i] == industrieAxis[siniatId]) 
@@ -951,6 +966,7 @@ export class PDV extends SimplePdv{
   adCompleted(){
     return this.onlySiniat || !this.redistributed || this.salesObject.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
   }
+
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
     let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DEH.followSlice(slice)));
     switch(indicator){
@@ -963,9 +979,7 @@ export class PDV extends SimplePdv{
         return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
       };
       case 'targetedVisits': {
-        let totalVisits = 0,
-          totalCibleVisits = 0,
-          thresholdForGreen = 100 * PDV.computeTargetVisits(slice, true),
+        let totalVisits = 0, totalCibleVisits = 0, thresholdForGreen = 100 * PDV.computeTargetVisits(slice, true),
           threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
         for (let pdv of pdvs){
           totalVisits += pdv.nbVisits;
@@ -993,24 +1007,6 @@ export class PDV extends SimplePdv{
       (acc, agent) => acc + agent[DEH.AGENTFINITION_RATIO_ID], 0);
     return finitionAgents.reduce(
       (acc, agent) => acc + agent[DEH.AGENTFINITION_TARGETVISITS_ID], 0);
-  }
-
-  getVolumeTarget() : number{
-    let target = this.attribute('target');
-    if (!target) return 0;
-    return target[DEH.TARGET_VOLUME_ID]
-  }
-
-  getLightTarget(){
-    let target = this.attribute('target');
-    if (!target) return '';
-    return target[DEH.TARGET_LIGHT_ID]
-  }
-
-  getCommentTarget(){
-    let target = this.attribute('target');
-    if (!target) return "";
-    return target[DEH.TARGET_COMMENT_ID]
   }
 };
 
