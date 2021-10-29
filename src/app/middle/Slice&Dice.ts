@@ -12,7 +12,8 @@ const nonRegularAxis = ['industry', 'enduitIndustry', 'segmentDnEnduit', 'client
   industryAxis = ['industry', 'industryTarget'],
   clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
   visitAxis = ['segmentDnEnduitTargetVisits'],
-  adAxis = ["suiviAD"];
+  adAxis = ["suiviAD"],
+  gaugesAxis = ['visits', 'targetedVisits', 'avancementAD'];
 
 class DataWidget{
   private data: any;
@@ -914,7 +915,7 @@ export class PDV{
   static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
     let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DataExtractionHelper.followSlice(slice)));
     switch(indicator){
-      case 'simple': {
+      case 'visits': {
         let totalVisits: number= 0,
           cibleVisits:number = PDV.computeTargetVisits(slice) as number,
           threshold = [50, 99.99, 100];
@@ -922,7 +923,7 @@ export class PDV{
         let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
         return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
       };
-      case 'target': {
+      case 'targetedVisits': {
         let totalVisits = 0,
           totalCibleVisits = 0,
           thresholdForGreen = 100 * PDV.computeTargetVisits(slice, true),
@@ -934,7 +935,7 @@ export class PDV{
         let adaptedVersion = (totalCibleVisits >= 2) ? ' visites ciblées': ' visite ciblée';
         return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
       };
-      case 'AD': {
+      case 'avancementAD': {
         let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
           ratio = nbCompletedPdv / pdvs.length,
           adaptedVersion = (nbCompletedPdv >= 2) ? ' PdV complétés':  'PdV complété';
@@ -994,16 +995,8 @@ class SliceDice{
          (labelId:number) => DataExtractionHelper.get("labelForGraph")[labelId][DataExtractionHelper.LABELFORGRAPH_COLOR_ID]);
       if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     }
-    if (axis1 == "visits"){
-      let jauge = PDV.computeJauge(slice, indicator='simple');
-      return {data: jauge[0], sum: 0, target: undefined, colors: colors, targetLevel: {}, threshold: jauge[1]};
-    }
-    if (axis1 == "targetedVisits"){
-      let jauge = PDV.computeJauge(slice, indicator='target');
-      return {data: jauge[0], sum: 0, target: undefined, colors: colors, targetLevel: {}, threshold: jauge[1]};
-    }
-    if (axis1 == "avancementAD"){
-      let jauge = PDV.computeJauge(slice, indicator='AD');
+    if (gaugesAxis.includes(axis1)){
+      let jauge = PDV.computeJauge(slice, axis1);
       return {data: jauge[0], sum: 0, target: undefined, colors: colors, targetLevel: {}, threshold: jauge[1]};
     }
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
