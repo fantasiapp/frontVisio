@@ -945,10 +945,9 @@ export class PDV{
   }
 
   static computeTargetVisits(slice:any, threshold=false){
-    let relevantNode = DataExtractionHelper.followSlice(slice);   
-    console.log(relevantNode.id)
+    let relevantNode = DataExtractionHelper.followSlice(slice);
     let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DataExtractionHelper.get("agentFinitions")): 
-      ((relevantNode.label == 'Région') ? DataExtractionHelper.findFinitionAgentsOfDrv(slice['Région']): 
+      ((relevantNode.label == 'Région') ? DataExtractionHelper.findFinitionAgentsOfDrv(relevantNode.id): 
       [DataExtractionHelper.get("agentFinitions")[relevantNode.id]]);
     if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
       (acc, agent) => acc + agent[DataExtractionHelper.AGENTFINITION_RATIO_ID], 0);
