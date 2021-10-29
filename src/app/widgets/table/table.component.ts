@@ -7,6 +7,7 @@ import { BasicWidget } from '../BasicWidget';
 import { AsyncSubject, Observable, Subject} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
+import DEH from 'src/app/middle/DataExtractionHelper';
 
 @Component({
   selector: 'app-table',
@@ -158,7 +159,7 @@ export class TableComponent extends BasicWidget {
           switch (cd.field) {
             case 'name':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return params.value['name'] + ' PdV : ' + params.value['number']
+                if(params.data.groupRow === true) return DEH.getNameOfRegularObject(SliceTable.currentGroupField, params.value['name']) + ' PdV : ' + params.value['number']
                 return;
               }
               break;
@@ -352,28 +353,6 @@ export class TableComponent extends BasicWidget {
     //   return true;
     // }
   }
-
-  
-  requestQuit() {
-    console.log("click cover")
-    //show the quit bar
-    if ( this.hasChanged )
-      this.quiting = true;
-    else
-      this.quit(false)
-  }
-
-  quit(save: boolean) {
-    if(save && this.hasChanged) console.log("Updating pdv")
-    else {
-      console.log("not updating pdv")
-    }
-    this.hasChanged = false;
-    this.quiting = false;
-    // this.sideDivRight = "calc(-60% - 5px)";
-    // this.showInfo = false;
-  }
-
 
   ngOnDestroy() {
     super.ngOnDestroy();

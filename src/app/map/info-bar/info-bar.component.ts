@@ -150,7 +150,7 @@ export class InfoBarComponent {
       dep: DEH.get('dep')[this._pdv!.attribute('dep')],
       ville: DEH.get('ville')[this._pdv!.attribute('ville')],
       bassin: this.target[DEH.TARGET_BASSIN_ID] || DEH.get('bassin')[this._pdv!.attribute('bassin')],
-      clientProspect: pdv!.clientProspect() || "Non documenté"
+      clientProspect: pdv!.clientProspect || "Non documenté"
     }
   }
 

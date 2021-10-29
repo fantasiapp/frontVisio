@@ -387,7 +387,7 @@ export class PDV extends SimplePdv{
   get edit(): boolean {return true}
   get info(): boolean {return true}
   get checkboxP2cd(): boolean {return this.ciblage() === 2}
-  get clientProspectProperty(){return this.clientProspect()}
+  get clientProspect(){return this.clientProspect2(true)}
 
   get targetP2cd(){
     let target = this.attribute('target');
@@ -703,7 +703,7 @@ export class PDV extends SimplePdv{
   //Juste pour le reSlice
   property(propertyName:string){
     switch(propertyName){
-      case 'clientProspect': return this.clientProspect(true);
+      case 'clientProspect': return this.clientProspect2(true);
       case 'industriel': return this.industriel();
       case 'ciblage': return this.ciblage();
       case 'pointFeuFilter': return this.pointFeu? 2: 1;
@@ -877,7 +877,7 @@ export class PDV extends SimplePdv{
     return pdvs;
   }
 
-  clientProspect(index=false){
+  clientProspect2(index=false){
     let dnResult = this.getValue('dn', false, false, true) as number[],
       clientProspectDict = DEH.get('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),
