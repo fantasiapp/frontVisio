@@ -20,12 +20,8 @@ const nonRegularAxis = ['industry', 'enduitIndustry', 'segmentDnEnduit', 'client
 class DataWidget{
   private data: any;
   private dim: number;
-  constructor(
-    public rowsTitles: string[],
-    public columnsTitles: string[],
-    public idToI: {[key:number]: number|undefined},
-    public idToJ: {[key:number]: number|undefined}
-  ){
+  constructor(public rowsTitles: string[], public columnsTitles: string[],
+      public idToI: {[key:number]: number|undefined}, public idToJ: {[key:number]: number|undefined}){
     let n = rowsTitles.length, m = columnsTitles.length;
     this.data = DataWidget.zeros(n, m);
     this.dim = 2;
@@ -86,35 +82,29 @@ class DataWidget{
     } else this.data = newData;
     this.rowsTitles = groupsAxis1;
     this.columnsTitles = groupsAxis2;
-  }
+  }  
   
-  private m2ToKm2(){
-    for (let i = 0; i < this.rowsTitles.length; i++)
-      for (let j = 0; j < this.columnsTitles.length; j++)
-        this.data[i][j] = this.data[i][j]/1000;
-  }
-
   percent(onCols=false){
     let almost100 = 99.999;
     if (this.dim == 0) this.data = almost100;
     else if (this.dim == 1){
       let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
       for (let i=0; i < this.data.length; i++)
-        this.data[i] = almost100 * this.data[i] / sum;
+      this.data[i] = almost100 * this.data[i] / sum;
     }
     else{
       if (!onCols){
         for (let i = 0; i < this.rowsTitles.length; i++){
           let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
           for (let j = 0; j < this.columnsTitles.length; j++)
-            this.data[i][j] = almost100 * this.data[i][j] / sumRow;
+          this.data[i][j] = almost100 * this.data[i][j] / sumRow;
         }
       }
       else{
         for (let j = 0; j < this.columnsTitles.length; j++){
           let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
           for (let i = 0; i < this.rowsTitles.length; i++)
-            this.data[i][j] = almost100 * this.data[i][j] / sumCol;
+          this.data[i][j] = almost100 * this.data[i][j] / sumCol;
         }
       }
     }
@@ -131,7 +121,7 @@ class DataWidget{
     if (this.dim === 1){
       let widgetParts: [string, number][] = [];    
       for (let i = 0; i < this.rowsTitles.length; i++)
-        widgetParts.push([this.rowsTitles[i], this.data[i]]);
+      widgetParts.push([this.rowsTitles[i], this.data[i]]);
       return widgetParts
     }
     if (transpose){
@@ -139,7 +129,7 @@ class DataWidget{
       for (let j = 0; j < this.columnsTitles.length; j++){
         let line: (number | string)[] = [this.columnsTitles[j]]
         for (let i = 0; i < this.rowsTitles.length; i++)
-          line.push(this.data[i][j]);
+        line.push(this.data[i][j]);
         widgetParts.push(line);
       }
       return widgetParts;  
@@ -148,12 +138,63 @@ class DataWidget{
     for (let i = 0; i < this.rowsTitles.length; i++){
       let line: (number | string)[] = [this.rowsTitles[i]]
       for (let j = 0; j < this.columnsTitles.length; j++)
-        line.push(this.data[i][j]);
+      line.push(this.data[i][j]);
       widgetParts.push(line);
     }
     return widgetParts;    
   }
+  getSum(){
+    if (this.dim === 0) return Math.round(this.data);
+    if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
+    let sumCols = new Array(this.columnsTitles.length).fill(0);
+    for(let j = 0; j < this.columnsTitles.length; j++) 
+      sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
+    return sumCols
+  }
 
+  completeWithCurveForHistoCurve(nbPdvs:number){
+    let nbPdvsCompletedInPercent = 0;
+    for (let j = 0; j < this.columnsTitles.length; j++){
+      nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
+      this.data[1][j] = nbPdvsCompletedInPercent;
+    }
+  }
+
+  getTargetStartingPoint(axis:string){
+    if (rodAfterFirstCategAxis.includes(axis)) return this.data[0];  
+    if (rodAfterSecondCategAxis.includes(axis)){
+      if (this.dim == 1) return this.data[0] + this.data[1];
+      let startingPoints = new Array(this.columnsTitles.length).fill(0);
+      for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];
+      return startingPoints
+    }       
+  }
+
+  numberToBool(){
+    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
+    let firstLine: boolean[] = [];
+    for (let j = 0; j < this.columnsTitles.length; j++) 
+      firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    firstLine.pop();
+    let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
+    for (let i = 0; i < this.rowsTitles.length; i++)
+      extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
+    let lineIds = new Array(this.columnsTitles.length).fill(0),
+      columnsIds = new Array(this.columnsTitles.length).fill(0);
+    let industriesDict = DEH.get('enseigne')
+    lineIds = this.rowsTitles.map(title => DEH.getKeyByValue(industriesDict, title)); // ) changer quand le idToJ sera à jour
+    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
+    return {boolMatrix: extendedBoolMatrix,
+      enseigneIndexes: lineIds,
+      segmentMarketingIndexes: columnsIds
+    }
+  }
+  
+  private m2ToKm2(){
+    for (let i = 0; i < this.rowsTitles.length; i++)
+      for (let j = 0; j < this.columnsTitles.length; j++)
+        this.data[i][j] = this.data[i][j]/1000;
+  }
   // ça ne change pas le idToJ (pour le moment on s'en fout mais l'info peut être utile plus tard)
   private sortLines(sortFunct = ((line: number[]) => line.reduce((acc: number, value: number) => acc + value, 0))){
     let coupleList: [string, number[]][] = [];
@@ -225,57 +266,6 @@ class DataWidget{
     return data;
   }
   
-  getSum(){
-    if (this.dim === 0) return Math.round(this.data);
-    if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
-    let sumCols = new Array(this.columnsTitles.length).fill(0);
-    for(let j = 0; j < this.columnsTitles.length; j++) 
-      sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
-    return sumCols
-  }
-
-  // à enlever dans la version finale
-  getData(){
-    return this.data;
-  }
-
-  completeWithCurveForHistoCurve(nbPdvs:number){
-    let nbPdvsCompletedInPercent = 0;
-    for (let j = 0; j < this.columnsTitles.length; j++){
-      nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
-      this.data[1][j] = nbPdvsCompletedInPercent;
-    }
-  }
-
-  getTargetStartingPoint(axis:string){
-    if (rodAfterFirstCategAxis.includes(axis)) return this.data[0];  
-    if (rodAfterSecondCategAxis.includes(axis)){
-      if (this.dim == 1) return this.data[0] + this.data[1];
-      let startingPoints = new Array(this.columnsTitles.length).fill(0);
-      for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];
-      return startingPoints
-    }       
-  }
-
-  numberToBool(){
-    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
-    let firstLine: boolean[] = [];
-    for (let j = 0; j < this.columnsTitles.length; j++) 
-      firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
-    firstLine.pop();
-    let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
-    for (let i = 0; i < this.rowsTitles.length; i++)
-      extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
-    let lineIds = new Array(this.columnsTitles.length).fill(0),
-      columnsIds = new Array(this.columnsTitles.length).fill(0);
-    let industriesDict = DEH.get('enseigne')
-    lineIds = this.rowsTitles.map(title => DEH.getKeyByValue(industriesDict, title)); // ) changer quand le idToJ sera à jour
-    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
-    return {boolMatrix: extendedBoolMatrix,
-      enseigneIndexes: lineIds,
-      segmentMarketingIndexes: columnsIds
-    }
-  }
 }
 
 class Sale {
@@ -287,9 +277,9 @@ class Sale {
   };
 
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
-  get industryId() {return this.data[DEH.SALE_INDUSTRY_ID];}
-  get productId() {return this.data[DEH.SALE_PRODUCT_ID];}
-  get volume() {return this.data[DEH.SALE_VOLUME_ID];}
+  get industryId() {return this.data[DEH.SALES_INDUSTRY_ID];}
+  get productId() {return this.data[DEH.SALES_PRODUCT_ID];}
+  get volume() {return this.data[DEH.SALES_VOLUME_ID];}
 };
 
 export class PDV{

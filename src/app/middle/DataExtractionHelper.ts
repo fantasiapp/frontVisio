@@ -103,7 +103,7 @@ const segmentDnEnduitTargetVisits = {
 
 
 //Will have to make this non static one day
-class DEH{  // for Data Extraction Helper
+class DEH{  // for DataExtractionHelper
   // plus tard il faudra créer des objects à la volée, par exemple avec Object.defineProperty(...)
   private static data: any;
   static ID_INDEX: number;
@@ -135,9 +135,6 @@ class DEH{  // for Data Extraction Helper
   static TARGET_REDISTRIBUTED_FINITIONS_ID: number;
   static TARGET_COMMENT_ID: number;
   static TARGET_BASSIN_ID: number;
-  static SALE_INDUSTRY_ID: number;
-  static SALE_PRODUCT_ID: number;
-  static SALE_VOLUME_ID: number;  
   static TARGET_ID: any;
   static SALES_ID: any;
   static SALES_DATE_ID: any;
@@ -164,11 +161,12 @@ class DEH{  // for Data Extraction Helper
 
 
   static setData(d: any){
-    console.log('[DEH] setData:', d);
+    console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
+    // à mettre dans le back
     let singleFields = ['dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
     for (let field of Object.keys(this.data)) if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) this.fieldsToSwitchWithyear.push(field);
-    console.log("[DEH] this.data updated")
+    console.log("[DataExtractionHelper] this.data updated")
     let structure = this.get('structureLevel');
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
@@ -206,13 +204,10 @@ class DEH{  // for Data Extraction Helper
     this.SALES_PRODUCT_ID = this.get('structureSales').indexOf('product');
     this.SALES_VOLUME_ID = this.get('structureSales').indexOf('volume');
     this.SALE_ID = this.getKeyByValue(this.get('structurePdvs'), 'sale');
-    this.SALE_INDUSTRY_ID = this.get('structureSales').indexOf('industry');
-    this.SALE_PRODUCT_ID = this.get('structureSales').indexOf('product');
-    this.SALE_VOLUME_ID = this.get('structureSales').indexOf('volume');
     this.AGENTFINITION_TARGETVISITS_ID = this.get('structureAgentfinitions').indexOf('TargetedNbVisit');
     this.AGENTFINITION_DRV_ID = this.get('structureAgentfinitions').indexOf('drv');
     this.AGENTFINITION_RATIO_ID = this.get('structureAgentfinitions').indexOf('ratioTargetedVisit');
-    this.delayBetweenUpdates = this.get('params')['delayBetweenUpdates']
+    this.delayBetweenUpdates = this.getParam('delayBetweenUpdates');
     //trades have less info that geo
     
     this.geoLevels = [];
@@ -271,28 +266,25 @@ class DEH{  // for Data Extraction Helper
     return this.getGeoLevel(height)[this.PRETTY_INDEX];
   }
 
-  static getParam(param:string){
-    return this.get('params')[param];
-  }
   
   static getGeoLevelName(height: number, id: number): string{
     let name = this.get(this.getGeoLevel(height)[this.LABEL_INDEX])[id];
     if (name === undefined) throw `No geo level with id=${id} at height ${height}`;
     if (Array.isArray(name))
-      return name[this.get('structureAgentfinitions').indexOf('name')];
+    return name[this.get('structureAgentfinitions').indexOf('name')];
     return name;
   }
-
+  
   static getTradeLevel(height: number){
     if (height >= this.tradeLevels.length || height < 0)
-      throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
+    throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
     return this.tradeLevels[height];
   }
-
+  
   static getTradeLevelLabel(height: number): string{
     return this.getTradeLevel(height)[this.PRETTY_INDEX];
   }
-
+  
   static getTradeLevelName(height: number, id: number): string {
     // HARDCODE
     if (height == 0) return '';
@@ -300,7 +292,7 @@ class DEH{  // for Data Extraction Helper
     if (name === undefined) throw `No trade level with id=${id} at height=${height}`;
     return name;
   }
-
+  
   static getCompleteWidgetParams(id: number){
     let widgetParams = this.get('widgetParams')[id].slice();  
     let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
@@ -314,23 +306,33 @@ class DEH{  // for Data Extraction Helper
   
   static getGeoDashboardsAt(height: number): number[]{
     if (height >= this.geoLevels.length || height < 0)
-      throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
+    throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
     return this.getGeoLevel(height)[this.DASHBOARD_INDEX];
   }
-
+  
   static getTradeDashboardsAt(height: number): number[]{
     if (height >= this.tradeLevels.length || height < 0)
-      throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
+    throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
     return this.getTradeLevel(height)[this.DASHBOARD_INDEX];
   }
-
+  
   static getNameOfRegularObject(field:string, id:number){
     return this.get(field)[id];
   }
-
+  
   // Ca ne marche pas encore pour les exceptions
   static getStructure(field:string){
     return this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase());
+  }
+  
+  static getParam(param:string){
+    return this.get('params')[param];
+  }
+
+  static getAttribute(field:string, id:number, attribute:string){
+    let structureField = this.getStructure(field),
+      idAttribute = structureField.indexOf(attribute);
+    return this.get(field)[id][idAttribute];
   }
 
   static get(field: string, justNames=false, changeYear=true):any{
