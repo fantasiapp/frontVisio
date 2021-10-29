@@ -524,8 +524,6 @@ export class MapIconBuilder {
       ]).generate();
     }
 
-    console.log(builder);
-
     this._instance = builder;
   }
 
