@@ -655,7 +655,8 @@ export class PDV extends SimplePdv{
     }
   }
 
-  static computeAxis(slice:any, axis:string, geoTree:boolean){
+  // ok
+  private static ComputeAxisName(slice:any, axis:string, geoTree:boolean){
     let prettyPrintToKey:any = {Région: 'drv', Secteur: 'agent', Enseigne: 'enseigne', Ensemble: 'ensemble', 'Sous-Ensemble': 'sousEnsemble', PDV: 'site'}; // à mettre dans le back ou à tej
     if (axis == 'lgp-1') return prettyPrintToKey[this.geoTree.attributes['labels'][1]];
     if (['lg-1', 'lt-1'].includes(axis)){
@@ -665,20 +666,23 @@ export class PDV extends SimplePdv{
     return axis
   }
 
-  static getData(slice: any, axe1: string, axe2: string, indicator: string, 
+  // ok
+  private static computeAxis(slice:any, axis:string, geoTree:boolean){
+    axis = this.ComputeAxisName(slice, axis, geoTree);
+    let dataAxis = DEH.get(axis, true), titles = Object.values(dataAxis),
+      idToX:any = {};
+    Object.keys(dataAxis).forEach((id, index) => idToX[parseInt(id)] = index);
+    return [axis, titles, idToX];
+  }
+
+  // ok
+  static getData(slice: any, axis1: string, axis2: string, indicator: string, 
       geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
-    axe1 = this.computeAxis(slice, axe1, geoTree);
-    axe2 = this.computeAxis(slice, axe2, geoTree);
-    let dataAxe1 = DEH.get(axe1, true);
-    let dataAxe2 = DEH.get(axe2, true);
-    let rowsTitles = Object.values(dataAxe1) as string[];
-    let columnsTitles = Object.values(dataAxe2) as string[];
-    let idToI:any = {}, idToJ:any = {};    
-    Object.keys(dataAxe1).forEach((id, index) => idToI[parseInt(id)] = index);
-    Object.keys(dataAxe2).forEach((id, index) => idToJ[parseInt(id)] = index);
-    let pdvs = PDV.slice(slice, axe1, axe2, rowsTitles, idToI, idToJ, geoTree);
+    let [newAxis1, rowsTitles, idToI] = this.computeAxis(slice, axis1, geoTree),
+        [newAxis2, columnsTitles, idToJ] = this.computeAxis(slice, axis2, geoTree);
+    let pdvs = PDV.slice(slice, newAxis1, newAxis2, rowsTitles, idToI, idToJ, geoTree);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
-    this.fillUpTable(dataWidget, axe1, axe2, indicator, pdvs, addConditions);
+    this.fillUpTable(dataWidget, newAxis1, newAxis2, indicator, pdvs, addConditions);
     return dataWidget;
   }
 
@@ -707,7 +711,7 @@ export class PDV extends SimplePdv{
 
   private segmentMarketingFilter(){
     let dictSegment = DEH.get('segmentMarketingFilter'),
-      dictAllSegments = DEH.get('segmentMarketing')
+      dictAllSegments = DEH.get('segmentMarketing');
     let pdvSegment = this.attribute('segmentMarketing');
     let result = parseInt(DEH.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
