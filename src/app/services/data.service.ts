@@ -20,7 +20,7 @@ export const enum UpdateFields {
 }
 
 export type UpdateData = {
-  [key in UpdateFields]: { [id: number]: any[]; } | any[][];
+  [key in UpdateFields]: { [id: number]: any[]; };
 };
 
 @Injectable()
@@ -75,13 +75,11 @@ export class DataService {
       if( response ) { //this is always false response !== {}
         if(response.message) {
           console.debug("Empty update")
-          DEH.updatedData = {'targetLevelAgentP2CD': {}, 'targetLevelAgentFinitions': {}, 'targetLevelDrv':{}, 'pdvs': {}, 'logs': []};
         } else if(response.warning) {
           console.debug("Server temporarly unavailable")
         }
         else {
           console.log("Updates received from back : ", response)
-          DEH.updatedData = response;
           DEH.updateData(response);
           this.update.next()
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
@@ -115,7 +113,6 @@ export class DataService {
   private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
-    DEH.updatedData = data;
     DEH.updateData(data);
     this.update.next();
     console.log("Sending data for update : ", data)

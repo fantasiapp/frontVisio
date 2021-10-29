@@ -125,7 +125,6 @@ export class SliceTable {
     }
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
-        PDV.load(false);
         this.pdvFields = DEH.get('structurePdvs');
         this.segmentDnEnduit = DEH.get('segmentDnEnduit')
 

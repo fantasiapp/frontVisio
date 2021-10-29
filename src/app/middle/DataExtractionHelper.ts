@@ -157,7 +157,6 @@ class DEH{  // for DataExtractionHelper
   static tradeHeight: number;
   static currentYear = true;
   private static fieldsToSwitchWithyear: string[] = [];
-  static updatedData: UpdateData;
 
 
   static setData(d: any){
@@ -252,24 +251,9 @@ class DEH{  // for DataExtractionHelper
 
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
+
     DEH.setData(this.data);
     PDV.load(true);
-    
-    // for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
-    //   let pdv = PDV.findById(+newPdvId);
-    //   if(pdv) {
-    //   pdv.bassin = newPdv[PDV.index('bassin')];
-    //   pdv.available = newPdv[PDV.index('available')];
-    //   pdv.sale = newPdv[PDV.index('sale')];
-    //   pdv.redistributed = newPdv[PDV.index('redistributed')];
-    //   pdv.redistributedFinitions = newPdv[PDV.index('redistributedFinitions')];
-    //   pdv.pointFeu = newPdv[PDV.index('pointFeu')];
-    //   pdv.onlySiniat = newPdv[PDV.index('onlySiniat')];
-    //   pdv.nbVisits = newPdv[PDV.index('nbVisits')];
-    //   pdv.target = newPdv[PDV.index('target')];
-    //   pdv.sales = newPdv[PDV.index('sales')];
-    //   }
-    // }
   }
 
   static getGeoLevel(height: number){

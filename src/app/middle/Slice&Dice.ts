@@ -410,11 +410,12 @@ export class PDV extends SimplePdv{
   // Il faudra penser à delete la requête de la ram après l'avoir utilisée
   static load(loadTrees = true){
     SimplePdv._initialize();
-    this.instances.clear(); //<- clear before
+    // this.instances.clear(); //<- clear before
     for (let [id, data] of Object.entries(DEH.get('pdvs'))){
       let intId = parseInt(id);
       if (Number.isNaN(intId)) continue;
-      this.instances.set(intId, new PDV(intId, <any[]>data));
+      if(this.instances.get(intId)) this.instances.get(intId)?.setValues(<any[]>data);
+      else this.instances.set(intId, new PDV(intId, <any[]>data));
     }
     if (loadTrees) this.loadTrees();
   };

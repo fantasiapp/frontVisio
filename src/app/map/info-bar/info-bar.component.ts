@@ -169,7 +169,7 @@ export class InfoBarComponent {
 
     
     this.industries = Object.values(DEH.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
-    this.products = Object.values(DEH.get('produit')) as string[];
+    this.products = Object.values(DEH.get('product')) as string[];
     this.products.splice(3, this.products.length, 'P2CD')
     for(let i = 0; i<this.industries.length; i++)
       this.industryIdToIndex[+DEH.getKeyByValue(DEH.get('industry'), this.industries[i])!] = i+1; //first row already used

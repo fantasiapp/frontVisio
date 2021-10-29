@@ -96,6 +96,7 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
+    console.log("[table component] refresh")
     // let newRows =  this.sliceTable.getUpdatedRows(this.type)
     // for(let i = 0; i < this.rowData.length; i++) {
     //   for(let newRow of newRows) {
@@ -106,8 +107,8 @@ export class TableComponent extends BasicWidget {
     //   }
 
     // }
-    this.gridApi.refreshCells()
-    this.gridApi.redrawRows()
+    // this.gridApi.refreshCells()
+    // this.gridApi.redrawRows()
     this.updateTitle()
   }
 
