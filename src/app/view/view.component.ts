@@ -4,6 +4,7 @@ import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import DEH from '../middle/DataExtractionHelper';
+import {CD} from '../middle/Descriptions'
 import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
@@ -56,7 +57,7 @@ export class ViewComponent implements OnDestroy, AfterViewInit {
   computeDescription(description: string | string[]) {
     let compute = Array.isArray(description) && description.length >= 1;
     if ( compute )
-      return DEH.computeDescription(this.filtersService.getPath(this.filtersService.stateSubject.value.States), description as string[]);
+      return CD.computeDescription(this.filtersService.getPath(this.filtersService.stateSubject.value.States), description as string[]);
     return description[0] || description;
   }
 

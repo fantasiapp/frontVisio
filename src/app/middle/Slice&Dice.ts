@@ -50,8 +50,8 @@ class DataWidget{
   groupData(groupsAxis1: string[], groupsAxis2: string[], simpleFormat=false){
     let isOne1 = groupsAxis1.length == 1,
       isOne2 = groupsAxis2.length == 1;
-    groupsAxis1 = (groupsAxis1.length === 0) ? this.rowsTitles : groupsAxis1;
-    groupsAxis2 = (groupsAxis2.length === 0) ? this.columnsTitles : groupsAxis2;
+    groupsAxis1 = (groupsAxis1.length == 0) ? this.rowsTitles : groupsAxis1;
+    groupsAxis2 = (groupsAxis2.length == 0) ? this.columnsTitles : groupsAxis2;
     let newData: number[][] = DataWidget.zeros(groupsAxis1.length, groupsAxis2.length),
       newIdToI = new Array(this.rowsTitles.length).fill(0),
       newIdToJ = new Array(this.columnsTitles.length).fill(0);
@@ -117,8 +117,8 @@ class DataWidget{
   }
   
   formatWidget(transpose:boolean){
-    if (this.dim === 0) return [[this.rowsTitles[0], this.data]];
-    if (this.dim === 1){
+    if (this.dim == 0) return [[this.rowsTitles[0], this.data]];
+    if (this.dim == 1){
       let widgetParts: [string, number][] = [];    
       for (let i = 0; i < this.rowsTitles.length; i++)
       widgetParts.push([this.rowsTitles[i], this.data[i]]);
@@ -143,9 +143,10 @@ class DataWidget{
     }
     return widgetParts;    
   }
+
   getSum(){
-    if (this.dim === 0) return Math.round(this.data);
-    if (this.dim === 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
+    if (this.dim == 0) return Math.round(this.data);
+    if (this.dim == 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
     let sumCols = new Array(this.columnsTitles.length).fill(0);
     for(let j = 0; j < this.columnsTitles.length; j++) 
       sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
@@ -213,7 +214,7 @@ class DataWidget{
       newData: number[][] = [],
       realLinesIndexes: number[] = [];
     for (let i = 0; i < n; i++){
-      let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
+      let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value == 0), true);
       if (lineNull) this.idToI[DataWidget.findKeyByValue(this.idToI, i) as number] = undefined;
       if (!lineNull) {
         newData.push(this.data[i]); 
@@ -237,13 +238,13 @@ class DataWidget{
       realLinesIndexes: number[] = [],
       realColumnsIndexes: number[] = [];
     for (let i = 0; i < n; i++){
-      let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value === 0), true);
+      let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value == 0), true);
       if (lineNull) this.idToI[DataWidget.findKeyByValue(this.idToI, i) as number] = undefined;
       if (!lineNull) realLinesIndexes.push(i);        
     }
     for (let _ in realLinesIndexes) newData.push([]);
     for (let j = 0; j < m; j++){
-      let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] === 0), true);
+      let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] == 0), true);
       if (colNull) this.idToJ[DataWidget.findKeyByValue(this.idToJ, j) as number] = undefined;
       if (!colNull){
         realColumnsIndexes.push(j)
@@ -467,7 +468,7 @@ export class PDV{
           totalP2cd += sale.volume;
           if (sale.industryId == siniatId) siniatP2cd += sale.volume;
         }
-      if (totalP2cd === 0){
+      if (totalP2cd == 0){
         resultTemplate[associatedIndex['Non documenté']] = 1;
         return resultTemplate;
       }
@@ -590,7 +591,7 @@ export class PDV{
     if (axe2 == 'lgp-1') axe2 = labelsToLevelName[this.geoTree.attributes['labels'][1]]; // lgp is for "level geographique du profil"
     if (axe2 == 'lg-1') { // lg is for "level geographique"
       let labels = this.geoTree.attributes['labels'];      
-      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: 
+      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length == 0) ? 0: 
         Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe2 = subLevelLabel;
@@ -600,7 +601,7 @@ export class PDV{
         {Enseigne: 'enseigne', Ensemble: 'ensemble', 'Sous-Ensemble': 'sousEnsemble', PDV: 'site'}; 
         //le PDV: 'site' c'est un fix le temps que jlw rajoute ça dans le back
       let labels = this.tradeTree.attributes['labels'];
-      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length === 0) ? 0: 
+      let currentLevelIndex = (Object.getOwnPropertyNames(slice).length == 0) ? 0: 
         Math.max.apply(null, Object.keys(slice).map(key => labels.indexOf(key)));
       let subLevelLabel = labelsToLevelName[labels[currentLevelIndex + 1]];
       axe1 = subLevelLabel;
@@ -619,7 +620,7 @@ export class PDV{
   }
 
   static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
-    if (conditions.length === 0) return pdvs;
+    if (conditions.length == 0) return pdvs;
     let newPdvs: PDV[] = [];
     for (let pdv of pdvs)
       if (conditions.map(condition => condition[1].includes(pdv.property(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
@@ -789,7 +790,7 @@ export class PDV{
   static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}): PDV[]{
     //verify if slice is correct
     let keys: string[] = Object.keys(slice).sort((u, v) => this.heightOf(tree, u) - this.heightOf(tree, v)), connectedNodes;
-    if (keys.length === 0)
+    if (keys.length == 0)
       connectedNodes = [tree.root];
     else
       connectedNodes = tree.getNodesAtHeight(this.heightOf(tree, keys[0])).filter(node => node.id == slice[keys[0]]);
@@ -810,7 +811,7 @@ export class PDV{
     let clientProspectAxis = Object.values(clientProspectDict),
       clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
-      if (dnResult[i] === 1)
+      if (dnResult[i] == 1)
         return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
 
@@ -1027,8 +1028,8 @@ class SliceDice{
       }
       targetLevel['volumeIdentifier'] = dn ? 'dn': 'vol';
       if(finition) targetLevel['name'] = 'targetLevelAgentFinitions';
-      else if(node.label === 'France') targetLevel['name'] = 'targetLevelDrv';
-      else if(node.label === 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
+      else if(node.label == 'France') targetLevel['name'] = 'targetLevelDrv';
+      else if(node.label == 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
       else targetLevel['name'] = 'targetLevel'
       targetLevel['structure'] = 'structureTargetlevel';
     }

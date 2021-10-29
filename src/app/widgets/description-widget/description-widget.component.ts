@@ -6,6 +6,7 @@ import { DataService } from 'src/app/services/data.service';
 import { TargetService } from './description-service.service';
 import { BasicWidget } from '../BasicWidget';
 import DEH from 'src/app/middle/DataExtractionHelper';
+import {CD} from 'src/app/middle/Descriptions';
 
 @Component({
   selector: 'description-widget',
@@ -29,11 +30,11 @@ export class DescriptionWidgetComponent implements OnDestroy {
     this.subscriptions.push(
       filtersService.stateSubject.subscribe(({States}) => {
         //do something with path
-        this.values = DEH.computeDescriptionWidget(this.filtersService.getPath(States));
+        this.values = CD.computeDescriptionWidget(this.filtersService.getPath(States));
         this.cd.markForCheck();
       }),
       dataservice.update.subscribe(_ => {
-        this.values = DEH.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
+        this.values = CD.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
         this.cd.markForCheck();
         //do something when it updates
       })
