@@ -1,13 +1,15 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable, OnDestroy } from '@angular/core';
-import DataExtractionHelper, { NavigationExtractionHelper, Params, TreeExtractionHelper } from '../middle/DataExtractionHelper';
+import DataExtractionHelper, { Params, TreeExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { Subject, Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { debounceTime } from 'rxjs/operators';
+
+//Continue working on proxy classes, make everything simple
 
 @Injectable()
 export class FiltersStatesService implements OnDestroy {
@@ -25,14 +27,14 @@ export class FiltersStatesService implements OnDestroy {
       }
     });
 
-    this.pathChanged.pipe(debounceTime(5000)).subscribe(() => {
+    this.pathChanged.pipe(debounceTime(5000)).subscribe((path) => {
       this.logger.log();
     });
 
     (window as any).refresh = () => { this.dataservice.update.next(); }
   }
 
-  pathChanged: Subject<never> = new Subject;
+  pathChanged: Subject<{}> = new Subject;
   stateSubject = new BehaviorSubject({
     States: {
       level:{
@@ -99,9 +101,8 @@ export class FiltersStatesService implements OnDestroy {
       States
     };
 
-    if ( superlevel !== undefined || levelId !== undefined ) {
-      this.pathChanged.next();
-    }
+    if ( superlevel !== undefined || levelId !== undefined )
+      this.pathChanged.next(this.getPath(States));
 
     if ( dashboardId ) {
       this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);

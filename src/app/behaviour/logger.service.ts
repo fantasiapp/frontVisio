@@ -112,7 +112,6 @@ export class LoggerService {
 
   actionComplete() {
     if ( !this.change ) return;
-    // console.log(this.snapshot);
     this.log();
   }
 
