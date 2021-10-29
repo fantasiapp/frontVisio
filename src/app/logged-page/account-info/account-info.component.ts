@@ -58,7 +58,7 @@ export class AccountInfoComponent implements OnInit, OnDestroy {
   }
 
   get username() {
-    return DataExtractionHelper.get('params')['pseudo'];
+    return DEH.get('params')['pseudo'];
   }
 
   ngOnDestroy() {
