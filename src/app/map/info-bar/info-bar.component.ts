@@ -58,10 +58,10 @@ export class InfoBarComponent {
       this.redistributedDisabled = !this.pdv!.redistributed || !this.noSales();
       this.doesntSellDisabled = !this.pdv!.sale || !this.noSales();
       this.targetP2cdFormatted = formatNumberToString((this.pdv!.target as any[])[DEH.TARGET_VOLUME_ID]);
-      this.redistributedChecked = (this.pdv!.target as any[])[DEH.TARGET_REDISTRIBUTED_ID] || !this.pdv!.redistributed;
-      this.redistributedFinitionsChecked = (this.pdv!.target as any[])[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] || !this.pdv!.redistributedFinitions;
-      this.doesntSellChecked = (this.pdv!.target as any[])[DEH.TARGET_SALE_ID] || !this.pdv!.sale
-      this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
+      this.target[this.TARGET_REDISTRIBUTED_ID] = (this.pdv!.target as any[])[DEH.TARGET_REDISTRIBUTED_ID] && this.pdv!.redistributed;
+      this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = (this.pdv!.target as any[])[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] && this.pdv!.redistributedFinitions;
+      this.target[this.TARGET_SALE_ID] = (this.pdv!.target as any[])[DEH.TARGET_SALE_ID] && this.pdv!.sale
+      this.showNavigation = this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
       this.isOnlySiniat = this.pdv!.onlySiniat
       this.loadGrid();
     }
@@ -99,10 +99,7 @@ export class InfoBarComponent {
   TARGET_REDISTRIBUTED_FINITIONS_ID: any;
 
   redistributedDisabled: boolean = false;
-  redistributedChecked: boolean = false;
-  redistributedFinitionsChecked: boolean = false;
   doesntSellDisabled: boolean = false;
-  doesntSellChecked: boolean = false;
   showNavigation: boolean = false;
 
   industryIdToIndex : {[industryId: number]: number} = {}
@@ -260,13 +257,13 @@ export class InfoBarComponent {
   }
 
   changeRedistributed() {
-      this.redistributedChecked = !this.redistributedChecked
-      this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
+      this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
+      this.showNavigation = !this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_ID]!=true
       this.hasChanged = true;
   }
   changeRedistributedFinitions() {
-    this.redistributedFinitionsChecked = !this.redistributedFinitionsChecked
-    this.showNavigation = this.doesntSellChecked != true && this.redistributedFinitionsChecked!=true
+    this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
+    this.showNavigation = this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]!=true
     this.hasChanged = true;
   }
 
@@ -334,8 +331,8 @@ export class InfoBarComponent {
   }
 
   changeTargetSale(){
-      this.doesntSellChecked = !this.doesntSellChecked;
-      this.showNavigation = this.doesntSellChecked != true && this.redistributedChecked!=true
+      this.target[this.TARGET_SALE_ID] = !this.target[this.TARGET_SALE_ID];
+      this.showNavigation = this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_ID]!=true
       this.hasChanged = true;
   }
   changeOnlySiniat() {
