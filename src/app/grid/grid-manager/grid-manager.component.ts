@@ -45,11 +45,18 @@ export class GridManager implements Interactive {
     return this._layout;
   }
 
+  get loaded() {
+    return this.state.getValue().loaded;
+  }
+
   @Input()
   set layout(layout: Layout | null) {
     this._layout = layout || defaultLayout;
     this.computeLayout();
   }
+
+  @Input()
+  path: any = {};
 
   @Output()
   layoutChanged: EventEmitter<Layout> = new EventEmitter;
@@ -60,6 +67,9 @@ export class GridManager implements Interactive {
   ref!: ViewContainerRef;
 
   state: BehaviorSubject<GridState> = new BehaviorSubject<GridState>({loaded: false});
+  protected _paused: boolean = false;
+  get paused() { return this._paused; }
+
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
     console.debug('[GridManager]: On.')
   }
@@ -73,7 +83,11 @@ export class GridManager implements Interactive {
     if ( layoutChanges && !layoutChanges.isFirstChange() ) {
       this.createComponents();
       this.layoutChanged.emit(this.layout);
-    }
+    }    
+    let pathChanges = changes['path'];
+    if ( !pathChanges || layoutChanges ) return;
+    if ( !BasicWidget.shallowObjectEquality(pathChanges.currentValue, pathChanges.previousValue) )
+      this.onPathChanged();
   }
 
   private createComponents() {
@@ -104,20 +118,22 @@ export class GridManager implements Interactive {
     });
   }
 
-  interactiveMode() {
-    for ( let i = 0; i < this.instances.length; i++ ) {
-      let widget = this.instances[i] as any;
-      if ( widget && widget instanceof BasicWidget )
-        (widget as BasicWidget).interactiveMode();
+  protected onPathChanged() {
+    if ( this._paused ) return;
+    for ( let component of this.instances ) {
+      component.onPathChanged(this.path);
+      component.update();
     }
   }
 
+  interactiveMode() {
+    if ( !this._paused ) return;
+    this._paused = false;
+    this.onPathChanged();
+  }
+
   pause() {
-    for ( let i = 0; i < this.instances.length; i++ ) {
-      let widget = this.instances[i] as any;
-      if ( widget && widget instanceof BasicWidget )
-        (widget as BasicWidget).pause();
-    }
+    this._paused = true;
   }
 
   clear() {
@@ -138,13 +154,10 @@ export class GridManager implements Interactive {
       component.refresh();
   }
 
+  /* = delete */
   reload() {
     this.clear();
     this.createComponents();
-  }
-
-  get loaded() {
-    return this.state.getValue().loaded;
   }
 
   ngOnDestroy() {

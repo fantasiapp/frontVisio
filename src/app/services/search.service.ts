@@ -163,7 +163,7 @@ export class SearchService {
     let searchableFields = SearchService.getSearchableFields(),
       treeLevels = [...searchableFields.geoTree, ...searchableFields.tradeTree];
     
-    this.levels.push([SearchService.ruleFromSubstring('Tous', 1), 'Tous', SearchService.IS_PATTERN, () => () => combineResults([searchAll(...treeLevels), searchDashboard()])]);
+    this.levels.push([SearchService.ruleFromSubstring('Tous', 1), 'Tous', SearchService.IS_PATTERN, () => combineResults([searchAll(...treeLevels), searchDashboard()])]);
     this.levels.push([SearchService.ruleFromSubstring('Points de Vente', 3), 'Points de vente', SearchService.IS_PATTERN, searchPDV]);
     this.levels.push([SearchService.ruleFromRegexp(/(?:Bor?d?)|(?:Tabl?e?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard]);
     Array.prototype.push.apply(

@@ -5,13 +5,13 @@ import { combineLatest, Subject, Subscription } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import { FiltersStatesService } from "../filters/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
-import { Interactive } from "../interfaces/Common";
+import { Interactive, Updatable } from "../interfaces/Common";
 import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
 
 @Directive()
-export abstract class BasicWidget extends GridArea implements Interactive {
-  protected path = {};
+export abstract class BasicWidget extends GridArea implements Updatable {
+  protected path: any;
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
@@ -20,50 +20,25 @@ export abstract class BasicWidget extends GridArea implements Interactive {
   protected dynamicDescription: boolean = false;
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
-
-  protected _paused: boolean = true;
-  get paused() { return this._paused; }
   
   constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
     super();
     this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
   }
-  
-  interactiveMode() {
-    if ( !this._paused ) return;
-    this._paused = false;
-    this.subscribe(this.filtersService.stateSubject, ({States}) => {
-      let path = this.filtersService.getPath(States);
-      if ( BasicWidget.shallowObjectEquality(this.path, path) ) return;
-      this.path = path;
-      this.onPathChanged();
-      this.update();
-    });
-  }
-
-  pause() {
-    if ( this._paused ) return;
-    this._paused = true;
-    this.unsubscribe(this.filtersService.stateSubject);
-  }
 
   onReady() {
-    this.once(this.filtersService.stateSubject, ({States}) => {
-      this.path = this.filtersService.getPath(States);
-      this.onPathChanged();
-      this.interactiveMode();
-      this.start();
-    });
+    this.onPathChanged(this.filtersService.currentPath);
+    this.start();
   }
 
-  protected onPathChanged() {}
+  protected onPathChanged(path: any) { this.path = path; }
   
   ngOnInit() {
     if ( this.properties.description == '@sum' )
       this.dynamicDescription = true;
   }
   
-  protected start(): void {
+  start(): void {
     let data = this.updateData();
     requestAnimationFrame((_: any) => {
       this.createGraph(data);

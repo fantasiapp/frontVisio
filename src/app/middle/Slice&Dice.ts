@@ -273,7 +273,7 @@ class DataWidget{
 export class Sale {
   
   constructor(private data: any[]){
-    this.date = this.data[DEH.SALES_DATE_ID]
+    this.date = this.data[DEH.SALES_DATE_ID];
   };
 
   get date() {return this.data[DEH.SALES_DATE_ID]}
@@ -285,7 +285,6 @@ export class Sale {
 
   set volume(val: number) {this.data[DEH.SALES_VOLUME_ID] = val;}
   set date(val: number) {this.data[DEH.SALES_DATE_ID] = val}
-
 };
 
 
@@ -1107,7 +1106,6 @@ class SliceDice{
 
 function loadAll(){
   PDV.load(true);
-  (window as any).PDV = PDV;
 }
 
 function getGeoTree() {

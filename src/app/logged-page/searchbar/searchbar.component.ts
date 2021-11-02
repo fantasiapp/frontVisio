@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
-import { NavigationExtractionHelper } from 'src/app/middle/DataExtractionHelper';
 import { Navigation } from 'src/app/middle/Navigation';
 import { PDV } from 'src/app/middle/Slice&Dice';
-import { PatternSuggestion, Result, SearchService, Suggestion } from 'src/app/services/search.service';
+import {  Result, SearchService, Suggestion } from 'src/app/services/search.service';
 import { PatternPipe } from './pattern.pipe';
 import { SuggestionBox } from './suggestionbox/suggestionbox.component';
 

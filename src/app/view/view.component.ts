@@ -15,23 +15,26 @@ import { CD } from '../middle/Descriptions';
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
   providers: [Navigation, FiltersStatesService, LoggerService],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewComponent extends SubscriptionManager implements Updatable {
   @ViewChild(GridManager)
   gridManager!: GridManager;
 
   public layout: (Layout & {id: number}) | null = null;
+  public path: any = {};
   private mapVisible: boolean = false;
 
   constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
     super();
-    this.subscribe(filtersService.stateSubject, ({States: {dashboard}}) => {
+    this.subscribe(filtersService.stateSubject, ({States}) => {
+      let {dashboard} = States,
+        path = filtersService.getPath(States);
+        
       if ( this.layout?.id !== dashboard.id ) {
-        console.debug('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.');
+        console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.');
         this.gridManager?.clear();
         this.layout = dashboard;
-      }
+      } this.path = path;
     });
 
     this.subscribe(dataservice.update, this.refresh.bind(this));

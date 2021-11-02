@@ -54,6 +54,7 @@ export interface Deffered<T = any> extends SubscriptionManager {
 };
 
 export interface Updatable {
+  start?(...args: any[]): void;
   update(...args: any[]): void;
   refresh?(...args: any[]): void;
 };

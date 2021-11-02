@@ -121,11 +121,15 @@ export class FiltersStatesService implements OnDestroy {
     return path;
   }
 
+  get currentPath() {
+    return this.getPath(this.stateSubject.value.States);
+  }
+
   get tree() { return this.navigation.tree; }
   treeIs(t: Tree | TreeExtractionHelper) { return this.tree ? this.tree.is(t) : true; }
 
   public reset(t: Tree, follow: boolean = true) {
-    this.sliceDice.geoTree = this.treeIs(PDV.geoTree);
+    this.sliceDice.geoTree = t.is(PDV.geoTree);
     if ( follow )
       this.navigation.followTree(t);
     else

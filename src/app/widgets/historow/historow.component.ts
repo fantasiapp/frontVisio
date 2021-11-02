@@ -33,7 +33,8 @@ export class HistoRowComponent extends BasicWidget {
   private rectWidth: number = 0;
   private maxValue: number = 0;
 
-  protected onPathChanged() {
+  protected onPathChanged(path: any) {
+    super.onPathChanged(path);
     this.cube = new RubixCube(this);
     this.cube.rules = this.sliceDice.rubiksCubeCheck(this.path, this.properties.arguments[2], this.properties.arguments[5]);
     this.description.nativeElement.selectedIndex = "0";
@@ -198,19 +199,13 @@ export class HistoRowComponent extends BasicWidget {
   }
 
   refresh() {
-    this.onPathChanged();
+    this.onPathChanged(this.path);
     super.refresh();
   }
 
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
     return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube?.conditions || []];
-  }
-
-  updateData() {
-    this.chart?.tooltip.hide();
-    let data = this.sliceDice.getWidgetData.apply(this.sliceDice, this.getDataArguments());  
-    return data;
   }
 
   setSegment(e: Event) {

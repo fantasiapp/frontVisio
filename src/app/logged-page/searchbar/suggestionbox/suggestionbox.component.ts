@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { SearchService, Suggestion } from 'src/app/services/search.service';
 
 @Component({
@@ -13,9 +13,11 @@ export class SuggestionBox implements AfterViewInit {
   get shouldBeHidden() {
     return this.suggestions? !this.suggestions.length : true; 
   }
-  
+
   @Input()
-  suggestions: Suggestion[] | null = [];
+  set suggestions(suggestions: Suggestion[] | null) { this._suggestions = suggestions; this.ref.nativeElement.scroll(0, 0); };
+  get suggestions() { return this._suggestions; }
+  private _suggestions: Suggestion[] | null = [];
   
   private suggestionSize = 28;
   private _selection: number = -1;
