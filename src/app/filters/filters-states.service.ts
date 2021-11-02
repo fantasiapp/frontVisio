@@ -79,7 +79,7 @@ export class FiltersStatesService implements OnDestroy {
   }
 
   public getMonth(): string {
-    return DataExtractionHelper.get('params')['month']!;
+    return DEH.get('params')['month']!;
   }
 
   public updateState(
