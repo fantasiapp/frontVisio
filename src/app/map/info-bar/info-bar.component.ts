@@ -139,7 +139,7 @@ export class InfoBarComponent {
       enseigne: pdv.get('enseigne'),
       dep: pdv.get('dep'),
       ville: pdv.get('ville'),
-      bassin: pdv.get('bassin'),
+      bassin: this.target[DEH.TARGET_BASSIN_ID],
       clientProspect: pdv.clientProspect2(),
       nbVisits: pdv.nbVisits,
       siniatP2cdSales: Math.round(pdv.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
@@ -224,7 +224,7 @@ export class InfoBarComponent {
       console.log("Setting ", i, j, " with ", sale.volume)
       this.grid[i][j] = sale;
       this.gridFormatted[i][j] = formatNumberToString(sale.volume);
-      this.updateSum(i,j)
+      this.updateSum(i,j, 0, this.grid[i][j].volume)
       this.salesColors[i][j] = this.getSaleColor(sale);
     }
     for(let row = 0; row < this.industries.length; row++)
@@ -247,14 +247,10 @@ export class InfoBarComponent {
     if(event.keyCode === 40) console.log("Down")
   }
 
-  updateSum(i: number, j: number) {
-    console.log("(updateSum) On est en : ", i, j)
-    console.log("GRID : ", this.grid)
-
-    this.updateValue(0, j, this.grid[0][j].volume + this.grid[i][j].volume)
-    this.updateValue(i, 3, this.grid[i][3].volume + this.grid[i][j].volume)
-    this.updateValue(0, 3, this.grid[0][3].volume + this.grid[i][j].volume)
-    console.log("end of udpateSum")
+  updateSum(i: number, j: number, oldVolume: number, newVolume: number) {
+    this.updateValue(0, j, this.grid[0][j].volume - oldVolume + newVolume)
+    this.updateValue(i, 3, this.grid[i][3].volume - oldVolume + newVolume)
+    this.updateValue(0, 3, this.grid[0][3].volume - oldVolume + newVolume)
   }
 
   updateValue(i: number, j: number, value: number) {
@@ -262,6 +258,7 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = formatNumberToString(value);
   }
 
+  //Change value in the target
   changeRedistributed() {
       this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.showNavigation = !this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_ID]!=true
@@ -282,17 +279,23 @@ export class InfoBarComponent {
       setTimeout(() => this.errorInput = false, 1000);
       return;
     }
+    this.target[DEH.TARGET_VOLUME_ID] = formatStringToNumber(this.targetP2cdFormatted);
     this.targetP2cdFormatted = formatNumberToString(+this.targetP2cdFormatted)
     this.hasChanged = true;
   }
 
-  changeComment() { //PB : newValue isn't a number
-    let ref = this.comments!.get(0); //<- the current text area is the first in view
+  changeComment() {
+    let ref = this.comments!.get(0);
     if ( !ref ) return;
     this.hasChanged = true;
   }
 
   changeTargetBassin() {
+      if(!this.displayedInfos.bassin) {
+        this.displayedInfos.bassin = this.target[DEH.TARGET_BASSIN_ID];
+        return;
+      }
+      this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
       this.hasChanged = true;
   } 
 
@@ -302,8 +305,8 @@ export class InfoBarComponent {
   }
 
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
-    this.gridFormatted[i][j] = formatStringToNumber(this.gridFormatted[i][j]).toString();
-    if(Number.isNaN(formatStringToNumber(this.gridFormatted[i][j]))) {
+    let oldVolume = this.grid[i][j].volume; let newVolume = formatStringToNumber(this.gridFormatted[i][j]);
+    if(Number.isNaN(newVolume)) {
       this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j].volume);
       this.errorInput = true;
       setTimeout(() => this.errorInput = false, 1000)
@@ -313,13 +316,15 @@ export class InfoBarComponent {
 
     if(this.grid[i][j].date === 0) {this._pdv!.sales.push(this.grid[i][j].getData())} //if it's a new Sale
 
-    this.updateValue(i,j, formatStringToNumber(this.gridFormatted[i][j]));
+    this.gridFormatted[i][j] = newVolume.toString();
+
+    this.updateValue(i,j, newVolume);
     this.salesColors[i][j] = 'black'
     this.grid[i][j].date = Math.floor(Date.now() / 1000);
     this.grid[i][j].industryId = +DEH.getKeyByValue(this.industryIdToIndex, i)!;
     this.grid[i][j].productId = +DEH.getKeyByValue(this.productIdToIndex, j)!
 
-    this.updateSum(i,j)
+    this.updateSum(i,j, oldVolume, newVolume)
     this.hasChanged = true;
     this.redistributedDisabled = !this.pdv!.redistributed || !this.noSales();
     this.doesntSellDisabled = !this.pdv!.sale || !this.noSales();
@@ -334,6 +339,7 @@ export class InfoBarComponent {
     if(this.noSales()) {
       this.isOnlySiniat = !this.isOnlySiniat;
       this.hasChanged = true;
+      this.pdv!.updateField('onlySiniat', this.isOnlySiniat);
     }
   }
 
