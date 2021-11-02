@@ -74,8 +74,12 @@ export class UpperbarComponent implements OnInit, OnDestroy {
     this.updating = false;
   }
 
-  get switchIsVisible() {
-    return this.mapComponent?.shown ? false : true;
+  get mapIsVisible() {
+    return this.mapComponent?.shown ? true : false;
+  }
+
+  get hideIfMapIsVisible() {
+    return this.mapIsVisible ? 'hidden' : 'visible';
   }
 
   toggleMap() {

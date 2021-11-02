@@ -58,13 +58,13 @@
       <img
         src="assets/super.svg"
         class="navigate-button1"
-        [style.display]="superLevel.label ? 'initial' : 'none'"
+        [style.visibility]="superLevel.label ? 'visible' : 'hidden'"
         (click)="showSuper(this.superLevel)"
       />
       <br />
       {{ superLevel.label }}
     </div>
-    <div class="box box-nav2" [title]="subLevels.label[0]" [style.display]="canSub() ? 'initial' : 'none'" [ngClass]="{ disabled: subLevels == viewList }">
+    <div class="box box-nav2" [title]="subLevels.label[0]" [style.visibility]="canSub() ? 'visible' : 'hidden'" [ngClass]="{ disabled: subLevels == viewList }">
       <img
         src="assets/sub.svg"
         class="navigate-button2"
