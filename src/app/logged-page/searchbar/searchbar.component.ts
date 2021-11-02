@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBindi
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { SubscriptionManager } from 'src/app/interfaces/Common';
 import { NavigationExtractionHelper } from 'src/app/middle/DataExtractionHelper';
 import { Navigation } from 'src/app/middle/Navigation';
 import { PDV } from 'src/app/middle/Slice&Dice';
@@ -13,9 +14,10 @@ import { SuggestionBox } from './suggestionbox/suggestionbox.component';
   selector: 'searchbar',
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.css'],
+  providers: [SearchService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SearchbarComponent implements OnDestroy {
+export class SearchbarComponent extends SubscriptionManager {
   @ViewChild('input', {static: true, read: ElementRef})
   input?: ElementRef;
 
@@ -46,18 +48,6 @@ export class SearchbarComponent implements OnDestroy {
   }
 
   private debounceDuration = 60;
-  private subscription: Subscription = new Subscription;
-
-  constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService) {
-    this.subscription = this.term.pipe(debounceTime(this.debounceDuration)).subscribe(term => {
-      let results = this.engine.search(this.lastTerm = term);
-      this.results.next(this.lastResults = results);
-    });
-
-    if ( this.pattern )
-      this.engine.switchMode(SearchService.FIND_INSTANCE, this.pattern);
-  }
-
   get placeholder(): string {
     if ( !this.pattern ) return 'Sélectionnez une catégorie';
     return 'Rechercher dans ' + this.pattern;
@@ -66,6 +56,17 @@ export class SearchbarComponent implements OnDestroy {
   get patternWidth(): number {
     if ( !this.pattern ) return 0;
     return SearchService.measureText(PatternPipe.transform(this.pattern), '14px Roboto')
+  }
+
+  constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService) {
+    super();
+    this.subscribe(this.term.pipe(debounceTime(this.debounceDuration)), term => {
+      let results = this.engine.search(this.lastTerm = term);
+      this.results.next(this.lastResults = results);
+    });
+
+    if ( this.pattern )
+      this.engine.switchMode(SearchService.FIND_INSTANCE, this.pattern);
   }
 
   onInput(e: Event) {
@@ -83,8 +84,9 @@ export class SearchbarComponent implements OnDestroy {
       this.showAllSuggestions();
   }
 
+  //Doesn't work like i wish it to be
   @HostListener('focusout', ['$event'])
-  private onFocusOut(e: Event) {
+  private onFocusOut(e: MouseEvent) {
     setTimeout(() => {
       this.term.next(this.input!.nativeElement.value = this.lastTerm = '');
     }, 150);
@@ -141,14 +143,14 @@ export class SearchbarComponent implements OnDestroy {
       let data = suggestion[2] as Result;
       if ( data.node ) {
         this.navigation.setNode(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
-        this.filtersState.reload();
+        this.filtersState.refresh();
       } else if ( data.dashboard ) {
         this.navigation.setDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
-        this.filtersState.reload();
+        this.filtersState.refresh();
       } else if ( data.pdv ) {
         this.PDVfound.emit(data.pdv);
       }
-      else { return console.error("Not yet"); }
+      else { return console.error("invalid research result"); }
     }
 
     this.lastTerm = this.input!.nativeElement.value = '';
@@ -161,11 +163,8 @@ export class SearchbarComponent implements OnDestroy {
 
   close() {
     this.opened = !this.opened;
+    this.pattern = '';
     if ( this.input ) this.lastTerm = this.input.nativeElement.value = '';
     this.results.next(this.lastResults = []);
-  }
-
-  ngOnDestroy() {
-    this.subscription?.unsubscribe();
   }
 }

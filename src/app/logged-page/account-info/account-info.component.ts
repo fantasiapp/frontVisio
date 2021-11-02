@@ -62,7 +62,7 @@ export class AccountInfoComponent extends SubscriptionManager {
   }
 
   get profileType() {
-    return PDV.geoTree.root.label;
+    return Params.rootLabel;
   }
 
   private clearSpace(name: string) {
@@ -92,9 +92,5 @@ export class AccountInfoComponent extends SubscriptionManager {
   logout() {
     this.localStorageService.removeStayConnected();
     this.auth.logoutFromServer();
-  }
-
-  ngOnDestroy() {
-    super.ngOnDestroy();
   }
 }

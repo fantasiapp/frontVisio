@@ -27,14 +27,12 @@ export class FiltersStatesService implements OnDestroy {
       }
     });
 
-    this.pathChanged.pipe(debounceTime(5000)).subscribe((path) => {
+    this.logPathChanged.pipe(debounceTime(5000)).subscribe((path) => {
       this.logger.log();
     });
-
-    (window as any).refresh = () => { this.dataservice.update.next(); }
   }
 
-  pathChanged: Subject<{}> = new Subject;
+  logPathChanged: Subject<{}> = new Subject;
   stateSubject = new BehaviorSubject({
     States: {
       level:{
@@ -102,7 +100,7 @@ export class FiltersStatesService implements OnDestroy {
     };
 
     if ( superlevel !== undefined || levelId !== undefined )
-      this.pathChanged.next(this.getPath(States));
+      this.logPathChanged.next(this.getPath(States));
 
     if ( dashboardId ) {
       this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
@@ -149,7 +147,8 @@ export class FiltersStatesService implements OnDestroy {
     this.arraySubject.next(currentArrays);
   }
 
-  reload() {
+  refresh() {
+    console.log('calling refresh');
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),

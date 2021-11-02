@@ -17,7 +17,7 @@
 
     z-index: 99;
     --suggestion-box-width: 300px;
-    --suggestion-item-height: 28px;
+    --suggestion-item-height: 32px;
 }
 
 :host > .suggestion {
@@ -32,8 +32,7 @@
 
 .suggestion {
     box-sizing: border-box;
-    padding: 5px 15px;
-    margin: 2px 0;
+    padding: 7px 15px;
     user-select: none;
     white-space: nowrap;
     text-overflow: ellipsis;

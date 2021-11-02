@@ -32,7 +32,8 @@ export abstract class BasicWidget extends GridArea implements Interactive {
   interactiveMode() {
     if ( !this._paused ) return;
     this._paused = false;
-    this.subscribe(this.filtersService.pathChanged, (path) => {
+    this.subscribe(this.filtersService.stateSubject, ({States}) => {
+      let path = this.filtersService.getPath(States);
       if ( BasicWidget.shallowObjectEquality(this.path, path) ) return;
       this.path = path;
       this.onPathChanged();

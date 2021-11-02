@@ -9,7 +9,7 @@ type SearchFunction = (term: string, ...args: any[]) => Suggestion[];
 
 export type Result = {info?: string; node?: Node; dashboard?: Dashboard; pdv?: PDV; geoTree?: boolean};
 export type LevelSuggestion = [string, string, number];
-export type PatternSuggestion = [string, string, Result]
+export type PatternSuggestion = [string, string, Result];
 export type Suggestion = LevelSuggestion | PatternSuggestion;
 
 type FilterMapFunction<U, V> = (t: U) => V | null;
@@ -20,7 +20,6 @@ function filterMap<U, V = U>(array: U[], filterMap: FilterMapFunction<U, V>): V[
 
 function searchPDV(): SearchFunction {
   let pdvs = [...PDV.getInstances().values()];
-  
   return (term: string, showAll: boolean = true, sort: boolean = true) => {
     if ( !term && showAll ) return [];
     term = term.toLowerCase();
@@ -86,8 +85,10 @@ function searchField(field: string): SearchFunction {
     return searchDépartement();
   if ( field == 'Bassin' )
     return searchBassin();
+  if ( field == 'Points de Vente' )
+    return searchPDV();
   
-  let [fieldName, isGeo] = SearchService.findFieldName(field),
+  let [_, isGeo] = SearchService.findFieldName(field),
     [height,] = SearchService.findFieldHeight(field);
     
   return (term: string, showAll: boolean = true, sort: boolean = true) => {
@@ -137,8 +138,8 @@ function searchAll(...fields: string[]): SearchFunction {
     let result: Suggestion[] = [];
     for ( let i = 0; i < fields.length; i++ ) {
       let field = fields[i],
-        partial = functions[i](term, showAll) as unknown as PatternSuggestion[];
-      partial.forEach((suggestion) => { if ( !suggestion[2].info ) suggestion[2].info = field});
+        partial = functions[i](term, showAll) as PatternSuggestion[];
+      partial.forEach((suggestion) => { if ( !suggestion[2].info ) suggestion[2].info = field });
       Array.prototype.push.apply(result, partial);
     }
     return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
@@ -152,85 +153,30 @@ function combineResults(functions: SearchFunction[]) {
   }
 };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class SearchService {
+  private levels: [MatchFunction, string, number, any?][] = [];
+  private mode: number = SearchService.FIND_PATTERN;
+  private customSearch: SearchFunction | null = null;
 
-  static findFieldName(pretty: string): [string, boolean] {
-    //try in geo tree and then in trade tree, true is for geotree
-    for ( let level of DataExtractionHelper.geoLevels )
-      if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return [level[DataExtractionHelper.LABEL_INDEX], true];
+  constructor() {
+    let searchableFields = SearchService.getSearchableFields(),
+      treeLevels = [...searchableFields.geoTree, ...searchableFields.tradeTree];
     
-    for ( let level of DataExtractionHelper.tradeLevels )
-      if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return [level[DataExtractionHelper.LABEL_INDEX], false];
-    
-    return ['@none', false];
+    this.levels.push([SearchService.ruleFromSubstring('Tous', 1), 'Tous', SearchService.IS_PATTERN, () => () => combineResults([searchAll(...treeLevels), searchDashboard()])]);
+    this.levels.push([SearchService.ruleFromSubstring('Points de Vente', 3), 'Points de vente', SearchService.IS_PATTERN, searchPDV]);
+    this.levels.push([SearchService.ruleFromRegexp(/(?:Bor?d?)|(?:Tabl?e?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard]);
+    Array.prototype.push.apply(
+      this.levels,
+      treeLevels.map(field =>
+        [SearchService.ruleFromSubstring(field, 3), field, SearchService.IS_PATTERN]
+      )
+    )
   }
-
-  static findFieldHeight(pretty: string): [number, boolean] {
-    //try in geo tree and then in trade tree
-    let levels = DataExtractionHelper.geoLevels;
-    for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
-      if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return [i, true];
-    
-    levels = DataExtractionHelper.tradeLevels;
-    for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
-      if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return [i, false];
-    
-    return [-1, false];
-  }
-
-  static ruleFromRegexp(regexp: RegExp): MatchFunction {
-    return (term: string) => {
-      let match = term.match(regexp);
-      return match ? match[0] : null;
-    }
-  }
-
-  static genericRuleMatch(match: string, complete: string): [string, string, any] {
-    return [match, complete, null];
-  }
-
-  static interpretMatch(level: any): SearchFunction {
-    let match = level[3];
-    if ( !match ) {
-      return searchField(level[1]);
-    } else {
-      return match();
-    }
-  }
-
-  levels: [MatchFunction, string, number, any?][] = [
-    // [SearchService.ruleFromRegexp(/(?:Nat?i?o?n?a?l?)|(?:Fra?n?c?e?)/i), 'National', SearchService.IS_REDIRECTION],
-    [SearchService.ruleFromRegexp(/Tou?s?/i), 'Tous', SearchService.IS_PATTERN, () => combineResults([searchAll('Région', 'Secteur', 'Département', 'Bassin', 'Enseigne', 'Ensemble', 'Sous-Ensemble'), searchDashboard()])],
-    [SearchService.ruleFromRegexp(/(?:pd?v?)|(?:Poin?t? d?e? V?e?n?t?e?)/i), 'Point de vente', SearchService.IS_PATTERN, searchPDV],
-    [SearchService.ruleFromRegexp(/(?:Bor?d?)|(?:Tabl?e?a?u?x?)/i), 'Tableaux de bords', SearchService.IS_PATTERN, searchDashboard],
-    [SearchService.ruleFromRegexp(/R[ée]g?i?o?n?/i), 'Région', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/(?:Sec?t?e?u?r?)|(?:Age?n?t?)/i), 'Secteur', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/D[ée]p?a?r?t?e?m?e?n?t?/i), 'Département', SearchService.IS_PATTERN, searchDépartement],
-    [SearchService.ruleFromRegexp(/Bas?s?i?n?/i), 'Bassin', SearchService.IS_PATTERN, searchBassin],
-    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Enseigne', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Ensemble', SearchService.IS_PATTERN],
-    [SearchService.ruleFromRegexp(/Ens?e?i?g?n?e?/i), 'Sous-Ensemble', SearchService.IS_PATTERN]
-  ];
-
+  
   addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {
     this.levels.splice(index, 0, [rule, autocompletion, type, onmatch]);
   }
-
-  static FIND_PATTERN = 0;
-  static FIND_INSTANCE = 1;
-
-  static IS_PATTERN = 1;
-  static IS_REDIRECTION = 2;
-
-  private mode: number = SearchService.FIND_PATTERN;
-  private customSearch: SearchFunction | null = null;
 
   switchMode(mode: number, pattern: string = '') {
     if ( pattern == '' || mode == SearchService.FIND_PATTERN ) { this.mode = SearchService.FIND_PATTERN; return true; }
@@ -240,10 +186,6 @@ export class SearchService {
     this.customSearch = SearchService.interpretMatch(level);
     this.mode = mode;
     return true;
-  }
-
-  constructor() {
-    (window as any).search = searchDashboard;
   }
 
   search(term: string, ...args: any[]): Suggestion[] {
@@ -295,10 +237,84 @@ export class SearchService {
     return results.sort((a, b) =>  b[0].length - a[0].length);
   }
 
-  static canvas = document.createElement('canvas');
-  static ctx = SearchService.canvas.getContext('2d');
-  static measureText(text: string, font: string) {
-    this.ctx!.font = font;
-    return this.ctx!.measureText(text).width;
+  static findFieldName(pretty: string): [string, boolean] {
+    //try in geo tree and then in trade tree, true is for geotree
+    for ( let level of DataExtractionHelper.geoLevels )
+      if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
+        return [level[DataExtractionHelper.LABEL_INDEX], true];
+    
+    for ( let level of DataExtractionHelper.tradeLevels )
+      if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
+        return [level[DataExtractionHelper.LABEL_INDEX], false];
+    
+    return ['@none', false];
   }
+
+  static findFieldHeight(pretty: string): [number, boolean] {
+    //try in geo tree and then in trade tree
+    let levels = DataExtractionHelper.geoLevels;
+    for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
+      if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
+        return [i, true];
+    
+    levels = DataExtractionHelper.tradeLevels;
+    for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
+      if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
+        return [i, false];
+    
+    return [-1, false];
+  }
+
+  static ruleFromRegexp(regexp: RegExp): MatchFunction {
+    return (term: string) => {
+      let match = term.match(regexp);
+      return match ? match[0] : null;
+    }
+  }
+
+  static ruleFromSubstring(str: string, p: number = 3): MatchFunction {
+    str = str.toLowerCase();
+    return (term: string) => {
+      let count = 0, m = Math.min(str.length, term.length),
+        _term = term.toLowerCase();
+      
+      while ( count < m && str[count] == _term[count] )
+        count++;
+      
+      if ( count >= p ) return term.slice(0, count);
+      return null;
+    }
+  }
+
+  static interpretMatch(level: any): SearchFunction {
+    let match = level[3];
+    if ( !match ) {
+      return searchField(level[1]);
+    } else {
+      return match();
+    }
+  }
+
+  static canvas = document.createElement('canvas');
+  static ctx = SearchService.canvas.getContext('2d')!;
+  static measureText(text: string, font: string) {
+    this.ctx.font = font;
+    return this.ctx.measureText(text).width;
+  }
+
+  static getSearchableFields() {
+    //skip first level: France and last one: PDV
+    return {
+      geoTree: PDV.geoTree.labels.slice(1, -1),
+      tradeTree: PDV.tradeTree.labels.slice(1, -1),
+      PDVs: 'Points de vente',
+      dashboards: 'Tableaux de bords'
+    };
+  }
+
+  static FIND_PATTERN = 0;
+  static FIND_INSTANCE = 1;
+
+  static IS_PATTERN = 1;
+  static IS_REDIRECTION = 2;
 }

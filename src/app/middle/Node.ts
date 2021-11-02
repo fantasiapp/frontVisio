@@ -98,7 +98,7 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
 };
 
 export class Tree {
-  attributes: {[key:string]: any[]}     //height -> attribute dictionnary
+  readonly attributes: {[key:string]: any[]}     //height -> attribute dictionnary
   root: Node;
   private type: TreeExtractionHelper;
 
@@ -140,4 +140,7 @@ export class Tree {
     };
     return depthCallback(0, height, this.root);
   }
+
+  get labels() { return this.attributes['labels']; }
+  get dashboards() { return this.attributes['dashboards']; }
 };
