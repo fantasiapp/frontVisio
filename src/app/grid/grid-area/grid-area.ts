@@ -7,7 +7,6 @@ import { Deffered, SubscriptionManager } from 'src/app/interfaces/Common';
 export abstract class GridArea extends SubscriptionManager implements Deffered {
   @HostBinding('style.grid-area')
   public gridArea: string = '';
-  
   public properties: {[key:string]: any} = {};
   public ready: Subject<null> = new Subject();
 
@@ -15,15 +14,15 @@ export abstract class GridArea extends SubscriptionManager implements Deffered {
     super();
     this.once(this.ready, this.onReady.bind(this));
   }
+  
+  onReady() {}; //default
 
   ngAfterViewInit() {
     this.ready.next();
     this.ready.complete();
   }
-
-  onReady() { }
-
+  
   ngOnDestroy() {
-    this.unsubscribeAll();
+    super.ngOnDestroy();
   }
 };

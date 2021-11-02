@@ -1,8 +1,10 @@
 //These interfaces can help make the code easier to read
 //As it says what we can expect from each class
 
-import { Observable, PartialObserver, Subject, Subscription } from "rxjs";
+import { Directive } from "@angular/core";
+import { Observable, Subject, Subscription } from "rxjs";
 
+@Directive()
 export class SubscriptionManager {
   private subscriptions: Map<Observable<any>, Subscription[]> = new Map<Observable<any>, Subscription[]>();
   
@@ -38,6 +40,10 @@ export class SubscriptionManager {
   unsubscribeAll() {
     for ( let [subject, _] of this.subscriptions )
       this.unsubscribe(subject);
+  }
+
+  ngOnDestroy() {
+    this.unsubscribeAll();
   }
 };
 

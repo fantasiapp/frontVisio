@@ -6,6 +6,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { MapSelectComponent } from '../map-select/map-select.component';
 import { BasicWidget } from 'src/app/widgets/BasicWidget'; 
+import { Interactive, SubscriptionManager } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'map-filters',
@@ -13,7 +14,7 @@ import { BasicWidget } from 'src/app/widgets/BasicWidget';
   styleUrls: ['./map-filters.component.css'],
   //changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapFiltersComponent {
+export class MapFiltersComponent extends SubscriptionManager implements Interactive {
   @HostBinding('class.opened')
   opened: boolean = false;
 
@@ -38,9 +39,9 @@ export class MapFiltersComponent {
     this._shown = value;
     if ( value ) {
       this.interactiveMode();
-      this.onPathChanged();
+      this.update();
     } else {
-      this.unsubscribe();
+      this.pause();
     }
   }
 
@@ -54,37 +55,33 @@ export class MapFiltersComponent {
 
   private path: any = {};
 
-  stateSubscription?: Subscription;
   constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private logger: LoggerService) {
+    super();
     console.log('[MapFiltersComponent]: On.');
-
-    console.log(this.isAgentFinitions);
-
-    (window as any).filter = this;
   }
 
   interactiveMode() {
-    this.stateSubscription = this.filtersService.stateSubject.subscribe(({States}) => {
+    this.subscribe(this.filtersService.stateSubject, ({States}) => {
       let path = this.filtersService.getPath(States);
       if ( !this._pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
-        this.onPathChanged();
+        this.update();
       }
     });
   }
 
-  unsubscribe() {
-    this.stateSubscription?.unsubscribe();
-    this.stateSubscription = undefined;
+  pause() {
+    this.unsubscribe(this.filtersService.stateSubject);
   }
 
-  onPathChanged() {
-    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.is(PDV.geoTree));
+  update() {
+    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.treeIs(PDV.geoTree));
     this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
     this.selects.forEach(select => select.reset());
     this.pdvsChange.emit(this._pdvs);
-    //this.resetFilters();
   }
+
+  refresh() { this.update() };
 
   trackById(index: number, couple: any) {
     return couple[0];
@@ -146,6 +143,16 @@ export class MapFiltersComponent {
     return true;
   }
 
+  getPreviousPDVs(index: number) {
+    return this.stack[index-1] ? this.stack[index-1][1] : this._pdvs
+  }
+
+  getLastPDVs() {
+    return this.getPreviousPDVs(this.stack.length);
+  }
+
+  //a bad way to implement mutually exclusive filters (with results in memory)
+  //this should be changed when i have time
   private pushStack(select: MapSelectComponent) {
     this.stack.push([select, []]);
     this.fixStack(this.stack.length-1);
@@ -154,18 +161,9 @@ export class MapFiltersComponent {
   private removeStack(select: MapSelectComponent) {
     let idx = this.stack.findIndex(q => q[0] == select);
     if ( idx < 0 ) return false;
-    let [_, results] = this.stack[idx]; //<- filterdict is assigned by others
     this.stack.splice(idx, 1);
     this.fixStack(idx, true);
     return true;
-  }
-
-  getPreviousPDVs(index: number) {
-    return this.stack[index-1] ? this.stack[index-1][1] : this._pdvs
-  }
-
-  getLastPDVs() {
-    return this.getPreviousPDVs(this.stack.length);
   }
 
   private fixStack(index: number, skipFirst: boolean = false) {
@@ -210,9 +208,5 @@ export class MapFiltersComponent {
   close() {
     this.ref.nativeElement.scrollTop = 0;
     this.opened = false;
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe();
   }
 }

@@ -11,14 +11,6 @@ let PropertyIterator = function(this: any) {
   }.call(this);
 };
 
-let ValueIterator = function(this: any) {
-  return function*(this: any) {
-    let properties = Object.getOwnPropertyNames(this);
-    for ( let i = 0; i < properties.length; i++ )
-      yield this[properties[i]];
-  }.call(this);
-};
-
 @Component({
   selector: 'map-legend',
   templateUrl: './map-legend.component.html',
@@ -34,7 +26,7 @@ export class MapLegendComponent {
   closed: boolean = true;
 
   @HostListener('click')
-  onClick() {
+  private onClick() {
     this.closed = !this.closed;
   }
 

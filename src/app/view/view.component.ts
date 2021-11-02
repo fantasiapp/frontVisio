@@ -84,7 +84,7 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
 
   @HostListener('window:beforeunload')
   ngOnDestroy(): void {
-    this.unsubscribeAll();
+    super.ngOnDestroy();
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();
     this.localStorageService.handleDisconnect();

@@ -96,8 +96,4 @@ export class UpperbarComponent extends SubscriptionManager {
     else
       this.displayPDV.emit(pdv.id);
   }
-
-  ngOnDestroy() {
-    this.unsubscribeAll();
-  }
 }

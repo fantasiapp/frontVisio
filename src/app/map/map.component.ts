@@ -82,7 +82,7 @@ export class MapComponent {
 
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     console.log('[MapComponent]: On');
-    MapIconBuilder.initialize(this.isAgentFinitions );
+    MapIconBuilder.initialize(this.isAgentFinitions);
     this.legend?.update();
     this.initializeInfowindow();
     if ( this.shown )
@@ -95,7 +95,7 @@ export class MapComponent {
       this.shouldUpdateIcons = true;
 
       if ( !this.hidden ) {
-        MapIconBuilder.initialize(this.isAgentFinitions );
+        MapIconBuilder.initialize(this.isAgentFinitions);
         this.legend?.update();
         this.update();
         this.shouldUpdateIcons = false;
@@ -369,12 +369,14 @@ export class MapComponent {
   }
 };
 
+//Severe hardcoding here
 export class MapIconBuilder {
   defaultValues: any;
   axes: any[];
   axesNames: string[];
   icons: any;
 
+  //the constructor is only used to reset values -- perhaps a bad idea ?
   constructor(defaultValues: any) {
     MapIconBuilder.instance = this;
     this.defaultValues = defaultValues;
@@ -406,9 +408,9 @@ export class MapIconBuilder {
     return (object && object[key]) || this.defaultValues[key];
   }
 
-  axis(name: string, axis: any) {
+  category(name: string, category: any) {
     this.axesNames.push(name);
-    this.axes.push(axis);
+    this.axes.push(category);
     return this;
   }
 
@@ -432,11 +434,11 @@ export class MapIconBuilder {
 
   private generateData(previousDict=this.icons, height:number=0) {
     if ( height >= this.axesNames.length ) return;
-    let axisName = this.axesNames[height];
+    let categoryName = this.axesNames[height];
     let data = this.axes[height];
 
     for ( let item of data ) {
-      let key = axisName + '.' + item[0];
+      let key = categoryName + '.' + item[0];
       previousDict[key] = {'data': {...previousDict['data'], ...item[1]}}; 
       this.generateData(previousDict[key], height+1);
     }
@@ -483,52 +485,62 @@ export class MapIconBuilder {
     return `<circle cx='15' cy='26' r='4' stroke='${strokeFeet}' stroke-width='1' fill='#FF0000'></circle>`;
   }
 
+  static computeValues(category: string, values: any) {
+    let mapping = DataExtractionHelper.get(category),
+      result: [number, any][] = [];
+    
+    if ( mapping ) {
+      for ( let [key, value] of Object.entries(values) )
+        result.push([+DataExtractionHelper.getKeyByValue(mapping, key)!, value]);
+    } else {
+      result = Object.values(values).map((value, idx) => [idx, value]);
+    }
+
+    return result;
+  }
+
   static initialize(isAgentFinition: boolean = false) {
     let builder = new MapIconBuilder({
       width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
     });
 
-    if ( isAgentFinition ) {
-      let typology = DataExtractionHelper.get('typology');
-
-      builder.axis('Visité', [
-        [0, {fill: '#0056A6'}],
-        [1, {fill: '#A61F7D'}],
-      ]).axis('typology', [
-        [+DataExtractionHelper.getKeyByValue(typology, 'Pur prospect')!, {head: MapIconBuilder.square}],
-        [+DataExtractionHelper.getKeyByValue(typology, 'Enduit hors P2CD')!, {head: MapIconBuilder.diamond}],
-        [+DataExtractionHelper.getKeyByValue(typology, 'P2CD + Enduit')!, {head: MapIconBuilder.circle}],
-        [+DataExtractionHelper.getKeyByValue(typology, 'Non documenté')!, {head: MapIconBuilder.hex}]
-      ]).generate();
-    } else {
-      let segmentMarketing = DataExtractionHelper.get('segmentMarketing'),
-        industriel = DataExtractionHelper.get('industriel');
-      
-      builder.axis('industriel', [
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Siniat')!, {fill: '#A61F7D'}],
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
-        [+DataExtractionHelper.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
-      ]).axis('Non Documenté', [
-        [0, {}],
-        [1, {fill: '#FF0000'}]
-      ]).axis('pointFeu', [
-        [0, {}],
-        [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}] //<- draw fire later, now it's a circle
-      ]).axis('segmentMarketing', [
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!, {head: MapIconBuilder.diamond}],
-        [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Autres')!, {head: MapIconBuilder.circle}]
-      ]).generate();
-    }
-
-    this._instance = builder;
+    let legend = LEGEND[Params.rootLabel] || LEGEND['default'];
+    for ( let [category, values] of Object.entries(legend) )
+      builder.category(category, this.computeValues(category, values));
+    
+    builder.generate();
+    this.instance = builder;
   }
-
-  static year = true;
 
   private static _instance: MapIconBuilder | null = null;
   public static get instance() { return this._instance!; }
   private static set instance(value: MapIconBuilder) { this._instance = value; } 
 };
+
+let LEGEND: {[key: string]: any} = {
+  agentFinitions: {
+    'visité': {0: {fill: '#0056A6'}, 1: {fill: '#A61F7D'}},
+    'typology': {
+      'Pur prospect': {head: MapIconBuilder.square},
+      'Enduit hors P2CD': {head: MapIconBuilder.diamond},
+      'P2CD + Enduit': {head: MapIconBuilder.circle},
+      'Non documenté': {head: MapIconBuilder.hex}
+    }
+  },
+  default: {
+    'industriel': {
+      'Siniat': {fill: '#A61F7D'},
+      'Placo': {fill: '#0056A6'},
+      'Knauf': {fill: '#67CFFE'},
+      'Autres': {fill: '#888888'}
+    },
+    'Non Documenté': {0: {}, 1: {fill: '#FF0000'}},
+    'pointFeu': {0: {}, 1: {strokeFeet: 'red', feet: MapIconBuilder.fire}},
+    'segmentMarketing': {
+      'Généralistes': {head: MapIconBuilder.circle},
+      'Multi Spécialistes': {head: MapIconBuilder.square},
+      'Purs Spécialistes': {head: MapIconBuilder.diamond},
+      'Autres': {head: MapIconBuilder.circle}
+    }
+  }
+}

@@ -95,6 +95,6 @@ export class AccountInfoComponent extends SubscriptionManager {
   }
 
   ngOnDestroy() {
-    this.unsubscribeAll();
+    super.ngOnDestroy();
   }
 }

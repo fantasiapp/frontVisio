@@ -112,7 +112,7 @@ export abstract class BasicWidget extends GridArea implements Interactive {
   refresh() { this.update(); }
   
   ngOnDestroy() {
-    this.unsubscribeAll();
+    super.ngOnDestroy();
     d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();

@@ -8,6 +8,5 @@ import { DisableDirective } from './disable-directive.directive';
 export class AdOpenOnlyDirective extends DisableDirective {
   computeDisabled(): boolean {
     return !Params.isAdOpen;
-
   }
 }

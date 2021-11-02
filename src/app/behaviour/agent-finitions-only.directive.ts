@@ -1,4 +1,5 @@
 import { Directive } from '@angular/core';
+import { Params } from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DisableDirective } from './disable-directive.directive';
 
@@ -7,8 +8,7 @@ import { DisableDirective } from './disable-directive.directive';
 })
 export class AgentFinitionsOnlyDirective extends DisableDirective {
   computeDisabled(): boolean {
-    return PDV.geoTree.root.label !== 'Agent Finition';
-
+    return Params.rootLabel == 'agentFinitions';
   }
 
 }
