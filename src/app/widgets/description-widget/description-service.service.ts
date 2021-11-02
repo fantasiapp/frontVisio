@@ -1,8 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+
+//Used for 2 way communication between histocolumn target and description widget
+@Injectable()
 export class TargetService {
 
   targetChange: EventEmitter<string> = new EventEmitter;

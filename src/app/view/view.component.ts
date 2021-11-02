@@ -9,12 +9,13 @@ import { LocalStorageService } from '../services/local-storage.service';
 import { TableComponent } from '../widgets/table/table.component';
 import { SubscriptionManager, Updatable } from '../interfaces/Common';
 import { CD } from '../middle/Descriptions';
+import { TargetService } from '../widgets/description-widget/description-service.service';
 
 @Component({
   selector: 'app-view',
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
-  providers: [Navigation, FiltersStatesService, LoggerService],
+  providers: [Navigation, FiltersStatesService, LoggerService, TargetService],
 })
 export class ViewComponent extends SubscriptionManager implements Updatable {
   @ViewChild(GridManager)

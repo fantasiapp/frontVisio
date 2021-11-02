@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { Subscription } from 'rxjs';
 import { DataService } from 'src/app/services/data.service';
 import { TargetService } from './description-service.service';
 import { BasicWidget } from '../BasicWidget';
-import DEH from 'src/app/middle/DataExtractionHelper';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
 import { CD } from 'src/app/middle/Descriptions';
 
@@ -33,7 +31,7 @@ export class DescriptionWidgetComponent extends SubscriptionManager {
     });
 
     this.subscribe(dataservice.update, _ => {
-      this.values = CD.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
+      this.values = CD.computeDescriptionWidget(this.filtersService.currentPath);
       this.cd.markForCheck();
     });
   }
