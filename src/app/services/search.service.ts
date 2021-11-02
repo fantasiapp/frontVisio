@@ -1,11 +1,16 @@
 import { Injectable } from '@angular/core';
+import Dashboard from '../middle/Dashboard';
 import DataExtractionHelper from '../middle/DataExtractionHelper';
 import { Node } from '../middle/Node';
 import { PDV } from '../middle/Slice&Dice';
 
-export type Suggestion = [string, string, any];
 type MatchFunction = (term: string) => string | null;
 type SearchFunction = (term: string, ...args: any[]) => Suggestion[];
+
+export type Result = {info?: string; node?: Node; dashboard?: Dashboard; pdv?: PDV; geoTree?: boolean};
+export type LevelSuggestion = [string, string, number];
+export type PatternSuggestion = [string, string, Result]
+export type Suggestion = LevelSuggestion | PatternSuggestion;
 
 type FilterMapFunction<U, V> = (t: U) => V | null;
 
@@ -24,7 +29,7 @@ function searchPDV(): SearchFunction {
         index = name.indexOf(term);
       
       if ( index < 0 ) return null;
-      let data = {info: '', pdv};
+      let data = {pdv};
       return !index ?
         [name.slice(0, term.length), name.slice(term.length), data] : 
         ['', name, data];
@@ -132,8 +137,8 @@ function searchAll(...fields: string[]): SearchFunction {
     let result: Suggestion[] = [];
     for ( let i = 0; i < fields.length; i++ ) {
       let field = fields[i],
-        partial = functions[i](term, showAll);
-      partial.forEach(suggestion => { if ( !suggestion[2].info ) suggestion[2].info = field});
+        partial = functions[i](term, showAll) as unknown as PatternSuggestion[];
+      partial.forEach((suggestion) => { if ( !suggestion[2].info ) suggestion[2].info = field});
       Array.prototype.push.apply(result, partial);
     }
     return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;

@@ -38,17 +38,17 @@ export class RubixCube {
   }
 
   //perhaps this is an overkill and we only need last one
-  private segmentStack: boolean[][] = [];
+  private segmentStack: boolean[] = [];
 
   set enseigneCondition(index: number) { //defines segmentAxis
     if ( this._conditions[1] && this._conditions[1].length ) {
       this.mainAxis = this.historow.properties.arguments[0][0];
       this._conditions[1] = null;
-      this.segmentAxis = this.segmentStack.pop();
+      this.segmentAxis = this.segmentStack;
     } else {
       this._conditions[1] = [this.mainAxis, [ +this.cube!.enseigneIndexes[index] ]];
       this.mainAxis = this.historow.properties.arguments[0][1];
-      this.segmentStack.push(this.segmentAxis);
+      this.segmentStack = this.segmentAxis;
       this.segmentAxis = this.cube!.boolMatrix[index+1];
     }
   }
@@ -98,7 +98,5 @@ export class RubixCube {
   }
 
 
-  static DESCRIPTION_MOCK: [string, Condition[]][] = [
-    ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
-  ];
+  static DESCRIPTION_MOCK: [string, Condition[]][] = [];
 }

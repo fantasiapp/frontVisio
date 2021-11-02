@@ -5,7 +5,7 @@ import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { NavigationExtractionHelper } from 'src/app/middle/DataExtractionHelper';
 import { Navigation } from 'src/app/middle/Navigation';
 import { PDV } from 'src/app/middle/Slice&Dice';
-import { SearchService, Suggestion } from 'src/app/services/search.service';
+import { PatternSuggestion, Result, SearchService, Suggestion } from 'src/app/services/search.service';
 import { PatternPipe } from './pattern.pipe';
 import { SuggestionBox } from './suggestionbox/suggestionbox.component';
 
@@ -130,7 +130,7 @@ export class SearchbarComponent implements OnDestroy {
     };
 
     if ( !this.pattern ) {
-      let type = suggestion[2];
+      let type = suggestion[2] as number;
       if ( type == SearchService.IS_REDIRECTION ) {
         this.filtersState.reset(this.filtersState.navigation.tree!, false);
         this.pattern = '';
@@ -138,7 +138,7 @@ export class SearchbarComponent implements OnDestroy {
         this.pattern = suggestion[0] + suggestion[1];
       }
     } else {
-      let data = suggestion[2];
+      let data = suggestion[2] as Result;
       if ( data.node ) {
         this.navigation.setNode(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
         this.filtersState.reload();
