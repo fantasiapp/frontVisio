@@ -272,7 +272,7 @@ class DataWidget{
 
 export class Sale {
   
-  constructor(private data: any[]){
+  constructor(private data: number[]){
     this.date = this.data[DEH.SALES_DATE_ID]
   };
 
@@ -281,10 +281,14 @@ export class Sale {
   get productId(): number {return this.data[DEH.SALES_PRODUCT_ID];}
   get volume(): number {return this.data[DEH.SALES_VOLUME_ID];}
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
+  
+  getData(): number[] {return this.data}
 
 
-  set volume(val: number) {this.data[DEH.SALES_VOLUME_ID] = val;}
   set date(val: number) {this.data[DEH.SALES_DATE_ID] = val}
+  set industryId(val: number) {this.data[DEH.SALES_INDUSTRY_ID] = val;}
+  set productId(val: number) {this.data[DEH.SALES_PRODUCT_ID] = val}
+  set volume(val: number) {console.log("setting volume to", val); this.data[DEH.SALES_VOLUME_ID] = val;}
 
 };
 
@@ -389,6 +393,7 @@ export class PDV extends SimplePdv{
 
 
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
+  get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
   // get targetObject(): Target {return new Target(this.target)}
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}

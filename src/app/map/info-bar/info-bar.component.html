@@ -93,8 +93,8 @@
                                 </li>
                                 <li><span class="bolder">Capacité à faire basculer le PDV :</span>
                                     <button style="margin-left: 10px" (click)="changeTargetLight('r')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
-                                    <button (click)="changeTargetLight('o')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] ? 'orange' : 'lightgray'}"></div></button>
-                                    <button (click)="changeTargetLight('g')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] ? 'green' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('o')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('g')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
                                 </li>
                             </ul>
                         </div>
