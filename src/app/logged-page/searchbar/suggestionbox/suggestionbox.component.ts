@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { SearchService, Suggestion } from 'src/app/services/search.service';
 
 @Component({
@@ -15,14 +15,21 @@ export class SuggestionBox implements AfterViewInit {
   }
 
   @Input()
-  set suggestions(suggestions: Suggestion[] | null) { this._suggestions = suggestions; this.ref.nativeElement.scroll(0, 0); };
-  get suggestions() { return this._suggestions; }
-  private _suggestions: Suggestion[] | null = [];
+  maxSuggestions: number = 7;
   
+  @Output()
+  confirm: EventEmitter<Suggestion> = new EventEmitter();
+  
+  private shouldResetScrollStart: boolean = false;
   private suggestionSize = 28;
   private _selection: number = -1;
   private scrollRatio = 0;
   private scrollStart = 0;
+
+  @Input()
+  set suggestions(suggestions: Suggestion[] | null) { this._suggestions = suggestions; this.ref.nativeElement.scrollTop = 0; };
+  get suggestions() { return this._suggestions; }
+  private _suggestions: Suggestion[] | null = [];
 
   @Input()
   set selection(value: number) {
@@ -30,8 +37,14 @@ export class SuggestionBox implements AfterViewInit {
     
     let scrollRatio = this.scrollRatio || (this.ref.nativeElement.scrollHeight - 10) / (this.suggestions.length * this.suggestionSize),
       ref = this.ref.nativeElement,
-      quantity = Math.max(0, value) - this.scrollStart;
+      scrolledIndex = Math.ceil(ref.scrollTop / (this.suggestionSize * scrollRatio));
     
+    if ( scrolledIndex > this.scrollStart + this.maxSuggestions )
+      this.scrollStart = scrolledIndex - this.maxSuggestions
+    else if ( scrolledIndex < this.scrollStart )
+      this.scrollStart = scrolledIndex
+    
+    let quantity = Math.max(0, value) - this.scrollStart;
     this._selection = value;
     if ( quantity >= this.maxSuggestions ) {
       this.scrollStart += quantity - this.maxSuggestions + 1;
@@ -41,16 +54,10 @@ export class SuggestionBox implements AfterViewInit {
       return;
     }
     
-    ref.scroll(0, - 5 + this.scrollStart * this.suggestionSize * scrollRatio);
+    ref.scrollTop = this.scrollStart * this.suggestionSize * scrollRatio;
   }
 
   get selection() { return this._selection; }
-
-  @Input()
-  maxSuggestions: number = 7;
-  
-  @Output()
-  confirm: EventEmitter<Suggestion> = new EventEmitter();
 
   constructor(private ref: ElementRef) { }
 
