@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, SimpleChange, SimpleChanges } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Updatable } from 'src/app/interfaces/Common';
 import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
-import { MapIconBuilder } from '../map.component';
+import { MapIconBuilder } from '../MapIconBuilder';
 
 let PropertyIterator = function(this: any) {
   return function*(this: any) {
@@ -17,18 +18,14 @@ let PropertyIterator = function(this: any) {
   styleUrls: ['./map-legend.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapLegendComponent {
+export class MapLegendComponent implements Updatable {
   constructor(private sanitizer: DomSanitizer, private cd: ChangeDetectorRef) {
     this.update();
   }
 
-  @HostBinding('class.closed')
-  closed: boolean = true;
-
+  @HostBinding('class.closed') closed: boolean = true;
   @HostListener('click')
-  private onClick() {
-    this.closed = !this.closed;
-  }
+  private onClick() { this.closed = !this.closed; }
 
   readonly categories: any = {
     [Symbol.iterator]: PropertyIterator
@@ -64,20 +61,16 @@ export class MapLegendComponent {
     this.findCategories(dict[category + '.' + ids[0]]);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('changes', changes);
-  }
-
-  trackByName(index: number, category: string) {
-    return category;
-  }
-
   unCamelCase(term: string) {
     return term.replace(/[A-Z]/g, ([letter, ...rest]) => {
       return ' ' + letter
     }).replace(/^./, ([letter, ...rest]) => {
       return letter.toUpperCase();
     });
+  }
+
+  trackByName(index: number, category: string) {
+    return category;
   }
   
   sanitize(url: string) {

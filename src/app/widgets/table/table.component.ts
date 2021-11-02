@@ -372,11 +372,6 @@ export class TableComponent extends BasicWidget {
     // this.sideDivRight = "calc(-60% - 5px)";
     // this.showInfo = false;
   }
-
-
-  ngOnDestroy() {
-    super.ngOnDestroy();
-  }
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)
