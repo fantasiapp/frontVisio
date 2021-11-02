@@ -109,7 +109,7 @@ export class TableComponent extends BasicWidget {
 
     // }
     // this.gridApi.refreshCells()
-    // this.gridApi.redrawRows()
+    this.gridApi.redrawRows()
     this.updateTitle()
   }
 
