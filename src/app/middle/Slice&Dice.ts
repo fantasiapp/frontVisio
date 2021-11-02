@@ -369,10 +369,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
   static initializeTarget() {
     return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
   }
-  public updateTargetField(id: number, value: any) {
-    if(!this.target) this.updateField('target', SimplePdv.initializeTarget())
-    this.values[DEH.TARGET_ID][id]
-  }
 
   public attribute(attribute: string) {
     return this.values[SimplePdv.indexMapping.get(attribute)!]

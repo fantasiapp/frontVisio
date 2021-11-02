@@ -54,13 +54,13 @@ export class InfoBarComponent {
       this._pdv = new PDV(value.id, JSON.parse(JSON.stringify(value.getValues())));
       this.target = this._pdv.target ? this._pdv.target : PDV.initializeTarget();
       this._pdv.updateField('target', this.target)
-      this.displayedInfos = this.extractDisplayedInfos(this._pdv);
-      this.redistributedDisabled = !this.pdv!.redistributed || !this.noSales();
-      this.doesntSellDisabled = !this.pdv!.sale || !this.noSales();
-      this.targetP2cdFormatted = formatNumberToString(this.target[DEH.TARGET_VOLUME_ID]);
+
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.TARGET_REDISTRIBUTED_ID] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.TARGET_SALE_ID] && this.pdv!.sale
+
+      this.displayedInfos = this.extractDisplayedInfos(this._pdv);
+      this.targetP2cdFormatted = formatNumberToString(this.target[DEH.TARGET_VOLUME_ID]);
       this.showNavigation = this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
       this.isOnlySiniat = this.pdv!.onlySiniat
 
@@ -71,7 +71,6 @@ export class InfoBarComponent {
   }
   @Input()
   display: string = 'p2cd';
-  @Input()
 
   @Output()
   pdvChange = new EventEmitter<PDV | undefined>();
@@ -99,8 +98,6 @@ export class InfoBarComponent {
   TARGET_COMMENT_ID;
   TARGET_REDISTRIBUTED_FINITIONS_ID: any;
 
-  redistributedDisabled: boolean = false;
-  doesntSellDisabled: boolean = false;
   showNavigation: boolean = false;
 
   industryIdToIndex : {[industryId: number]: number} = {}
@@ -258,7 +255,7 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = formatNumberToString(value);
   }
 
-  //Change value in the target
+  /*** Functions used to change the target field (and onlySiniat field) in the local pdv ***/
   changeRedistributed() {
       this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
       this.showNavigation = !this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_ID]!=true
@@ -269,8 +266,6 @@ export class InfoBarComponent {
     this.showNavigation = this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]!=true
     this.hasChanged = true;
   }
-
-
   changeTargetP2CD() {
     this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
@@ -283,13 +278,11 @@ export class InfoBarComponent {
     this.targetP2cdFormatted = formatNumberToString(+this.targetP2cdFormatted)
     this.hasChanged = true;
   }
-
   changeComment() {
     let ref = this.comments!.get(0);
     if ( !ref ) return;
     this.hasChanged = true;
   }
-
   changeTargetBassin() {
       if(!this.displayedInfos.bassin) {
         this.displayedInfos.bassin = this.target[DEH.TARGET_BASSIN_ID];
@@ -298,12 +291,10 @@ export class InfoBarComponent {
       this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
       this.hasChanged = true;
   } 
-
   changeTargetLight(newLightValue: string) {
     this.target[DEH.TARGET_LIGHT_ID] = newLightValue;
     this.hasChanged = true;
   }
-
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
     let oldVolume = this.grid[i][j].volume; let newVolume = formatStringToNumber(this.gridFormatted[i][j]);
     if(Number.isNaN(newVolume)) {
@@ -326,29 +317,16 @@ export class InfoBarComponent {
 
     this.updateSum(i,j, oldVolume, newVolume)
     this.hasChanged = true;
-    this.redistributedDisabled = !this.pdv!.redistributed || !this.noSales();
-    this.doesntSellDisabled = !this.pdv!.sale || !this.noSales();
   }
-
   changeTargetSale(){
       this.target[this.TARGET_SALE_ID] = !this.target[this.TARGET_SALE_ID];
       this.showNavigation = this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_ID]!=true
       this.hasChanged = true;
   }
   changeOnlySiniat() {
-    if(this.noSales()) {
-      this.isOnlySiniat = !this.isOnlySiniat;
-      this.hasChanged = true;
-      this.pdv!.updateField('onlySiniat', this.isOnlySiniat);
-    }
-  }
-
-  noSales(): boolean { //check if they are no sales, or only with a null volume (other than Siniat)
-    for(let sale of this.pdv!.p2cdSalesObject) {
-      if(sale.industryId != DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0)
-        return false;
-    }
-    return true;
+    this.isOnlySiniat = !this.isOnlySiniat;
+    this.hasChanged = true;
+    this.pdv!.updateField('onlySiniat', this.isOnlySiniat);
   }
 
   getMouseCoordinnates() {

@@ -116,7 +116,7 @@
                             <div class="first row">
                                 <div class="first empty only-siniat cell">
                                     <label class="text-checkbox">
-                                        <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat" agentOnly currentYearOnly adOpenOnly>
+                                        <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat" [disabled]="conditionsParams['noEmptySales'](pdv!).val" agentOnly currentYearOnly adOpenOnly>
                                         <span>100% Siniat</span>
                                     </label>
                                 </div>
