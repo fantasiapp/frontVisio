@@ -2,7 +2,7 @@ import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { LoggerService } from '../behaviour/logger.service';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DEH from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 
 @Component({
@@ -29,7 +29,7 @@ export class SubUpperBarComponent implements OnInit {
         this.currentLevel = States.level.name;
         this.path = (<string>States.path[States.path.length-1]);
         this.currentDashboardId = States.dashboard.id;
-        this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(this.filtersStates.navigation.tree!, height-1);  
+        this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.navigation.tree!, height-1);  
       }
     );
 
@@ -46,7 +46,7 @@ export class SubUpperBarComponent implements OnInit {
   onYearChange(e: Event) {
     let current = !!(((e.target as any).value) | 0);
     this.filtersStates.setYear(current);
-    this.otherYearDashboards = DataExtractionHelper.getOtherYearDashboards(this.filtersStates.navigation.tree!, this.filtersStates.stateSubject.value.States.path.length - 1)
+    this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.navigation.tree!, this.filtersStates.stateSubject.value.States.path.length - 1)
     this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
     this.currentYear = current ? this.filtersStates.getYear() : '';

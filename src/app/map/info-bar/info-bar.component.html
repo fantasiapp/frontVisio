@@ -172,10 +172,10 @@
                 </div>
                 <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [disabled]="conditionsParams['noEmptySales'](pdv!, sales!).val || conditionsParams['noRedistributedFinitions'](pdv!, sales!).val" agentFinitionsOnly>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="redistributedFinitionsChecked" [disabled]="conditionsParams['noEmptySalesFinitions'](pdv!, sales!).val || conditionsParams['noRedistributedFinitions'](pdv!, sales!).val" agentFinitionsOnly>
                     <span class="checkmark" ></span>
                 </label>
-                <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySales'](pdv!, sales!).message + conditionsParams['noRedistributedFinitions'](pdv!, sales!).message }}</div>
+                <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySalesFinitions'](pdv!, sales!).message + conditionsParams['noRedistributedFinitions'](pdv!, sales!).message }}</div>
                 <div class="values-div">
                     <div>
                         <h2 class="title">P2CD</h2>

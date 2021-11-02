@@ -1,5 +1,5 @@
 import Dashboard from "./Dashboard";
-import DataExtractionHelper, { DataTree, TreeExtractionHelper, NavigationExtractionHelper, TradeExtrationHelper } from "./DataExtractionHelper";
+import DEH, { DataTree, TreeExtractionHelper, NavigationExtractionHelper, TradeExtrationHelper } from "./DataExtractionHelper";
 import { PDV } from "./Slice&Dice";
 
 export interface Node {
@@ -78,15 +78,15 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
     private static computeDashboards(){
       tree.attributes['dashboards'] = [];
 
-      let dashboards = DataExtractionHelper.get('dashboards');
-      let layouts = DataExtractionHelper.get('layout');
+      let dashboards = DEH.get('dashboards');
+      let layouts = DEH.get('layout');
       for (let height = 0; height < extractor.height; height++)
         tree.attributes['dashboards'].push(
           extractor.getDashboardsAt(height).map(
             (id: number) => new Dashboard(
               id, 
               dashboards[id], 
-              layouts[dashboards[id][DataExtractionHelper.DASHBOARD_LAYOUT_INDEX]][DataExtractionHelper.LAYOUT_TEMPLATE_INDEX]
+              layouts[dashboards[id][DEH.DASHBOARD_LAYOUT_INDEX]][DEH.LAYOUT_TEMPLATE_INDEX]
             )
           )
         );

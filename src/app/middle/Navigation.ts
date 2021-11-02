@@ -1,4 +1,4 @@
-import DataExtractionHelper, {NavigationExtractionHelper, Params} from './DataExtractionHelper';
+import DEH, {NavigationExtractionHelper, Params} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
@@ -199,11 +199,11 @@ export class Navigation {
 
   getCurrentYear(){
     let year = Params.currentYear;
-    return (DataExtractionHelper.currentYear ? year : year - 1).toString();
+    return (DEH.currentYear ? year : year - 1).toString();
   }
 
   setCurrentYear(current: boolean) {
-    DataExtractionHelper.currentYear = current;
+    DEH.currentYear = current;
   }
 
   navigateUp(n: number) {

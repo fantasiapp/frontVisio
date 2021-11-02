@@ -1,4 +1,4 @@
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DEH from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 
 export const disabledParams: {[name: string]: (pdv: PDV, sales: any[]) => {message: string, val : boolean}} = {
@@ -17,7 +17,7 @@ export const disabledParams: {[name: string]: (pdv: PDV, sales: any[]) => {messa
   'noEmptySales' : (pdv: PDV, sales: any[]) => {
     let val = false;
     for(let sale of sales!) {
-      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) {
+      if(sale[DEH.SALES_INDUSTRY_ID] != DEH.INDUSTRIE_SINIAT_ID && sale[DEH.SALES_VOLUME_ID] > 0) {
         val = true;
       }
     }

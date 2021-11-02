@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Dashboard from '../middle/Dashboard';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DEH from '../middle/DataExtractionHelper';
 import { Node } from '../middle/Node';
 import { PDV } from '../middle/Slice&Dice';
 
@@ -109,7 +109,7 @@ function searchField(field: string): SearchFunction {
 };
 
 function searchDashboard(): SearchFunction {
-  let dashboards = Object.entries<any>(DataExtractionHelper.get('dashboards')),
+  let dashboards = Object.entries<any>(DEH.get('dashboards')),
     geoDashboards = PDV.geoTree.getAllDashboards(),
     ids = geoDashboards.map(d => d.id);
   
@@ -239,27 +239,27 @@ export class SearchService {
 
   static findFieldName(pretty: string): [string, boolean] {
     //try in geo tree and then in trade tree, true is for geotree
-    for ( let level of DataExtractionHelper.geoLevels )
-      if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return [level[DataExtractionHelper.LABEL_INDEX], true];
+    for ( let level of DEH.geoLevels )
+      if ( level[DEH.PRETTY_INDEX] == pretty )
+        return [level[DEH.LABEL_INDEX], true];
     
-    for ( let level of DataExtractionHelper.tradeLevels )
-      if ( level[DataExtractionHelper.PRETTY_INDEX] == pretty )
-        return [level[DataExtractionHelper.LABEL_INDEX], false];
+    for ( let level of DEH.tradeLevels )
+      if ( level[DEH.PRETTY_INDEX] == pretty )
+        return [level[DEH.LABEL_INDEX], false];
     
     return ['@none', false];
   }
 
   static findFieldHeight(pretty: string): [number, boolean] {
     //try in geo tree and then in trade tree
-    let levels = DataExtractionHelper.geoLevels;
-    for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
-      if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
+    let levels = DEH.geoLevels;
+    for ( let i = 0; i < DEH.geoHeight; i++ )
+      if ( levels[i][DEH.PRETTY_INDEX] == pretty )
         return [i, true];
     
-    levels = DataExtractionHelper.tradeLevels;
-    for ( let i = 0; i < DataExtractionHelper.geoHeight; i++ )
-      if ( levels[i][DataExtractionHelper.PRETTY_INDEX] == pretty )
+    levels = DEH.tradeLevels;
+    for ( let i = 0; i < DEH.geoHeight; i++ )
+      if ( levels[i][DEH.PRETTY_INDEX] == pretty )
         return [i, false];
     
     return [-1, false];

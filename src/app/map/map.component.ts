@@ -2,6 +2,7 @@ import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, Chang
 import { Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { Interactive, SubscriptionManager } from '../interfaces/Common';
+import DEH from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';

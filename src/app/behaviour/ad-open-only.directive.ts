@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import DataExtractionHelper, { Params } from '../middle/DataExtractionHelper';
+import DEH, {Params} from '../middle/DataExtractionHelper';
 import { DisableDirective } from './disable-directive.directive';
 
 @Directive({

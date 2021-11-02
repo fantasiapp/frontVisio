@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, HostBinding, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
@@ -6,10 +6,7 @@ import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject, Observable, Subject} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
-import { LoggerService } from 'src/app/behaviour/logger.service';
-import { LoginPageComponent } from 'src/app/login-page/login-page.component';
 
 @Component({
   selector: 'app-table',
@@ -66,8 +63,8 @@ export class TableComponent extends BasicWidget {
   // Render
   rowClassRules = {
     'group-row': 'data.groupRow === true',
-    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
-    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data) == 'red') return true; return false;}
+    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data.id) == 'orange') return true; return false;},
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data.id) == 'red') return true; return false;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
@@ -99,11 +96,16 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    let newRows =  this.updateData()[1];
-    for(let i = 0; i < this.rowData.length; i++) {
-      for(let field of Object.keys(this.rowData[i]))
-      this.rowData[i][field] = newRows[i][field];
-    }
+    // let newRows =  this.sliceTable.getUpdatedRows(this.type)
+    // for(let i = 0; i < this.rowData.length; i++) {
+    //   for(let newRow of newRows) {
+    //     if(newRow.name === this.rowData[i].name) {
+    //       for(let field of Object.keys(this.rowData[i]))
+    //       this.rowData[i][field] = newRow[field];
+    //     }
+    //   }
+
+    // }
     this.gridApi.refreshCells()
     this.gridApi.redrawRows()
     this.updateTitle()
@@ -188,7 +190,7 @@ export class TableComponent extends BasicWidget {
 
               break;
 
-            case 'checkboxEnduit':
+            case 'targetFinition':
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
                 return {component : 'checkboxEnduitCellRenderer'};
@@ -243,7 +245,6 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    console.log("TEST : ", this.rowData[1])
     console.log("Data : ", event['data'], event)
     
     if(event['data'].groupRow === true) {
@@ -284,13 +285,12 @@ export class TableComponent extends BasicWidget {
     return this.rowData[0];
   }
 
-  displayInfobar(pdv: {[key:string]:any} | number) {
-    if(typeof(pdv) === 'number') { let id = pdv; pdv = this.getPdvOnId(pdv); pdv.instanceId = id;}
-    InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(pdv)!.getValues())); //Values deepcopy
-    InfoBarComponent.pdvId = pdv.instanceId;
-    this.selectedPdv = pdv.instanceId;
+  displayInfobar(pdv: PDV | number) {
+    if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
+    InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(pdv.getValues())); //Values deepcopy
+    this.selectedPdv = pdv;
     if(this.type === 'enduit') this.loadCustomData();
-    this.pdv = PDV.getInstances().get(pdv.instanceId) // => displays infoBar
+    this.pdv = PDV.getInstances().get(pdv.id) // => displays infoBar
     this.cd.markForCheck();
   }
   // sideDivRight: string = "calc(-60% - 5px)";

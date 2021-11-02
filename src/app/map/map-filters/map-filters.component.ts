@@ -1,7 +1,7 @@
 import { Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import DataExtractionHelper, { Params } from 'src/app/middle/DataExtractionHelper';
+import DEH, { Params } from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { MapSelectComponent } from '../map-select/map-select.component';
 import { BasicWidget } from 'src/app/widgets/BasicWidget'; 
@@ -63,7 +63,8 @@ export class MapFiltersComponent extends SubscriptionManager implements Interact
     let result = this.liveDict[criterion];
     
     if ( !result ) return [];
-    let dict = DataExtractionHelper.get(criterion);
+
+    let dict = DEH.get(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
       [key, dict[key]]
     ).sort((a, b) => {

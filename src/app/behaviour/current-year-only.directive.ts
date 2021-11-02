@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DEH from '../middle/DataExtractionHelper';
 import { DisableDirective } from './disable-directive.directive';
 
 @Directive({
@@ -8,6 +8,6 @@ import { DisableDirective } from './disable-directive.directive';
 export class CurrentYearOnlyDirective extends DisableDirective {
 
   computeDisabled(): boolean {
-    return !DataExtractionHelper.currentYear;
+    return !DEH.currentYear;
   }
 }

@@ -4,8 +4,9 @@ import { Subscription } from 'rxjs';
 import { DataService } from 'src/app/services/data.service';
 import { TargetService } from './description-service.service';
 import { BasicWidget } from '../BasicWidget';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
+import { CD } from 'src/app/middle/Descriptions';
 
 @Component({
   selector: 'description-widget',
@@ -27,12 +28,12 @@ export class DescriptionWidgetComponent extends SubscriptionManager {
     super();
     this.subscribe(filtersService.stateSubject, ({States}) => {
       //do something with path
-      this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.getPath(States));
+      this.values = CD.computeDescriptionWidget(this.filtersService.getPath(States));
       this.cd.markForCheck();
     });
 
     this.subscribe(dataservice.update, _ => {
-      this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
+      this.values = CD.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
       this.cd.markForCheck();
     });
   }

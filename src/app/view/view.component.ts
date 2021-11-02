@@ -2,12 +2,13 @@ import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, ViewChild 
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, GridState, Layout } from '../grid/grid-manager/grid-manager.component';
-import DataExtractionHelper from '../middle/DataExtractionHelper';
+import DEH from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
 import { TableComponent } from '../widgets/table/table.component';
 import { SubscriptionManager, Updatable } from '../interfaces/Common';
+import { CD } from '../middle/Descriptions';
 
 @Component({
   selector: 'app-view',
@@ -77,7 +78,7 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
     let isArray = Array.isArray(description),
       compute = isArray && description.length >= 1;
     if ( compute )
-      return DataExtractionHelper.computeDescription(this.filtersService.getPath(this.filtersService.stateSubject.value.States), description as string[]);
+      return CD.computeDescription(this.filtersService.getPath(this.filtersService.stateSubject.value.States), description as string[]);
 
     return isArray ? description[0] : (description as string);
   }
