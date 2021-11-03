@@ -5,7 +5,7 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar, Chart} from 'billboard.js';
 import { RubixCube } from './RubixCube';
-import DataExtractionHelper, { TradeExtrationHelper } from 'src/app/middle/DataExtractionHelper';
+import DEH, { TradeExtrationHelper } from 'src/app/middle/DataExtractionHelper';
 
 
 @Component({
@@ -162,7 +162,7 @@ export class HistoRowComponent extends BasicWidget {
         
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
           let index = e.target.__data__.index, label = this.categories()[index];
-          let realIndex = +DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('enseigne'), label)!;
+          let realIndex = +DEH.getKeyByValue(DEH.get('enseigne'), label)!;
           self.cube!.enseigneCondition = self.cube!.getIndexById(realIndex)!;
           self.update();
         });

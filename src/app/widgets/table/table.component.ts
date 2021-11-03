@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, HostBinding, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
@@ -6,10 +6,8 @@ import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject, Observable, Subject} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
 import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
-import { LoggerService } from 'src/app/behaviour/logger.service';
-import { LoginPageComponent } from 'src/app/login-page/login-page.component';
+import DEH from 'src/app/middle/DataExtractionHelper';
 
 @Component({
   selector: 'app-table',
@@ -66,8 +64,8 @@ export class TableComponent extends BasicWidget {
   // Render
   rowClassRules = {
     'group-row': 'data.groupRow === true',
-    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
-    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data) == 'red') return true; return false;}
+    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data.id) == 'orange') return true; return false;},
+    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data.id) == 'red') return true; return false;}
   }
   frameworkComponents = {
     editCellRenderer: EditCellRenderer,
@@ -99,12 +97,7 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    let newRows =  this.updateData()[1];
-    for(let i = 0; i < this.rowData.length; i++) {
-      for(let field of Object.keys(this.rowData[i]))
-      this.rowData[i][field] = newRows[i][field];
-    }
-    this.gridApi.refreshCells()
+    // this.gridApi.refreshCells()
     this.gridApi.redrawRows()
     this.updateTitle()
   }
@@ -135,7 +128,6 @@ export class TableComponent extends BasicWidget {
     if(this.type === 'p2cd') this.title = `PdV: ${title[0]}, Siniat : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}, sur un total identifié de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
     if(this.type === 'enduit') this.title = `PdV: ${title[0]}, ciblé : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
     this.titleContainer!.nativeElement.innerText = this.title
-    console.log("title updated : ", title)
   }
 
 
@@ -155,7 +147,7 @@ export class TableComponent extends BasicWidget {
           switch (cd.field) {
             case 'name':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return params.value['name'] + ' PdV : ' + params.value['number']
+                if(params.data.groupRow === true) return DEH.getNameOfRegularObject(SliceTable.currentGroupField, params.value['name']) + ' PdV : ' + params.value['number']
                 return;
               }
               break;
@@ -188,7 +180,7 @@ export class TableComponent extends BasicWidget {
 
               break;
 
-            case 'checkboxEnduit':
+            case 'targetFinition':
               cd.cellRendererSelector = function (params: any) {
                 if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
                 return {component : 'checkboxEnduitCellRenderer'};
@@ -243,9 +235,7 @@ export class TableComponent extends BasicWidget {
   }
 
   onCellClicked(event: any) {
-    console.log("TEST : ", this.rowData[1])
     console.log("Data : ", event['data'], event)
-    
     if(event['data'].groupRow === true) {
       this.externalFilterChanged(event['data'].name.name)
       let arrowImg = document.getElementById(event['node'].data.name.name);
@@ -261,22 +251,6 @@ export class TableComponent extends BasicWidget {
     }
   }
 
-  loadCustomData() {
-    this.customData = {
-      'nbVisits': this.selectedPdv.nbVisits,
-      'siniatP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'placoP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'knaufP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalP2cdSales': Math.round(this.selectedPdv.graph.p2cd['Siniat'].value + this.selectedPdv.graph.p2cd['Placo'].value + this.selectedPdv.graph.p2cd['Knauf'].value + this.selectedPdv.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'pregyEnduitSales': Math.round(this.selectedPdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'salsiEnduitSales': Math.round(this.selectedPdv.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'potential': Math.round(this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalSiniatEnduitSales': Math.round(this.selectedPdv.potential + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'totalEnduitSales': Math.round(this.selectedPdv.graph.enduit['Prégy'].value + this.selectedPdv.graph.enduit['Salsi'].value + this.selectedPdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      'typologie': this.selectedPdv.typologie,
-    }
-  }
-
   getPdvOnId(id: number): {[key:string]:any} {
     for(let pdv of this.rowData) {
       if(pdv.instanceId === id) return pdv;
@@ -284,51 +258,11 @@ export class TableComponent extends BasicWidget {
     return this.rowData[0];
   }
 
-  displayInfobar(pdv: {[key:string]:any} | number) {
-    if(typeof(pdv) === 'number') { let id = pdv; pdv = this.getPdvOnId(pdv); pdv.instanceId = id;}
-    InfoBarComponent.valuesSave = JSON.parse(JSON.stringify(this.sliceTable.getPdvInstance(pdv)!.getValues())); //Values deepcopy
-    InfoBarComponent.pdvId = pdv.instanceId;
-    this.selectedPdv = pdv.instanceId;
-    if(this.type === 'enduit') this.loadCustomData();
-    this.pdv = PDV.getInstances().get(pdv.instanceId) // => displays infoBar
+  displayInfobar(pdv: PDV | number) {
+    if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
+    this.selectedPdv = pdv;
+    this.pdv = PDV.getInstances().get(pdv.id) // => displays infoBar
     this.cd.markForCheck();
-  }
-  // sideDivRight: string = "calc(-60% - 5px)";
-  // showInfo: boolean = false;
-  // infoData: any = {}
-  // showInfoOnClick(data: any = {}) {
-  //   this.logger.handleEvent(LoggerService.events.PDV_SELECTED, data.instanceId);
-  //   this.logger.actionComplete();
-
-  //   if(this.showInfo) {this.showInfo = false;    this.sideDivRight = "calc(-60% - 5px)";    return}
-  //   this.showInfo = true
-  //   this.sideDivRight = "0%";
-  //   this.infoData = {
-  //     'name': data.name,
-  //     'enseigne': data.enseigne,
-  //     'dep': data.dep,
-  //     'typologie': data.typologie,
-  //     'segmentMarketing': data.segmentMarketing,
-  //     'segmentCommercial': data.segmentCommercial,
-  //     'nbVisits': data.nbVisits,
-  //     'siniatP2cdSales': Math.round(data.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'placoP2cdSales': Math.round(data.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'knaufP2cdSales': Math.round(data.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'totalP2cdSales': Math.round(data.graph.p2cd['Siniat'].value + data.graph.p2cd['Placo'].value + data.graph.p2cd['Knauf'].value + data.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'pregyEnduitSales': Math.round(data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'salsiEnduitSales': Math.round(data.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'potential': Math.round(data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'totalSiniatEnduitSales': Math.round(data.potential + data.graph.enduit['Salsi'].value + data.graph.enduit['Pregy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //     'totalEnduitSales': Math.round(data.graph.enduit['Pregy'].value + data.graph.enduit['Salsi'].value + data.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-  //   };
-  // }
-
-  changeRedistributed() {
-    // this.sliceTable.updatePdv(this.selectedPdv, !this.redistributed);
-    // this.updateGraph(this.updateData());
-    
-    this.redistributed= !this.redistributed; //doesn't update locally
-    this.hasChanged = true;
   }
 
   externalFilterChanged(value: any) {
@@ -351,28 +285,6 @@ export class TableComponent extends BasicWidget {
     //   return true;
     // }
   }
-
-  
-  requestQuit() {
-    console.log("click cover")
-    //show the quit bar
-    if ( this.hasChanged )
-      this.quiting = true;
-    else
-      this.quit(false)
-  }
-
-  quit(save: boolean) {
-    if(save && this.hasChanged) console.log("Updating pdv")
-    else {
-      console.log("not updating pdv")
-    }
-    this.hasChanged = false;
-    this.quiting = false;
-    // this.sideDivRight = "calc(-60% - 5px)";
-    // this.showInfo = false;
-  }
-
 
   ngOnDestroy() {
     super.ngOnDestroy();

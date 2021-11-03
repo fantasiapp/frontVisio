@@ -1,7 +1,7 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable, OnDestroy } from '@angular/core';
-import DataExtractionHelper, { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
+import DEH, { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { getGeoTree, loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
@@ -19,7 +19,7 @@ export class FiltersStatesService implements OnDestroy {
     console.log('[FiltersStates]: On.')
     this.subscription = this.dataservice.response.subscribe((data) => {
       if (data) {
-        DataExtractionHelper.setData(data);
+        DEH.setData(data);
         loadAll();
         this.reset(getGeoTree(), true);
       }

@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { formatNumberToString, formatStringToNumber } from 'src/app/general/valueFormatter';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import { TargetService } from '../description-widget/description-service.service';
@@ -40,7 +40,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   get inputIsOpen() { return this._inputIsOpen; }
   set inputIsOpen(val: boolean) {
     let event: number = val ? LoggerService.events.WIDGET_PARAMS_ADDED : LoggerService.events.WIDGET_PARAMS_REMOVED,
-      id: number = parseInt(DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('widget'), 'histoColumnTarget')!);
+      id: number = parseInt(DEH.getKeyByValue(DEH.get('widget'), 'histoColumnTarget')!);
     
     this.logger.handleEvent(event, id);
     this.logger.actionComplete();
@@ -79,7 +79,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   private getTargetValue(d: number): string {
-    return formatNumberToString(DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
+    return formatNumberToString(DEH.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DEH.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
   }
 
   private renderTargetControl() {

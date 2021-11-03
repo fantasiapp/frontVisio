@@ -1,4 +1,4 @@
-import DataExtractionHelper from "src/app/middle/DataExtractionHelper";
+import DEH from "src/app/middle/DataExtractionHelper";
 import { HistoRowComponent } from "./historow.component";
 
 type CubeData = {
@@ -87,13 +87,13 @@ export class RubixCube {
   }
 
   static initializeDescriptionMock() {
-    let segmentMarketing = DataExtractionHelper.get('segmentMarketing');
+    let segmentMarketing = DEH.get('segmentMarketing');
     return this.DESCRIPTION_MOCK = [
       ['Tous segments', []],
-      ['Purs Spécialistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!]]]],
-      ['Multi Spécialistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!]]]],
-      ['Généralistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!]]]],
-      ['Autres', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Autres')!]]]]
+      ['Purs Spécialistes', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!]]]],
+      ['Multi Spécialistes', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!]]]],
+      ['Généralistes', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Généralistes')!]]]],
+      ['Autres', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Autres')!]]]]
     ]
   }
 

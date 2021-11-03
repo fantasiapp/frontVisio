@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { AgRendererComponent } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
+import { PDV } from "src/app/middle/Slice&Dice";
 import { SliceTable } from "src/app/middle/SliceTable";
 
 abstract class DefaultCellRenderer implements AgRendererComponent {
@@ -30,7 +31,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" [hidden]="!params.data.redistributedFinitions || params.data.potential < 0 || params.data.sale === false || params.data.onlySiniat === true || params.data.typologie === 'Non documenté'" agentFinitionsOnly currentYearOnly></div>`,
+    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typology === 4" agentFinitionsOnly currentYearOnly></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -46,24 +47,21 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class CheckboxEnduitCellRenderer extends DefaultCellRenderer {
-    params: any;
+    pdv!: PDV;
     constructor(private sliceTable: SliceTable) {
       super();
     }
     agInit(params: ICellRendererParams): void {
-      this.params = params;
+      this.pdv = params.data;
     }
+
     checkedHandler(event: any) {
-      let checked = event.target.checked;
-      let colId = this.params.column.colId;
-      this.params.node.setDataValue(colId, checked);
-      
-      this.sliceTable.changeTargetTargetFinitions(this.params.data)
+      this.sliceTable.changeTargetTargetFinitions(this.pdv)
     }
   }
   
   @Component({
-    template: `<div><input type="checkbox" [(checked)]="params.value" [hidden]="params.data.clientProspect === 'Client'" disabled></div>`,
+    template: `<div><input type="checkbox" [checked]="pdv.checkboxP2cd" [hidden]="pdv.clientProspect === 1" disabled></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -79,12 +77,12 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class CheckboxP2cdCellRenderer extends DefaultCellRenderer {
-    params: any;
+    pdv!: PDV;
     constructor(private sliceTable: SliceTable) {
       super();
     }
     agInit(params: ICellRendererParams): void {
-      this.params = params;
+      this.pdv = params.data;
     }
   }
 

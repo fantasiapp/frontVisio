@@ -1,24 +1,18 @@
-import { DatePipe, formatDate } from "@angular/common";
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
-import DataExtractionHelper from "./DataExtractionHelper";
+import DEH from "./DataExtractionHelper";
 import { PDV, SliceDice } from "./Slice&Dice";
 
 @Injectable({
     providedIn: 'root'
   })
 export class SliceTable {
-    private pdvs: any[] = []; //Raw pdvs data, as list. Will be usefull to emit data updates to the back
     private sortedPdvsList: {}[] = [];
     private pdvsWithGroupslist: {}[] = [];
     groupInfos: {field: string, values: string[]} = {field : '', values: []};
     private titleData: number[] = [0,0,0];
-    private pdvFields: string[];
-    private segmentDnEnduit: {[id: number]: string} = {};
-    private idsToFields: {[key: string]: {[key: number]: string}[]} = {};
     private columnDefs: {[k: string]: any}[] = [];
 
-    private idIndustries: {[key: string]: number} = {};
     private geoTree : boolean = true;
 
     static currentGroupField: string = "enseigne";
@@ -34,177 +28,72 @@ export class SliceTable {
             'navIds': () => this.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
             'visibleColumns': [{field: 'name', flex: 1}, {field: 'siniatSales', flex: 1}, {field: 'totalSales', flex: 1}, {field: 'edit', flex: 0.35}, {field: 'checkboxP2cd', flex: 0.35, valueGetter: (params : any) => {if (params.data.groupRow) return false; else { if (!params.data.target) return false; else return params.data.target[5] !== 'r'}}}, {field: 'pointFeu', flex: 0.35}],
-            'specificColumns': ['clientProspect', 'siniatSales', 'totalSales', 'edit', 'checkboxP2cd', 'instanceId'],
             'customSort': (a: any, b: any) => {return b.totalSales - a.totalSales},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).totalSales - (<any>a[0]).totalSales },
             'groupRowConfig': (entry: any) => {
                 let group: {}[] = [];
                 group = group.concat({
-                    'name': {'name': entry[0], 'number': entry[1].length},
+                    'name': {'name': entry[0] , 'number': entry[1].length},
                     'siniatSales': entry[1].reduce((totalSiniatSales: number, pdv: {}) => totalSiniatSales + (pdv as any).siniatSales, 0),
                     'totalSales': entry[1].reduce((totalTotalSales: number, pdv: {}) => totalTotalSales + (pdv as any).totalSales, 0),
                     'groupRow': true
                     })
                 group = group.concat(entry[1]);
                 return group;
-            },
-            'updatableColumns': ['totalSales', 'checkboxP2cd'],
-        },
+            }        },
 
         'enduit': {
             'computeTitle': () =>[
                 this.sortedPdvsList.length,
-                this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.checkboxEnduit === true ? pdv.potential : 0),0),
+                this.pdvsWithGroupslist.reduce((totalTarget: number, pdv: any) => totalTarget + (pdv.groupRow !== true && pdv.potential > 0  && pdv.targetFinition === true ? pdv.potential : 0),0),
                 this.sortedPdvsList.reduce((totalPotential: number, pdv: any) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)
                 ],
-            'navIds': () => this.geoTree ? ['enseigne', 'typologie', 'segmentMarketing', 'ensemble'] : ['typologie', 'segmentMarketing', 'ensemble'],
+            'navIds': () => this.geoTree ? ['enseigne', 'typology', 'segmentMarketing', 'ensemble'] : ['typology', 'segmentMarketing', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.checkboxEnduit && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'checkboxEnduit', flex: 0.3}],
-            'specificColumns': ['graph', 'potential', 'typologie', 'info', 'checkboxEnduit', 'instanceId'],
+            'visibleColumns': [
+                {field: 'name', flex: 1},
+                {field: 'nbVisits', flex: 0.4},
+                {field: 'graph', flex: 1, valueGetter: 
+                    (params: any) => {
+                        if (params.data.groupRow) {
+                            let value = 0; params.api.forEachNode(function(node: any)
+                            {
+                                if (node.data.targetFinition && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential
+                            });
+                            return value; 
+                        }
+                        else return params.data.graph
+                    }
+                },
+                {field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},
+                {field: 'targetFinition', flex: 0.3}],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
             'groupRowConfig': (entry: any) => {
                 let group: {}[] = [];
                 group = group.concat({
                     'name': {'name': entry[0], 'number': entry[1].length},
-                    // 'target': 0,
                     'potential': entry[1].reduce((totalPotential: number, pdv: {}) => totalPotential + ((pdv as any).potential > 0 ? (pdv as any).potential : 0), 0),
                     'groupRow': true
                     })
                 group = group.concat(entry[1]);
                 return group;
-            },
-            'updatableColumns': ['nbVisits', 'graph', 'potential', 'checkboxEnduit'],
-        }
-    }
-
-    private customField: {[name: string]: (pdv: any) => {} | null}  = { //the way to compute them
-        'siniatSales': (pdv: any) => {
-            return this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()['Siniat']
-        },
-        'totalSales': (pdv: any) => {
-            return Object.entries(this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)
-        },
-        'graph': (pdv: any) => {
-            let p2cdSales: any =  {}; let p2cdRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes()
-            let enduitSales: any =  {}; let enduitRaw = this.getPdvInstance(pdv)!.displayIndustrieSaleVolumes(true)
-            p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
-            for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
-                p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': this.getColor('industry', industry)}
-            }
-            for(let industry of ['Prégy', 'Salsi', 'Autres']) {
-                enduitSales[industry] = {'value': enduitRaw[industry], 'color': this.getColor('indFinition', industry)}
-            }
-            return {'p2cd': p2cdSales, 'enduit': enduitSales};
-        },
-        'potential': (pdv: any) => {
-            return this.getPdvInstance(pdv)!.getPotential();
-        },
-        'typologie': (pdv :any) => {
-            let list = this.getPdvInstance(pdv)!.getValue('dn', false, true) as number[];
-            for(let i = 0; i<list.length; i++) {
-                if(list[i] === 1) return this.segmentDnEnduit[i+1]
-            }
-            return 'Could not be classified'
-        },
-        'edit': () => {
-            return true; //should return what is inside the new div ?
-        },
-        'checkboxEnduit': (pdv: any) => {
-            return PDV.findById(pdv.instanceId)?.targetFinition;
-        },
-        'checkboxP2cd': (pdv: any) => null,
-
-        'clientProspect': (pdv: any) => {
-            let array: any = this.getPdvInstance(pdv)!.getValue('dn', false, false, true);
-            if(array[0] === 1) return DataExtractionHelper.get('clientProspect')[1]
-            if(array[1] === 1) return DataExtractionHelper.get('clientProspect')[2]
-            return DataExtractionHelper.get('clientProspect')[3]
-        },
-        'info': () => {
-            return true;
-        },
-        'instanceId': (pdv: any) => pdv.instanceId,
-    }
-
-    constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){
-        PDV.load(false);
-        this.pdvFields = DataExtractionHelper.get('structurePdvs');
-        this.segmentDnEnduit = DataExtractionHelper.get('segmentDnEnduit')
-
-        //Get idsToFields, to match id values in pdv to string values
-        for(let field of this.pdvFields) {
-            this.idsToFields[field] = DataExtractionHelper.get(field);
-        }
-    }
-
-
-    pdvFromListToObject(pdv: any, type: string): any {
-        let newPdv: {[key:string]:any} = {}; //concrete row of the table
-        let allColumns = this.getAllColumns(type);
-        for(let index = 0; index < Object.keys(allColumns).length; index ++) {
-            let field = allColumns[index]
-            if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
-            else if(this.tableConfig[type]['specificColumns'].includes(field)) {
-                let customValue = this.customField[field](pdv);
-                if(customValue !== null) newPdv[field] = customValue;
-            }
-            else {
-                newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
             }
         }
     }
+
+    constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){}
 
     getPdvs(slice: any = {}, groupField: string, type: string): {[key:string]:any}[] { // Transforms pdv from lists to objects, and counts title informations
-        let pdvs = []
-        console.log("[SliceTable] slice : ", slice)
-        if (slice !== {}){
-            let allPdvs = DataExtractionHelper.get('pdvs');
-            for(let pdvInfo of PDV.sliceTree(slice, this.geoTree)[0]) {
-                let newPdv = allPdvs[pdvInfo.id];
-                newPdv.instanceId = pdvInfo.id;
-                pdvs.push(newPdv);
-            }
-        }
-        this.pdvs = pdvs;
-        let pdvsAsList =  [];
-        for(let pdv of pdvs) {
-            if(pdv[DataExtractionHelper.SALE_ID] === true) {
-                let newPdv: {[key:string]:any} = {}; //concrete row of the table
-                let allColumns = this.getAllColumns(type);
-                for(let index = 0; index < Object.keys(allColumns).length; index ++) {
-                    let field = allColumns[index]
-                    if(this.idsToFields[field]) newPdv[field] = this.idsToFields[field][pdv[index]]
-                    else if(this.tableConfig[type]['specificColumns'].includes(field)) {
-                        let customValue = this.customField[field](pdv);
-                        if(customValue !== null) newPdv[field] = customValue;
-                    }
-                    else {
-                        newPdv[field] = this.getPdvInstance(pdv)!.attribute(field)
-                    }
-                }
-                newPdv.instanceId = pdv.instanceId;
-                pdvsAsList.push(newPdv);
-            }
-        }
-        
-        pdvsAsList.sort(this.tableConfig[type]['customSort'])
-        this.sortedPdvsList = pdvsAsList;
+        let pdvs = PDV.sliceTree(slice, this.geoTree)[0];
+        pdvs.sort(this.tableConfig[type]['customSort'])
+        this.sortedPdvsList = pdvs;
         this.pdvsWithGroupslist = this.buildGroups(groupField, type);
         return this.pdvsWithGroupslist;
     }
 
-    getUpdatedRows(type: string): {[k: string]: any}[] {
-        let ret = []
-        for(let [id, pdv] of Object.entries(DataExtractionHelper.modifiedData['pdvs'])) {
-            (pdv as any).instanceId = +id;
-            ret.push(this.pdvFromListToObject((pdv as any), type))
-        }
-        return ret;
-    }
-
     getAllColumns(type: string) {
-        let allColumns = DataExtractionHelper.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']);
+        let allColumns = DEH.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']);
         return allColumns;
     }
 
@@ -241,7 +130,7 @@ export class SliceTable {
         return array;
     }
 
-    initializeTitleData(type: string){
+    computeTitleData(type: string){
         this.titleData = this.tableConfig[type]['computeTitle']();
     }
 
@@ -249,42 +138,13 @@ export class SliceTable {
         return this.titleData;
     }
 
-    getUpdatableColumns(type: string) {
-        return this.tableConfig[type]['updatableColumns'];
-    }
-
-    static initializeTarget() {
-        return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
-      }
-
-    changeTargetTargetFinitions(pdv: {[field: string]: any}) {
-        if(!pdv['target']) pdv['target'] = SliceTable.initializeTarget()
-        if(pdv['potential'] > 0) {
-            if(pdv['checkboxEnduit']) {
-                this.updateTotalTarget(pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = true;
-                pdv['checkboxEnduit'] = true;
-            } else {
-                this.updateTotalTarget(-pdv['potential'])
-                pdv['target'][DataExtractionHelper.TARGET_FINITIONS_ID] = false;
-                pdv['checkboxEnduit'] = false;
-            }
-        }
-        this.dataService.updatePdv(this.pdvFromObjectToList(pdv), pdv['instanceId'])
-    }
-
-    updateTotalTarget(increment: number) {
-        this.titleData[1]+=increment
-    }
-
-
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
         let data: {}[][] = [];
         this.geoTree = this.sliceDice.geoTree;
         data.push(this.getColumnDefs(type, rowGroupId));
         data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
-        this.initializeTitleData(type);
+        this.computeTitleData(type);
         data.push([this.groupInfos])
         return data;
     }
@@ -294,6 +154,7 @@ export class SliceTable {
     }
 
     buildGroups(groupField: string, type: string) {
+        console.log("gf : ", groupField)
         SliceTable.currentGroupField = groupField;
         let pdvsByGroup = new Map<string, {}[]>();
         for(let pdv of this.sortedPdvsList){
@@ -308,67 +169,46 @@ export class SliceTable {
         return groupList.flat()
     }
 
-    getPdvInstance(pdv: any) {
-        return PDV.getInstances().get(pdv.instanceId);
-    }
-
-    getRowColor(pdv: any): string {
-        let pdvInstance = this.getPdvInstance(pdv)!;
-        let isAdOpen = DataExtractionHelper.get('params')['isAdOpen']
-        if(pdvInstance.attribute('onlySiniat') === true || pdvInstance.attribute('sale') === false || pdvInstance.attribute('redistributed') === false || (pdvInstance.attribute('target') && (!pdvInstance.attribute('target')[DataExtractionHelper.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DataExtractionHelper.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+    getRowColor(id: number): string {
+        let pdvInstance = PDV.findById(id)!;
+        let isAdOpen = DEH.get('params')['isAdOpen']
+        if(pdvInstance.onlySiniat === true || pdvInstance.sale === false || pdvInstance.redistributed === false || (pdvInstance.target && (!pdvInstance.target[DEH.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DEH.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 
-        for(let sale of pdvInstance.attribute('sales')) {
-            if(Math.floor(Date.now()/1000) - 15778476 <= sale[DataExtractionHelper.SALES_DATE_ID] && sale[DataExtractionHelper.SALES_INDUSTRY_ID] !== DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0)
+        for(let sale of pdvInstance.salesObject) {
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale.date && sale.industryId !== DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0)
                 return 'black';
         }
 
-        for(let sale of pdvInstance.attribute('sales')) {
-            if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) return 'orange'
+        for(let sale of pdvInstance.salesObject) {
+            if(sale.industryId != DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0) return 'orange'
         }
 
         return 'red'
     }
 
-    getColor(axis: string, enseigne: string): string {
+    static getGraphColor(axis: string, enseigne: string): string {
         let hardCodedColors: {[key: string]: {[key: string]: string}} = {
             'industry': {
-            'Siniat': '#A61F7D',
-            'Placo': '#0056A6',
-            'Knauf': '#67D0FF',
-            'Autres': '#888888',
+            'Siniat': '#A61F7D', //["industryP2CD", "Siniat", "#B3007E"]
+            'Placo': '#0056A6', //["industryP2CD", "Placo", "#0056A6"]
+            'Knauf': '#67D0FF', //["industryP2CD", "Knauf", "#67D0FF"]
+            'Autres': '#888888', //["industry", "Challengers", "#888888"]
             },
             'indFinition': {
-            'Prégy': '#7B145C',
-            'Salsi': '#D00000',
-            'Autres': '#B0B0B0'
+            'Prégy': '#7B145C', //["indFinition", "Prégy", "#B3007E"]
+            'Salsi': '#D00000', //["indFinition", "Salsi", "#D00000"]
+            'Autres': '#B0B0B0' //["indFinition", "Croissance", "#DEDEDE"]
             }
         }
         return hardCodedColors[axis][enseigne];
     }
-  
-    pdvFromObjectToList(pdv: any) { //operation inverse de la construction de row du tableau
-        let pdvAsList = []
-        for(let field of DataExtractionHelper.get('structurePdvs')) {
-            if(this.idsToFields[field]) {
-                // console.log("reverse engineering for ", field)
-                for(let [id, fieldValue] of Object.entries(this.idsToFields[field])) {
-                    if(fieldValue === pdv[field]) {
-                        // console.log("finding ", id ," for ", fieldValue)
-                        pdvAsList.push(id)
-                        break;
-                    }
-                }
-            } else pdvAsList.push(pdv[field])
-        }
-        return pdvAsList;
-    }
-    
-    // updateData() {
-    //     this.dataService.requestUpdateData()
-    //     .subscribe((updatedData) => {
-    //         DataExtractionHelper.updateData(updatedData as {[field: string]: []})
-    //     })
-    // }
 
+    /*** From the table component, only way to modify the data ***/
+    changeTargetTargetFinitions(pdv: PDV) {
+        if(!pdv.target) pdv.initializeTarget();
+        (pdv.target as any[])[DEH.TARGET_ID][DEH.TARGET_FINITIONS_ID] = !pdv.targetFinition && pdv.potential > 0;
+        this.computeTitleData('enduit');
+        this.dataService.updatePdv(pdv.getValues(), pdv.id)
+    }
 }
