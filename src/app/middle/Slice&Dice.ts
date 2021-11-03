@@ -328,11 +328,13 @@ class SimplePdv { // Theses attributes are directly those received from the back
     SimplePdv.createIndexMapping();
   }
 
+  icon: any = null;
+
   constructor(protected values: any[],) {
     this.updateField('sales', this.values[SimplePdv.index('sales')])
   }
   public getValues() {return this.values;}
-  public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
+  public setValues(newValues: any[]) {this.values = Object.assign([], newValues); this.icon = null; }
 
   get code(): string{return this.values[SimplePdv.indexMapping.get('code')!]}
   get name(): string{return this.values[SimplePdv.indexMapping.get('name')!]}

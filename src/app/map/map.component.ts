@@ -38,6 +38,12 @@ export class MapComponent extends SubscriptionManager implements Interactive {
   private hidden: boolean = true;
   private markers: google.maps.Marker[] = [];
   get shown() { return !this.hidden; }
+
+  private map?: google.maps.Map;
+  private infowindow: any = {};
+  private markerTimeout: any = 0;
+  private shouldUpdateIcons: boolean = false;
+  private pdvs: PDV[] = [];
   
   hide() {
     this.hidden = true;
@@ -56,14 +62,6 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     this.logger.actionComplete();
   }
   
-  map?: google.maps.Map;
-  path: any = {};
-  pdvs: PDV[] = [...PDV.getInstances().values()];
-  infowindow: any = {};
-  markerTimeout: any = 0;
-  updateSubscription?: Subscription;
-  shouldUpdateIcons: boolean = false;
-
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     super();
     console.log('[MapComponent]: On');
@@ -96,7 +94,6 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     this.filters?.update();
     this.shouldUpdateIcons = false;
   }
-
 
   initializeInfowindow() {
     let content = this.infowindow.content = document.createElement('div'),
@@ -248,15 +245,31 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     this.cd.markForCheck();
   }
 
-  displayMarkers() {
-    let f: any, step = 4000, idx = 0;
-    this.markerTimeout = setTimeout(f = () => {
+  private shuffle<T>(array: T[]) {
+    for ( let i = array.length - 1; i > 0; i-- ) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  displayMarkers(step = 1000, time = 400, shuffle = true) {
+    let n = this.markers.length,
+      q = (n / step) | 0,
+      a = 2.5 * (n - (q+1)/2*step)*q/time;
+    
+    if ( shuffle )
+      this.markers = this.shuffle(this.markers);
+    
+    let idx = 0;
+    let f = () => {
       for ( let i = idx, l = Math.min(this.markers.length, idx+step); i < l; i++ )
         this.markers[i].setMap(this.map!);
       idx += step;
       if ( idx < this.markers.length )
-        setTimeout(f, 0);
-    }, this.markers.length > 2000 ? this.markers.length / 20 : 0);
+        this.markerTimeout = setTimeout(f, (this.markers.length - idx) / a);
+    }
+    f();
     //if number is too big, wait for the animation
   }
 
@@ -295,23 +308,22 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     let std = Math.sqrt(variance[0] + variance[1]);
     let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
 
-    requestAnimationFrame(() => {
-      this.map!.setZoom(zoom || 13);
-      this.map!.panTo(
-        new google.maps.LatLng(
-          center[0] || 48.52,
-          center[1] || 2.19
-        )
-      );
-    });
+    this.map!.setZoom(zoom || 13);
+    this.map!.panTo(
+      new google.maps.LatLng(
+        center[0] || 48.52,
+        center[1] || 2.19
+      )
+    );
   }
 
   private createMarker(pdv: PDV): MarkerType {
     let lat = pdv.attribute('latitude'),
       lng = pdv.attribute('longitude'),
-      icon = MapIconBuilder.getIcon(pdv);
+      icon = pdv.icon || MapIconBuilder.getIcon(pdv);
 
     if ( !icon ) throw 'Cannot find icon, maybe ids change';
+    if ( !pdv.icon ) pdv.icon = icon;
     return {
       position: new google.maps.LatLng(lat, lng),
       icon,
@@ -328,12 +340,12 @@ export class MapComponent extends SubscriptionManager implements Interactive {
       return this.createMarker(pdv);
     });
 
-    this.adjustMap(markers);
 
     for ( let marker of markers )
       this.addMarker(marker);
     
     this.displayMarkers();
+    this.adjustMap(markers);
   };
 
   static round(x: number, threshold: number = 0.5): number {
