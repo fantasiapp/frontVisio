@@ -726,18 +726,8 @@ export class PDV extends SimplePdv{
   }
 
   getPotential():number{
-    return this.computeSalesRepartition()['potential'];
+    return this.computeSalesRepartition()['potentialFinition'];
   }
-  //   let p2cdSalesRaw = this.displayIndustrieSaleVolumes();
-  //   let siniatSale = p2cdSalesRaw['Siniat'];
-  //   let totalSale = Object.entries(p2cdSalesRaw).reduce(
-  //     (total: number, [_, value]: [string, number]) => total + value, 0)
-  //   let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
-  //   let pregySale = enduitSalesRaw['Prégy'],
-  //     salsiSale = enduitSalesRaw['Salsi'];
-  //   return siniatSale > 0.1 * totalSale ? (0.36 * siniatSale) - salsiSale - pregySale : 
-  //     (0.36*totalSale) - salsiSale - pregySale;
-  // }
 
   static heightOf(tree: Tree, label: string){
     return tree.attributes['labels'].indexOf(label);
@@ -786,44 +776,9 @@ export class PDV extends SimplePdv{
   }
   displayIndustrieSaleVolumes(enduit=false): {[key:string]:number}{
     let dictSales = this.computeSalesRepartition();
-    if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['Potential']};
+    if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['potentialFinition']};
     return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
   }
-
-  // displayIndustrieSaleVolumes(enduit = false){
-  //   if (enduit){
-  //     let industriesSalevolume = this.getValue('enduit', true) as number[],
-  //       totalP2cd = this.getValue('p2cd') as number,
-  //       dictResult:{[key:string]:number} = {},
-  //       pregyId = DEH.INDUSTRIE_PREGY_ID,
-  //       salsiId = DEH.INDUSTRIE_SALSI_ID,
-  //       industrieAxis = DEH.get('industry'),
-  //       listIndustries = Object.values(industrieAxis);
-  //       for (let i = 0; i < industriesSalevolume.length; i++){
-  //         if (listIndustries[i] == industrieAxis[pregyId]) 
-  //           dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
-  //         else if (listIndustries[i] == industrieAxis[salsiId]) 
-  //           dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
-  //       }
-  //       dictResult['Autres'] = Math.max(totalP2cd * 0.36 - dictResult[industrieAxis[pregyId]] - dictResult[industrieAxis[salsiId]], 0);
-  //     return dictResult;
-  //   }
-  //   let industriesSalevolume = this.getValue('p2cd', true) as number[],
-  //     dictResult:{[key:string]:number} = {}, siniatId = DEH.INDUSTRIE_SINIAT_ID,
-  //     knaufId = DEH.INDUSTRIE_KNAUF_ID, placoId = DEH.INDUSTRIE_PLACO_ID,
-  //     industrieAxis = DEH.get('industry'), listIndustries = Object.values(industrieAxis);
-  //   dictResult['Autres'] = 0;
-  //   for (let i = 0; i < industriesSalevolume.length; i++){
-  //     if (listIndustries[i] == industrieAxis[siniatId]) 
-  //       dictResult[industrieAxis[siniatId]] = industriesSalevolume[i];
-  //     else if (listIndustries[i] == industrieAxis[knaufId]) 
-  //       dictResult[industrieAxis[knaufId]] = industriesSalevolume[i];
-  //     else if (listIndustries[i] == industrieAxis[placoId]) 
-  //       dictResult[industrieAxis[placoId]] = industriesSalevolume[i];
-  //     else dictResult['Autres'] += industriesSalevolume[i];
-  //   }
-  //   return dictResult;
-  // }
 
   private getFirstSaleDate(){
     let firstSaleDateInSeconds  = Infinity;
