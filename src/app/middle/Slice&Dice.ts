@@ -272,8 +272,8 @@ class DataWidget{
 
 export class Sale {
   
-  constructor(private data: any[]){
-    this.date = this.data[DEH.SALES_DATE_ID];
+  constructor(private data: number[]){
+    this.date = this.data[DEH.SALES_DATE_ID]
   };
 
   get date() {return this.data[DEH.SALES_DATE_ID]}
@@ -281,11 +281,34 @@ export class Sale {
   get productId(): number {return this.data[DEH.SALES_PRODUCT_ID];}
   get volume(): number {return this.data[DEH.SALES_VOLUME_ID];}
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
+  
+  getData(): number[] {return this.data}
 
 
-  set volume(val: number) {this.data[DEH.SALES_VOLUME_ID] = val;}
   set date(val: number) {this.data[DEH.SALES_DATE_ID] = val}
+  set industryId(val: number) {this.data[DEH.SALES_INDUSTRY_ID] = val;}
+  set productId(val: number) {this.data[DEH.SALES_PRODUCT_ID] = val}
+  set volume(val: number) {console.log("setting volume to", val); this.data[DEH.SALES_VOLUME_ID] = val;}
+
 };
+
+// export class Target {
+//   private data: any[]
+//   constructor(data: any[] | false) {
+//     if(data === false) this.data = PDV.initializeTarget()
+//     else this.data = data;
+//   }
+
+//   get date(): number {return this.data[DEH.TARGET_DATE_ID]}
+//   get redistributed(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_ID]}
+//   get redistributedFinitions(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID]}
+//   get sale(): boolean {return this.data[DEH.TARGET_SALE_ID]}
+//   get targetP2cd(): number {return this.data[DEH.TARGET_VOLUME_ID]}
+//   get targetFinitions(): boolean {return this.data[DEH.TARGET_FINITIONS_ID]}
+//   get greenLight(): string {return this.data[DEH.TARGET_ID]}
+//   get commentTargetP2cd(): string {return this.data[DEH.TARGET_COMMENT_ID]}
+//   get bassin(): string {return this.data[DEH.TARGET_BASSIN_ID]}
+// }
 
 
 class SimplePdv { // Theses attributes are directly those received from the back
@@ -305,8 +328,8 @@ class SimplePdv { // Theses attributes are directly those received from the back
     SimplePdv.createIndexMapping();
   }
 
-  constructor(protected values: any[]) {
-    this.sales = this.values[SimplePdv.index('sales')]
+  constructor(protected values: any[],) {
+    this.updateField('sales', this.values[SimplePdv.index('sales')])
   }
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
@@ -339,20 +362,23 @@ class SimplePdv { // Theses attributes are directly those received from the back
   get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
 
   //Modifiable fields : bassin, available, sale, redistributed, redistributedFinitions, pointFeu, onlySiniat, nbVisits, target, sales
-  set bassin(val: number) {this.values[PDV.index('bassin')] = val;}
-  set available(val: boolean) {this.values[PDV.index('available')] = val;}
-  set sale(val: boolean) {this.values[PDV.index('sale')] = val;}
-  set redistributed(val: boolean) {this.values[PDV.index('redistributed')] = val;}
-  set redistributedFinitions(val: boolean) {this.values[PDV.index('redistributedFinitions')] = val;}
-  set pointFeu(val: boolean) {this.values[PDV.index('pointFeu')] = val;}
-  set onlySiniat(val: boolean) {this.values[PDV.index('onlySiniat')] = val;}
-  set nbVisits(val: number) {this.values[PDV.index('nbVisits')] = val;}
-  set target(val: any[] | false) {this.values[PDV.index('target')] = val;}
-  set sales(val: number[][]) {this.values[PDV.index('sales')] = val;}
+  public updateField(field: string, value: any) {
+     this.values[PDV.index(field)] = value;
+  }
+
+  public initializeTarget() {
+    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
+  }
+  public updateTargetField(id: number, value: any) {
+    if(!this.target) this.initializeTarget()
+    this.values[DEH.TARGET_ID][id]
+  }
 
   public attribute(attribute: string) {
     return this.values[SimplePdv.indexMapping.get(attribute)!]
   }
+
+  public get(field: string) {return DEH.getNameOfRegularObject(field, this.attribute(field))} //useless ?
 }
 
 export class PDV extends SimplePdv{
@@ -365,8 +391,12 @@ export class PDV extends SimplePdv{
     super(values);
   };
 
+  //formatted getters, for display
+
 
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
+  get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
+  // get targetObject(): Target {return new Target(this.target)}
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
   get graph() {
@@ -374,20 +404,20 @@ export class PDV extends SimplePdv{
     let enduitSales: any =  {}; let enduitRaw = this.displayIndustrieSaleVolumes(true)
     p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
     for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
-      p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getColor('industry', industry)}
+        p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getGraphColor('industry', industry)}
     }
     for(let industry of ['Prégy', 'Salsi', 'Autres']) {
-      enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getColor('indFinition', industry)}
+        enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getGraphColor('indFinition', industry)}
     }
     return {'p2cd': p2cdSales, 'enduit': enduitSales};
   }
   get potential(): number {return this.getPotential()}
-  get typologie(): string {return DEH.get('segmentDnEnduit')[this.typologyFilter()]}
+  get typology(): number {return this.typologyFilter()}
   get edit(): boolean {return true}
   get info(): boolean {return true}
   get checkboxP2cd(): boolean {return this.ciblage() === 2}
-  get clientProspectProperty(){return this.clientProspect()}
-  
+  get clientProspect(){return this.clientProspect2(true)}
+
   get targetP2cd(){
     let target = this.attribute('target');
     if (!target) return 0;
@@ -427,11 +457,12 @@ export class PDV extends SimplePdv{
   // Il faudra penser à delete la requête de la ram après l'avoir utilisée
   static load(loadTrees = true){
     SimplePdv._initialize();
-    this.instances.clear(); //<- clear before
+    // this.instances.clear(); //<- clear before
     for (let [id, data] of Object.entries(DEH.get('pdvs'))){
       let intId = parseInt(id);
       if (Number.isNaN(intId)) continue;
-      this.instances.set(intId, new PDV(intId, <any[]>data));
+      if(this.instances.get(intId)) this.instances.get(intId)?.setValues(<any[]>data);
+      else this.instances.set(intId, new PDV(intId, <any[]>data));
     }
     if (loadTrees) this.loadTrees();
   };
@@ -712,7 +743,7 @@ export class PDV extends SimplePdv{
   //Juste pour le reSlice
   property(propertyName:string){
     switch(propertyName){
-      case 'clientProspect': return this.clientProspect(true);
+      case 'clientProspect': return this.clientProspect2(true);
       case 'industriel': return this.industriel();
       case 'ciblage': return this.ciblage();
       case 'pointFeuFilter': return this.pointFeu? 2: 1;
@@ -871,7 +902,7 @@ export class PDV extends SimplePdv{
     return pdvs;
   }
 
-  clientProspect(index=false){
+  clientProspect2(index=false){
     let dnResult = this.getValue('dn', false, false, true) as number[],
       clientProspectDict = DEH.get('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),

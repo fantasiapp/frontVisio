@@ -31,7 +31,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typologie === 'Non documenté'" agentFinitionsOnly currentYearOnly></div>`,
+    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typology === 4" agentFinitionsOnly currentYearOnly></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -61,7 +61,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox" [checked]="pdv.checkboxP2cd" [hidden]="pdv.clientProspectProperty === 'Client'" disabled></div>`,
+    template: `<div><input type="checkbox" [checked]="pdv.checkboxP2cd" [hidden]="pdv.clientProspect === 1" disabled></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;

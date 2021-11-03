@@ -92,6 +92,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     d3.select(this.ref.nativeElement).selectAll('.bb-tooltip-container > *').remove();
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
+    this.chart?.destroy();
   }
   
   noData(content: ElementRef) {
