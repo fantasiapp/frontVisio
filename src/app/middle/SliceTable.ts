@@ -168,10 +168,6 @@ export class SliceTable {
         return data;
     }
 
-    getGroupsData(type: string, id: string) {
-        return this.getColumnDefs(type);
-    }
-
     buildGroups(type: string) {
         let pdvsByGroup = new Map<string, PDV[]>();
         for(let pdv of this.sortedPdvsList){
