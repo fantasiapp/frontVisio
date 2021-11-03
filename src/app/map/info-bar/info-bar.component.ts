@@ -72,6 +72,9 @@ export class InfoBarComponent {
   @Input()
   display: string = 'p2cd';
 
+  @Input()
+  customData: {[field: string]: any} = {};
+
   @Output()
   pdvChange = new EventEmitter<PDV | undefined>();
 
@@ -291,12 +294,12 @@ export class InfoBarComponent {
     this.hasChanged = true;
   }
   changeTargetBassin() {
-      if(!this.displayedInfos.bassin) {
-        this.displayedInfos.bassin = this.target[DEH.TARGET_BASSIN_ID];
-        return;
-      }
-      this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
-      this.hasChanged = true;
+    if(!this.displayedInfos.bassin) {
+      this.displayedInfos.bassin = this.target[DEH.TARGET_BASSIN_ID];
+      return;
+    }
+    this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
+    this.hasChanged = true;
   } 
   changeTargetLight(newLightValue: string) {
     this.target[DEH.TARGET_LIGHT_ID] = newLightValue;
