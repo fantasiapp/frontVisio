@@ -152,7 +152,6 @@ export class FiltersStatesService implements OnDestroy {
   }
 
   refresh() {
-    console.log('calling refresh');
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
