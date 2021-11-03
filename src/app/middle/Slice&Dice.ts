@@ -3,10 +3,11 @@ import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
 import { SliceTable } from './SliceTable';
+import { thresholdFreedmanDiaconis } from 'd3-array';
 
 
 // à mettre dans le back
-const nonRegularAxis = ['industry', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
+const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'],
   targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustryTarget', 'industryTarget'],
   enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
@@ -280,6 +281,7 @@ export class Sale {
 
   get date() {return this.data[DEH.SALES_DATE_ID]}
   get industryId(): number {return this.data[DEH.SALES_INDUSTRY_ID];}
+  get industry(): string {return DEH.get('industry')[this.industryId]}
   get productId(): number {return this.data[DEH.SALES_PRODUCT_ID];}
   get volume(): number {return this.data[DEH.SALES_VOLUME_ID];}
   get type(): string{return (this.productId < 4) ? 'p2cd' : ((this.productId == 4) ? 'enduit' : 'other');}
@@ -373,8 +375,8 @@ export class PDV extends SimplePdv{
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
   get graph() {
-    let p2cdSales: any =  {}; let p2cdRaw = this.displayIndustrieSaleVolumes()
-    let enduitSales: any =  {}; let enduitRaw = this.displayIndustrieSaleVolumes(true)
+    let p2cdSales: any =  {}; let p2cdRaw:any = this.displayIndustrieSaleVolumes()
+    let enduitSales: any =  {}; let enduitRaw: any = this.displayIndustrieSaleVolumes(true)
     p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
     for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
       p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getColor('industry', industry)}
@@ -395,6 +397,11 @@ export class PDV extends SimplePdv{
     let target = this.attribute('target');
     if (!target) return 0;
     return target[DEH.TARGET_VOLUME_ID]
+  }
+
+  get realTargetP2cd(){
+    if (this.targetP2cd > 0 && this.lightTarget !== 'r') return this.targetP2cd;
+    return 0;
   }
   
   get targetFinition(){
@@ -444,33 +451,19 @@ export class PDV extends SimplePdv{
     this.tradeTree = new Tree(TradeExtrationHelper);
   }
 
-  public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, 
-      target=false, visit=false, axisName?:string): (number | number[]){
-    if (indicator == 'dn' || visit) return this.computeDn(axisName!, indicator);
-    let relevantSales = this.salesObject.filter(sale => sale.type == indicator);
-    // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
-    let p2cdSales = this.salesObject.filter(sale => sale.type == 'p2cd');
-    if (byIndustries) return this.computeIndustries(target, relevantSales);      
-    let total = p2cdSales.reduce((acc, sale) => acc + sale.volume, 0);
-    if (enduit) return this.computeEnduit(target, relevantSales, total, axisName!);
-    return total;
+  public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
+    if (axisName && nonRegularAxis.includes(axisName!)){
+      if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator);
+      else return this.computIndustriesAxis(axisName);
+    } else return (indicator == 'dn') ? 1: 
+      this.salesObject.filter(sale => sale.type == 'p2cd').reduce((acc, sale) => acc + sale.volume, 0);
   }
 
-  private computeDn(axisName:string, indicator:string){
-    if(nonRegularAxis.includes(axisName)){
+  private computeIrregularAxis(axisName:string, indicator:string){
+    if(nonRegularAxis.includes(axisName)){// condition à mettre dans le getValue
       let axis: string[] = Object.values(DEH.get(axisName, true)),
         repartition= new Array(axis.length).fill(0),
-        found = false, i = 0, params = {totalSales: 0, totalEnduit: 0, totalP2cd: 0, totalSiniatP2cd: 0},
-        pregyId = DEH.INDUSTRIE_PREGY_ID, salsiId = DEH.INDUSTRIE_SALSI_ID, siniatId = DEH.INDUSTRIE_SINIAT_ID;
-      for (let sale of this.salesObject){
-        params['totalSales'] += sale.volume;
-        if ((sale.industryId == pregyId || sale.industryId == salsiId) && sale.type == 'enduit' && sale.volume > 0) 
-          params['totalEnduit'] += sale.volume;
-        else if (sale.type == 'p2cd'){
-          params['totalP2cd'] += sale.volume;
-          if (sale.industryId == siniatId) params['totalSiniatP2cd'] += sale.volume;
-        }
-      }
+        found = false, i = 0, params = this.computeSalesRepartition(); // à mettre dans le getValue
       let value = (indicator == 'dn') ? 1: ((indicator == 'visits') ? this.nbVisits : 
         this.nbVisits * Math.max(params['totalP2cd'] * DEH.get("params")["ratioPlaqueFinition"], params['totalEnduit']))
       while (!found){
@@ -484,74 +477,66 @@ export class PDV extends SimplePdv{
     } else return 1;
   }
 
-  private conditionAxis(axisName:string, item:string, params:{[key:string]:any}){
+  private conditionAxis(axisName:string, item:string, params:{[key:string]:number}){
     switch(item){
       // suiviAD axis
       case 'Terminées': return this.adCompleted();
       case 'Non mises à jour': return this.hasNonSiniatSale();
       // DN finition axis
       case 'Non documenté': return (axisName == 'segmentDnEnduit' || axisName == 'segmentDnEnduitTarget' || axisName == 'segmentDnEnduitTargetVisits') ?
-        this.sales.length == 0 || !this.redistributedFinitions || !this.redistributed || (params['totalSiniatP2cd'] == params['totalSales'] && !this.onlySiniat):
+        this.sales.length == 0 || !this.redistributedFinitions || !this.redistributed || (params['Siniat'] == params['totalSales'] && !this.onlySiniat):
         params['totalP2cd'] == 0;
-      case 'Cible P2CD + Enduit': return this.targetFinition && (params['totalSiniatP2cd'] > DEH.getParam('ratioCustomerProspect') * params['totalP2cd']) && params['totalEnduit'] > 0;
-      case 'P2CD + Enduit': return (params['totalSiniatP2cd'] > DEH.getParam('ratioCustomerProspect') * params['totalP2cd']) && params['totalEnduit'] > 0;
-      case 'Cible P2CD': return this.targetFinition && params['totalEnduit'] > 0;
-      case 'Cible Enduit hors P2CD': return this.targetFinition && params['totalEnduit'] > 0;
+      case 'Cible P2CD + Enduit': return this.targetFinition && (params['Siniat'] > DEH.getParam('ratioCustomerProspect') * params['totalP2cd']) && params['totalEnduit'] > 0;
+      case 'P2CD + Enduit': return (params['Siniat'] > DEH.getParam('ratioCustomerProspect') * params['totalP2cd']) && params['totalEnduit'] > 0;
+      case 'Cible P2CD': case 'Cible Enduit hors P2CD': return this.targetFinition && params['totalEnduit'] > 0;
       case 'Enduit hors P2CD': return params['totalEnduit'] > 0;
       case 'Cible Pur Prospect': return this.targetFinition;
       // DN P2CD axis
       case 'Potentiel ciblé': return this.targetP2cd > 0 && this.lightTarget !== 'r';
-      case 'Client': return params['totalSiniatP2cd'] > 0.09 * params['totalP2cd']; // democker ça
+      case 'Client': return params['Siniat'] > 0.09 * params['totalP2cd']; // democker ça
       default: return true;
     }
   }
 
-  private computeIndustries(target:boolean, relevantSales:Sale[]){
-    let keys = target ? Object.keys(DEH.get('industryTarget')): Object.keys(DEH.get('industry'));
-    let idIndustries: {[key:number]: any} = {}, diced = new Array(keys.length).fill(0);
-    keys.forEach((id, index) => idIndustries[parseInt(id)] = index);
-    for (let sale of relevantSales)
-      diced[idIndustries[sale.industryId]] += sale.volume;    
-    if (target && this.targetP2cd > 0 && this.lightTarget !== 'r'){
-      let siniatId = DEH.INDUSTRIE_SINIAT_ID,
-        sumExceptSiniat = 0;
-      for (let i = 0; i < diced.length; i++)
-        if (i !== idIndustries[siniatId]) sumExceptSiniat += diced[i];
-      // peut-être que ça mériterait d'être plus générique car ici on suppose que 'Potentiel' a été rajouté avec l'id 0
-      // j'ai fait comme si target p2cd était ce que l'on compte vendre en plus, 
-      // si c'est ce que l'on compte vendre au total il faudra enlever ce que l'on vend déjà
-      diced[idIndustries[0]] = this.targetP2cd; 
-      for (let i = 0; i < diced.length; i++)
-        if ((i !== idIndustries[siniatId]) && (i !== idIndustries[0])) diced[i] *= 1 - this.targetP2cd / sumExceptSiniat;
-    }  
-    return diced;
+  private computIndustriesAxis(axisName:string){
+    let axis: string[] = Object.values(DEH.get(axisName, true)),
+      salesIndustries:{[key:string]:number} = this.computeSalesRepartition(),
+      computedAxis = new Array(axis.length).fill(0);
+    for (let i = 0; i < axis.length; i++)
+      computedAxis[i] = this.computeElement(axis[i], salesIndustries, axisName);
+    return computedAxis
   }
 
-  private computeEnduit(target:boolean, relevantSales:Sale[], total:number, axisName:string){
-    let axe : string[]= (target) ? Object.values(DEH.get(('enduitIndustryTarget'))): 
-        Object.values(DEH.get(('enduitIndustry'))),
-      associatedIndex :{[key: string]: number}= {};
-    for (let i = 0; i < axe.length; i++)
-      associatedIndex[axe[i]] = i;
-    let pregyId = DEH.INDUSTRIE_PREGY_ID,
-      salsiId = DEH.INDUSTRIE_SALSI_ID,
-      totalEnduit = DEH.getParam('ratioPlaqueFinition') * total,
-      diced = new Array(axe.length).fill(0);
-    for (let sale of relevantSales){
-      if (sale.industryId == pregyId) diced[associatedIndex['Prégy']] += sale.volume;
-      else if (sale.industryId == salsiId) diced[associatedIndex['Salsi']] += sale.volume;    
+  private computeSalesRepartition():{[key:string]:number}{
+    let salesRepartition: {[key:string]:any} = {Siniat: 0, Salsi: 0, Prégy: 0, Knauf: 0, Challengers: 0, Placo: 0, totalSales: 0, totalP2cd: 0, totalEnduit: 0, sumExceptSiniat: 0};
+    for (let sale of this.salesObject){
+      let type = sale.type, industry = sale.industry, volume = sale.volume;
+      salesRepartition['totalSales'] += volume;
+      if (type == 'p2cd'){
+        salesRepartition['totalP2cd'] += volume;
+        if (industry !== 'Siniat') salesRepartition['sumExceptSiniat'] += volume;
+        if (['Siniat', 'Placo', 'Knauf'].includes(industry)) salesRepartition[industry] += volume;
+        else salesRepartition['Challengers'] += volume;
+      } else if (type == 'enduit' && ['Salsi', 'Prégy'].includes(industry) && volume > 0){
+        salesRepartition['totalEnduit'] += volume;
+        salesRepartition[industry] += volume;
+      }
     }
-    let salsiPlusPregy = diced[associatedIndex['Prégy']] + diced[associatedIndex['Salsi']];
-    let other = Math.max(totalEnduit - salsiPlusPregy, 0);
-    let dnEnduit = this.getValue('dn', false, true, false, false, false, 'segmentDnEnduit') as number[];
-    if (dnEnduit[1] == 1 || dnEnduit[2] == 1){
-      if (target && this.targetFinition) diced[associatedIndex['Cible Croissance']] = other;
-      else diced[associatedIndex['Croissance']] = other; 
-    } else{
-      if (target && this.targetFinition) diced[associatedIndex['Cible Conquête']] = other;
-      else diced[associatedIndex['Conquête']] = other;
+    salesRepartition['potentialFinition'] = Math.max(salesRepartition['totalP2cd'] * DEH.getParam('ratioPlaqueFinition') - salesRepartition['Salsi'] - salesRepartition['Prégy'], 0);
+    return salesRepartition;
+  }
+
+  private computeElement(element:string, salesRepartition:{[key:string]: number}, axisName:string){
+    switch (element){
+      case 'Placo': case 'Knauf':case 'Challengers': return (axisName !== 'industryTarget') ? salesRepartition[element]:
+        (this.realTargetP2cd ? salesRepartition[element] * (1 - this.realTargetP2cd / salesRepartition['sumExceptSiniat']): salesRepartition[element]);
+      case 'Potentiel ciblé': return this.realTargetP2cd;
+      case 'Cible Croissance': return (salesRepartition['totalEnduit'] > 0 && this.targetFinition) ? salesRepartition['potentialFinition']: 0;
+      case 'Croissance': return (salesRepartition['totalEnduit'] > 0 && (axisName == 'enduitIndustry' ||!this.targetFinition)) ? salesRepartition['potentialFinition']: 0;
+      case 'Cible Conquête': return (salesRepartition['totalEnduit'] == 0 && this.targetFinition) ? salesRepartition['potentialFinition']: 0;
+      case 'Conquête': return (salesRepartition['totalEnduit'] == 0 && (axisName == 'enduitIndustry' || !this.targetFinition)) ? salesRepartition['potentialFinition']: 0;
+      default: return salesRepartition[element];
     }
-    return diced;
   }
 
   static findById(id: number): PDV | undefined {
@@ -573,27 +558,18 @@ export class PDV extends SimplePdv{
       let irregular: string = 'no';
       if (nonRegularAxis.includes(axis1)) irregular = 'line';
       else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-      let byIndustries, enduit, clientProspect, target, visit, ad;
-      if (irregular == 'line' || irregular == 'col')
-          byIndustries = industryAxis.includes(axis1) || industryAxis.includes(axis2),
-          enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
-          clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
-          target = targetAxis.includes(axis1) || targetAxis.includes(axis2),
-          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
+      let visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
       for (let pdv of newPdvs){
         if (pdv.available && pdv.sale){// condition à mettre dans le reslice peut-être
           if (irregular == 'no') 
             dataWidget.addOnCase(
-              pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit, axis1) as number);
+              pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator, axis1, visit) as number);
           else if (irregular == 'line') 
             dataWidget.addOnColumn(
-              pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit, axis1) as number[]);
+              pdv.attribute(axis2), pdv.getValue(indicator, axis1, visit) as number[]);
           else if (irregular == 'col') 
             dataWidget.addOnRow(
-              pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit, axis2) as number[]);
+              pdv.attribute(axis1), pdv.getValue(indicator, axis2, visit) as number[]);
         }
       }
     }
@@ -660,7 +636,7 @@ export class PDV extends SimplePdv{
   }
 
   private typologyFilter():any{
-    let dnResult = this.getValue('dn', false, true) as number[],
+    let dnResult = this.getValue('dn', 'segmentDnEnduit') as number[],
       typologyIds = Object.keys(DEH.get('segmentDnEnduit'));
     for (let i = 0; i < dnResult.length; i++)
       if (dnResult[i] == 1)
@@ -680,11 +656,11 @@ export class PDV extends SimplePdv{
     return dictCounter
   }
 
-  industriel(){
-    let dnIndustries = this.getValue('p2cd', true) as number[],
+  industriel(){ // a opti avec le salesRepartition
+    let dnIndustries = this.getValue('p2cd', 'mainIndustries') as number[],
       industriesDict = DEH.get('industriel'),
       iMax = 0;
-    let industriesList = Object.values(DEH.get('industry'));
+    let industriesList = Object.values(DEH.get('mainIndustries'));
     for (let i = 1; i < dnIndustries.length; i++)
       if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
     let result = parseInt(DEH.getKeyByValue(industriesDict, industriesList[iMax])!);
@@ -749,17 +725,19 @@ export class PDV extends SimplePdv{
     return pdvs.reduce((acc, pdv) => acc + pdv.getCiblage(enduit, dn), 0);
   }
 
-  getPotential(){
-    let p2cdSalesRaw = this.displayIndustrieSaleVolumes();
-    let siniatSale = p2cdSalesRaw['Siniat'];
-    let totalSale = Object.entries(p2cdSalesRaw).reduce(
-      (total: number, [_, value]: [string, number]) => total + value, 0)
-    let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
-    let pregySale = enduitSalesRaw['Prégy'],
-      salsiSale = enduitSalesRaw['Salsi'];
-    return siniatSale > 0.1*totalSale ? (0.36*siniatSale) - salsiSale - pregySale : 
-      (0.36*totalSale) - salsiSale - pregySale;
+  getPotential():number{
+    return this.computeSalesRepartition()['potential'];
   }
+  //   let p2cdSalesRaw = this.displayIndustrieSaleVolumes();
+  //   let siniatSale = p2cdSalesRaw['Siniat'];
+  //   let totalSale = Object.entries(p2cdSalesRaw).reduce(
+  //     (total: number, [_, value]: [string, number]) => total + value, 0)
+  //   let enduitSalesRaw = this.displayIndustrieSaleVolumes(true);
+  //   let pregySale = enduitSalesRaw['Prégy'],
+  //     salsiSale = enduitSalesRaw['Salsi'];
+  //   return siniatSale > 0.1 * totalSale ? (0.36 * siniatSale) - salsiSale - pregySale : 
+  //     (0.36*totalSale) - salsiSale - pregySale;
+  // }
 
   static heightOf(tree: Tree, label: string){
     return tree.attributes['labels'].indexOf(label);
@@ -798,7 +776,7 @@ export class PDV extends SimplePdv{
   }
 
   clientProspect(index=false){
-    let dnResult = this.getValue('dn', false, false, true) as number[],
+    let dnResult = this.getValue('dn', 'clientProspect') as number[],
       clientProspectDict = DEH.get('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),
       clientProspectIds = Object.keys(clientProspectDict);
@@ -806,41 +784,46 @@ export class PDV extends SimplePdv{
       if (dnResult[i] == 1)
         return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
-
-  displayIndustrieSaleVolumes(enduit = false){
-    if (enduit){
-      let industriesSalevolume = this.getValue('enduit', true) as number[],
-        totalP2cd = this.getValue('p2cd') as number,
-        dictResult:{[key:string]:number} = {},
-        pregyId = DEH.INDUSTRIE_PREGY_ID,
-        salsiId = DEH.INDUSTRIE_SALSI_ID,
-        industrieAxis = DEH.get('industry'),
-        listIndustries = Object.values(industrieAxis);
-        for (let i = 0; i < industriesSalevolume.length; i++){
-          if (listIndustries[i] == industrieAxis[pregyId]) 
-            dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
-          else if (listIndustries[i] == industrieAxis[salsiId]) 
-            dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
-        }
-        dictResult['Autres'] = Math.max(totalP2cd * 0.36 - dictResult[industrieAxis[pregyId]] - dictResult[industrieAxis[salsiId]], 0);
-      return dictResult;
-    }
-    let industriesSalevolume = this.getValue('p2cd', true) as number[],
-      dictResult:{[key:string]:number} = {}, siniatId = DEH.INDUSTRIE_SINIAT_ID,
-      knaufId = DEH.INDUSTRIE_KNAUF_ID, placoId = DEH.INDUSTRIE_PLACO_ID,
-      industrieAxis = DEH.get('industry'), listIndustries = Object.values(industrieAxis);
-    dictResult['Autres'] = 0;
-    for (let i = 0; i < industriesSalevolume.length; i++){
-      if (listIndustries[i] == industrieAxis[siniatId]) 
-        dictResult[industrieAxis[siniatId]] = industriesSalevolume[i];
-      else if (listIndustries[i] == industrieAxis[knaufId]) 
-        dictResult[industrieAxis[knaufId]] = industriesSalevolume[i];
-      else if (listIndustries[i] == industrieAxis[placoId]) 
-        dictResult[industrieAxis[placoId]] = industriesSalevolume[i];
-      else dictResult['Autres'] += industriesSalevolume[i];
-    }
-    return dictResult;
+  displayIndustrieSaleVolumes(enduit=false): {[key:string]:number}{
+    let dictSales = this.computeSalesRepartition();
+    if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['Potential']};
+    return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
   }
+
+  // displayIndustrieSaleVolumes(enduit = false){
+  //   if (enduit){
+  //     let industriesSalevolume = this.getValue('enduit', true) as number[],
+  //       totalP2cd = this.getValue('p2cd') as number,
+  //       dictResult:{[key:string]:number} = {},
+  //       pregyId = DEH.INDUSTRIE_PREGY_ID,
+  //       salsiId = DEH.INDUSTRIE_SALSI_ID,
+  //       industrieAxis = DEH.get('industry'),
+  //       listIndustries = Object.values(industrieAxis);
+  //       for (let i = 0; i < industriesSalevolume.length; i++){
+  //         if (listIndustries[i] == industrieAxis[pregyId]) 
+  //           dictResult[industrieAxis[pregyId]] = industriesSalevolume[i];
+  //         else if (listIndustries[i] == industrieAxis[salsiId]) 
+  //           dictResult[industrieAxis[salsiId]] = industriesSalevolume[i];
+  //       }
+  //       dictResult['Autres'] = Math.max(totalP2cd * 0.36 - dictResult[industrieAxis[pregyId]] - dictResult[industrieAxis[salsiId]], 0);
+  //     return dictResult;
+  //   }
+  //   let industriesSalevolume = this.getValue('p2cd', true) as number[],
+  //     dictResult:{[key:string]:number} = {}, siniatId = DEH.INDUSTRIE_SINIAT_ID,
+  //     knaufId = DEH.INDUSTRIE_KNAUF_ID, placoId = DEH.INDUSTRIE_PLACO_ID,
+  //     industrieAxis = DEH.get('industry'), listIndustries = Object.values(industrieAxis);
+  //   dictResult['Autres'] = 0;
+  //   for (let i = 0; i < industriesSalevolume.length; i++){
+  //     if (listIndustries[i] == industrieAxis[siniatId]) 
+  //       dictResult[industrieAxis[siniatId]] = industriesSalevolume[i];
+  //     else if (listIndustries[i] == industrieAxis[knaufId]) 
+  //       dictResult[industrieAxis[knaufId]] = industriesSalevolume[i];
+  //     else if (listIndustries[i] == industrieAxis[placoId]) 
+  //       dictResult[industrieAxis[placoId]] = industriesSalevolume[i];
+  //     else dictResult['Autres'] += industriesSalevolume[i];
+  //   }
+  //   return dictResult;
+  // }
 
   private getFirstSaleDate(){
     let firstSaleDateInSeconds  = Infinity;

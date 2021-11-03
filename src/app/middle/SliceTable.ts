@@ -98,7 +98,7 @@ export class SliceTable {
             return PDV.findById(id)!.getPotential();
         },
         'typologie': (id: number, pdv: any) => {
-            let list = PDV.findById(id)!.getValue('dn', false, true) as number[];
+            let list = PDV.findById(id)!.getValue('dn', 'segmentDnEnduit') as number[];
             for(let i = 0; i<list.length; i++) {
                 if(list[i] === 1) return this.segmentDnEnduit[i+1]
             }
@@ -113,7 +113,7 @@ export class SliceTable {
         'checkboxP2cd': (id: number, pdv: any) => null,
 
         'clientProspectProperty': (id: number, pdv: any) => {
-            let array: any = PDV.findById(id)!.getValue('dn', false, false, true);
+            let array: any = PDV.findById(id)!.getValue('dn', 'clientProspect');
             if(array[0] === 1) return DEH.get('clientProspect')[1]
             if(array[1] === 1) return DEH.get('clientProspect')[2]
             return DEH.get('clientProspect')[3]
