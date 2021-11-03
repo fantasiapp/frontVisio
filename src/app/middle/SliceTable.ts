@@ -221,7 +221,8 @@ export class SliceTable {
     /*** From the table component, only way to modify the data ***/
     changeTargetTargetFinitions(pdv: PDV) {
         if(!pdv.target) pdv.initializeTarget();
-        (pdv.target as any[])[DEH.TARGET_FINITIONS_ID] = !pdv.targetFinition && pdv.potential > 0;
+        pdv.changeTargetTargetFinitions(!pdv.targetFinition && pdv.potential > 0)
         this.dataService.updatePdv(pdv.getValues(), pdv.id)
+
     }
 }

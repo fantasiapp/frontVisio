@@ -339,7 +339,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   // sales!: any[];
   icon: any = null;
 
-  constructor(protected values: any[],) {
+  constructor(protected values: any[]) {
     //this code setups getters for each field written in structurePdvs
     // for(let key of DEH.get('structurePdvs')) {
     //   Object.defineProperty(this, key, {
@@ -384,6 +384,10 @@ class SimplePdv { // Theses attributes are directly those received from the back
 
   public changeOnlySiniat(val: boolean) {
     this.values[PDV.index('onlySiniat')] = val;
+  }
+  public changeTargetTargetFinitions(val: boolean) {
+    if(this.target) this.initializeTarget();
+    (this.target as any[])[DEH.TARGET_FINITIONS_ID] = val;
   }
   
   public initializeTarget() {

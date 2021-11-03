@@ -293,8 +293,6 @@ class DEH{  // for DataExtractionHelper
     // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
     
     // Check how deletions are managed 
-    //update this.pdv
-    let idCode : any  = this.getKeyByValue(this.get('structurePdvs'), 'code')
     for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
           this.data.pdvs[newPdvId] = newPdv;
     }
@@ -304,8 +302,8 @@ class DEH{  // for DataExtractionHelper
             this.get(targetType)[newTargetId] = newTarget;
       }
     }
-    //Build trees !!! CUSTOM THIS
 
+    //Build trees !!! CUSTOM THIS
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
 
