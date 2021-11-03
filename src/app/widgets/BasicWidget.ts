@@ -140,12 +140,9 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     let p = Math.round(q);
     let base = Math.pow(10, n);
     let str = '';
-
-    if ( integer )
-      return p.toString();
     
     if ( Math.floor(q) == 0 )
-      return q.toFixed(Math.min(3, this.firstDigit(q))).toString();
+      return integer ? p.toString() : q.toFixed(Math.min(3, this.firstDigit(q))).toString();
 
     while (p >= base) {
       str = (p % base).toString().padStart(n, '0') + ' ' + str;

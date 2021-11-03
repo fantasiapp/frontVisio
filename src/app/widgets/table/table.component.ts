@@ -4,7 +4,7 @@ import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
-import { AsyncSubject, Observable, Subject} from 'rxjs';
+import { AsyncSubject, Observable } from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 
@@ -17,8 +17,6 @@ export class TableComponent extends BasicWidget {
 
   @ViewChild('title', {static: false, read: ElementRef})
   private titleContainer?: ElementRef;
-
-  title: string = "";
   
   //p2cd or enduit
   type: string = 'p2cd';
@@ -41,7 +39,6 @@ export class TableComponent extends BasicWidget {
   selectedPdv?: any;
   hasChanged: boolean = false;
   quiting: boolean = false;
-  customData: {[field: string]: any} = {};
 
   //Apis
   gridApi: any;
@@ -51,7 +48,7 @@ export class TableComponent extends BasicWidget {
     this.columnApi = params.columnApi;
     this.gridObservable.subscribe(() => {
       this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
-      this.updateGraph(this.updateData());
+      this.createGraph(this.createData());
       this.gridLoaded.next(null);
       this.gridLoaded.complete();
     });
@@ -100,10 +97,17 @@ export class TableComponent extends BasicWidget {
     this.updateTitle()
   }
 
-  updateData(): any[] {
-    this.type = this.properties.arguments[2];
-    SliceTable.currentGroupField = this.currentOpt;
-    return this.sliceTable.getData(this.path, this.type);
+  update() { //could be smoother ?
+    this.createGraph(this.createData())
+  }
+
+  createGraph(data: any[]): void {
+    this.columnDefs = this.updateCellRenderer(data[0]);
+    this.navOpts = data[2];
+    groupInfos = data[3][0];
+    hiddenGroups = {}
+    this.rowData = data[1]
+    this.updateTitle()
   }
 
   createData(): any[] {
@@ -112,9 +116,6 @@ export class TableComponent extends BasicWidget {
     return this.sliceTable.getData(this.path, this.type);
   }
 
-  updateGraph(data: any[]): void {
-    this.createGraph(data)
-  }
 
   updateGroups(id: string) {
     this.currentOpt = id;
@@ -125,23 +126,10 @@ export class TableComponent extends BasicWidget {
   }
 
   updateTitle() {
-    let title = this.sliceTable.getTitleData(this.type);
-    if(this.type === 'p2cd') this.title = `PdV: ${title[0]}, Siniat : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}, sur un total identifié de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Km²`;
-    if(this.type === 'enduit') this.title = `PdV: ${title[0]}, ciblé : ${Math.round(title[1]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Tonnes, sur un potentiel de ${Math.round(title[2]/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} en Tonnes`
-    this.titleContainer!.nativeElement.innerText = this.title
+    let titleData = this.sliceTable.getTitleData(this.type);
+    if(this.type === 'p2cd') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, Siniat : ${BasicWidget.format(titleData[1]/1000)}, sur un total identifié de ${BasicWidget.format(titleData[2]/1000)} en Km²`;
+    if(this.type === 'enduit') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, ciblé : ${BasicWidget.format(titleData[1]/1000, 3, true)} Tonnes, sur un potentiel de ${BasicWidget.format(titleData[2]/1000)} en Tonnes`
   }
-
-
-  createGraph(data: any[], opt?: {}): void {
-    this.gridApi.setColumnDefs(this.updateCellRenderer(data[0]));
-    this.navOpts = data[2];
-    this.updateTitle()
-    groupInfos = data[3][0];
-    hiddenGroups = {}
-    this.rowData = data[1]
-    this.gridApi.setRowData(this.rowData)
-    this.gridApi.refreshCells()  }
-
 
   updateCellRenderer(data: any[]): any[] {
         for(let cd of data){
