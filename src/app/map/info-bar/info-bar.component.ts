@@ -133,23 +133,23 @@ export class InfoBarComponent {
     return {
       name: pdv.name,
       agent: DEH.getNameOfRegularObject('agent', pdv.agent),
-      segmentMarketing: DEH.getNameOfRegularObject('agent', pdv.segmentMarketing),
-      segmentCommercial: DEH.getNameOfRegularObject('agent', pdv.segmentCommercial),
-      enseigne: DEH.getNameOfRegularObject('agent', pdv.enseigne),
-      dep: DEH.getNameOfRegularObject('agent', pdv.dep),
-      ville: DEH.getNameOfRegularObject('agent', pdv.ville),
+      segmentMarketing: DEH.getNameOfRegularObject('segmentMarketing', pdv.segmentMarketing),
+      segmentCommercial: DEH.getNameOfRegularObject('segmentCommercial', pdv.segmentCommercial),
+      enseigne: DEH.getNameOfRegularObject('enseigne', pdv.enseigne),
+      dep: DEH.getNameOfRegularObject('dep', pdv.dep),
+      ville: DEH.getNameOfRegularObject('ville', pdv.ville),
       bassin: this.target[DEH.TARGET_BASSIN_ID],
       clientProspect: pdv.clientProspect2(),
       nbVisits: pdv.nbVisits,
-      siniatP2cdSales: Math.round(pdv.graph.p2cd['Siniat'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      placoP2cdSales: Math.round(pdv.graph.p2cd['Placo'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      knaufP2cdSales: Math.round(pdv.graph.p2cd['Knauf'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      totalP2cdSales: Math.round(pdv.graph.p2cd['Siniat'].value + this.pdv!.graph.p2cd['Placo'].value + this.pdv!.graph.p2cd['Knauf'].value + this.pdv!.graph.p2cd['Autres'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      pregyEnduitSales: Math.round(pdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      salsiEnduitSales: Math.round(pdv.graph.enduit['Salsi'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      siniatP2cdSales: Math.round(pdv.displayIndustrieSaleVolumes()['Siniat']).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      placoP2cdSales: Math.round(pdv.displayIndustrieSaleVolumes()['Placo']).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      knaufP2cdSales: Math.round(pdv.displayIndustrieSaleVolumes()['Knauf']).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalP2cdSales: Math.round(pdv.displayIndustrieSaleVolumes()['Siniat'] + pdv.displayIndustrieSaleVolumes()['Placo'] + pdv.displayIndustrieSaleVolumes()['Knauf'] + pdv.displayIndustrieSaleVolumes()['Autres']).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      pregyEnduitSales: Math.round(pdv.displayIndustrieSaleVolumes(true)['Prégy']).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      salsiEnduitSales: Math.round(pdv.displayIndustrieSaleVolumes(true)['Salsi']).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       potential: Math.round(pdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      totalSiniatEnduitSales: Math.round(pdv.potential + pdv.graph.enduit['Salsi'].value + pdv.graph.enduit['Prégy'].value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
-      totalEnduitSales: Math.round(pdv.graph.enduit['Prégy'].value + pdv.graph.enduit['Salsi'].value + pdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalSiniatEnduitSales: Math.round(pdv.potential + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.displayIndustrieSaleVolumes(true)['Prégy']).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      totalEnduitSales: Math.round(pdv.displayIndustrieSaleVolumes(true)['Prégy'] + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.potential).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
       typology: pdv.typology,
     }
   }
@@ -337,7 +337,7 @@ export class InfoBarComponent {
   changeOnlySiniat() {
     this.isOnlySiniat = !this.isOnlySiniat;
     this.hasChanged = true;
-    this.pdv!.updateField('onlySiniat', this.isOnlySiniat);
+    this.pdv!.changeOnlySiniat(this.isOnlySiniat);
   }
 
   getMouseCoordinnates() {

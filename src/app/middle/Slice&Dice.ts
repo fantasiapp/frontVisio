@@ -311,82 +311,81 @@ class SimplePdv { // Theses attributes are directly those received from the back
     SimplePdv.createIndexMapping();
   }
 
-  code!: string;
-  name!: string;
-  drv!: string;
-  agent!: number;
-  agentFinitions!: number;
-  dep!: number;
-  bassin!: number;
-  ville!: number;
-  latitude!: number;
-  longitude!: number;
-  segmentCommercial!: number;
-  segmentMarketing!: number;
-  enseigne!: number;
-  ensemble!: number;
-  sousEnsemble!: number;
-  site!: number;
-  available!: boolean;
-  sale!: boolean;
-  redistributed!: boolean;
-  redistributedFinitions!: boolean;
-  pointFeu!: boolean;
-  onlySiniat!: boolean;
-  closedAt!: number;
-  nbVisits!: number;
-  target!: any[];
-  sales!: any[];
+  // code!: string;
+  // name!: string;
+  // drv!: string;
+  // agent!: number;
+  // agentFinitions!: number;
+  // dep!: number;
+  // bassin!: number;
+  // ville!: number;
+  // latitude!: number;
+  // longitude!: number;
+  // segmentCommercial!: number;
+  // segmentMarketing!: number;
+  // enseigne!: number;
+  // ensemble!: number;
+  // sousEnsemble!: number;
+  // site!: number;
+  // available!: boolean;
+  // sale!: boolean;
+  // redistributed!: boolean;
+  // redistributedFinitions!: boolean;
+  // pointFeu!: boolean;
+  // onlySiniat!: boolean;
+  // closedAt!: number;
+  // nbVisits!: number;
+  // target!: any[];
+  // sales!: any[];
   icon: any = null;
 
   constructor(protected values: any[],) {
-    this.updateField('sales', this.values[SimplePdv.index('sales')])
-    for(let key of DEH.get('structurePdvs')) {
-      Object.defineProperty(this, key, {
-        get: () => {
-          if(SimplePdv.indexMapping.get(key)) {
-              return this.values[SimplePdv.indexMapping.get(key)!]
-            }
-        }
-      })
-    }
+    //this code setups getters for each field written in structurePdvs
+    // for(let key of DEH.get('structurePdvs')) {
+    //   Object.defineProperty(this, key, {
+    //     get: () => {
+    //       if(SimplePdv.indexMapping.get(key)) {
+    //           return this.values[SimplePdv.index(key)!]
+    //         }
+    //     }
+    //   })
+    // }
   }
 
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues); this.icon = null; }
 
-  // get code(): string{return this.values[SimplePdv.indexMapping.get('code')!]}
-  // get name(): string{return this.values[SimplePdv.indexMapping.get('name')!]}
-  // get drv(): string{return this.values[SimplePdv.indexMapping.get('drv')!]}
-  // get agent(): number{return this.values[SimplePdv.indexMapping.get('agent')!]}
-  // get agentFinitions(): number{return this.values[SimplePdv.indexMapping.get('agentFinitions')!]}
-  // get dep(): number{return this.values[SimplePdv.indexMapping.get('dep')!]}
-  // get bassin(): number{return this.values[SimplePdv.indexMapping.get('bassin')!]}
-  // get ville(): number{return this.values[SimplePdv.indexMapping.get('ville')!]}
-  // get latitude(): number{return this.values[SimplePdv.indexMapping.get('latitude')!]}
-  // get longitude(): number{return this.values[SimplePdv.indexMapping.get('longitude')!]}
-  // get segmentCommercial(){return this.values[SimplePdv.indexMapping.get('segmentCommercial')!]}
-  // get segmentMarketing(): number{return this.values[SimplePdv.indexMapping.get('segmentMarketing')!]}
-  // get enseigne(): number{return this.values[SimplePdv.indexMapping.get('enseigne')!]}
-  // get ensemble(): number{return this.values[SimplePdv.indexMapping.get('ensemble')!]}
-  // get sousEnsemble(): number{return this.values[SimplePdv.indexMapping.get('sousEnsemble')!]}
-  // get site(): number{return this.values[SimplePdv.indexMapping.get('site')!]}
-  // get available(): boolean{return this.values[SimplePdv.indexMapping.get('available')!]}
-  // get sale(): boolean{return this.values[SimplePdv.indexMapping.get('sale')!]}
-  // get redistributed(): boolean{return this.values[SimplePdv.indexMapping.get('redistributed')!]}
-  // get redistributedFinitions(): boolean{return this.values[SimplePdv.indexMapping.get('redistributedFinitions')!]}
-  // get pointFeu(): boolean{return this.values[SimplePdv.indexMapping.get('pointFeu')!]}
-  // get onlySiniat(): boolean{return this.values[SimplePdv.indexMapping.get('onlySiniat')!]}
-  // get closedAt(){return this.values[SimplePdv.indexMapping.get('closedAt')!]}
-  // get nbVisits(): number{return this.values[SimplePdv.indexMapping.get('nbVisits')!]}
-  // get target(): any[] | false{return this.values[SimplePdv.indexMapping.get('target')!]}
-  // get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
+  get code(): string{return this.values[SimplePdv.indexMapping.get('code')!]}
+  get name(): string{return this.values[SimplePdv.indexMapping.get('name')!]}
+  get drv(): string{return this.values[SimplePdv.indexMapping.get('drv')!]}
+  get agent(): number{return this.values[SimplePdv.indexMapping.get('agent')!]}
+  get agentFinitions(): number{return this.values[SimplePdv.indexMapping.get('agentFinitions')!]}
+  get dep(): number{return this.values[SimplePdv.indexMapping.get('dep')!]}
+  get bassin(): number{return this.values[SimplePdv.indexMapping.get('bassin')!]}
+  get ville(): number{return this.values[SimplePdv.indexMapping.get('ville')!]}
+  get latitude(): number{return this.values[SimplePdv.indexMapping.get('latitude')!]}
+  get longitude(): number{return this.values[SimplePdv.indexMapping.get('longitude')!]}
+  get segmentCommercial(){return this.values[SimplePdv.indexMapping.get('segmentCommercial')!]}
+  get segmentMarketing(): number{return this.values[SimplePdv.indexMapping.get('segmentMarketing')!]}
+  get enseigne(): number{return this.values[SimplePdv.indexMapping.get('enseigne')!]}
+  get ensemble(): number{return this.values[SimplePdv.indexMapping.get('ensemble')!]}
+  get sousEnsemble(): number{return this.values[SimplePdv.indexMapping.get('sousEnsemble')!]}
+  get site(): number{return this.values[SimplePdv.indexMapping.get('site')!]}
+  get available(): boolean{return this.values[SimplePdv.indexMapping.get('available')!]}
+  get sale(): boolean{return this.values[SimplePdv.indexMapping.get('sale')!]}
+  get redistributed(): boolean{return this.values[SimplePdv.indexMapping.get('redistributed')!]}
+  get redistributedFinitions(): boolean{return this.values[SimplePdv.indexMapping.get('redistributedFinitions')!]}
+  get pointFeu(): boolean{return this.values[SimplePdv.indexMapping.get('pointFeu')!]}
+  get onlySiniat(): boolean{return this.values[SimplePdv.indexMapping.get('onlySiniat')!]}
+  get closedAt(){return this.values[SimplePdv.indexMapping.get('closedAt')!]}
+  get nbVisits(): number{return this.values[SimplePdv.indexMapping.get('nbVisits')!]}
+  get target(): any[] | false{return this.values[SimplePdv.indexMapping.get('target')!]}
+  get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
 
-  //Modifiable fields : bassin, available, sale, redistributed, redistributedFinitions, pointFeu, onlySiniat, nbVisits, target, sales
-  public updateField(field: string, value: any) {
-     this.values[PDV.index(field)] = value;
+  public changeOnlySiniat(val: boolean) {
+    this.values[PDV.index('onlySiniat')] = val;
   }
-
+  
   public initializeTarget() {
     this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", this.bassin]
   }
@@ -402,32 +401,11 @@ export class PDV extends SimplePdv{
     super(values);
   };
 
-  //formatted getters, for display
-
-
+  //Getters for custom properties; used mostly in the table
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
-  // get targetObject(): Target {return new Target(this.target)}
-  get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
-  get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
-  get graph() {
-    let p2cdSales: any =  {}; let p2cdRaw = this.displayIndustrieSaleVolumes()
-    let enduitSales: any =  {}; let enduitRaw = this.displayIndustrieSaleVolumes(true)
-    p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
-    for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
-        p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getGraphColor('industry', industry)}
-    }
-    for(let industry of ['Prégy', 'Salsi', 'Autres']) {
-        enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getGraphColor('indFinition', industry)}
-    }
-    return {'p2cd': p2cdSales, 'enduit': enduitSales};
-  }
   get potential(): number {return this.getPotential()}
   get typology(): number {return this.typologyFilter()}
-  get edit(): boolean {return true}
-  get info(): boolean {return true}
-  get checkboxP2cd(): boolean {return this.ciblage() === 2}
-  get clientProspect(){return this.clientProspect2(true)}
 
   get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
@@ -435,6 +413,25 @@ export class PDV extends SimplePdv{
   get lightTarget(){ return this.target ? this.target[DEH.TARGET_LIGHT_ID] : false;}
   get commentTarget(){ return this.target ? this.target[DEH.TARGET_COMMENT_ID] : false;}
 
+  get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
+  get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
+  get graph() {
+      let p2cdSales: any =  {}; let p2cdRaw = this.displayIndustrieSaleVolumes()
+      let enduitSales: any =  {}; let enduitRaw = this.displayIndustrieSaleVolumes(true)
+      p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
+      for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
+          p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getGraphColor('industry', industry)}
+      }
+      for(let industry of ['Prégy', 'Salsi', 'Autres']) {
+          enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getGraphColor('indFinition', industry)}
+      }
+      return {'p2cd': p2cdSales, 'enduit': enduitSales};
+  }
+  get edit(): boolean {return true}
+  get info(): boolean {return true}
+  get checkboxP2cd(): boolean {return this.ciblage() === 2}
+  get clientProspect(){return this.clientProspect2(true)}
+  
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
     this.load(false);
@@ -674,7 +671,7 @@ export class PDV extends SimplePdv{
     return result;
   }
 
-  private typologyFilter():any{
+  public typologyFilter():any{
     let dnResult = this.getValue('dn', false, true) as number[],
       typologyIds = Object.keys(DEH.get('segmentDnEnduit'));
     for (let i = 0; i < dnResult.length; i++)

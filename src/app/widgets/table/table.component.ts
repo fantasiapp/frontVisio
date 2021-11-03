@@ -6,7 +6,6 @@ import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject, Observable, Subject} from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
-import { InfoBarComponent } from 'src/app/map/info-bar/info-bar.component';
 import DEH from 'src/app/middle/DataExtractionHelper';
 
 @Component({
@@ -34,7 +33,7 @@ export class TableComponent extends BasicWidget {
   columnDefs: any;
 
   //Rows
-  rowData: {[field: string]: any}[] = [];
+  rowData: PDV[] = [];
   rowHeight?: number;
 
   //Side menus
@@ -251,17 +250,10 @@ export class TableComponent extends BasicWidget {
     }
   }
 
-  getPdvOnId(id: number): {[key:string]:any} {
-    for(let pdv of this.rowData) {
-      if(pdv.instanceId === id) return pdv;
-    }
-    return this.rowData[0];
-  }
-
   displayInfobar(pdv: PDV | number) {
     if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
     this.selectedPdv = pdv;
-    this.pdv = PDV.getInstances().get(pdv.id) // => displays infoBar
+    this.pdv = PDV.findById(pdv.id) // => displays infoBar
     this.cd.markForCheck();
   }
 
