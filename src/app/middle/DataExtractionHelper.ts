@@ -11,25 +11,32 @@ const enduitIndustry = {
 };
 
 const segmentDnEnduit = {
-  1: "Pur prospect",
+  1: "Non documenté",
   2: "P2CD + Enduit",
   3: "Enduit hors P2CD",
-  4: "Non documenté"
+  4: "Pur prospect"
 }
 
 const clientProspect = {
-  1: "Client",
-  2: "Prospect",
-  3: "Non documenté"
+  1: "Non documenté",
+  2: "Client",
+  3: "Prospect"
 }
 
 const clientProspectTarget = {
-  4: "Potentiel ciblé"
+  1: "Potentiel ciblé",
+  2: "Non documenté",
+  3: "Client",
+  4: "Prospect"
 }
 
 const segmentDnEnduitTarget = {
+  1: "Non documenté",
+  2: "P2CD + Enduit",
+  3: "Cible P2CD",
+  4: "Enduit hors P2CD",
   5: "Cible Pur Prospect",
-  6: "Cible P2CD"
+  6: "Pur prospect"
 }
 
 const enduitIndustryTarget = {
@@ -43,8 +50,8 @@ const industryTarget = {
 
 const suiviAD = {
   1: "Terminées",
-  2: "Non renseignées",
-  3: "Non mises à jour"
+  3: "Non mises à jour",
+  2: "Non renseignées"
 }
 
 const weeks = {
@@ -93,12 +100,64 @@ const segmentMarketingFilter = {
 }
 
 const segmentDnEnduitTargetVisits = {
-  1: "P2CD + Enduit",
+  1: "Non documenté",
   2: "Cible P2CD + Enduit",
-  3: "Enduit hors P2CD",
+  3: "P2CD + Enduit",
   4: "Cible Enduit hors P2CD",
-  5: "Pur prospect",
-  6: "Cible Pur Prospect"
+  5: "Enduit hors P2CD",
+  6: "Cible Pur Prospect",
+  7: "Pur prospect",
+}
+
+//Proxy Class
+export class Params {
+  static get coeffGreenLight() {
+    return DEH.get('params')['coeffGreenLight'];
+  }
+
+  static get currentYear() {
+    return DEH.get('params')['currentYear'];
+  }
+
+  static get currentMonth() {
+    return DEH.get('params')['currentMonth'];
+  }
+
+  static get delayBetweenUpdates() {
+    return DEH.get('params')['delayBetweenUpdates'];
+  }
+
+  static get isAdOpen() {
+    return DEH.get('params')['isAdOpen'];
+  }
+
+  static get pseudo() {
+    return DEH.get('params')['pseudo'];
+  }
+
+  static get ratioCustomerProspect() {
+    return DEH.get('params')['ratioCustomerProspect'];
+  }
+
+  static get ratioPlaqueFinition() {
+    return DEH.get('params')['ratioPlaqueFinition'];
+  }
+
+  static get referentielVersion() {
+    return DEH.get('params')['referentielVersion'];
+  }
+
+  static get softwareVersion() {
+    return DEH.get('params')['softwareVersion'];
+  }
+
+  static get rootName() {
+    return PDV.geoTree.root.name;
+  }
+
+  static get rootLabel() {
+    return DEH.geoLevels[0][DEH.LABEL_INDEX];
+  }
 }
 
 
@@ -146,8 +205,6 @@ class DEH{  // for DataExtractionHelper
   static AGENTFINITION_DRV_ID: number;
   static AGENTFINITION_RATIO_ID: number;
   static delayBetweenUpdates: number;
-
-
   
   //Represent levels as a vertical array rather than a recursive structure
   static geoLevels: any[] = [];
@@ -354,10 +411,8 @@ class DEH{  // for DataExtractionHelper
       case 'segmentMarketingFilter': return segmentMarketingFilter;
       case 'visited': return visitedFilter;
       case 'typology': return segmentDnEnduit;
-      case 'clientProspectTarget':
-        return Object.assign({}, clientProspect, clientProspectTarget);
-      case 'segmentDnEnduitTarget': 
-        return Object.assign({}, segmentDnEnduit, segmentDnEnduitTarget);
+      case 'clientProspectTarget': return clientProspectTarget;
+      case 'segmentDnEnduitTarget': return segmentDnEnduitTarget;
       case 'enduitIndustryTarget': 
         return Object.assign({}, enduitIndustry, enduitIndustryTarget);
       case 'industryTarget':
@@ -425,7 +480,7 @@ class DEH{  // for DataExtractionHelper
   }
 
   static getOtherYearDashboards(tree: Tree, height: number = 0) {
-    let name = tree.type == NavigationExtractionHelper ? 'levelGeo' : 'levelTrade';
+    let name = tree.is(NavigationExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
     while ( height-- )
       level = level[this.SUBLEVEL_INDEX];

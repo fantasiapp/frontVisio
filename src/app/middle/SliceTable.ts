@@ -1,6 +1,6 @@
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
-import DEH from "./DataExtractionHelper";
+import DEH, { Params } from "./DataExtractionHelper";
 import { PDV, SliceDice } from "./Slice&Dice";
 
 @Injectable({
@@ -171,7 +171,7 @@ export class SliceTable {
 
     getRowColor(id: number): string {
         let pdvInstance = PDV.findById(id)!;
-        let isAdOpen = DEH.get('params')['isAdOpen']
+        let isAdOpen = Params.isAdOpen;
         if(pdvInstance.onlySiniat === true || pdvInstance.sale === false || pdvInstance.redistributed === false || (pdvInstance.target && (!pdvInstance.target[DEH.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DEH.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 

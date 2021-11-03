@@ -16,7 +16,7 @@
       step="1"
       class="input-range"
       [value]="sldValue"
-      (click)="toggle();"
+      (click)="toggle()"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
@@ -40,7 +40,7 @@
       </button>
     </div>
     <div class="search-div">
-      <account-info [name]="getName() || '...'"></account-info>
+      <account-info [name]="name || '...'"></account-info>
     </div>
   </div>
 </div>

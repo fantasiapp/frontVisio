@@ -5,7 +5,8 @@ import { PDV, Sale } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
-import { formatStringToNumber, formatNumberToString } from 'src/app/general/valueFormatter';
+import { SliceTable } from 'src/app/middle/SliceTable';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import {
   trigger,
   state,
@@ -59,7 +60,7 @@ export class InfoBarComponent {
       this.target[this.TARGET_SALE_ID] = this.target[DEH.TARGET_SALE_ID] && this.pdv!.sale
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
-      this.targetP2cdFormatted = formatNumberToString(this.target[DEH.TARGET_VOLUME_ID]);
+      this.targetP2cdFormatted = this.format(this.target[DEH.TARGET_VOLUME_ID]);
       this.showNavigation = this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
       this.isOnlySiniat = this.pdv!.onlySiniat
 
@@ -70,6 +71,9 @@ export class InfoBarComponent {
   }
   @Input()
   display: string = 'p2cd';
+
+  @Input()
+  customData: {[field: string]: any} = {};
 
   @Output()
   pdvChange = new EventEmitter<PDV | undefined>();
@@ -116,8 +120,6 @@ export class InfoBarComponent {
       return false;
   }
 
-  myFormatNumberToString = formatNumberToString;
-
   get pdv() {
     return this._pdv;
   }
@@ -153,10 +155,11 @@ export class InfoBarComponent {
 
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
     console.log('[InfobarComponent]: On')
-    this.SALES_INDUSTRY_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'industry')
-    this.SALES_PRODUCT_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'product')
-    this.SALES_VOLUME_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'volume')
-    this.SALES_DATE_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'date')
+    let structure = DEH.get("structureSales") as string[];
+    this.SALES_INDUSTRY_ID = structure.indexOf('industry')
+    this.SALES_PRODUCT_ID = structure.indexOf('product')
+    this.SALES_VOLUME_ID = structure.indexOf('volume')
+    this.SALES_DATE_ID = structure.indexOf('date')
     this.TARGET_VOLUME_ID = DEH.TARGET_VOLUME_ID;
     this.TARGET_LIGHT_ID = DEH.TARGET_LIGHT_ID;
     this.TARGET_REDISTRIBUTED_ID = DEH.TARGET_REDISTRIBUTED_ID;
@@ -177,6 +180,14 @@ export class InfoBarComponent {
   //make variable
   getSalesVolumes() {
     return (this.pdv ? Object.entries(this.pdv.displayIndustrieSaleVolumes()) : []).filter(entry => entry[1] != 0);
+  }
+
+  format(entry: number) {
+    return BasicWidget.format(entry);
+  }
+
+  convert(entry: string) {
+    return BasicWidget.convert(entry);
   }
 
   quit(save: boolean) {
@@ -219,7 +230,7 @@ export class InfoBarComponent {
       let i = this.industryIdToIndex[sale.industryId], j = this.productIdToIndex[sale.productId];
       console.log("Setting ", i, j, " with ", sale.volume)
       this.grid[i][j] = sale;
-      this.gridFormatted[i][j] = formatNumberToString(sale.volume);
+      this.gridFormatted[i][j] = BasicWidget.format(sale.volume);
       this.updateSum(i,j, 0, this.grid[i][j].volume)
       this.salesColors[i][j] = this.getSaleColor(sale);
     }
@@ -251,7 +262,7 @@ export class InfoBarComponent {
 
   updateValue(i: number, j: number, value: number) {
     this.grid[i][j].volume = value;
-    this.gridFormatted[i][j] = formatNumberToString(value);
+    this.gridFormatted[i][j] = this.format(value);
   }
 
   /*** Functions used to change the target field (and onlySiniat field) in the local pdv ***/
@@ -266,15 +277,15 @@ export class InfoBarComponent {
     this.hasChanged = true;
   }
   changeTargetP2CD() {
-    this.targetP2cdFormatted = formatStringToNumber(this.targetP2cdFormatted).toString();
+    this.targetP2cdFormatted = this.convert(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
-      this.targetP2cdFormatted = formatNumberToString((this.pdv!.target as any[])[DEH.TARGET_VOLUME_ID]);
+      this.targetP2cdFormatted = this.format((this.pdv!.target as any[])[DEH.TARGET_VOLUME_ID]);
       this.errorInput = true;
       setTimeout(() => this.errorInput = false, 1000);
       return;
     }
-    this.target[DEH.TARGET_VOLUME_ID] = formatStringToNumber(this.targetP2cdFormatted);
-    this.targetP2cdFormatted = formatNumberToString(+this.targetP2cdFormatted)
+    this.target[DEH.TARGET_VOLUME_ID] = this.convert(this.targetP2cdFormatted);
+    this.targetP2cdFormatted = this.format(+this.targetP2cdFormatted)
     this.hasChanged = true;
   }
   changeComment() {
@@ -283,21 +294,21 @@ export class InfoBarComponent {
     this.hasChanged = true;
   }
   changeTargetBassin() {
-      if(!this.displayedInfos.bassin) {
-        this.displayedInfos.bassin = this.target[DEH.TARGET_BASSIN_ID];
-        return;
-      }
-      this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
-      this.hasChanged = true;
+    if(!this.displayedInfos.bassin) {
+      this.displayedInfos.bassin = this.target[DEH.TARGET_BASSIN_ID];
+      return;
+    }
+    this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
+    this.hasChanged = true;
   } 
   changeTargetLight(newLightValue: string) {
     this.target[DEH.TARGET_LIGHT_ID] = newLightValue;
     this.hasChanged = true;
   }
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
-    let oldVolume = this.grid[i][j].volume; let newVolume = formatStringToNumber(this.gridFormatted[i][j]);
+    let oldVolume = this.grid[i][j].volume; let newVolume = this.convert(this.gridFormatted[i][j]);
     if(Number.isNaN(newVolume)) {
-      this.gridFormatted[i][j] = formatNumberToString(this.grid[i][j].volume);
+      this.gridFormatted[i][j] = this.format(this.grid[i][j].volume);
       this.errorInput = true;
       setTimeout(() => this.errorInput = false, 1000)
       return;
