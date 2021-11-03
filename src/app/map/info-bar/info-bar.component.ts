@@ -58,7 +58,7 @@ export class InfoBarComponent {
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.TARGET_REDISTRIBUTED_ID] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.TARGET_SALE_ID] && this.pdv!.sale
-      this.target[DEH.TARGET_BASSIN_ID] = this._pdv.get('bassin');
+      this.target[DEH.TARGET_BASSIN_ID] = this._pdv.bassin;
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
       this.targetP2cdFormatted = this.format(this.target[DEH.TARGET_VOLUME_ID]);
@@ -132,12 +132,12 @@ export class InfoBarComponent {
   extractDisplayedInfos(pdv: PDV) {
     return {
       name: pdv.name,
-      agent: pdv.get('agent'),
-      segmentMarketing: pdv.get('segmentMarketing'),
-      segmentCommercial: pdv.get('segmentCommercial'),
-      enseigne: pdv.get('enseigne'),
-      dep: pdv.get('dep'),
-      ville: pdv.get('ville'),
+      agent: DEH.getNameOfRegularObject('agent', pdv.agent),
+      segmentMarketing: DEH.getNameOfRegularObject('agent', pdv.segmentMarketing),
+      segmentCommercial: DEH.getNameOfRegularObject('agent', pdv.segmentCommercial),
+      enseigne: DEH.getNameOfRegularObject('agent', pdv.enseigne),
+      dep: DEH.getNameOfRegularObject('agent', pdv.dep),
+      ville: DEH.getNameOfRegularObject('agent', pdv.ville),
       bassin: this.target[DEH.TARGET_BASSIN_ID],
       clientProspect: pdv.clientProspect2(),
       nbVisits: pdv.nbVisits,

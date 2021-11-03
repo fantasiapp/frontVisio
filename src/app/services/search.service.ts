@@ -24,7 +24,7 @@ function searchPDV(): SearchFunction {
     if ( !term && showAll ) return [];
     term = term.toLowerCase();
     let result = filterMap<PDV, Suggestion>(pdvs, (pdv: PDV) => {
-      let name = pdv.attribute('name').toLowerCase(),
+      let name = pdv.name.toLowerCase(),
         index = name.indexOf(term);
       
       if ( index < 0 ) return null;

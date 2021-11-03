@@ -318,8 +318,8 @@ export class MapComponent extends SubscriptionManager implements Interactive {
   }
 
   private createMarker(pdv: PDV): MarkerType {
-    let lat = pdv.attribute('latitude'),
-      lng = pdv.attribute('longitude'),
+    let lat = pdv.latitude,
+      lng = pdv.longitude,
       icon = pdv.icon || MapIconBuilder.getIcon(pdv);
 
     if ( !icon ) throw 'Cannot find icon, maybe ids change';
@@ -327,7 +327,7 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     return {
       position: new google.maps.LatLng(lat, lng),
       icon,
-      title: pdv.attribute('name'),
+      title: pdv.name,
       pdv
     }
   }

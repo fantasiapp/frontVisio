@@ -390,12 +390,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
   public initializeTarget() {
     this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", this.bassin]
   }
-
-  public attribute(attribute: string) {
-    return this.values[SimplePdv.indexMapping.get(attribute)!]
-  }
-
-  public get(field: string) {return DEH.getNameOfRegularObject(field, this.attribute(field))} //useless ?
 }
 
 export class PDV extends SimplePdv{
@@ -435,35 +429,11 @@ export class PDV extends SimplePdv{
   get checkboxP2cd(): boolean {return this.ciblage() === 2}
   get clientProspect(){return this.clientProspect2(true)}
 
-  get targetP2cd(){
-    let target = this.attribute('target');
-    if (!target) return 0;
-    return target[DEH.TARGET_VOLUME_ID]
-  }
-  
-  get targetFinition(){
-    let target = this.attribute('target');
-    if (!target) return false;
-    return target[DEH.TARGET_FINITIONS_ID]
-  }
-  
-  get volumeTarget(){
-    let target = this.attribute('target');
-    if (!target) return 0;
-    return target[DEH.TARGET_VOLUME_ID];
-  }
-
-  get lightTarget(){
-    let target = this.attribute('target');
-    if (!target) return '';
-    return target[DEH.TARGET_LIGHT_ID]
-  }
-
-  get commentTarget(){
-    let target = this.attribute('target');
-    if (!target) return "";
-    return target[DEH.TARGET_COMMENT_ID]
-  }
+  get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
+  get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
+  get volumeTarget(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
+  get lightTarget(){ return this.target ? this.target[DEH.TARGET_LIGHT_ID] : false;}
+  get commentTarget(){ return this.target ? this.target[DEH.TARGET_COMMENT_ID] : false;}
 
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
@@ -629,15 +599,15 @@ export class PDV extends SimplePdv{
         if (pdv.available && pdv.sale){// condition à mettre dans le reslice peut-être
           if (irregular == 'no') 
             dataWidget.addOnCase(
-              pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
+              pdv[axis1 as keyof SimplePdv], pdv[axis2 as keyof SimplePdv], pdv.getValue(indicator, byIndustries, enduit, 
                 clientProspect, target, visit, axis1) as number);
           else if (irregular == 'line') 
             dataWidget.addOnColumn(
-              pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
+              pdv[axis2 as keyof SimplePdv], pdv.getValue(indicator, byIndustries, enduit, 
                 clientProspect, target, visit, axis1) as number[]);
           else if (irregular == 'col') 
             dataWidget.addOnRow(
-              pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, 
+              pdv[axis1 as keyof SimplePdv], pdv.getValue(indicator, byIndustries, enduit, 
                 clientProspect, target, visit, axis2) as number[]);
         }
       }
@@ -691,14 +661,14 @@ export class PDV extends SimplePdv{
       case 'visited': return (this.nbVisits > 0)? 1: 2;
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
       case 'typology': return this.typologyFilter();
-      default: return this.attribute(propertyName);
+      default: return this[propertyName as keyof SimplePdv];
     }
   }
 
   private segmentMarketingFilter(){
     let dictSegment = DEH.get('segmentMarketingFilter'),
       dictAllSegments = DEH.get('segmentMarketing');
-    let pdvSegment = this.attribute('segmentMarketing');
+    let pdvSegment = this.segmentMarketing;
     let result = parseInt(DEH.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
     return result;
