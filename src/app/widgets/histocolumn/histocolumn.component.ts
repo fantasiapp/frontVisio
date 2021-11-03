@@ -63,7 +63,7 @@ export class HistoColumnComponent extends BasicWidget {
     let self = this;
     this.maxValue = this.computeMax(data);
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    this.chart = (window as any).chart = bb.generate({
+    this.chart = bb.generate({
       bindto: this.content.nativeElement,
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */

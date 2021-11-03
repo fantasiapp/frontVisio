@@ -1,11 +1,11 @@
 <div class="container-bar aligned">
-  <div class="button-container">
+  <div class="button-container" [style.visibility]="hideIfMapIsVisible">
     <div (click)="showFilters()" class="open-filters">
       Options
         <mat-icon class="expand-icon">expand_more</mat-icon></div>
   </div>
 
-  <div class="ens-org" [style.visibility]="switchIsVisible ? 'visible' : 'hidden'">
+  <div class="ens-org" [style.visibility]="hideIfMapIsVisible">
     <span
       ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
     >
@@ -16,7 +16,7 @@
       step="1"
       class="input-range"
       [value]="sldValue"
-      (click)="toggle();"
+      (click)="toggle()"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
@@ -40,7 +40,7 @@
       </button>
     </div>
     <div class="search-div">
-      <account-info [name]="getName() || '...'"></account-info>
+      <account-info [name]="name || '...'"></account-info>
     </div>
   </div>
 </div>

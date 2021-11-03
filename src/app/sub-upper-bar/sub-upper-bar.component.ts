@@ -14,7 +14,8 @@ export class SubUpperBarComponent implements OnInit {
   constructor(private filtersStates: FiltersStatesService, private logger: LoggerService) {}
   currentDashboardId: number = 0;
   currentDashboard: string = '';
-  currentLevel: string =''
+  currentLevel: string ='';
+  currentMonth: string = '';
   currentYear: string = '';
   path:  string = ''
   years:{ value: number; label: string }[] = [{value : 2021, label:'Année 2021'}, {value : 2020, label:'Année 2020'}]
@@ -33,6 +34,7 @@ export class SubUpperBarComponent implements OnInit {
     );
 
     this.currentYear = this.filtersStates.getYear();
+    this.currentMonth = this.filtersStates.getMonth();
   }
   private destroy$: Subject<void> = new Subject<void>();
 

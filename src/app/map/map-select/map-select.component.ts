@@ -11,20 +11,19 @@ export class MapSelectComponent implements OnChanges {
 
   @Input()
   criterion = '';
+  
   @Input()
   prettyCriterion = '';
+
   @Input()
   criteria: [number, any, number][] | null = null;
-  
-  all: boolean = true;
 
   @Output()
   criteriaChange: EventEmitter<[string, any[]]|[]> = new EventEmitter();
   
-  selection: number[] = [];
 
-  @ViewChild('total', {static: false, read: ElementRef})
-  private total?: ElementRef;
+  all: boolean = true;
+  selection: number[] = [];
 
   constructor(private ref: ElementRef) { }
 
@@ -89,26 +88,6 @@ export class MapSelectComponent implements OnChanges {
     this.emitSelection();
   }
 
-  protected minHeight = 40; //height for title only
-  protected contentPadding = 30;
-  protected lineHeight = 30;
-  dropped = false;
-
-  get droppable() {
-    return this.criteria && this.criteria.length > 1;
-  }
-
-  get deletable() {
-    return this.selection.length > 0;
-  }
-
-  @HostBinding('style.height')
-  get height() {
-    if ( this.dropped )
-      return (this.minHeight + this.contentPadding + this.lineHeight * (this.criteria ? this.criteria.length+1 : 1)) + 'px';
-    return this.minHeight + 'px';
-  }
-
   toggleDropdown(e: any) {
     if ( this.dropped )
       this.close();
@@ -144,5 +123,25 @@ export class MapSelectComponent implements OnChanges {
     
     if ( this.selection.length != oldLength )
       this.emitSelection();
+  }
+
+  protected minHeight = 40; //height for title only
+  protected contentPadding = 30;
+  protected lineHeight = 30;
+  dropped = false;
+
+  get droppable() {
+    return this.criteria && this.criteria.length > 1;
+  }
+
+  get deletable() {
+    return this.selection.length > 0;
+  }
+
+  @HostBinding('style.height')
+  get height() {
+    if ( this.dropped )
+      return (this.minHeight + this.contentPadding + this.lineHeight * (this.criteria ? this.criteria.length+1 : 1)) + 'px';
+    return this.minHeight + 'px';
   }
 }

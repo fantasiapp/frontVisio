@@ -1,6 +1,6 @@
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
-import DEH from "./DataExtractionHelper";
+import DEH, { Params } from "./DataExtractionHelper";
 import { PDV, SliceDice } from "./Slice&Dice";
 
 type GroupRow = { //Built to behave like a PDV type for the table component

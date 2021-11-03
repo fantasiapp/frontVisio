@@ -3,19 +3,24 @@ import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { EventEmitter } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
-import { Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { Interactive } from 'src/app/interfaces/Common';
 
 type WidgetParams = [string, string, string, string[], string[], boolean];
-export type Widget= [string, string, string, string, WidgetParams];
+export type WidgetPrototype = [string, string, string, string, WidgetParams];
 export interface Layout {
   grid: [string, string];
   description: string;
   template: string;
-  areas: {[key:string]: Widget | null}
+  areas: {[key:string]: WidgetPrototype | null}
 };
 
-//If you have time, try to use template inside the html file
-//ngFor grid areas and ngComponentOutlet, it can remove the need for requestAnimationFrame
+export type GridState = {
+  loaded: boolean;
+  instances?: GridArea[];
+};
+
+
 @Component({
   selector: 'grid-manager',
   templateUrl: './grid-manager.component.html',
@@ -23,9 +28,9 @@ export interface Layout {
   providers: [WidgetManagerService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridManager implements AfterViewInit, OnChanges {
+export class GridManager implements Interactive {
   //default layout
-  private $layout: Layout = defaultLayout;
+  private _layout: Layout = defaultLayout;
 
   //grid structure
   @HostBinding('style.grid-template-columns')
@@ -37,14 +42,21 @@ export class GridManager implements AfterViewInit, OnChanges {
 
 
   get layout(): Layout {
-    return this.$layout;
+    return this._layout;
+  }
+
+  get loaded() {
+    return this.state.getValue().loaded;
   }
 
   @Input()
   set layout(layout: Layout | null) {
-    this.$layout = layout || defaultLayout;
+    this._layout = layout || defaultLayout;
     this.computeLayout();
   }
+
+  @Input()
+  path: any = {};
 
   @Output()
   layoutChanged: EventEmitter<Layout> = new EventEmitter;
@@ -54,10 +66,12 @@ export class GridManager implements AfterViewInit, OnChanges {
   @ViewChild('target', {read: ViewContainerRef})
   ref!: ViewContainerRef;
 
-  componentsLoaded: Subject<any[]> = new Subject;
+  state: BehaviorSubject<GridState> = new BehaviorSubject<GridState>({loaded: false});
+  protected _paused: boolean = false;
+  get paused() { return this._paused; }
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-    console.log('[GridManager]: On.')
+    console.debug('[GridManager]: On.')
   }
   
   ngAfterViewInit() {
@@ -68,13 +82,16 @@ export class GridManager implements AfterViewInit, OnChanges {
     let layoutChanges = changes['layout'];
     if ( layoutChanges && !layoutChanges.isFirstChange() ) {
       this.createComponents();
-      this.layoutChanged.emit(this.$layout);
-    }
+      this.layoutChanged.emit(this.layout);
+    }    
+    let pathChanges = changes['path'];
+    if ( !pathChanges || layoutChanges ) return;
+    if ( !BasicWidget.shallowObjectEquality(pathChanges.currentValue, pathChanges.previousValue) )
+      this.onPathChanged();
   }
 
   private createComponents() {
-    this.ref.clear();
-    this.instances.length = 0;
+    this.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
       if ( !desc ) throw '[GridManager -- createComponents]: Unknown component.';
@@ -82,7 +99,6 @@ export class GridManager implements AfterViewInit, OnChanges {
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
       let component = this.ref.createComponent(factory);
       component.instance.gridArea = name;
-      
       
       /**** object properties *****/
       //component.instance.properties.grid = this;
@@ -96,23 +112,28 @@ export class GridManager implements AfterViewInit, OnChanges {
       this.ref.insert(component.hostView);
     }
     this.cd.detectChanges();
-    this.componentsLoaded.next(this.instances);
+    this.state.next({
+      loaded: true,
+      instances: this.instances
+    });
+  }
+
+  protected onPathChanged() {
+    if ( this._paused ) return;
+    for ( let component of this.instances ) {
+      component.onPathChanged(this.path);
+      component.update();
+    }
   }
 
   interactiveMode() {
-    for ( let i = 0; i < this.instances.length; i++ ) {
-      let widget = this.instances[i] as any;
-      if ( widget && widget instanceof BasicWidget )
-        (widget as BasicWidget).interactiveMode();
-    }
+    if ( !this._paused ) return;
+    this._paused = false;
+    this.onPathChanged();
   }
 
   pause() {
-    for ( let i = 0; i < this.instances.length; i++ ) {
-      let widget = this.instances[i] as any;
-      if ( widget && widget instanceof BasicWidget )
-        (widget as BasicWidget).pause();
-    }
+    this._paused = true;
   }
 
   clear() {
@@ -120,11 +141,7 @@ export class GridManager implements AfterViewInit, OnChanges {
       this.ref.remove();
     
     this.instances.length = 0;
-  }
-
-  reload() {
-    this.clear();
-    this.createComponents();
+    this.state.next({loaded: false});
   }
 
   update() {
@@ -137,9 +154,15 @@ export class GridManager implements AfterViewInit, OnChanges {
       component.refresh();
   }
 
+  /* = delete */
+  reload() {
+    this.clear();
+    this.createComponents();
+  }
+
   ngOnDestroy() {
     this.clear();
-    this.componentsLoaded.complete();
+    this.state.complete();
   }
 
   private computeLayout() {

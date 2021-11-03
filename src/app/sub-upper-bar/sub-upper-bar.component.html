@@ -1,7 +1,7 @@
 <div class="container aligned">
   <div>
     <div class="dash">{{ currentDashboard }}</div>
-    <div class="level">Résultat {{ path }} {{ currentYear ? '(MÀJ ' + currentYear + ')' : '' }}</div>
+    <div class="level">Résultat {{ path }} {{ currentYear ? '(Mise à jour ' + (currentMonth ? currentMonth + ' ' : '') + currentYear + ')' : '' }}</div>
   </div>
   <div class="select-year" style="width: 134px">
     <select (change)="onYearChange($event)">

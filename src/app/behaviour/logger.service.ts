@@ -42,7 +42,7 @@ export class LoggerService {
     switch ( event ) {
       case LoggerService.events.NAVIGATION_TREE_CHANGED:
         key = 'view';
-        if ( data.type == PDV.geoTree.type )
+        if ( data.is(PDV.geoTree) )
           result = LoggerService.values.NAVIGATION_GEO_TREE;
         else
           result = LoggerService.values.NAVIGATION_TRADE_TREE;
@@ -112,7 +112,6 @@ export class LoggerService {
 
   actionComplete() {
     if ( !this.change ) return;
-    // console.log(this.snapshot);
     this.log();
   }
 

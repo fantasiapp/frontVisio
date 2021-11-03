@@ -11,14 +11,12 @@ import { LoginFormComponent } from './login-page/login-form/login-form.component
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UpperbarComponent } from './upperbar/upperbar.component';
 import { FiltersComponent } from './filters/filters.component';
-import { SearchFieldComponent } from './general/search-field/search-field.component';
 import { SubUpperBarComponent } from './sub-upper-bar/sub-upper-bar.component';
 import { MapComponent } from './map/map.component';
 import { ViewComponent } from './view/view.component';
 // import { AgmCoreModule } from '@agm/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { SelectComponent } from './general/select/select.component';
 import { MatIconModule } from '@angular/material/icon'
 import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.component';
@@ -63,11 +61,9 @@ import { MapLegendComponent } from './map/map-legend/map-legend.component';
     LoginFormComponent,
     UpperbarComponent,
     FiltersComponent,
-    SearchFieldComponent,
     SubUpperBarComponent,
     MapComponent,
     ViewComponent,
-    SelectComponent,
     SimplePieComponent,
     SimpleDonutComponent,
     //------------------------

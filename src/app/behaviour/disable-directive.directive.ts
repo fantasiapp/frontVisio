@@ -10,10 +10,7 @@ export abstract class DisableDirective implements AfterViewInit {
   abstract computeDisabled(): boolean;
 
   ngAfterViewInit(): void {
-    if(this.computeDisabled())
-    this.el.nativeElement.disabled = true; 
+    if( this.computeDisabled() )
+      this.el.nativeElement.disabled = true; 
   }
-
-
-
 }

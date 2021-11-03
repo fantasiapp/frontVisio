@@ -21,33 +21,8 @@ import { HistocurveComponent } from '../widgets/histocurve/histocurve.component'
 export class DefaultComponent extends GridArea {
   constructor() {
     super();
-    console.log('[DefaultComponent]: Component not found, rendering default.') 
+    console.warn('[DefaultComponent]: Component not found, rendering default.') 
   }
-}
-
-function createDefaultComponent(name: string, src: string) {
-  @Component({
-    template: `
-      <img [alt]="name" [src]="src"/>
-    `,
-    styles: [`
-      :host {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    `]
-  })
-  class DefaultImage extends GridArea {
-    public name: string = name;
-    public src: string = src;
-    constructor() {
-      super();
-      console.log('[DefaultImage]: Component found but not initialized, rendering a default image.');
-    }
-  };
-
-  return DefaultImage;
 }
 
 @Injectable()
@@ -67,15 +42,13 @@ export class WidgetManagerService {
   };
 
   constructor() {
-    console.log('[WidgetManager]: On.');
+    console.debug('[WidgetManager]: On.');
   }
 
   findComponent(name: string): any {
     let component = this.mapping[name];
     if ( !component )
       return DefaultComponent;
-    if ( typeof component === 'string' )
-      return createDefaultComponent(name, component);
     return component;
   }
 };

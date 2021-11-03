@@ -1,13 +1,15 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable, OnDestroy } from '@angular/core';
-import DEH, { NavigationExtractionHelper } from '../middle/DataExtractionHelper';
+import DEH, { Params, TreeExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { getGeoTree, loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
+import { loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
-import { AsyncSubject, Subject, Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { debounceTime } from 'rxjs/operators';
+
+//Continue working on proxy classes, make everything simple
 
 @Injectable()
 export class FiltersStatesService implements OnDestroy {
@@ -21,18 +23,16 @@ export class FiltersStatesService implements OnDestroy {
       if (data) {
         DEH.setData(data);
         loadAll();
-        this.reset(getGeoTree(), true);
+        this.reset(PDV.geoTree, true);
       }
     });
 
-    this.pathChanged.pipe(debounceTime(5000)).subscribe(() => {
+    this.logPathChanged.pipe(debounceTime(5000)).subscribe((path) => {
       this.logger.log();
     });
-
-    (window as any).refresh = () => { this.dataservice.update.next(); }
   }
 
-  pathChanged: Subject<never> = new Subject;
+  logPathChanged: Subject<{}> = new Subject;
   stateSubject = new BehaviorSubject({
     States: {
       level:{
@@ -76,7 +76,11 @@ export class FiltersStatesService implements OnDestroy {
 
   public getYear() {
     return this.navigation.getCurrentYear();
-  };
+  }
+
+  public getMonth(): string {
+    return Params.currentMonth;
+  }
 
   public updateState(
     levelId?: number,
@@ -95,9 +99,8 @@ export class FiltersStatesService implements OnDestroy {
       States
     };
 
-    if ( superlevel !== undefined || levelId !== undefined ) {
-      this.pathChanged.next();
-    }
+    if ( superlevel !== undefined || levelId !== undefined )
+      this.logPathChanged.next(this.getPath(States));
 
     if ( dashboardId ) {
       this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
@@ -118,8 +121,15 @@ export class FiltersStatesService implements OnDestroy {
     return path;
   }
 
+  get currentPath() {
+    return this.getPath(this.stateSubject.value.States);
+  }
+
+  get tree() { return this.navigation.tree; }
+  treeIs(t: Tree | TreeExtractionHelper) { return this.tree ? this.tree.is(t) : true; }
+
   public reset(t: Tree, follow: boolean = true) {
-    this.sliceDice.geoTree = t.type == NavigationExtractionHelper;
+    this.sliceDice.geoTree = t.is(PDV.geoTree);
     if ( follow )
       this.navigation.followTree(t);
     else
@@ -141,7 +151,8 @@ export class FiltersStatesService implements OnDestroy {
     this.arraySubject.next(currentArrays);
   }
 
-  reload() {
+  refresh() {
+    console.log('calling refresh');
     const currentArrays = {
       levelArray: this.navigation.getArray('level'),
       dashboardArray: this.navigation.getArray('dashboard'),
@@ -151,11 +162,11 @@ export class FiltersStatesService implements OnDestroy {
       States
     };
 
-    this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.navigation.tree);
+    this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.tree);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, States.dashboard.id);
     this.logger.actionComplete();
 
-    this.sliceDice.geoTree = this.navigation.tree!.type == NavigationExtractionHelper;
+    this.sliceDice.geoTree = this.treeIs(PDV.geoTree) || false;
     this.stateSubject.next(currentState);
     this.arraySubject.next(currentArrays);
   }
@@ -192,7 +203,7 @@ export class FiltersStatesService implements OnDestroy {
     this.logger.actionComplete();
     if ( change ) {
       loadAll();
-      this.reset(this.navigation.tree!.type == NavigationExtractionHelper ? PDV.geoTree : PDV.tradeTree, true);
+      this.reset(this.treeIs(PDV.geoTree) ? PDV.geoTree : PDV.tradeTree, true);
       this.dataservice.update.next();
     }
   }
