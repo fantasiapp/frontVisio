@@ -50,8 +50,8 @@ const industryTarget = {
 
 const suiviAD = {
   1: "Terminées",
-  2: "Non renseignées",
-  3: "Non mises à jour"
+  3: "Non mises à jour",
+  2: "Non renseignées"
 }
 
 const weeks = {

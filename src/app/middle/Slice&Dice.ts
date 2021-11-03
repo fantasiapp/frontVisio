@@ -13,7 +13,6 @@ const nonRegularAxis = ['industry', 'enduitIndustry', 'segmentDnEnduit', 'client
   industryAxis = ['industry', 'industryTarget'],
   clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
   visitAxis = ['segmentDnEnduitTargetVisits'],
-  adAxis = ['suiviAD'],
   gaugesAxis = ['visits', 'targetedVisits', 'avancementAD'],
   rodAfterFirstCategAxis = ['industryTarget', 'clientProspectTarget'],
   rodAfterSecondCategAxis = ['enduitIndustryTarget'];
@@ -446,7 +445,7 @@ export class PDV extends SimplePdv{
   }
 
   public getValue(indicator: string, byIndustries=false, enduit=false, clientProspect=false, 
-      target=false, visit=false, ad=false, axisName?:string): (number | number[]){
+      target=false, visit=false, axisName?:string): (number | number[]){
     if (indicator == 'dn' || visit) return this.computeDn(axisName!, indicator);
     let relevantSales = this.salesObject.filter(sale => sale.type == indicator);
     // pas opti de le calculer 2 fois quand l'indicator c'est p2cd
@@ -537,23 +536,18 @@ export class PDV extends SimplePdv{
     let pregyId = DEH.INDUSTRIE_PREGY_ID,
       salsiId = DEH.INDUSTRIE_SALSI_ID,
       totalEnduit = DEH.getParam('ratioPlaqueFinition') * total,
-      diced = (target) ? new Array(6).fill(0): new Array(4).fill(0);
+      diced = new Array(axe.length).fill(0);
     for (let sale of relevantSales){
       if (sale.industryId == pregyId) diced[associatedIndex['Prégy']] += sale.volume;
       else if (sale.industryId == salsiId) diced[associatedIndex['Salsi']] += sale.volume;    
     }
     let salsiPlusPregy = diced[associatedIndex['Prégy']] + diced[associatedIndex['Salsi']];
     let other = Math.max(totalEnduit - salsiPlusPregy, 0);
-    let dnEnduit = this.getValue('dn', false, true, false, false, false, false, 'segmentDnEnduit') as number[];
-    if (dnEnduit[1] == 1){
+    let dnEnduit = this.getValue('dn', false, true, false, false, false, 'segmentDnEnduit') as number[];
+    if (dnEnduit[1] == 1 || dnEnduit[2] == 1){
       if (target && this.targetFinition) diced[associatedIndex['Cible Croissance']] = other;
       else diced[associatedIndex['Croissance']] = other; 
-    }
-    else if (dnEnduit[2] == 1){
-      if (target && this.targetFinition) diced[associatedIndex['Cible Croissance']] = other;
-      else diced[associatedIndex['Croissance']] = other; 
-    }
-    else{
+    } else{
       if (target && this.targetFinition) diced[associatedIndex['Cible Conquête']] = other;
       else diced[associatedIndex['Conquête']] = other;
     }
@@ -585,22 +579,21 @@ export class PDV extends SimplePdv{
           enduit = enduitAxis.includes(axis1) || enduitAxis.includes(axis2),
           clientProspect = clientProspectAxis.includes(axis1) || clientProspectAxis.includes(axis2),
           target = targetAxis.includes(axis1) || targetAxis.includes(axis2),
-          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2),
-          ad = adAxis.includes(axis1) || adAxis.includes(axis2);
+          visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
       for (let pdv of newPdvs){
         if (pdv.available && pdv.sale){// condition à mettre dans le reslice peut-être
           if (irregular == 'no') 
             dataWidget.addOnCase(
               pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit, ad, axis1) as number);
+                clientProspect, target, visit, axis1) as number);
           else if (irregular == 'line') 
             dataWidget.addOnColumn(
               pdv.attribute(axis2), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit, ad, axis1) as number[]);
+                clientProspect, target, visit, axis1) as number[]);
           else if (irregular == 'col') 
             dataWidget.addOnRow(
               pdv.attribute(axis1), pdv.getValue(indicator, byIndustries, enduit, 
-                clientProspect, target, visit, ad, axis2) as number[]);
+                clientProspect, target, visit, axis2) as number[]);
         }
       }
     }
