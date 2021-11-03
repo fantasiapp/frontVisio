@@ -1,5 +1,4 @@
 import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { Interactive, SubscriptionManager } from '../interfaces/Common';
 import { PDV } from '../middle/Slice&Dice';
@@ -14,6 +13,7 @@ type MarkerType = {
   icon?: google.maps.ReadonlyIcon;
   map?: google.maps.Map;
   title?: string;
+  ref?: google.maps.Marker;
 };
 @Component({
   selector: 'app-map',
@@ -36,12 +36,12 @@ export class MapComponent extends SubscriptionManager implements Interactive {
   
   selectedPDV?: PDV;
   private hidden: boolean = true;
-  private markers: google.maps.Marker[] = [];
+  private markers: MarkerType[] = [];
   get shown() { return !this.hidden; }
 
   private map?: google.maps.Map;
   private infowindow: any = {};
-  private markerTimeout: any = 0;
+  private markerRenderingTimeout: any = 0;
   private shouldUpdateIcons: boolean = false;
   private pdvs: PDV[] = [];
   
@@ -72,12 +72,15 @@ export class MapComponent extends SubscriptionManager implements Interactive {
       this.interactiveMode();
     
     this.subscribe(this.dataservice.update, _ => {
-      console.log('an update is comming');
       this.shouldUpdateIcons = true;
 
       if ( !this.hidden )
         this.onDataUpdate();
     });
+  }
+
+  ngAfterViewInit() {
+    this.createMap();
   }
 
   interactiveMode() {
@@ -118,7 +121,8 @@ export class MapComponent extends SubscriptionManager implements Interactive {
 
   onPDVsChange(pdvs: PDV[]) {
     this.pdvs = pdvs;
-    this.update();
+    //this.update();
+    this.incrementalUpdate();
   }
 
   update() {
@@ -224,6 +228,8 @@ export class MapComponent extends SubscriptionManager implements Interactive {
       optimized: true
     });
 
+    markerData.ref = marker;
+
     let name = markerData.title;
     if ( name ) {
       let info = this.infowindow.element as google.maps.InfoWindow;
@@ -236,7 +242,7 @@ export class MapComponent extends SubscriptionManager implements Interactive {
       });
     }
     
-    this.markers.push(marker);
+    this.markers.push(markerData);
     return marker;
   }
 
@@ -257,17 +263,23 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     let n = this.markers.length,
       q = (n / step) | 0,
       a = 2.5 * (n - (q+1)/2*step)*q/time;
+
+    let markersToAdd = this.markers.filter(marker => !marker.ref!.getMap());
     
     if ( shuffle )
-      this.markers = this.shuffle(this.markers);
+      markersToAdd = this.shuffle(markersToAdd);
     
     let idx = 0;
     let f = () => {
-      for ( let i = idx, l = Math.min(this.markers.length, idx+step); i < l; i++ )
-        this.markers[i].setMap(this.map!);
+      for ( let i = idx, l = Math.min(markersToAdd.length, idx+step); i < l; i++ )
+        if ( markersToAdd[i].ref && !(markersToAdd[i].ref!.getMap()) )
+          markersToAdd[i].ref!.setMap(this.map!);
+        
       idx += step;
-      if ( idx < this.markers.length )
-        this.markerTimeout = setTimeout(f, (this.markers.length - idx) / a);
+      if ( idx < markersToAdd.length )
+        this.markerRenderingTimeout = setTimeout(f, (markersToAdd.length - idx) / a);
+      else
+        this.markerRenderingTimeout = 0;
     }
     f();
     //if number is too big, wait for the animation
@@ -275,15 +287,41 @@ export class MapComponent extends SubscriptionManager implements Interactive {
 
   removeMarkers() {
     for ( let marker of this.markers )
-      marker.setMap(null); 
+      marker.ref?.setMap(null); 
     this.markers.length = 0;
-    if ( this.markerTimeout ) {
-      clearTimeout(this.markerTimeout);
-      this.markerTimeout = 0;
+    if ( this.markerRenderingTimeout ) {
+      clearTimeout(this.markerRenderingTimeout);
+      this.markerRenderingTimeout = 0;
     }
   }
 
-  private adjustMap(markers:  MarkerType[]) {
+  private async incrementalUpdate() {
+    //wait until all is rendered
+    await this.watch('markerRenderingTimeout', (timeout) => !timeout);
+
+    let existingPDVs = new Set(this.markers.map(marker => marker.pdv)),
+      allPDVS = new Set(this.pdvs),
+      keptMarkers = this.markers.filter(marker => allPDVS.has(marker.pdv)),
+      newPdvs = this.pdvs.filter(pdv => !existingPDVs.has(pdv)),
+      deletedMarkers = this.markers.filter(marker => !allPDVS.has(marker.pdv));
+  
+    for ( let deletedMarker of deletedMarkers )
+      deletedMarker.ref?.setMap(null);
+    
+    this.markers = keptMarkers;
+    this.addMarkersFromPDVs(newPdvs);
+  }
+
+  private watch(property: string, pred: (value: any) => boolean, t: number = 0) {
+    return new Promise((res, rej) => {
+      if ( this[property as keyof MapComponent] === void 0 ) rej();
+      let id = setInterval(() => {
+        if ( pred(this[property as keyof MapComponent]) ) { clearTimeout(id); res(true); }
+      }, t);
+    });
+  }
+
+  private adjustMap(markers: MarkerType[] = this.markers) {
     let center = [0, 0];
     markers.forEach((marker: MarkerType) => {
       let latlng = marker.position;
@@ -332,20 +370,18 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     }
   }
 
-  private addMarkersFromPDVs() {
-    if ( !this.pdvs.length )
-      return;
-    
-    let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
-      return this.createMarker(pdv);
-    });
+  private addMarkersFromPDVs(pdvs: PDV[] = this.pdvs) {
+    if ( pdvs.length ) {
+      let markers: MarkerType[] = pdvs.map((pdv: PDV) => {
+        return this.createMarker(pdv);
+      });
+  
+      for ( let marker of markers )
+        this.addMarker(marker);
+    }
 
-
-    for ( let marker of markers )
-      this.addMarker(marker);
-    
     this.displayMarkers();
-    this.adjustMap(markers);
+    this.adjustMap();
   };
 
   static round(x: number, threshold: number = 0.5): number {
