@@ -3,16 +3,12 @@ import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
 import { SliceTable } from './SliceTable';
-import { thresholdFreedmanDiaconis } from 'd3-array';
 
 
 // à mettre dans le back
 const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'],
-  targetAxis = ['clientProspectTarget', 'segmentDnEnduitTarget', 'enduitIndustryTarget', 'industryTarget'],
   enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
-  industryAxis = ['industry', 'industryTarget'],
-  clientProspectAxis = ['clientProspect', 'clientProspectTarget'],
   visitAxis = ['segmentDnEnduitTargetVisits'],
   gaugesAxis = ['visits', 'targetedVisits', 'avancementAD'],
   rodAfterFirstCategAxis = ['industryTarget', 'clientProspectTarget'],
@@ -295,24 +291,6 @@ export class Sale {
   set volume(val: number) {console.log("setting volume to", val); this.data[DEH.SALES_VOLUME_ID] = val;}
 
 };
-
-// export class Target {
-//   private data: any[]
-//   constructor(data: any[] | false) {
-//     if(data === false) this.data = PDV.initializeTarget()
-//     else this.data = data;
-//   }
-
-//   get date(): number {return this.data[DEH.TARGET_DATE_ID]}
-//   get redistributed(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_ID]}
-//   get redistributedFinitions(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID]}
-//   get sale(): boolean {return this.data[DEH.TARGET_SALE_ID]}
-//   get targetP2cd(): number {return this.data[DEH.TARGET_VOLUME_ID]}
-//   get targetFinitions(): boolean {return this.data[DEH.TARGET_FINITIONS_ID]}
-//   get greenLight(): string {return this.data[DEH.TARGET_ID]}
-//   get commentTargetP2cd(): string {return this.data[DEH.TARGET_COMMENT_ID]}
-//   get bassin(): string {return this.data[DEH.TARGET_BASSIN_ID]}
-// }
 
 
 class SimplePdv { // Theses attributes are directly those received from the back
@@ -695,18 +673,6 @@ export class PDV extends SimplePdv{
     return parseInt(DEH.getKeyByValue(DEH.get('industriel'), industrieMax)!);
   }
 
-  // industriel(){ // a opti avec le salesRepartition
-  //   let dnIndustries = this.getValue('p2cd', 'mainIndustries') as number[],
-  //     industriesDict = DEH.get('industriel'),
-  //     iMax = 0;
-  //   let industriesList = Object.values(DEH.get('mainIndustries'));
-  //   for (let i = 1; i < dnIndustries.length; i++)
-  //     if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-  //   let result = parseInt(DEH.getKeyByValue(industriesDict, industriesList[iMax])!);
-  //   if (Number.isNaN(result)) result = 4; //hardcodé non ?
-  //   return result;
-  // }
-
   ciblage(){
     return (this.targetP2cd > 0 && this.lightTarget !== 'r') ? 2: 1;
   }
@@ -914,7 +880,7 @@ export class PDV extends SimplePdv{
 
 
 @Injectable({providedIn: 'root'})
-class SliceDice{
+export class SliceDice{
   geoTree: boolean = true;
   private updateTargetName?: string;
   constructor(private dataService: DataService){console.log('[SliceDice]: on');}
@@ -1006,21 +972,3 @@ class SliceDice{
     this.dataService.updateTargetLevel(newTargetLevel, targetLevelName as UpdateFields, +targetLevelId);
   }
 };
-
-function loadAll(){
-  PDV.load(true);
-}
-
-function getGeoTree() {
-  if ( !PDV.geoTree )
-    PDV.load(true);
-  return PDV.geoTree;
-};
-
-function getTradeTree() {
-  if ( !PDV.tradeTree )
-    PDV.load(true);
-  return PDV.tradeTree;
-};
-
-export {SliceDice, loadAll, getGeoTree, getTradeTree};
