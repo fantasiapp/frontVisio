@@ -18,7 +18,6 @@ export class TableComponent extends BasicWidget {
   @ViewChild('title', {static: false, read: ElementRef})
   private titleContainer?: ElementRef;
 
-  private content!: ElementRef;
   title: string = "";
   
   //p2cd or enduit
@@ -103,12 +102,14 @@ export class TableComponent extends BasicWidget {
 
   updateData(): any[] {
     this.type = this.properties.arguments[2];
-    return this.sliceTable.getData(this.path, this.currentOpt, this.type);
+    SliceTable.currentGroupField = this.currentOpt;
+    return this.sliceTable.getData(this.path, this.type);
   }
 
   createData(): any[] {
     this.type = this.properties.arguments[2];
-    return this.sliceTable.getData(this.path, this.currentOpt, this.type);
+    SliceTable.currentGroupField = this.currentOpt;
+    return this.sliceTable.getData(this.path, this.type);
   }
 
   updateGraph(data: any[]): void {
@@ -117,7 +118,8 @@ export class TableComponent extends BasicWidget {
 
   updateGroups(id: string) {
     this.currentOpt = id;
-    this.gridApi.setRowData(this.sliceTable.buildGroups(id, this.type))
+    SliceTable.currentGroupField = this.currentOpt;
+    this.gridApi.setRowData(this.sliceTable.buildGroups(this.type))
     groupInfos = this.sliceTable.groupInfos;
     hiddenGroups = {}
   }

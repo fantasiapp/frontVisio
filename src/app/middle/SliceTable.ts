@@ -21,7 +21,6 @@ export class SliceTable {
     private sortedPdvsList: PDV[] = [];
     private pdvsWithGroupslist: PDV[] = [];
     groupInfos: {field: string, values: string[]} = {field : '', values: []};
-    private titleData: number[] = [0,0,0];
     private columnDefs: {[k: string]: any}[] = [];
 
     static currentGroupField: string = "enseigne";
@@ -110,32 +109,33 @@ export class SliceTable {
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){}
 
-    getPdvs(slice: any, groupField: string, type: string): PDV[] { // Transforms pdv from lists to objects, and counts title informations
+    getPdvs(slice: any, type: string): PDV[] { // Transforms pdv from lists to objects, and counts title informations
         this.sortedPdvsList = PDV.sliceTree(slice, this.sliceDice.geoTree)[0];
         this.sortedPdvsList.sort(this.tableConfig[type]['customSort'])
-        this.pdvsWithGroupslist = this.buildGroups(groupField, type);
+        this.pdvsWithGroupslist = this.buildGroups(type);
         return this.pdvsWithGroupslist;
     }
 
-    getAllColumns(type: string) {
-        let allColumns = DEH.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']);
-        return allColumns;
+    getAllHiddenColumns(type: string) {
+        let visibleFields = this.tableConfig[type]['visibleColumns'].map((val: {'field': string}) => val.field);
+        return DEH.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']).filter((field: string) => !visibleFields.includes(field));;
     }
 
-    getColumnDefs(type: string, rowGroupId?: string): {}[]{
-        let allColumns = this.getAllColumns(type);
+    getColumnDefs(type: string): {}[]{
         let columnDefs: {[key:string]: any}[] = [];
-        let visibleFields = this.tableConfig[type]['visibleColumns'].map((val: {'field': string}) => val.field);
 
-        for(let field of allColumns) { //first all fields except visible
-            if(!visibleFields.includes(field)) {
-                let column = {'field': field, 'hide': true}
-                columnDefs.push(column);
-            }
+        for(let field of this.getAllHiddenColumns(type)) { //first all hidden fields
+            let column = {'field': field, 'hide': true}
+            columnDefs.push(column);
         }
         for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
-            let column : any = {'field': visibleColumn.field, 'flex': visibleColumn.flex, 'hide': false, 'colSpan': (params: any) => {if(params.data.groupRow && params.colDef.field === 'potential') return 2; return 1}, 'cellStyle': (params: any) => {if(params.colDef.field != 'graph') return {display: 'flex'}; return;}}
-            if(visibleColumn.valueGetter) column.valueGetter = visibleColumn.valueGetter; 
+            let column : any = {
+                'field': visibleColumn.field,
+                'flex': visibleColumn.flex,
+                'hide': false,
+                'colSpan': (params: any) => {if(params.data.groupRow && params.colDef.field === 'potential') return 2; return 1},
+                'cellStyle': (params: any) => {if(params.colDef.field != 'graph') return {display: 'flex'}; return;}}
+            if(visibleColumn.valueGetter) column.valueGetter = visibleColumn.valueGetter;
             columnDefs.push(column);
         }
 
@@ -159,30 +159,29 @@ export class SliceTable {
         return this.tableConfig[type]['computeTitle']();;
     }
 
-    getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
+    getData(slice: any = {}, type: string): {}[][]{
         let data: {}[][] = [];
-        data.push(this.getColumnDefs(type, rowGroupId));
-        data.push(this.getPdvs(slice, rowGroupId, type));
+        data.push(this.getColumnDefs(type));
+        data.push(this.getPdvs(slice, type));
         data.push(this.getNavOpts(type));
         data.push([this.groupInfos])
         return data;
     }
 
     getGroupsData(type: string, id: string) {
-        return this.getColumnDefs(type, id);
+        return this.getColumnDefs(type);
     }
 
-    buildGroups(groupField: string, type: string) {
-        SliceTable.currentGroupField = groupField;
+    buildGroups(type: string) {
         let pdvsByGroup = new Map<string, PDV[]>();
         for(let pdv of this.sortedPdvsList){
-            if(pdvsByGroup.get(pdv[groupField as keyof PDV]) === undefined) pdvsByGroup.set(pdv[groupField as keyof PDV], [pdv]);
-            else pdvsByGroup.get(pdv[groupField as keyof PDV])!.push(pdv);
+            if(pdvsByGroup.get(pdv[SliceTable.currentGroupField as keyof PDV]) === undefined) pdvsByGroup.set(pdv[SliceTable.currentGroupField as keyof PDV], [pdv]);
+            else pdvsByGroup.get(pdv[SliceTable.currentGroupField as keyof PDV])!.push(pdv);
         }
         let groupList: PDV[][] = [];
         for(let key of pdvsByGroup.keys()) groupList.push(this.tableConfig[type]['groupRowConfig']({groupKey: key, pdvs: pdvsByGroup.get(key)}))
         groupList.sort(this.tableConfig[type]['customGroupSort']);
-        this.groupInfos.field = groupField;
+        this.groupInfos.field = SliceTable.currentGroupField;
         this.groupInfos.values = Array.from(pdvsByGroup.keys());
         return groupList.flat()
     }
