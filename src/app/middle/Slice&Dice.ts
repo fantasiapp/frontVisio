@@ -367,7 +367,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   }
 
   public initializeTarget() {
-    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
+    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", this.get('bassin')]
   }
   public updateTargetField(id: number, value: any) {
     if(!this.target) this.initializeTarget()

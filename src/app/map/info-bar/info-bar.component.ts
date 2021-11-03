@@ -57,6 +57,7 @@ export class InfoBarComponent {
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.TARGET_REDISTRIBUTED_ID] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.TARGET_SALE_ID] && this.pdv!.sale
+      this.target[DEH.TARGET_BASSIN_ID] = this._pdv.get('bassin');
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
       this.targetP2cdFormatted = formatNumberToString(this.target[DEH.TARGET_VOLUME_ID]);
