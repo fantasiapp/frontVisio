@@ -52,9 +52,8 @@ export class InfoBarComponent {
     this.pdvChange.emit(value);
     if ( value ) {
       this._pdv = new PDV(value.id, JSON.parse(JSON.stringify(value.getValues())));
-      this.target = this._pdv.target ? this._pdv.target : PDV.initializeTarget();
-      this._pdv.updateField('target', this.target)
-
+      if(!this._pdv.target) this._pdv.initializeTarget()
+      this.target = this._pdv.target as any[];
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.TARGET_REDISTRIBUTED_ID] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.TARGET_SALE_ID] && this.pdv!.sale

@@ -366,8 +366,12 @@ class SimplePdv { // Theses attributes are directly those received from the back
      this.values[PDV.index(field)] = value;
   }
 
-  static initializeTarget() {
-    return [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
+  public initializeTarget() {
+    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
+  }
+  public updateTargetField(id: number, value: any) {
+    if(!this.target) this.initializeTarget()
+    this.values[DEH.TARGET_ID][id]
   }
 
   public attribute(attribute: string) {
@@ -400,10 +404,10 @@ export class PDV extends SimplePdv{
     let enduitSales: any =  {}; let enduitRaw = this.displayIndustrieSaleVolumes(true)
     p2cdSales['Siniat'] = {'value': p2cdRaw['Siniat']}
     for(let industry of ['Siniat', 'Placo', 'Knauf', 'Autres']) {
-        p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getColor('industry', industry)}
+        p2cdSales[industry] = {'value': p2cdRaw[industry], 'color': SliceTable.getGraphColor('industry', industry)}
     }
     for(let industry of ['Prégy', 'Salsi', 'Autres']) {
-        enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getColor('indFinition', industry)}
+        enduitSales[industry] = {'value': enduitRaw[industry], 'color': SliceTable.getGraphColor('indFinition', industry)}
     }
     return {'p2cd': p2cdSales, 'enduit': enduitSales};
   }

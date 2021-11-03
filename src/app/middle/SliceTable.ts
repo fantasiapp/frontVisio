@@ -50,7 +50,23 @@ export class SliceTable {
                 ],
             'navIds': () => this.geoTree ? ['enseigne', 'typology', 'segmentMarketing', 'ensemble'] : ['typology', 'segmentMarketing', 'ensemble'],
             'navNames': () => this.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [{field: 'name', flex: 1},{field: 'nbVisits', flex: 0.4},{field: 'graph', flex: 1, valueGetter: (params: any) => { if (params.data.groupRow) { let value = 0; params.api.forEachNode( function(node: any) {if (node.data.targetFinition && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential}); return value; } else {return params.data.graph}}},{field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},{field: 'targetFinition', flex: 0.3}],
+            'visibleColumns': [
+                {field: 'name', flex: 1},
+                {field: 'nbVisits', flex: 0.4},
+                {field: 'graph', flex: 1, valueGetter: 
+                    (params: any) => {
+                        if (params.data.groupRow) {
+                            let value = 0; params.api.forEachNode(function(node: any)
+                            {
+                                if (node.data.targetFinition && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential
+                            });
+                            return value; 
+                        }
+                        else return params.data.graph
+                    }
+                },
+                {field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},
+                {field: 'targetFinition', flex: 0.3}],
             'customSort': (a: any, b: any) => {return b.potential - a.potential},
             'customGroupSort': (a: {}[], b: {}[]) => { return (<any>b[0]).potential - (<any>a[0]).potential },
             'groupRowConfig': (entry: any) => {
@@ -114,38 +130,12 @@ export class SliceTable {
         return array;
     }
 
-    initializeTitleData(type: string){
+    computeTitleData(type: string){
         this.titleData = this.tableConfig[type]['computeTitle']();
     }
 
     getTitleData(){
         return this.titleData;
-    }
-
-    getUpdatableColumns(type: string) {
-        return this.tableConfig[type]['updatableColumns'];
-    }
-
-
-
-    changeTargetTargetFinitions(pdv: PDV) {
-        let list: any[] = pdv.getValues();
-        console.log("list : ", list)
-        if(!list[DEH.TARGET_ID]) list[DEH.TARGET_ID] = PDV.initializeTarget()
-        if(pdv.potential > 0) {
-            if(!pdv.targetFinition) {
-                this.updateTotalTarget(pdv.potential)
-                list[DEH.TARGET_ID][DEH.TARGET_FINITIONS_ID] = true;
-            } else {
-                this.updateTotalTarget(-pdv.potential)
-                list[DEH.TARGET_ID][DEH.TARGET_FINITIONS_ID] = false;
-            }
-        }
-        this.dataService.updatePdv(list, pdv.id)
-    }
-
-    updateTotalTarget(increment: number) {
-        this.titleData[1]+=increment
     }
 
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
@@ -154,7 +144,7 @@ export class SliceTable {
         data.push(this.getColumnDefs(type, rowGroupId));
         data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
-        this.initializeTitleData(type);
+        this.computeTitleData(type);
         data.push([this.groupInfos])
         return data;
     }
@@ -197,20 +187,28 @@ export class SliceTable {
         return 'red'
     }
 
-    static getColor(axis: string, enseigne: string): string {
+    static getGraphColor(axis: string, enseigne: string): string {
         let hardCodedColors: {[key: string]: {[key: string]: string}} = {
             'industry': {
-            'Siniat': '#A61F7D',
-            'Placo': '#0056A6',
-            'Knauf': '#67D0FF',
-            'Autres': '#888888',
+            'Siniat': '#A61F7D', //["industryP2CD", "Siniat", "#B3007E"]
+            'Placo': '#0056A6', //["industryP2CD", "Placo", "#0056A6"]
+            'Knauf': '#67D0FF', //["industryP2CD", "Knauf", "#67D0FF"]
+            'Autres': '#888888', //["industry", "Challengers", "#888888"]
             },
             'indFinition': {
-            'Prégy': '#7B145C',
-            'Salsi': '#D00000',
-            'Autres': '#B0B0B0'
+            'Prégy': '#7B145C', //["indFinition", "Prégy", "#B3007E"]
+            'Salsi': '#D00000', //["indFinition", "Salsi", "#D00000"]
+            'Autres': '#B0B0B0' //["indFinition", "Croissance", "#DEDEDE"]
             }
         }
         return hardCodedColors[axis][enseigne];
+    }
+
+    /*** From the table component, only way to modify the data ***/
+    changeTargetTargetFinitions(pdv: PDV) {
+        if(!pdv.target) pdv.initializeTarget();
+        (pdv.target as any[])[DEH.TARGET_ID][DEH.TARGET_FINITIONS_ID] = !pdv.targetFinition && pdv.potential > 0;
+        this.computeTitleData('enduit');
+        this.dataService.updatePdv(pdv.getValues(), pdv.id)
     }
 }
