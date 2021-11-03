@@ -154,10 +154,11 @@ export class InfoBarComponent {
 
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
     console.log('[InfobarComponent]: On')
-    this.SALES_INDUSTRY_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'industry')
-    this.SALES_PRODUCT_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'product')
-    this.SALES_VOLUME_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'volume')
-    this.SALES_DATE_ID = DEH.getKeyByValue(DEH.get("structureSales"), 'date')
+    let structure = DEH.get("structureSales") as string[];
+    this.SALES_INDUSTRY_ID = structure.indexOf('industry')
+    this.SALES_PRODUCT_ID = structure.indexOf('product')
+    this.SALES_VOLUME_ID = structure.indexOf('volume')
+    this.SALES_DATE_ID = structure.indexOf('date')
     this.TARGET_VOLUME_ID = DEH.TARGET_VOLUME_ID;
     this.TARGET_LIGHT_ID = DEH.TARGET_LIGHT_ID;
     this.TARGET_REDISTRIBUTED_ID = DEH.TARGET_REDISTRIBUTED_ID;
