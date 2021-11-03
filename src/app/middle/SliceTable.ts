@@ -14,6 +14,13 @@ type GroupRow = { //Built to behave like a PDV type for the agGrid
     groupRow: boolean;
 }
 
+export type TableData = {
+    columnDefs: {[k: string]: any}[];
+    navOpts: {id: any, name: any}[];
+    pdvs: PDV[];
+    colInfos: {field: string, values: string[]};
+}
+
 @Injectable({
     providedIn: 'root'
   })
@@ -155,17 +162,12 @@ export class SliceTable {
         return array;
     }
 
-    getTitleData(type: string){
+    computeTitle(type: string){
         return this.tableConfig[type]['computeTitle']();;
     }
 
-    getData(slice: any = {}, type: string): {}[][]{
-        let data: {}[][] = [];
-        data.push(this.getColumnDefs(type));
-        data.push(this.getPdvs(slice, type));
-        data.push(this.getNavOpts(type));
-        data.push([this.groupInfos])
-        return data;
+    getData(slice: any = {}, type: string): TableData{
+        return {columnDefs: this.getColumnDefs(type), navOpts: this.getNavOpts(type), pdvs: this.getPdvs(slice, type), colInfos: this.groupInfos};
     }
 
     buildGroups(type: string) {

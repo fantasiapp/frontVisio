@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
-import { SliceTable } from 'src/app/middle/SliceTable';
+import { SliceTable, TableData } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject, Observable } from 'rxjs';
@@ -92,25 +92,24 @@ export class TableComponent extends BasicWidget {
   }
 
   refresh() {
-    // this.gridApi.refreshCells()
     this.gridApi.redrawRows()
-    this.updateTitle()
+    this.computeTitle()
   }
 
   update() { //could be smoother ?
     this.createGraph(this.createData())
   }
 
-  createGraph(data: any[]): void {
-    this.columnDefs = this.updateCellRenderer(data[0]);
-    this.navOpts = data[2];
-    groupInfos = data[3][0];
+  createGraph(data: TableData): void {
+    this.columnDefs = this.setupCellRenderers(data.columnDefs);
+    this.navOpts = data.navOpts;
+    groupInfos = data.colInfos;
     hiddenGroups = {}
-    this.rowData = data[1]
-    this.updateTitle()
+    this.rowData = data.pdvs
+    this.computeTitle()
   }
 
-  createData(): any[] {
+  createData(): TableData {
     this.type = this.properties.arguments[2];
     SliceTable.currentGroupField = this.currentOpt;
     return this.sliceTable.getData(this.path, this.type);
@@ -125,14 +124,14 @@ export class TableComponent extends BasicWidget {
     hiddenGroups = {}
   }
 
-  updateTitle() {
-    let titleData = this.sliceTable.getTitleData(this.type);
+  computeTitle() {
+    let titleData = this.sliceTable.computeTitle(this.type);
     if(this.type === 'p2cd') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, Siniat : ${BasicWidget.format(titleData[1]/1000)}, sur un total identifié de ${BasicWidget.format(titleData[2]/1000)} en Km²`;
     if(this.type === 'enduit') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, ciblé : ${BasicWidget.format(titleData[1]/1000, 3, true)} Tonnes, sur un potentiel de ${BasicWidget.format(titleData[2]/1000)} en Tonnes`
   }
 
-  updateCellRenderer(data: any[]): any[] {
-        for(let cd of data){
+  setupCellRenderers(columnDefs: any[]): any[] { //If necessary, sets the cellRenderer, or the valueFormatter of the column
+        for(let cd of columnDefs){
           switch (cd.field) {
             case 'name':
               cd.valueFormatter = function (params: any) {
@@ -140,17 +139,18 @@ export class TableComponent extends BasicWidget {
                 return;
               }
               break;
+
             case 'siniatSales':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Siniat : ' + Math.round(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
-                return Math.round(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
+                if(params.data.groupRow === true) return 'Siniat : ' + BasicWidget.format(params.value/1000, 3, true) + " km²";
+                return BasicWidget.format(params.value/1000, 3, true)  + " m²";
               }
               break;
 
             case 'totalSales':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Identifie : ' + Math.round(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " km²";
-                else return Math.round(params.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')  + " m²";
+                if(params.data.groupRow === true) return 'Identifie : ' + BasicWidget.format(params.value/1000, 3, true) + " km²";
+                else return BasicWidget.format(params.value/1000, 3, true)  + " m²";
               }
               break;
 
@@ -166,7 +166,6 @@ export class TableComponent extends BasicWidget {
                 if(params.data.groupRow === true) return {component: 'noCellRenderer'}
                 return {component : 'checkboxP2cdCellRenderer'};
               }
-
               break;
 
             case 'targetFinition':
@@ -174,7 +173,6 @@ export class TableComponent extends BasicWidget {
                 if(params.data.groupRow === true) return {component: 'addArrowCellRenderer'}
                 return {component : 'checkboxEnduitCellRenderer'};
               }
-
               break;
             
             case 'pointFeu':
@@ -186,7 +184,7 @@ export class TableComponent extends BasicWidget {
             
             case 'graph':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow ===  true) return "Cible : " + Math.round(params.value/1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " T"
+                if(params.data.groupRow ===  true) return "Cible : " + BasicWidget.format(params.value/1000, 3, true) + " T"
                 return params.value;
               }
               cd.cellRendererSelector = function (params: any) {
@@ -204,8 +202,8 @@ export class TableComponent extends BasicWidget {
             
             case 'potential':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + Math.round(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
-                return Math.round(params.value / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' T'
+                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + BasicWidget.format(params.value/1000, 3, true) + ' T'
+                return BasicWidget.format(params.value/1000, 3, true) + ' T'
               }
               break;
             case 'nbVisits':
@@ -217,10 +215,9 @@ export class TableComponent extends BasicWidget {
 
             default:
               break;
-
           }
         }
-    return data;
+    return columnDefs;
   }
 
   onCellClicked(event: any) {
@@ -233,9 +230,6 @@ export class TableComponent extends BasicWidget {
     } else {
       if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') {
         this.displayInfobar(event['data'])
-      }
-      if(event['column']['colId'] === 'checkboxEnduit') {
-        this.updateTitle()
       }
     }
   }
@@ -260,12 +254,6 @@ export class TableComponent extends BasicWidget {
   doesExternalFilterPass(node: any) {
     if(node.data.groupRow == true) return true;
     return !hiddenGroups[node.data[groupInfos.field]] === true;
-
-    // try {
-    //   return !hiddenGroups[node.data[groupInfos.field]] === true;
-    // } catch {
-    //   return true;
-    // }
   }
 }
 
