@@ -8,7 +8,7 @@ import { DisableDirective } from './disable-directive.directive';
 })
 export class AgentOnlyDirective extends DisableDirective {
   computeDisabled(): boolean {
-    return Params.rootName === 'agent';
+    return Params.rootName !== 'agent';
   }
 
 }

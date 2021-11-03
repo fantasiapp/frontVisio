@@ -3,7 +3,7 @@ import { DataService } from "../services/data.service";
 import DEH from "./DataExtractionHelper";
 import { PDV, SliceDice } from "./Slice&Dice";
 
-type GroupRow = { //Built to behave like a PDV type for the table component
+type GroupRow = { //Built to behave like a PDV type for the agGrid
     name: {
         name: string;
         number: number;
@@ -155,12 +155,8 @@ export class SliceTable {
         return array;
     }
 
-    computeTitleData(type: string){
-        this.titleData = this.tableConfig[type]['computeTitle']();
-    }
-
-    getTitleData(){
-        return this.titleData;
+    getTitleData(type: string){
+        return this.tableConfig[type]['computeTitle']();;
     }
 
     getData(slice: any = {}, rowGroupId: string, type: string): {}[][]{
@@ -168,7 +164,6 @@ export class SliceTable {
         data.push(this.getColumnDefs(type, rowGroupId));
         data.push(this.getPdvs(slice, rowGroupId, type));
         data.push(this.getNavOpts(type));
-        this.computeTitleData(type);
         data.push([this.groupInfos])
         return data;
     }
@@ -229,8 +224,7 @@ export class SliceTable {
     /*** From the table component, only way to modify the data ***/
     changeTargetTargetFinitions(pdv: PDV) {
         if(!pdv.target) pdv.initializeTarget();
-        (pdv.target as any[])[DEH.TARGET_ID][DEH.TARGET_FINITIONS_ID] = !pdv.targetFinition && pdv.potential > 0;
-        this.computeTitleData('enduit');
+        (pdv.target as any[])[DEH.TARGET_FINITIONS_ID] = !pdv.targetFinition && pdv.potential > 0;
         this.dataService.updatePdv(pdv.getValues(), pdv.id)
     }
 }
