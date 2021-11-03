@@ -120,6 +120,57 @@ const segmentDnEnduitTargetVisits = {
   7: "Pur prospect",
 }
 
+//Proxy Class
+export class Params {
+  static get coeffGreenLight() {
+    return DEH.get('params')['coeffGreenLight'];
+  }
+
+  static get currentYear() {
+    return DEH.get('params')['currentYear'];
+  }
+
+  static get currentMonth() {
+    return DEH.get('params')['currentMonth'];
+  }
+
+  static get delayBetweenUpdates() {
+    return DEH.get('params')['delayBetweenUpdates'];
+  }
+
+  static get isAdOpen() {
+    return DEH.get('params')['isAdOpen'];
+  }
+
+  static get pseudo() {
+    return DEH.get('params')['pseudo'];
+  }
+
+  static get ratioCustomerProspect() {
+    return DEH.get('params')['ratioCustomerProspect'];
+  }
+
+  static get ratioPlaqueFinition() {
+    return DEH.get('params')['ratioPlaqueFinition'];
+  }
+
+  static get referentielVersion() {
+    return DEH.get('params')['referentielVersion'];
+  }
+
+  static get softwareVersion() {
+    return DEH.get('params')['softwareVersion'];
+  }
+
+  static get rootName() {
+    return PDV.geoTree.root.name;
+  }
+
+  static get rootLabel() {
+    return DEH.geoLevels[0][DEH.LABEL_INDEX];
+  }
+}
+
 
 //Will have to make this non static one day
 class DEH{  // for DataExtractionHelper
@@ -165,8 +216,6 @@ class DEH{  // for DataExtractionHelper
   static AGENTFINITION_DRV_ID: number;
   static AGENTFINITION_RATIO_ID: number;
   static delayBetweenUpdates: number;
-
-
   
   //Represent levels as a vertical array rather than a recursive structure
   static geoLevels: any[] = [];
@@ -176,7 +225,6 @@ class DEH{  // for DataExtractionHelper
   static tradeHeight: number;
   static currentYear = true;
   private static fieldsToSwitchWithyear: string[] = [];
-  static updatedData: UpdateData;
 
 
   static setData(d: any){
@@ -271,24 +319,9 @@ class DEH{  // for DataExtractionHelper
 
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
+
     DEH.setData(this.data);
     PDV.load(true);
-    
-    // for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
-    //   let pdv = PDV.findById(+newPdvId);
-    //   if(pdv) {
-    //   pdv.bassin = newPdv[PDV.index('bassin')];
-    //   pdv.available = newPdv[PDV.index('available')];
-    //   pdv.sale = newPdv[PDV.index('sale')];
-    //   pdv.redistributed = newPdv[PDV.index('redistributed')];
-    //   pdv.redistributedFinitions = newPdv[PDV.index('redistributedFinitions')];
-    //   pdv.pointFeu = newPdv[PDV.index('pointFeu')];
-    //   pdv.onlySiniat = newPdv[PDV.index('onlySiniat')];
-    //   pdv.nbVisits = newPdv[PDV.index('nbVisits')];
-    //   pdv.target = newPdv[PDV.index('target')];
-    //   pdv.sales = newPdv[PDV.index('sales')];
-    //   }
-    // }
   }
 
   static getGeoLevel(height: number){
@@ -458,7 +491,7 @@ class DEH{  // for DataExtractionHelper
   }
 
   static getOtherYearDashboards(tree: Tree, height: number = 0) {
-    let name = tree.type == NavigationExtractionHelper ? 'levelGeo' : 'levelTrade';
+    let name = tree.is(NavigationExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
     while ( height-- )
       level = level[this.SUBLEVEL_INDEX];

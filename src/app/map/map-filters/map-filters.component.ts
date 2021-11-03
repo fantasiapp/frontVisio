@@ -1,50 +1,29 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit, ElementRef } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import DEH from 'src/app/middle/DataExtractionHelper';
+import DEH, { Params } from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Slice&Dice';
 import { MapSelectComponent } from '../map-select/map-select.component';
 import { BasicWidget } from 'src/app/widgets/BasicWidget'; 
+import { Interactive, SubscriptionManager } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'map-filters',
   templateUrl: './map-filters.component.html',
   styleUrls: ['./map-filters.component.css'],
-  //changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapFiltersComponent {
+export class MapFiltersComponent extends SubscriptionManager implements Interactive {
   @HostBinding('class.opened')
   opened: boolean = false;
 
-  @Input()
-  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finition';
+  criteriaNames = CRITERIA[Params.rootLabel] || CRITERIA['default'];
+  criteriaPrettyNames = CRITERIA_NAMES[Params.rootLabel] || CRITERIA_NAMES['default'];
+  criteria: [string, number[]][] = [];
 
-  criteriaNames = !this.isAgentFinitions ?
-    ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin'] :
-    ['typology', 'visited', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'];
-
-  criteriaPrettyNames = !this.isAgentFinitions ?
-    ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin'] :
-    ['Typologie Client', 'Visité', 'Segment Marketing', 'Enseigne', 'Département', 'Bassin'];
-
-  private _pdvs: PDV[] = [...PDV.getInstances().values()];
+  private _pdvs: PDV[] = [];
   private currentDict: any = PDV.countForFilter(this._pdvs, this.criteriaNames);
   private liveDict: any = this.currentDict;
-
-  private _shown: boolean = false;
-  @Input()
-  set shown(value: boolean) {
-    this._shown = value;
-    if ( value ) {
-      this.interactiveMode();
-      this.onPathChanged();
-    } else {
-      this.unsubscribe();
-    }
-  }
-
-  get shown() { return this._shown; }
 
   @Output()
   pdvsChange = new EventEmitter<PDV[]>();
@@ -54,44 +33,29 @@ export class MapFiltersComponent {
 
   private path: any = {};
 
-  stateSubscription?: Subscription;
   constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private logger: LoggerService) {
+    super();
     console.log('[MapFiltersComponent]: On.');
-
-    console.log(this.isAgentFinitions);
-
-    (window as any).filter = this;
   }
 
   interactiveMode() {
-    this.stateSubscription = this.filtersService.stateSubject.subscribe(({States}) => {
+    this.subscribe(this.filtersService.stateSubject, ({States}) => {
       let path = this.filtersService.getPath(States);
       if ( !this._pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
         this.path = path;
-        this.onPathChanged();
+        this.update();
       }
     });
   }
 
-  unsubscribe() {
-    this.stateSubscription?.unsubscribe();
-    this.stateSubscription = undefined;
-  }
+  pause() { this.unsubscribe(this.filtersService.stateSubject); }
 
-  onPathChanged() {
-    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.navigation.tree?.type == PDV.geoTree.type);
-    this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
+  update() {
+    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.treeIs(PDV.geoTree));
     this.selects.forEach(select => select.reset());
+    this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
+    this.stack.length = 0;
     this.pdvsChange.emit(this._pdvs);
-    //this.resetFilters();
-  }
-
-  trackById(index: number, couple: any) {
-    return couple[0];
-  }
-
-  trackByIndex(index: number, _: any) {
-    return index;
   }
 
   loadCriterion(index: number): [number, any, number][] {
@@ -115,7 +79,6 @@ export class MapFiltersComponent {
   }
 
   
-  criteria: [string, number[]][] = [];
   someCriteriaChange(idx: number, criteria: any) {
     let select = this.selects.get(idx)!,
       change = criteria.length ? this.modifyStack(select) : this.removeStack(select);
@@ -128,13 +91,28 @@ export class MapFiltersComponent {
       return acc;
     }, []);
 
-    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this.criteria.length ? this.criteria : undefined);
     this.criteria = result as [string, number[]][];
+    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this.criteria.length ? this.criteria : undefined);
     this.logger.actionComplete();
     if ( change )
       this.pdvsChange.emit(this.getLastPDVs());
   }
   
+  close() {
+    this.ref.nativeElement.scrollTop = 0;
+    this.opened = false;
+  }
+
+  getPreviousPDVs(index: number) {
+    return this.stack[index-1] ? this.stack[index-1][1] : this._pdvs
+  }
+
+  getLastPDVs() {
+    return this.getPreviousPDVs(this.stack.length);
+  }
+
+  //a bad way to implement mutually exclusive filters (with results in memory)
+  //this should be changed when i have time
   private stack: [MapSelectComponent, PDV[]][] = [];
   private modifyStack(select: MapSelectComponent) {
     let idx = this.stack.findIndex(q => q[0] == select);
@@ -154,18 +132,9 @@ export class MapFiltersComponent {
   private removeStack(select: MapSelectComponent) {
     let idx = this.stack.findIndex(q => q[0] == select);
     if ( idx < 0 ) return false;
-    let [_, results] = this.stack[idx]; //<- filterdict is assigned by others
     this.stack.splice(idx, 1);
     this.fixStack(idx, true);
     return true;
-  }
-
-  getPreviousPDVs(index: number) {
-    return this.stack[index-1] ? this.stack[index-1][1] : this._pdvs
-  }
-
-  getLastPDVs() {
-    return this.getPreviousPDVs(this.stack.length);
   }
 
   private fixStack(index: number, skipFirst: boolean = false) {
@@ -207,12 +176,21 @@ export class MapFiltersComponent {
       this.liveDict[criterion] = this.currentDict[criterion];
   }
 
-  close() {
-    this.ref.nativeElement.scrollTop = 0;
-    this.opened = false;
+  trackById(index: number, couple: any) {
+    return couple[0];
   }
 
-  ngOnDestroy() {
-    this.unsubscribe();
+  trackByIndex(index: number, _: any) {
+    return index;
   }
+};
+
+let CRITERIA: {[key: string]: string[]} = {
+  agentFinitions: ['typology', 'visited', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'],
+  default: ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']
+};
+
+let CRITERIA_NAMES: {[key: string]: string[]} = {
+  agentFinitions: ['Typologie Client', 'Visité', 'Segment Marketing', 'Enseigne', 'Département', 'Bassin'],
+  default: ['Client / Prospect', 'Ciblage', 'Point Feu', 'Segment Marketing', 'Segment Portefeuille', 'Industriel', 'Enseigne', 'Région', 'Secteur', 'Département', 'Bassin']
 }

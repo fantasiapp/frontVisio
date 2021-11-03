@@ -7,6 +7,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { combineLatest } from 'rxjs';
 import { DataService } from '../services/data.service';
 import { takeUntil } from 'rxjs/operators';
+import { SubscriptionManager } from '../interfaces/Common';
 interface listDash {
   name: string[];
   id: number[];
@@ -26,8 +27,8 @@ interface lev {
   templateUrl: './filters.component.html',
   styleUrls: ['./filters.component.css'],
 })
-export class FiltersComponent implements OnInit , OnDestroy{
-  constructor(private filtersState: FiltersStatesService) {}
+export class FiltersComponent extends SubscriptionManager {
+  constructor(private filtersState: FiltersStatesService) { super(); }
 
   listDashboard!: listDash;
   listLevel!: listLev;
@@ -46,11 +47,10 @@ export class FiltersComponent implements OnInit , OnDestroy{
   selectedDashboardName: string = '';
   levelLabel : string = '';
   ngOnInit(): void {
-    combineLatest([
+    this.subscribe(combineLatest([
       this.filtersState.arraySubject,
       this.filtersState.stateSubject,
-    ]).pipe(takeUntil(this.destroy$)).subscribe(([currentsArrays, currentStates]) => {
-      console.debug("le filters state", currentsArrays)
+    ]), ([currentsArrays, currentStates]) => {
       this.listLevel = currentsArrays.levelArray.currentLevel;
       this.subLevels = currentsArrays.levelArray.subLevel;
       this.currentLev = currentStates.States.level;
@@ -65,13 +65,6 @@ export class FiltersComponent implements OnInit , OnDestroy{
       this.viewList =
         this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
     });
-  }
-
-  private destroy$: Subject<void> = new Subject<void>();
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   showSuper(level?: lev, levels?: listLev) {

@@ -31,7 +31,6 @@ export class PieTargetComponent extends SimplePieComponent {
         columns: data.data, //extract the actual data
         type: pie(),
         onover: () => {
-          //check if needle is over the slice 
           this.getNeedleGroup()
             .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.05)`);
         },
@@ -55,6 +54,16 @@ export class PieTargetComponent extends SimplePieComponent {
         this.config('onrendered', null);
       }
     });
+  }
+
+  updateGraph(data: any[]) {
+    super.updateGraph(data);
+    this.updateNeedle(data);
+  }
+
+  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+    let args: any[] = this.properties.arguments;
+    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private updateNeedle(data: any) {
@@ -90,18 +99,8 @@ export class PieTargetComponent extends SimplePieComponent {
       .attr('y2', 0);
   }
 
-  computeNeedlePosition(data: any): number {
+  private computeNeedlePosition(data: any): number {
     return data.target + 90;
-  }
-
-  updateGraph(data: any[]) {
-    super.updateGraph(data);
-    this.updateNeedle(data);
-  }
-
-  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
-    let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private getNeedleGroup() {

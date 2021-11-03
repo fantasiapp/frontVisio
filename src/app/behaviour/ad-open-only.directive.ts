@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import DEH from '../middle/DataExtractionHelper';
+import DEH, {Params} from '../middle/DataExtractionHelper';
 import { DisableDirective } from './disable-directive.directive';
 
 @Directive({
@@ -7,7 +7,6 @@ import { DisableDirective } from './disable-directive.directive';
 })
 export class AdOpenOnlyDirective extends DisableDirective {
   computeDisabled(): boolean {
-    return !DEH.get('params')['isAdOpen'];
-
+    return !Params.isAdOpen;
   }
 }

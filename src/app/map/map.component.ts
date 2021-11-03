@@ -1,12 +1,11 @@
-import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, OnDestroy, ViewChildren } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { LoggerService } from '../behaviour/logger.service';
-import { FiltersStatesService } from '../filters/filters-states.service';
-import DEH from '../middle/DataExtractionHelper';
+import { Interactive, SubscriptionManager } from '../interfaces/Common';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
 import { MapLegendComponent } from './map-legend/map-legend.component';
+import { MapIconBuilder } from './MapIconBuilder';
 
 type MarkerType = {
   pdv: PDV;
@@ -14,21 +13,17 @@ type MarkerType = {
   icon?: google.maps.ReadonlyIcon;
   map?: google.maps.Map;
   title?: string;
+  ref?: google.maps.Marker;
 };
-
-//Can be optimized by loading all and then filtering
-//Do it when you have time
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css'],
-  //changeDetection: ChangeDetectionStrategy.OnPush //we want easy mode here
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapComponent implements OnDestroy {
+export class MapComponent extends SubscriptionManager implements Interactive {
   @HostBinding('style.display')
-  private get display() {
-    return this.hidden ? 'none' : 'flex';
-  }
+  private get display() { return this.hidden ? 'none' : 'flex'; }
 
   @ViewChild(MapFiltersComponent)
   filters?: MapFiltersComponent;
@@ -38,32 +33,28 @@ export class MapComponent implements OnDestroy {
 
   @ViewChild('mapContainer', {static: false})
   mapContainer?: ElementRef;
-
-  onPDVsChange(pdvs: PDV[]) {
-    this.pdvs = pdvs;
-    this.update();
-  }
-
-  isAgentFinitions = PDV.geoTree.root.label == 'Agent Finition';
   
   selectedPDV?: PDV;
   private hidden: boolean = true;
-  private markers: google.maps.Marker[] = [];
+  private markers: MarkerType[] = [];
+  get shown() { return !this.hidden; }
+
+  private map?: google.maps.Map;
+  private infowindow: any = {};
+  private markerRenderingTimeout: any = 0;
+  private shouldUpdateIcons: boolean = false;
+  private pdvs: PDV[] = [];
   
   hide() {
     this.hidden = true;
-    this.unsubscribe();
+    this.pause();
     this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
     this.logger.actionComplete();
   }
 
   show() {
-    if ( this.shouldUpdateIcons ) {
-      console.log('[MapComponent]: Updating Icons.');
-      MapIconBuilder.initialize(this.isAgentFinitions);
-      this.legend?.update();
-      this.shouldUpdateIcons = false;
-    }
+    if ( this.shouldUpdateIcons )
+      this.onDataUpdate();
 
     this.interactiveMode();
     this.hidden = false;
@@ -71,37 +62,40 @@ export class MapComponent implements OnDestroy {
     this.logger.actionComplete();
   }
   
-  get shown() { return !this.hidden; }
-  
-  map?: google.maps.Map;
-  path: any = {};
-  pdvs: PDV[] = [...PDV.getInstances().values()];
-  infowindow: any = {};
-  markerTimeout: any = 0;
-  updateSubscription?: Subscription;
-  shouldUpdateIcons: boolean = false;
-
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
+    super();
     console.log('[MapComponent]: On');
-    MapIconBuilder.initialize(this.isAgentFinitions );
-    this.legend?.update();
+    MapIconBuilder.initialize();
     this.initializeInfowindow();
+    
     if ( this.shown )
-      this.interactiveMode();    
-  }
-
-  private interactiveMode() {
-    //unsubscribe from this
-    this.updateSubscription = this.dataservice.update.subscribe(_ => {
+      this.interactiveMode();
+    
+    this.subscribe(this.dataservice.update, _ => {
       this.shouldUpdateIcons = true;
 
-      if ( !this.hidden ) {
-        MapIconBuilder.initialize(this.isAgentFinitions );
-        this.legend?.update();
-        this.update();
-        this.shouldUpdateIcons = false;
-      }
+      if ( !this.hidden )
+        this.onDataUpdate();
     });
+  }
+
+  ngAfterViewInit() {
+    this.createMap();
+  }
+
+  interactiveMode() {
+    this.filters?.interactiveMode();
+  }
+
+  pause() {
+    this.filters?.pause();
+  }
+
+  protected onDataUpdate() {
+    MapIconBuilder.initialize();
+    this.legend?.update();
+    this.filters?.update();
+    this.shouldUpdateIcons = false;
   }
 
   initializeInfowindow() {
@@ -123,6 +117,12 @@ export class MapComponent implements OnDestroy {
     let marker = this.createMarker(pdv);
     this.adjustMap([marker]);
     this.selectedPDV = pdv;
+  }
+
+  onPDVsChange(pdvs: PDV[]) {
+    this.pdvs = pdvs;
+    //this.update();
+    this.incrementalUpdate();
   }
 
   update() {
@@ -222,16 +222,13 @@ export class MapComponent implements OnDestroy {
     });
   }
 
-  handleClick(pdv: PDV) {
-    this.selectedPDV = pdv;
-    this.cd.markForCheck();
-  }
-
   private addMarker(markerData: MarkerType): google.maps.Marker {
     let marker = new google.maps.Marker({
       ...markerData,
       optimized: true
     });
+
+    markerData.ref = marker;
 
     let name = markerData.title;
     if ( name ) {
@@ -245,33 +242,86 @@ export class MapComponent implements OnDestroy {
       });
     }
     
-    this.markers.push(marker);
+    this.markers.push(markerData);
     return marker;
   }
 
-  displayMarkers() {
-    let f: any, step = 4000, idx = 0;
-    this.markerTimeout = setTimeout(f = () => {
-      for ( let i = idx, l = Math.min(this.markers.length, idx+step); i < l; i++ )
-        this.markers[i].setMap(this.map!);
+  handleClick(pdv: PDV) {
+    this.selectedPDV = pdv;
+    this.cd.markForCheck();
+  }
+
+  private shuffle<T>(array: T[]) {
+    for ( let i = array.length - 1; i > 0; i-- ) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  displayMarkers(step = 1250, time = 400, shuffle = true) {
+    let n = this.markers.length,
+      q = (n / step) | 0,
+      a = 3 * (n - (q+1)/2*step)*q/time;
+
+    let markersToAdd = this.markers.filter(marker => !marker.ref!.getMap());
+    
+    if ( shuffle )
+      markersToAdd = this.shuffle(markersToAdd);
+    
+    let idx = 0;
+    let f = () => {
+      for ( let i = idx, l = Math.min(markersToAdd.length, idx+step); i < l; i++ )
+        if ( markersToAdd[i].ref && !(markersToAdd[i].ref!.getMap()) )
+          markersToAdd[i].ref!.setMap(this.map!);
+        
       idx += step;
-      if ( idx < this.markers.length )
-        setTimeout(f, 0);
-    }, this.markers.length > 2000 ? this.markers.length / 20 : 0);
+      if ( idx < markersToAdd.length )
+        this.markerRenderingTimeout = setTimeout(f, (markersToAdd.length - idx) / a);
+      else
+        this.markerRenderingTimeout = 0;
+    }
+    f();
     //if number is too big, wait for the animation
   }
 
   removeMarkers() {
     for ( let marker of this.markers )
-      marker.setMap(null); 
+      marker.ref?.setMap(null); 
     this.markers.length = 0;
-    if ( this.markerTimeout ) {
-      clearTimeout(this.markerTimeout);
-      this.markerTimeout = 0;
+    if ( this.markerRenderingTimeout ) {
+      clearTimeout(this.markerRenderingTimeout);
+      this.markerRenderingTimeout = 0;
     }
   }
 
-  private adjustMap(markers:  MarkerType[]) {
+  private async incrementalUpdate() {
+    //wait until all is rendered
+    await this.watch('markerRenderingTimeout', (timeout) => !timeout);
+
+    let existingPDVs = new Set(this.markers.map(marker => marker.pdv)),
+      allPDVS = new Set(this.pdvs),
+      keptMarkers = this.markers.filter(marker => allPDVS.has(marker.pdv)),
+      newPdvs = this.pdvs.filter(pdv => !existingPDVs.has(pdv)),
+      deletedMarkers = this.markers.filter(marker => !allPDVS.has(marker.pdv));
+  
+    for ( let deletedMarker of deletedMarkers )
+      deletedMarker.ref?.setMap(null);
+    
+    this.markers = keptMarkers;
+    this.addMarkersFromPDVs(newPdvs);
+  }
+
+  private watch(property: string, pred: (value: any) => boolean, t: number = 0) {
+    return new Promise((res, rej) => {
+      if ( this[property as keyof MapComponent] === void 0 ) rej();
+      let id = setInterval(() => {
+        if ( pred(this[property as keyof MapComponent]) ) { clearTimeout(id); res(true); }
+      }, t);
+    });
+  }
+
+  private adjustMap(markers: MarkerType[] = this.markers) {
     let center = [0, 0];
     markers.forEach((marker: MarkerType) => {
       let latlng = marker.position;
@@ -296,39 +346,23 @@ export class MapComponent implements OnDestroy {
     let std = Math.sqrt(variance[0] + variance[1]);
     let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
 
-    requestAnimationFrame(() => {
-      this.map!.setZoom(zoom || 13);
-      this.map!.panTo(
-        new google.maps.LatLng(
-          center[0] || 48.52,
-          center[1] || 2.19
-        )
-      );
-    });
-  }
-
-  getIcon(pdv: PDV) {
-    if ( this.isAgentFinitions ) {
-      return MapIconBuilder.instance.get([
-        +(pdv.property('visited') != 2), //2 -> 0 & 1 -> 1
-        pdv.property('typology')
-      ])
-    } else {
-      return MapIconBuilder.instance.get([
-        pdv.property('industriel'),
-        +(pdv.property('clientProspect') == 3),
-        +pdv.attribute('pointFeu'),
-        pdv.attribute('segmentMarketing')
-      ]);
-    }
+    this.map!.setZoom(zoom || 13);
+    this.map!.setZoom(zoom || 13);
+    this.map!.panTo(
+      new google.maps.LatLng(
+        center[0] || 48.52,
+        center[1] || 2.19
+      )
+    );
   }
 
   private createMarker(pdv: PDV): MarkerType {
     let lat = pdv.attribute('latitude'),
       lng = pdv.attribute('longitude'),
-      icon = this.getIcon(pdv);
+      icon = pdv.icon || MapIconBuilder.getIcon(pdv);
 
     if ( !icon ) throw 'Cannot find icon, maybe ids change';
+    if ( !pdv.icon ) pdv.icon = icon;
     return {
       position: new google.maps.LatLng(lat, lng),
       icon,
@@ -337,20 +371,18 @@ export class MapComponent implements OnDestroy {
     }
   }
 
-  private addMarkersFromPDVs() {
-    if ( !this.pdvs.length )
-      return;
-    
-    let markers: MarkerType[] = this.pdvs.map((pdv: PDV) => {
-      return this.createMarker(pdv);
-    });
+  private addMarkersFromPDVs(pdvs: PDV[] = this.pdvs) {
+    if ( pdvs.length ) {
+      let markers: MarkerType[] = pdvs.map((pdv: PDV) => {
+        return this.createMarker(pdv);
+      });
+  
+      for ( let marker of markers )
+        this.addMarker(marker);
+    }
 
-    this.adjustMap(markers);
-
-    for ( let marker of markers )
-      this.addMarker(marker);
-    
     this.displayMarkers();
+    this.adjustMap();
   };
 
   static round(x: number, threshold: number = 0.5): number {
@@ -360,176 +392,4 @@ export class MapComponent implements OnDestroy {
       return int + 1;
     return int;
   };
-
-  private unsubscribe() {
-    this.updateSubscription?.unsubscribe();
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe();
-  }
-};
-
-export class MapIconBuilder {
-  defaultValues: any;
-  axes: any[];
-  axesNames: string[];
-  icons: any;
-
-  constructor(defaultValues: any) {
-    MapIconBuilder.instance = this;
-    this.defaultValues = defaultValues;
-    this.axes = [];
-    this.axesNames = [];
-    this.icons = {'data': {}};
-  }
-
-  createIcon(values: any) {
-    let width = this.getPropertyOf(values, 'width'),
-      height = this.getPropertyOf(values, 'height'),
-      stroke = this.getPropertyOf(values, 'stroke'),
-      strokeWidth = this.getPropertyOf(values, 'strokeWidth'),
-      fill = this.getPropertyOf(values, 'fill');
-    
-    return {
-      url: 'data:image/svg+xml,' + encodeURIComponent(`
-        <svg width='${width}' height='${height}' version='1.1' xmlns='http://www.w3.org/2000/svg'>
-          ${values.head ? values.head(this, values) : `<circle cy='10' cx='15' r='8' stroke='${stroke}' stroke-width='1' fill='${fill}'></circle>`}
-          ${values.body ? values.body(this, values) : `<line x1='15' y1='18' x2='15' y2='30' stroke='${stroke}' stroke-width='${strokeWidth}'></line>`}
-          ${values.feet ? values.feet(this, values) : ``}
-        </svg>
-      `),
-      scaledSize: new google.maps.Size(width, height)
-    }
-  }
-
-  getPropertyOf(object: any, key: string) {
-    return (object && object[key]) || this.defaultValues[key];
-  }
-
-  axis(name: string, axis: any) {
-    this.axesNames.push(name);
-    this.axes.push(axis);
-    return this;
-  }
-
-  generate() {
-    this.generateData();
-    this.generateIcons();
-  }
-
-  get(path: string[]) {
-    let dict = this.icons;
-    for ( let i = 0; i < this.axesNames.length; i++ ) {
-      let name = this.axesNames[i] + '.' + path[i];
-      if ( dict[name] )
-        dict = dict[name];
-      else
-        return null;
-    }
-    
-    return dict.icon;
-  }
-
-  private generateData(previousDict=this.icons, height:number=0) {
-    if ( height >= this.axesNames.length ) return;
-    let axisName = this.axesNames[height];
-    let data = this.axes[height];
-
-    for ( let item of data ) {
-      let key = axisName + '.' + item[0];
-      previousDict[key] = {'data': {...previousDict['data'], ...item[1]}}; 
-      this.generateData(previousDict[key], height+1);
-    }
-  }
-
-  private generateIcons(previousDict=this.icons, height:number=0) {
-    if ( height >= this.axesNames.length ) return;
-    let keys = Object.getOwnPropertyNames(previousDict);
-    for ( let key of keys ) {
-      if ( !previousDict[key].data ) continue
-      previousDict[key].icon = this.createIcon(previousDict[key]['data']);
-      this.generateIcons(previousDict[key], height+1);
-    }
-  }
-
-  static circle(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
-    return `<circle cy='10' cx='15' r='8' stroke='${stroke}' stroke-width='1' fill='${fill}'></circle>`
-  }
-
-  static square(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
-    return `<rect x='7.5' y='2.5' width='15' height='15' stroke='${stroke}' stroke-width='1' fill='${fill}'></rect>`
-  }
-
-  static diamond(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
-    return `<rect transform='rotate(45, 15, 10)' x='8' y='3' width='14' height='14' fill='${fill}' stroke='${stroke}' stroke-width='1'></rect>`
-  }
-
-  static generateNGon(n: number, r: number = 1) {
-    let angle = 2*Math.PI/n;
-    let points = [];
-    for ( let i = 0; i < n; i++ )
-      points.push([r*Math.cos(angle*i), r*Math.sin(angle*i)]);
-    return points;
-  }
-
-  static hex(builder: MapIconBuilder, {stroke = builder.getPropertyOf(null, 'stroke'), fill}: any) {
-    let points = MapIconBuilder.generateNGon(6, 10).map(([x, y]) => (x + 15) + ',' + (y + 10)).join(' ');
-    return `
-      <polygon fill='${fill}' stroke='${stroke}' stroke-width='1' points='${points}'></polygon>
-    `
-  }
-
-  static fire(builder: MapIconBuilder, {strokeFeet = builder.getPropertyOf(null, 'stroke')}: any) {
-    return `<circle cx='15' cy='26' r='4' stroke='${strokeFeet}' stroke-width='1' fill='#FF0000'></circle>`;
-  }
-
-  static initialize(isAgentFinition: boolean = false) {
-    let builder = new MapIconBuilder({
-      width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
-    });
-
-    if ( isAgentFinition ) {
-      let typology = DEH.get('typology');
-
-      builder.axis('Visité', [
-        [0, {fill: '#0056A6'}],
-        [1, {fill: '#A61F7D'}],
-      ]).axis('typology', [
-        [+DEH.getKeyByValue(typology, 'Pur prospect')!, {head: MapIconBuilder.square}],
-        [+DEH.getKeyByValue(typology, 'Enduit hors P2CD')!, {head: MapIconBuilder.diamond}],
-        [+DEH.getKeyByValue(typology, 'P2CD + Enduit')!, {head: MapIconBuilder.circle}],
-        [+DEH.getKeyByValue(typology, 'Non documenté')!, {head: MapIconBuilder.hex}]
-      ]).generate();
-    } else {
-      let segmentMarketing = DEH.get('segmentMarketing'),
-        industriel = DEH.get('industriel');
-      
-      builder.axis('industriel', [
-        [+DEH.getKeyByValue(industriel, 'Siniat')!, {fill: '#A61F7D'}],
-        [+DEH.getKeyByValue(industriel, 'Placo')!, {fill: '#0056A6'}],
-        [+DEH.getKeyByValue(industriel, 'Knauf')!, {fill: '#67CFFE'}],
-        [+DEH.getKeyByValue(industriel, 'Autres')!, {fill: '#888888'}],
-      ]).axis('Non Documenté', [
-        [0, {}],
-        [1, {fill: '#FF0000'}]
-      ]).axis('pointFeu', [
-        [0, {}],
-        [1, {strokeFeet: 'none', feet: MapIconBuilder.fire}] //<- draw fire later, now it's a circle
-      ]).axis('segmentMarketing', [
-        [+DEH.getKeyByValue(segmentMarketing, 'Généralistes')!, {head: MapIconBuilder.circle}],
-        [+DEH.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!, {head: MapIconBuilder.square}],
-        [+DEH.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!, {head: MapIconBuilder.diamond}],
-        [+DEH.getKeyByValue(segmentMarketing, 'Autres')!, {head: MapIconBuilder.circle}]
-      ]).generate();
-    }
-
-    this._instance = builder;
-  }
-
-  static year = true;
-
-  private static _instance: MapIconBuilder | null = null;
-  public static get instance() { return this._instance!; }
-  private static set instance(value: MapIconBuilder) { this._instance = value; } 
 };

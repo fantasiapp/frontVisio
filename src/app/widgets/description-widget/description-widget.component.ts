@@ -1,12 +1,10 @@
-import { EventEmitter, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, Output, QueryList, ViewChildren, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { combineAll } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
 import { DataService } from 'src/app/services/data.service';
 import { TargetService } from './description-service.service';
 import { BasicWidget } from '../BasicWidget';
-import DEH from 'src/app/middle/DataExtractionHelper';
-import {CD} from 'src/app/middle/Descriptions';
+import { SubscriptionManager } from 'src/app/interfaces/Common';
+import { CD } from 'src/app/middle/Descriptions';
 
 @Component({
   selector: 'description-widget',
@@ -14,7 +12,7 @@ import {CD} from 'src/app/middle/Descriptions';
   styleUrls: ['./description-widget.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DescriptionWidgetComponent implements OnDestroy {
+export class DescriptionWidgetComponent extends SubscriptionManager {
 
   @ViewChildren('input', {read: ElementRef})
   inputs?: QueryList<ElementRef>;
@@ -24,21 +22,18 @@ export class DescriptionWidgetComponent implements OnDestroy {
     [0, 0, 0]
   ];
 
-  subscriptions: Subscription[] = [];
-
   constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private targetService: TargetService) {
-    this.subscriptions.push(
-      filtersService.stateSubject.subscribe(({States}) => {
-        //do something with path
-        this.values = CD.computeDescriptionWidget(this.filtersService.getPath(States));
-        this.cd.markForCheck();
-      }),
-      dataservice.update.subscribe(_ => {
-        this.values = CD.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
-        this.cd.markForCheck();
-        //do something when it updates
-      })
-    )
+    super();
+    this.subscribe(filtersService.stateSubject, ({States}) => {
+      //do something with path
+      this.values = CD.computeDescriptionWidget(this.filtersService.getPath(States));
+      this.cd.markForCheck();
+    });
+
+    this.subscribe(dataservice.update, _ => {
+      this.values = CD.computeDescriptionWidget(this.filtersService.currentPath);
+      this.cd.markForCheck();
+    });
   }
 
   get volume() {
@@ -57,11 +52,6 @@ export class DescriptionWidgetComponent implements OnDestroy {
     let input = this.inputs?.get(idx);
     if ( !input ) throw `[DescriptionWidget]: cannot find input`;
     this.currentSelection = idx;
-    this.targetService.setTarget(input.nativeElement.value);
-  }
-
-  ngOnDestroy() {
-    for ( let subscription of this.subscriptions )
-      subscription?.unsubscribe();
+    this.targetService.target = input.nativeElement.value;
   }
 }
