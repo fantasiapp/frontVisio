@@ -292,25 +292,6 @@ export class Sale {
 
 };
 
-// export class Target {
-//   private data: any[]
-//   constructor(data: any[] | false) {
-//     if(data === false) this.data = PDV.initializeTarget()
-//     else this.data = data;
-//   }
-
-//   get date(): number {return this.data[DEH.TARGET_DATE_ID]}
-//   get redistributed(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_ID]}
-//   get redistributedFinitions(): boolean {return this.data[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID]}
-//   get sale(): boolean {return this.data[DEH.TARGET_SALE_ID]}
-//   get targetP2cd(): number {return this.data[DEH.TARGET_VOLUME_ID]}
-//   get targetFinitions(): boolean {return this.data[DEH.TARGET_FINITIONS_ID]}
-//   get greenLight(): string {return this.data[DEH.TARGET_ID]}
-//   get commentTargetP2cd(): string {return this.data[DEH.TARGET_COMMENT_ID]}
-//   get bassin(): string {return this.data[DEH.TARGET_BASSIN_ID]}
-// }
-
-
 class SimplePdv { // Theses attributes are directly those received from the back
   private static indexMapping: Map<string, number>;
 
@@ -328,38 +309,75 @@ class SimplePdv { // Theses attributes are directly those received from the back
     SimplePdv.createIndexMapping();
   }
 
+  code!: string;
+  name!: string;
+  drv!: string;
+  agent!: number;
+  agentFinitions!: number;
+  dep!: number;
+  bassin!: number;
+  ville!: number;
+  latitude!: number;
+  longitude!: number;
+  segmentCommercial!: number;
+  segmentMarketing!: number;
+  enseigne!: number;
+  ensemble!: number;
+  sousEnsemble!: number;
+  site!: number;
+  available!: boolean;
+  sale!: boolean;
+  redistributed!: boolean;
+  redistributedFinitions!: boolean;
+  pointFeu!: boolean;
+  onlySiniat!: boolean;
+  closedAt!: number;
+  nbVisits!: number;
+  target!: any[];
+  sales!: any[];
+
   constructor(protected values: any[],) {
     this.updateField('sales', this.values[SimplePdv.index('sales')])
+    for(let key of DEH.get('structurePdvs')) {
+      Object.defineProperty(this, key, {
+        get: () => {
+          if(SimplePdv.indexMapping.get(key)) {
+              return this.values[SimplePdv.indexMapping.get(key)!]
+            }
+        }
+      })
+    }
   }
+
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues);}
 
-  get code(): string{return this.values[SimplePdv.indexMapping.get('code')!]}
-  get name(): string{return this.values[SimplePdv.indexMapping.get('name')!]}
-  get drv(): string{return this.values[SimplePdv.indexMapping.get('drv')!]}
-  get agent(): number{return this.values[SimplePdv.indexMapping.get('agent')!]}
-  get agentFinitions(): number{return this.values[SimplePdv.indexMapping.get('agentFinitions')!]}
-  get dep(): number{return this.values[SimplePdv.indexMapping.get('dep')!]}
-  get bassin(): number{return this.values[SimplePdv.indexMapping.get('bassin')!]}
-  get ville(): number{return this.values[SimplePdv.indexMapping.get('ville')!]}
-  get latitude(): number{return this.values[SimplePdv.indexMapping.get('latitude')!]}
-  get longitude(): number{return this.values[SimplePdv.indexMapping.get('longitude')!]}
-  get segmentCommercial(){return this.values[SimplePdv.indexMapping.get('segmentCommercial')!]}
-  get segmentMarketing(): number{return this.values[SimplePdv.indexMapping.get('segmentMarketing')!]}
-  get enseigne(): number{return this.values[SimplePdv.indexMapping.get('enseigne')!]}
-  get ensemble(): number{return this.values[SimplePdv.indexMapping.get('ensemble')!]}
-  get sousEnsemble(): number{return this.values[SimplePdv.indexMapping.get('sousEnsemble')!]}
-  get site(): number{return this.values[SimplePdv.indexMapping.get('site')!]}
-  get available(): boolean{return this.values[SimplePdv.indexMapping.get('available')!]}
-  get sale(): boolean{return this.values[SimplePdv.indexMapping.get('sale')!]}
-  get redistributed(): boolean{return this.values[SimplePdv.indexMapping.get('redistributed')!]}
-  get redistributedFinitions(): boolean{return this.values[SimplePdv.indexMapping.get('redistributedFinitions')!]}
-  get pointFeu(): boolean{return this.values[SimplePdv.indexMapping.get('pointFeu')!]}
-  get onlySiniat(): boolean{return this.values[SimplePdv.indexMapping.get('onlySiniat')!]}
-  get closedAt(){return this.values[SimplePdv.indexMapping.get('closedAt')!]}
-  get nbVisits(): number{return this.values[SimplePdv.indexMapping.get('nbVisits')!]}
-  get target(): any[] | false{return this.values[SimplePdv.indexMapping.get('target')!]}
-  get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
+  // get code(): string{return this.values[SimplePdv.indexMapping.get('code')!]}
+  // get name(): string{return this.values[SimplePdv.indexMapping.get('name')!]}
+  // get drv(): string{return this.values[SimplePdv.indexMapping.get('drv')!]}
+  // get agent(): number{return this.values[SimplePdv.indexMapping.get('agent')!]}
+  // get agentFinitions(): number{return this.values[SimplePdv.indexMapping.get('agentFinitions')!]}
+  // get dep(): number{return this.values[SimplePdv.indexMapping.get('dep')!]}
+  // get bassin(): number{return this.values[SimplePdv.indexMapping.get('bassin')!]}
+  // get ville(): number{return this.values[SimplePdv.indexMapping.get('ville')!]}
+  // get latitude(): number{return this.values[SimplePdv.indexMapping.get('latitude')!]}
+  // get longitude(): number{return this.values[SimplePdv.indexMapping.get('longitude')!]}
+  // get segmentCommercial(){return this.values[SimplePdv.indexMapping.get('segmentCommercial')!]}
+  // get segmentMarketing(): number{return this.values[SimplePdv.indexMapping.get('segmentMarketing')!]}
+  // get enseigne(): number{return this.values[SimplePdv.indexMapping.get('enseigne')!]}
+  // get ensemble(): number{return this.values[SimplePdv.indexMapping.get('ensemble')!]}
+  // get sousEnsemble(): number{return this.values[SimplePdv.indexMapping.get('sousEnsemble')!]}
+  // get site(): number{return this.values[SimplePdv.indexMapping.get('site')!]}
+  // get available(): boolean{return this.values[SimplePdv.indexMapping.get('available')!]}
+  // get sale(): boolean{return this.values[SimplePdv.indexMapping.get('sale')!]}
+  // get redistributed(): boolean{return this.values[SimplePdv.indexMapping.get('redistributed')!]}
+  // get redistributedFinitions(): boolean{return this.values[SimplePdv.indexMapping.get('redistributedFinitions')!]}
+  // get pointFeu(): boolean{return this.values[SimplePdv.indexMapping.get('pointFeu')!]}
+  // get onlySiniat(): boolean{return this.values[SimplePdv.indexMapping.get('onlySiniat')!]}
+  // get closedAt(){return this.values[SimplePdv.indexMapping.get('closedAt')!]}
+  // get nbVisits(): number{return this.values[SimplePdv.indexMapping.get('nbVisits')!]}
+  // get target(): any[] | false{return this.values[SimplePdv.indexMapping.get('target')!]}
+  // get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
 
   //Modifiable fields : bassin, available, sale, redistributed, redistributedFinitions, pointFeu, onlySiniat, nbVisits, target, sales
   public updateField(field: string, value: any) {
@@ -367,11 +385,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   }
 
   public initializeTarget() {
-    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", this.get('bassin')]
-  }
-  public updateTargetField(id: number, value: any) {
-    if(!this.target) this.initializeTarget()
-    this.values[DEH.TARGET_ID][id]
+    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", this.bassin]
   }
 
   public attribute(attribute: string) {
