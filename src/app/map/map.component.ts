@@ -2,7 +2,6 @@ import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, Chang
 import { Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { Interactive, SubscriptionManager } from '../interfaces/Common';
-import DEH from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
@@ -48,12 +47,8 @@ export class MapComponent extends SubscriptionManager implements Interactive {
   }
 
   show() {
-    if ( this.shouldUpdateIcons ) {
-      console.log('[MapComponent]: Updating Icons.');
-      MapIconBuilder.initialize();
-      this.legend?.update();
-      this.shouldUpdateIcons = false;
-    }
+    if ( this.shouldUpdateIcons )
+      this.onDataUpdate();
 
     this.interactiveMode();
     this.hidden = false;
@@ -74,29 +69,34 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     console.log('[MapComponent]: On');
     MapIconBuilder.initialize();
     this.initializeInfowindow();
+    
     if ( this.shown )
-      this.interactiveMode();    
+      this.interactiveMode();
+    
+    this.subscribe(this.dataservice.update, _ => {
+      console.log('an update is comming');
+      this.shouldUpdateIcons = true;
+
+      if ( !this.hidden )
+        this.onDataUpdate();
+    });
   }
 
   interactiveMode() {
-    //unsubscribe from this
-    this.subscribe(this.dataservice.update, _ => {
-      this.shouldUpdateIcons = true;
-
-      if ( !this.hidden ) {
-        MapIconBuilder.initialize();
-        this.legend?.update();
-        this.update();
-        this.shouldUpdateIcons = false;
-      }
-    });
     this.filters?.interactiveMode();
   }
 
   pause() {
-    this.unsubscribe(this.dataservice.update);
     this.filters?.pause();
   }
+
+  protected onDataUpdate() {
+    MapIconBuilder.initialize();
+    this.legend?.update();
+    this.filters?.update();
+    this.shouldUpdateIcons = false;
+  }
+
 
   initializeInfowindow() {
     let content = this.infowindow.content = document.createElement('div'),
