@@ -5,7 +5,6 @@ import { PDV, Sale } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
-import { SliceTable } from 'src/app/middle/SliceTable';
 import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import {
   trigger,
@@ -184,7 +183,8 @@ export class InfoBarComponent {
   }
 
   format(entry: number) {
-    return BasicWidget.format(entry);
+    if(!entry) return ''
+    return BasicWidget.format(entry, 3, true);
   }
 
   convert(entry: string) {
