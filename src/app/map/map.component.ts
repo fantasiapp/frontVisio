@@ -259,10 +259,10 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     return array;
   }
 
-  displayMarkers(step = 1000, time = 400, shuffle = true) {
+  displayMarkers(step = 1250, time = 400, shuffle = true) {
     let n = this.markers.length,
       q = (n / step) | 0,
-      a = 2.5 * (n - (q+1)/2*step)*q/time;
+      a = 1.5 * (n - (q+1)/2*step)*q/time;
 
     let markersToAdd = this.markers.filter(marker => !marker.ref!.getMap());
     
