@@ -181,8 +181,8 @@ export class SliceTable {
         SliceTable.currentGroupField = groupField;
         let pdvsByGroup = new Map<string, PDV[]>();
         for(let pdv of this.sortedPdvsList){
-            if(pdvsByGroup.get(pdv.attribute(groupField)) === undefined) pdvsByGroup.set(pdv.attribute(groupField), [pdv]);
-            else pdvsByGroup.get(pdv.attribute(groupField))!.push(pdv);
+            if(pdvsByGroup.get(pdv[groupField as keyof PDV]) === undefined) pdvsByGroup.set(pdv[groupField as keyof PDV], [pdv]);
+            else pdvsByGroup.get(pdv[groupField as keyof PDV])!.push(pdv);
         }
         let groupList: PDV[][] = [];
         for(let key of pdvsByGroup.keys()) groupList.push(this.tableConfig[type]['groupRowConfig']({groupKey: key, pdvs: pdvsByGroup.get(key)}))
@@ -192,18 +192,17 @@ export class SliceTable {
         return groupList.flat()
     }
 
-    getRowColor(id: number): string {
-        let pdvInstance = PDV.findById(id)!;
+    getRowColor(pdv: PDV): string {
         let isAdOpen = DEH.get('params')['isAdOpen']
-        if(pdvInstance.onlySiniat === true || pdvInstance.sale === false || pdvInstance.redistributed === false || (pdvInstance.target && (!pdvInstance.target[DEH.TARGET_SALE_ID] || !pdvInstance.attribute('target')[DEH.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+        if(pdv.onlySiniat === true || pdv.sale === false || pdv.redistributed === false || (pdv.target && (!pdv.target[DEH.TARGET_SALE_ID] || !pdv.target[DEH.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
             return 'black'
 
-        for(let sale of pdvInstance.salesObject) {
+        for(let sale of pdv.salesObject) {
             if(Math.floor(Date.now()/1000) - 15778476 <= sale.date && sale.industryId !== DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0)
                 return 'black';
         }
 
-        for(let sale of pdvInstance.salesObject) {
+        for(let sale of pdv.salesObject) {
             if(sale.industryId != DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0) return 'orange'
         }
 
