@@ -655,18 +655,25 @@ export class PDV extends SimplePdv{
       }
     return dictCounter
   }
-
-  industriel(){ // a opti avec le salesRepartition
-    let dnIndustries = this.getValue('p2cd', 'mainIndustries') as number[],
-      industriesDict = DEH.get('industriel'),
-      iMax = 0;
-    let industriesList = Object.values(DEH.get('mainIndustries'));
-    for (let i = 1; i < dnIndustries.length; i++)
-      if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
-    let result = parseInt(DEH.getKeyByValue(industriesDict, industriesList[iMax])!);
-    if (Number.isNaN(result)) result = 4; //hardcodé non ?
-    return result;
+  industriel(){
+    let salesRepartition = this.displayIndustrieSaleVolumes(),
+      industrieMax = 'Autres';
+    for (let [industrie, sales] of Object.entries(salesRepartition))
+      if (sales > salesRepartition[industrieMax]) industrieMax = industrie;
+    return parseInt(DEH.getKeyByValue(DEH.get('industriel'), industrieMax)!);
   }
+
+  // industriel(){ // a opti avec le salesRepartition
+  //   let dnIndustries = this.getValue('p2cd', 'mainIndustries') as number[],
+  //     industriesDict = DEH.get('industriel'),
+  //     iMax = 0;
+  //   let industriesList = Object.values(DEH.get('mainIndustries'));
+  //   for (let i = 1; i < dnIndustries.length; i++)
+  //     if (dnIndustries[i] > dnIndustries[iMax]) iMax = i;
+  //   let result = parseInt(DEH.getKeyByValue(industriesDict, industriesList[iMax])!);
+  //   if (Number.isNaN(result)) result = 4; //hardcodé non ?
+  //   return result;
+  // }
 
   ciblage(){
     return (this.targetP2cd > 0 && this.lightTarget !== 'r') ? 2: 1;
