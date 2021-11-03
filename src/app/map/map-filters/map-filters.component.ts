@@ -90,8 +90,8 @@ export class MapFiltersComponent extends SubscriptionManager implements Interact
       return acc;
     }, []);
 
-    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this.criteria.length ? this.criteria : undefined);
     this.criteria = result as [string, number[]][];
+    this.logger.handleEvent(LoggerService.events.MAP_FILTERS_CHANGED, this.criteria.length ? this.criteria : undefined);
     this.logger.actionComplete();
     if ( change )
       this.pdvsChange.emit(this.getLastPDVs());

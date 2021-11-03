@@ -180,10 +180,10 @@
                     <div>
                         <h2 class="title">P2CD</h2>
                         <ul>
-                            <li *ngIf="customData.siniatP2cdSales  != 0"><span>Siniat : </span>{{ customData.siniatP2cdSales }} m²</li>
-                            <li *ngIf="customData.placoP2cdSales  != 0"><span>Placo : </span>{{ customData.placoP2cdSales }} m²</li>
-                            <li *ngIf="customData.knaufP2cdSales  != 0"><span>Knauf : </span>{{ customData.knaufP2cdSales }} m²</li>
-                            <li *ngIf="customData.totalP2cdSales  != 0"><span>Total P2CD estimé : </span>{{ customData.totalP2cdSales }} m²</li>
+                            <li *ngIf="customData.siniatP2cdSales"><span>Siniat : </span>{{ customData.siniatP2cdSales }} m²</li>
+                            <li *ngIf="customData.placoP2cdSales"><span>Placo : </span>{{ customData.placoP2cdSales }} m²</li>
+                            <li *ngIf="customData.knaufP2cdSales"><span>Knauf : </span>{{ customData.knaufP2cdSales }} m²</li>
+                            <li *ngIf="customData.totalP2cdSales"><span>Total P2CD estimé : </span>{{ customData.totalP2cdSales }} m²</li>
                         </ul>
                     </div>
                     <div>
@@ -192,11 +192,11 @@
                     <div>
                         <h2 class="title">Enduit</h2>
                         <ul>
-                            <li *ngIf="customData.pregyEnduitSales != 0"><span>Prégy : </span>{{ customData.pregyEnduitSales }} KG</li>
-                            <li *ngIf="customData.salsiEnduitSales != 0"><span>Salsi : </span>{{ customData.salsiEnduitSales }} KG</li>
-                            <li *ngIf="customData.potential  != 0"><span>Potentiel : </span>{{ customData.potential }} KG</li>
-                            <li *ngIf="customData.totalSiniatEnduitSales  != 0"><span>Total siniat : </span>{{ customData.totalSiniatEnduitSales }} KG</li>
-                            <li *ngIf="customData.totalEnduitSales  != 0"><span>Total estimé : </span>{{ customData.totalEnduitSales }} KG</li>
+                            <li *ngIf="customData.pregyEnduitSale"><span>Prégy : </span>{{ customData.pregyEnduitSales }} KG</li>
+                            <li *ngIf="customData.salsiEnduitSale"><span>Salsi : </span>{{ customData.salsiEnduitSales }} KG</li>
+                            <li *ngIf="customData.potential"><span>Potentiel : </span>{{ customData.potential }} KG</li>
+                            <li *ngIf="customData.totalSiniatEnduitSales"><span>Total siniat : </span>{{ customData.totalSiniatEnduitSales }} KG</li>
+                            <li *ngIf="customData.totalEnduitSales"><span>Total estimé : </span>{{ customData.totalEnduitSales }} KG</li>
                         </ul>
                     </div>
                 </div>
