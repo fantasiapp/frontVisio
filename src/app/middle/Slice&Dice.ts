@@ -461,32 +461,51 @@ export class PDV extends SimplePdv{
     this.geoTree = new Tree(NavigationExtractionHelper);
     this.tradeTree = new Tree(TradeExtrationHelper);
   }
-
+  
   public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
     if (axisName && nonRegularAxis.includes(axisName!)){
       let salesRepartition = this.computeSalesRepartition();
       if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator, salesRepartition);
       else return this.computIndustriesAxis(axisName, salesRepartition);
     } else return (indicator == 'dn') ? 1: 
-      this.salesObject.filter(sale => sale.type == 'p2cd').reduce((acc, sale) => acc + sale.volume, 0);
+    this.salesObject.filter(sale => sale.type == 'p2cd').reduce((acc, sale) => acc + sale.volume, 0);
+  }
+
+  private computeSalesRepartition():{[key:string]:any}{
+    let salesRepartition: {[key:string]:any} = {Siniat: 0, Salsi: 0, Prégy: 0, Knauf: 0, Challengers: 0, 
+      Placo: 0, totalSales: 0, totalP2cd: 0, totalEnduit: 0, sumExceptSiniat: 0, completed: false};
+    for (let sale of this.salesObject){
+      let type = sale.type, industry = sale.industry, volume = sale.volume;
+      salesRepartition['totalSales'] += volume;
+      if (sale.date != null) salesRepartition['completed'] = true;
+      if (type == 'p2cd'){
+        salesRepartition['totalP2cd'] += volume;
+        if (industry !== 'Siniat') salesRepartition['sumExceptSiniat'] += volume;
+        if (['Siniat', 'Placo', 'Knauf'].includes(industry)) salesRepartition[industry] += volume;
+        else salesRepartition['Challengers'] += volume;
+      } else if (type == 'enduit' && ['Salsi', 'Prégy'].includes(industry) && volume > 0){
+        salesRepartition['totalEnduit'] += volume;
+        salesRepartition[industry] += volume;
+      }
+    }
+    salesRepartition['potentialFinition'] = Math.max(salesRepartition['totalP2cd'] * DEH.getParam('ratioPlaqueFinition') - salesRepartition['Salsi'] - salesRepartition['Prégy'], 0);
+    return salesRepartition;
   }
 
   private computeIrregularAxis(axisName:string, indicator:string, params: {[key:string]:any}){
-    if(nonRegularAxis.includes(axisName)){// condition à mettre dans le getValue
-      let axis: string[] = Object.values(DEH.get(axisName, true)),
-        repartition= new Array(axis.length).fill(0),
-        found = false, i = 0;
-      let value = (indicator == 'dn') ? 1: ((indicator == 'visits') ? this.nbVisits : 
-        this.nbVisits * Math.max(params['totalP2cd'] * DEH.get("params")["ratioPlaqueFinition"], params['totalEnduit']))
-      while (!found){
-        if (this.conditionAxis(axisName, axis[i], params)){
-          found = true;
-          repartition[i] = value;
-        }
-        i++;
+    let axis: string[] = Object.values(DEH.get(axisName, true)),
+      repartition= new Array(axis.length).fill(0),
+      found = false, i = 0;
+    let value = (indicator == 'dn') ? 1: ((indicator == 'visits') ? this.nbVisits : 
+      this.nbVisits * Math.max(params['totalP2cd'] * DEH.get("params")["ratioPlaqueFinition"], params['totalEnduit']))
+    while (!found){
+      if (this.conditionAxis(axisName, axis[i], params)){
+        found = true;
+        repartition[i] = value;
       }
-      return repartition;
-    } else return 1;
+      i++;
+    }
+    return repartition;
   }
 
   private conditionAxis(axisName:string, item:string, params:{[key:string]:any}){
@@ -516,26 +535,6 @@ export class PDV extends SimplePdv{
     for (let i = 0; i < axis.length; i++)
       computedAxis[i] = this.computeElement(axis[i], salesIndustries, axisName);
     return computedAxis
-  }
-
-  private computeSalesRepartition():{[key:string]:any}{
-    let salesRepartition: {[key:string]:any} = {Siniat: 0, Salsi: 0, Prégy: 0, Knauf: 0, Challengers: 0, Placo: 0, totalSales: 0, totalP2cd: 0, totalEnduit: 0, sumExceptSiniat: 0, completed: false};
-    for (let sale of this.salesObject){
-      let type = sale.type, industry = sale.industry, volume = sale.volume;
-      salesRepartition['totalSales'] += volume;
-      if (sale.date != null) salesRepartition['completed'] = true;
-      if (type == 'p2cd'){
-        salesRepartition['totalP2cd'] += volume;
-        if (industry !== 'Siniat') salesRepartition['sumExceptSiniat'] += volume;
-        if (['Siniat', 'Placo', 'Knauf'].includes(industry)) salesRepartition[industry] += volume;
-        else salesRepartition['Challengers'] += volume;
-      } else if (type == 'enduit' && ['Salsi', 'Prégy'].includes(industry) && volume > 0){
-        salesRepartition['totalEnduit'] += volume;
-        salesRepartition[industry] += volume;
-      }
-    }
-    salesRepartition['potentialFinition'] = Math.max(salesRepartition['totalP2cd'] * DEH.getParam('ratioPlaqueFinition') - salesRepartition['Salsi'] - salesRepartition['Prégy'], 0);
-    return salesRepartition;
   }
 
   private computeElement(element:string, salesRepartition:{[key:string]: number}, axisName:string){
@@ -777,6 +776,7 @@ export class PDV extends SimplePdv{
       if (dnResult[i] == 1)
         return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
+
   displayIndustrieSaleVolumes(enduit=false): {[key:string]:number}{
     let dictSales = this.computeSalesRepartition();
     if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['potentialFinition']};
