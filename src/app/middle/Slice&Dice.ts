@@ -406,7 +406,7 @@ export class PDV extends SimplePdv{
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
-  get typology(): number {return this.getValue('dn', 'segmentDnEnduit') as number;}
+  get typology(): number {return this.property('typology')}
 
   get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
