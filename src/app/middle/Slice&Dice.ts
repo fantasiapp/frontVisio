@@ -523,7 +523,7 @@ export class PDV extends SimplePdv{
       case 'Enduit hors P2CD': return params['totalEnduit'] > 0;
       case 'Cible Pur Prospect': return this.targetFinition;
       // DN P2CD axis
-      case 'Potentiel ciblé': return this.targetP2cd > 0 && this.lightTarget !== 'r';
+      case 'Potentiel ciblé': return this.realTargetP2cd > 0;
       case 'Client': return params['Siniat'] > DEH.getParam('ratioCustomerProspect') * params['totalP2cd'];
       default: return true;
     }
