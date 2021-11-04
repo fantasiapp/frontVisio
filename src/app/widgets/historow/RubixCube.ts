@@ -32,8 +32,10 @@ export class RubixCube {
     let description = this.historow.properties.description =
       RubixCube.DESCRIPTION_MOCK.filter((_, idx) => this._segmentAxis![idx]);
 
-    if ( description.length == 2 )
+    if ( description.length == 2 ) {
       this.historow.properties.description.shift();
+      this.segmentCondition = 1;
+    }
     this.historow.makeSelect();
   }
 
