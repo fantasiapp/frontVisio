@@ -11,7 +11,7 @@ import { PDV } from '../middle/Slice&Dice';
   styleUrls: ['./sub-upper-bar.component.css'],
 })
 export class SubUpperBarComponent implements OnInit {
-  constructor(private filtersStates: FiltersStatesService, private logger: LoggerService) {}
+  constructor(private filtersStates: FiltersStatesService) {}
   currentDashboardId: number = 0;
   currentDashboard: string = '';
   currentLevel: string ='';
@@ -19,7 +19,7 @@ export class SubUpperBarComponent implements OnInit {
   currentYear: string = '';
   path:  string = ''
   years: [number, number] = [Params.currentYear, Params.currentYear-1]
-  otherYearDashboards: any;
+  otherYearDashboards: any; //-> whether we can transition to another year on this dashboard
 
   ngOnInit(): void {
     this.filtersStates.stateSubject.subscribe(
@@ -46,9 +46,7 @@ export class SubUpperBarComponent implements OnInit {
   onYearChange(e: Event) {
     let current = !!(((e.target as any).value) | 0);
     this.filtersStates.setYear(current);
-    this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.navigation.tree!, this.filtersStates.stateSubject.value.States.path.length - 1)
-    this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
-    this.logger.actionComplete();
+    this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.navigation.tree!, this.filtersStates.stateSubject.value.States.path.length - 1);
     this.currentYear = current ? this.filtersStates.getYear() : '';
   }
 }
