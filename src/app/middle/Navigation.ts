@@ -1,10 +1,8 @@
-import DEH, {NavigationExtractionHelper, Params} from './DataExtractionHelper';
+import DEH, {GeoExtractionHelper, Params} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { PDV } from './Slice&Dice';
-
-// !!!! change NavigationExtractionHelper to GeoExtractionHelper
 
 @Injectable()
 export class Navigation {
@@ -34,7 +32,7 @@ export class Navigation {
 
   setCurrentDashboard(tree: Tree, dashboard: Dashboard) {
     //same type, rename is
-    if ( this.tree?.is(tree) ) {
+    if ( this.tree?.hasTypeOf(tree) ) {
       this.tree = tree;
       this.currentLevel = this.tree.root;
     }
@@ -47,7 +45,7 @@ export class Navigation {
   followTree(t: Tree) {
     let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null,
       dashboard: Dashboard | undefined,
-      sameType = this.tree?.is(t);
+      sameType = this.tree?.hasTypeOf(t);
     
     if ( path )
       dashboard = this.currentLevel!.dashboards.find(dashboard => dashboard.id === this.currentDashboard?.id);

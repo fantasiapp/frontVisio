@@ -1,4 +1,4 @@
-import DEH, {NavigationExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
+import DEH, {GeoExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { DataService, UpdateFields } from '../services/data.service';
@@ -458,7 +458,7 @@ export class PDV extends SimplePdv{
   };
   
   private static loadTrees(){
-    this.geoTree = new Tree(NavigationExtractionHelper);
+    this.geoTree = new Tree(GeoExtractionHelper);
     this.tradeTree = new Tree(TradeExtrationHelper);
   }
   

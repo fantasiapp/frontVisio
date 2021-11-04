@@ -166,8 +166,12 @@ export class Params {
     return PDV.geoTree.root.name;
   }
 
+  static get rootNature() {
+    return PDV.geoTree.root.nature;
+  }
+
   static get rootLabel() {
-    return DEH.geoLevels[0][DEH.LABEL_INDEX];
+    return PDV.geoTree.root.label;
   }
 }
 
@@ -489,7 +493,7 @@ class DEH{  // for DataExtractionHelper
   }
 
   static getOtherYearDashboards(tree: Tree, height: number = 0) {
-    let name = tree.is(NavigationExtractionHelper) ? 'levelGeo' : 'levelTrade';
+    let name = tree.hasTypeOf(GeoExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
     while ( height-- )
       level = level[this.SUBLEVEL_INDEX];
@@ -499,20 +503,11 @@ class DEH{  // for DataExtractionHelper
 
 export type DataTree = [number, [DataTree]] | number;
 
-export interface TreeExtractionHelper {
-  levels: any[];
-  data: {levels: string; tree: string;};
-  height: number;
-  loadData: () => void;
-  getName: (height: number, id: number) => string;
-  getLevelLabel: (height: number) => string;
-  getDashboardsAt: (height: number) => number[];
-};
+export abstract class TreeExtractionHelper {
+  abstract data: {levels: string; tree: string};
+  levels: any[] = [];
+  height: number = 0;
 
-export const NavigationExtractionHelper: TreeExtractionHelper = {
-  levels: [],
-  data: {tree: 'geoTree', levels: 'levelGeo'},
-  height: 0,
   loadData() {
     let structure = DEH.get('structureLevel'),
       level = DEH.get(this.data.levels);
@@ -525,45 +520,34 @@ export const NavigationExtractionHelper: TreeExtractionHelper = {
 
     this.height = this.levels.length;
     return DEH.get(this.data.tree);
-  },
+  }
+
   getName(height: number, id: number) {
     let name = DEH.get(this.levels[height][DEH.LABEL_INDEX])[id];
-    if (name == undefined) throw `No geo level with id=${id} at height ${height}`;
+    if (name == undefined) throw `No ${this.data.levels} with id=${id} at height ${height}`;
     if (Array.isArray(name))
       return name[DEH.get('structureAgentfinitions').indexOf('name')];
     return name;
-  },
+  }
+
   getLevelLabel(height: number) {
     return this.levels[height][DEH.PRETTY_INDEX];
-  },
-  getDashboardsAt(height: number){
+  }
+
+  getLevelNature(height: number) {
+    return this.levels[height][DEH.LABEL_INDEX];
+  } 
+
+  getDashboardsAtHeight(height: number) {
     return this.levels[height][DEH.DASHBOARD_INDEX];
   }
+}
+export const GeoExtractionHelper = new class extends TreeExtractionHelper {
+  data = {tree: 'geoTree', levels: 'levelGeo'};
 };
 
-//factorize error messages and regroup similar functions
-
-export const TradeExtrationHelper: TreeExtractionHelper = {
-  levels: [],
-  data: {tree: 'tradeTree', levels: 'levelTrade'},
-  height: 0,
-  loadData() {
-    return NavigationExtractionHelper.loadData.call(this);
-  },
-  getName(height: number, id: number) {
-    if (height == 0) return '';
-    let name = DEH.get(this.levels[height][DEH.LABEL_INDEX])[id];
-    if (name == undefined)
-      throw `No trade level with id=${id} at height=${height}`;
-    return name;
-  },
-  getLevelLabel(height: number) {
-    return NavigationExtractionHelper.getLevelLabel.call(this, height);
-
-  },
-  getDashboardsAt(height: number){
-    return NavigationExtractionHelper.getDashboardsAt.call(this, height);
-  }
+export const TradeExtrationHelper = new class extends TreeExtractionHelper {
+  data = {tree: 'tradeTree', levels: 'levelTrade'}
 };
 
 export default DEH;
