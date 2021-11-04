@@ -40,6 +40,11 @@ export class TableComponent extends BasicWidget {
   hasChanged: boolean = false;
   quiting: boolean = false;
 
+  //Graph description
+  showDescription: boolean = false;
+  description: any[] = []
+  mouseX: number = 0; mouseY: number = 0;
+
   //Apis
   gridApi: any;
   columnApi: any;
@@ -233,6 +238,26 @@ export class TableComponent extends BasicWidget {
       }
     }
   }
+  onCellMouseOver(event: any) {
+    if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
+      this.showDescription = true;
+      let objectCopy = JSON.parse(JSON.stringify(event.value))
+      this.description = [(Object.entries(objectCopy['p2cd']).map((entry: any) => [entry[0], {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}])),
+              Object.entries(objectCopy['enduit']).map((entry: any) => [entry[0], {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}])]
+    }
+  }
+  onCellMouseOut(event: any) {
+    if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
+      this.showDescription = false;
+    }
+  }
+
+  getMousePosition() {
+    let e = window.event as any;
+    this.mouseX = e.pageX;
+    this.mouseY = e.pageY;
+  }
+
 
   displayInfobar(pdv: PDV | number) {
     if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
