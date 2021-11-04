@@ -13,7 +13,7 @@
         <ng-container *ngIf="pdv">
             <ng-container *ngIf="currentIndex == 0">
                 <div class="main">
-                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.attribute('name')}}</span></h2>
+                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.name}}</span></h2>
                     <div class="reference">
                         <div class="definition">
                             <ul>
@@ -61,7 +61,7 @@
 
             <ng-container *ngIf="currentIndex == 1">
                 <div class="main">
-                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.attribute('name')}}</span></h2>
+                    <h2><span class="title">{{pages[currentIndex]}}: {{pdv!.name}}</span></h2>
                     <!-- <p>information sur la point de vente</p> -->
                     <div class="content">
                         <div class="name">Général</div>
@@ -180,10 +180,10 @@
                     <div>
                         <h2 class="title">P2CD</h2>
                         <ul>
-                            <li *ngIf="customData.siniatP2cdSales"><span>Siniat : </span>{{ customData.siniatP2cdSales }} m²</li>
-                            <li *ngIf="customData.placoP2cdSales"><span>Placo : </span>{{ customData.placoP2cdSales }} m²</li>
-                            <li *ngIf="customData.knaufP2cdSales"><span>Knauf : </span>{{ customData.knaufP2cdSales }} m²</li>
-                            <li *ngIf="customData.totalP2cdSales"><span>Total P2CD estimé : </span>{{ customData.totalP2cdSales }} m²</li>
+                            <li *ngIf="displayedInfos.siniatP2cdSales > 0"><span>Siniat : </span>{{ format(displayedInfos.siniatP2cdSales) }} m²</li>
+                            <li *ngIf="displayedInfos.placoP2cdSales > 0"><span>Placo : </span>{{ format(displayedInfos.placoP2cdSales) }} m²</li>
+                            <li *ngIf="displayedInfos.knaufP2cdSales > 0"><span>Knauf : </span>{{ format(displayedInfos.knaufP2cdSales) }} m²</li>
+                            <li *ngIf="displayedInfos.totalP2cdSales > 0"><span>Total P2CD estimé : </span>{{ format(displayedInfos.totalP2cdSales) }} m²</li>
                         </ul>
                     </div>
                     <div>
@@ -192,11 +192,11 @@
                     <div>
                         <h2 class="title">Enduit</h2>
                         <ul>
-                            <li *ngIf="customData.pregyEnduitSale"><span>Prégy : </span>{{ customData.pregyEnduitSales }} KG</li>
-                            <li *ngIf="customData.salsiEnduitSale"><span>Salsi : </span>{{ customData.salsiEnduitSales }} KG</li>
-                            <li *ngIf="customData.potential"><span>Potentiel : </span>{{ customData.potential }} KG</li>
-                            <li *ngIf="customData.totalSiniatEnduitSales"><span>Total siniat : </span>{{ customData.totalSiniatEnduitSales }} KG</li>
-                            <li *ngIf="customData.totalEnduitSales"><span>Total estimé : </span>{{ customData.totalEnduitSales }} KG</li>
+                            <li *ngIf="displayedInfos.pregyEnduitSale > 0"><span>Prégy : </span>{{ format(displayedInfos.pregyEnduitSales) }} KG</li>
+                            <li *ngIf="displayedInfos.salsiEnduitSale > 0"><span>Salsi : </span>{{ format(displayedInfos.salsiEnduitSales) }} KG</li>
+                            <li *ngIf="displayedInfos.potential > 0"><span>Potentiel : </span>{{ format(displayedInfos.potential) }} KG</li>
+                            <li *ngIf="displayedInfos.totalSiniatEnduitSales > 0"><span>Total siniat : </span>{{ format(displayedInfos.totalSiniatEnduitSales) }} KG</li>
+                            <li *ngIf="displayedInfos.totalEnduitSales > 0"><span>Total estimé : </span>{{ format(displayedInfos.totalEnduitSales) }} KG</li>
                         </ul>
                     </div>
                 </div>

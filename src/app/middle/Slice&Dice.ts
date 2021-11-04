@@ -291,8 +291,6 @@ export class Sale {
   set volume(val: number) {console.log("setting volume to", val); this.data[DEH.SALES_VOLUME_ID] = val;}
 
 };
-
-
 class SimplePdv { // Theses attributes are directly those received from the back
   private static indexMapping: Map<string, number>;
 
@@ -310,11 +308,47 @@ class SimplePdv { // Theses attributes are directly those received from the back
     SimplePdv.createIndexMapping();
   }
 
+  // code!: string;
+  // name!: string;
+  // drv!: string;
+  // agent!: number;
+  // agentFinitions!: number;
+  // dep!: number;
+  // bassin!: number;
+  // ville!: number;
+  // latitude!: number;
+  // longitude!: number;
+  // segmentCommercial!: number;
+  // segmentMarketing!: number;
+  // enseigne!: number;
+  // ensemble!: number;
+  // sousEnsemble!: number;
+  // site!: number;
+  // available!: boolean;
+  // sale!: boolean;
+  // redistributed!: boolean;
+  // redistributedFinitions!: boolean;
+  // pointFeu!: boolean;
+  // onlySiniat!: boolean;
+  // closedAt!: number;
+  // nbVisits!: number;
+  // target!: any[];
+  // sales!: any[];
   icon: any = null;
 
-  constructor(protected values: any[],) {
-    this.updateField('sales', this.values[SimplePdv.index('sales')])
+  constructor(protected values: any[]) {
+    //this code setups getters for each field written in structurePdvs
+    // for(let key of DEH.get('structurePdvs')) {
+    //   Object.defineProperty(this, key, {
+    //     get: () => {
+    //       if(SimplePdv.indexMapping.get(key)) {
+    //           return this.values[SimplePdv.index(key)!]
+    //         }
+    //     }
+    //   })
+    // }
   }
+
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues); this.icon = null; }
 
@@ -345,24 +379,17 @@ class SimplePdv { // Theses attributes are directly those received from the back
   get target(): any[] | false{return this.values[SimplePdv.indexMapping.get('target')!]}
   get sales(): number[][]{return this.values[SimplePdv.indexMapping.get('sales')!]}
 
-  //Modifiable fields : bassin, available, sale, redistributed, redistributedFinitions, pointFeu, onlySiniat, nbVisits, target, sales
-  public updateField(field: string, value: any) {
-     this.values[PDV.index(field)] = value;
+  public changeOnlySiniat(val: boolean) {
+    this.values[PDV.index('onlySiniat')] = val;
   }
-
+  public changeTargetTargetFinitions(val: boolean) {
+    if(this.target) this.initializeTarget();
+    (this.target as any[])[DEH.TARGET_FINITIONS_ID] = val;
+  }
+  
   public initializeTarget() {
-    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", ""]
+    this.values[SimplePdv.indexMapping.get('target')!] = [Math.floor(Date.now()/1000), true, true, true, 0, false, "", "", this.bassin]
   }
-  public updateTargetField(id: number, value: any) {
-    if(!this.target) this.initializeTarget()
-    this.values[DEH.TARGET_ID][id]
-  }
-
-  public attribute(attribute: string) {
-    return this.values[SimplePdv.indexMapping.get(attribute)!]
-  }
-
-  public get(field: string) {return DEH.getNameOfRegularObject(field, this.attribute(field))} //useless ?
 }
 
 export class PDV extends SimplePdv{
@@ -375,12 +402,18 @@ export class PDV extends SimplePdv{
     super(values);
   };
 
-  //formatted getters, for display
-
-
+  //Getters for custom properties; used mostly in the table
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
-  // get targetObject(): Target {return new Target(this.target)}
+  get potential(): number {return this.getPotential()}
+  get typology(): number {return this.getValue('dn', 'segmentDnEnduit') as number;}
+
+  get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
+  get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
+  get volumeTarget(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
+  get lightTarget(){ return this.target ? this.target[DEH.TARGET_LIGHT_ID] : false;}
+  get commentTarget(){ return this.target ? this.target[DEH.TARGET_COMMENT_ID] : false;}
+
   get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
   get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
   get graph() {
@@ -395,48 +428,16 @@ export class PDV extends SimplePdv{
     }
     return {'p2cd': p2cdSales, 'enduit': enduitSales};
   }
-  get potential(): number {return this.getPotential()}
-  get typology(): number {return this.typologyFilter()}
   get edit(): boolean {return true}
   get info(): boolean {return true}
   get checkboxP2cd(): boolean {return this.ciblage() === 2}
   get clientProspect(){return this.clientProspect2(true)}
-
-  get targetP2cd(){
-    let target = this.attribute('target');
-    if (!target) return 0;
-    return target[DEH.TARGET_VOLUME_ID]
-  }
 
   get realTargetP2cd(){
     if (this.targetP2cd > 0 && this.lightTarget !== 'r') return this.targetP2cd;
     return 0;
   }
   
-  get targetFinition(){
-    let target = this.attribute('target');
-    if (!target) return false;
-    return target[DEH.TARGET_FINITIONS_ID]
-  }
-  
-  get volumeTarget(){
-    let target = this.attribute('target');
-    if (!target) return 0;
-    return target[DEH.TARGET_VOLUME_ID];
-  }
-
-  get lightTarget(){
-    let target = this.attribute('target');
-    if (!target) return '';
-    return target[DEH.TARGET_LIGHT_ID]
-  }
-
-  get commentTarget(){
-    let target = this.attribute('target');
-    if (!target) return "";
-    return target[DEH.TARGET_COMMENT_ID]
-  }
-
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
     this.load(false);
@@ -574,13 +575,13 @@ export class PDV extends SimplePdv{
         if (pdv.available && pdv.sale){// condition à mettre dans le reslice peut-être
           if (irregular == 'no') 
             dataWidget.addOnCase(
-              pdv.attribute(axis1), pdv.attribute(axis2), pdv.getValue(indicator, axis1, visit) as number);
+              pdv[axis1 as keyof PDV], pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number);
           else if (irregular == 'line') 
             dataWidget.addOnColumn(
-              pdv.attribute(axis2), pdv.getValue(indicator, axis1, visit) as number[]);
+              pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number[]);
           else if (irregular == 'col') 
             dataWidget.addOnRow(
-              pdv.attribute(axis1), pdv.getValue(indicator, axis2, visit) as number[]);
+              pdv[axis1 as keyof PDV], pdv.getValue(indicator, axis2, visit) as number[]);
         }
       }
     }
@@ -633,14 +634,14 @@ export class PDV extends SimplePdv{
       case 'visited': return (this.nbVisits > 0)? 1: 2;
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
       case 'typology': return this.typologyFilter();
-      default: return this.attribute(propertyName);
+      default: return this[propertyName as keyof SimplePdv];
     }
   }
 
   private segmentMarketingFilter(){
     let dictSegment = DEH.get('segmentMarketingFilter'),
       dictAllSegments = DEH.get('segmentMarketing');
-    let pdvSegment = this.attribute('segmentMarketing');
+    let pdvSegment = this.segmentMarketing;
     let result = parseInt(DEH.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
     return result;
@@ -888,6 +889,7 @@ export class SliceDice{
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
+      
     let colors: undefined;
     if ([typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')){
       let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;

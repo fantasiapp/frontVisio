@@ -5,12 +5,8 @@ import { PDV } from "src/app/middle/Slice&Dice";
 import { SliceTable } from "src/app/middle/SliceTable";
 
 abstract class DefaultCellRenderer implements AgRendererComponent {
-  refresh(params: ICellRendererParams): boolean {
-    return true;
-  }
-  agInit(params: ICellRendererParams): void {
-  }
-
+  refresh(params: ICellRendererParams): boolean {return true;}
+  agInit(params: ICellRendererParams): void {  }
 }
    
   @Component({
@@ -27,7 +23,6 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class EditCellRenderer extends DefaultCellRenderer {
-    agInit(params: ICellRendererParams): void {}
   }
   
   @Component({
@@ -55,9 +50,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
       this.pdv = params.data;
     }
 
-    checkedHandler(event: any) {
-      this.sliceTable.changeTargetTargetFinitions(this.pdv)
-    }
+    checkedHandler(event: any) {this.sliceTable.changeTargetTargetFinitions(this.pdv)}
   }
   
   @Component({
@@ -78,12 +71,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   })
   export class CheckboxP2cdCellRenderer extends DefaultCellRenderer {
     pdv!: PDV;
-    constructor(private sliceTable: SliceTable) {
-      super();
-    }
-    agInit(params: ICellRendererParams): void {
-      this.pdv = params.data;
-    }
+    agInit(params: ICellRendererParams): void {this.pdv = params.data;}
   }
 
   @Component({
@@ -102,9 +90,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   })
   export class PointFeuCellRenderer extends DefaultCellRenderer {
     show: boolean = false;
-    agInit(params: ICellRendererParams): void {
-      this.show = params.value;
-    }
+    agInit(params: ICellRendererParams): void {this.show = params.value;}
   }
 
   @Component({
@@ -160,9 +146,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   })
   export class AddArrowCellRenderer extends DefaultCellRenderer {
     rowId: string = "";
-    agInit(params: ICellRendererParams): void {
-      this.rowId = params.node.data.name.name
-    }
+    agInit(params: ICellRendererParams): void {this.rowId = params.node.data.name.name}
   }
 
   @Component({
@@ -178,14 +162,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
       align-items: center;
     }`]
   })
-  export class InfoCellRenderer extends DefaultCellRenderer {
-    agInit(params: ICellRendererParams): void {}
-  }
+  export class InfoCellRenderer extends DefaultCellRenderer {}
+
   @Component({
     template: ``,
   })
-  export class NoCellRenderer extends DefaultCellRenderer {
-    agInit(params: ICellRendererParams): void {
-    }
-  }
+  export class NoCellRenderer extends DefaultCellRenderer {}
   

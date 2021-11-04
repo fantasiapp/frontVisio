@@ -3,7 +3,7 @@ import { PDV } from '../middle/Slice&Dice';
 
 export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, val : boolean}} = {
   'noRedistributedFinitions': (pdv: PDV ) => {
-    let val = !pdv.attribute('redistributedFinitions');
+    let val = !pdv.redistributedFinitions;
     return { message: val ? 'Le siège a déclaré ce pdv finitions redistribué\n' : '', val : val}
   },
   'noEmptySalesFinitions': (pdv: PDV ) => {
@@ -11,7 +11,7 @@ export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, v
       return { message: val ? 'Ce pdv finitions répertorie des ventes Salsi et/ou Prégy\n' : '', val : val}
   },
   'noSale': (pdv: PDV ) => {
-    let val = !pdv!.attribute('sale')
+    let val = !pdv!.sale
     return { message: val ? 'Le siège a déclaré ce pdv comme ne vendant pas de plaques\n' : '', val : val}
   },
   'noEmptySales' : (pdv: PDV ) => {
@@ -24,7 +24,7 @@ export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, v
     return { message : val ? 'Ce pdv répertorie des ventes de volumes non-nuls pour des enseignes autres que Siniat\n' : '', val: val}
   },
   'noRedistributed' : (pdv: PDV ) => {
-    let val = !pdv!.attribute('redistributed');
+    let val = !pdv!.redistributed;
     return { message : val ? 'Le siège a déclaré ce pdv comme ne "tant redistribué\n' : '', val : val}
   }
 }
