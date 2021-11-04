@@ -33,9 +33,7 @@ export class LoggerService {
     this.actionComplete();
   }
 
-  reset() {
-    this.snapshot = defaultSnapshot;
-  }
+  reset() { this.snapshot = defaultSnapshot; }
 
   handleEvent(event: number, data: any = undefined) {
     let result: any = data, key: string = '';

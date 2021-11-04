@@ -13,7 +13,7 @@ import { Interactive, SubscriptionManager } from 'src/app/interfaces/Common';
   styleUrls: ['./map-filters.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapFiltersComponent extends SubscriptionManager implements Interactive {
+export class MapFiltersComponent {
   @HostBinding('class.opened')
   opened: boolean = false;
 
@@ -31,27 +31,14 @@ export class MapFiltersComponent extends SubscriptionManager implements Interact
   @ViewChildren(MapSelectComponent)
   selects!: QueryList<MapSelectComponent>;
 
-  private path: any = {};
-
   constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private logger: LoggerService) {
-    super();
     console.log('[MapFiltersComponent]: On.');
   }
 
-  interactiveMode() {
-    this.subscribe(this.filtersService.stateSubject, ({States}) => {
-      let path = this.filtersService.getPath(States);
-      if ( !this._pdvs.length || !BasicWidget.shallowObjectEquality(this.path, path) ) {
-        this.path = path;
-        this.update();
-      }
-    });
-  }
-
-  pause() { this.unsubscribe(this.filtersService.stateSubject); }
+  ngAfterViewInit() { this.update(); }
 
   update() {
-    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree?.hasTypeOf(PDV.geoTree));
+    this._pdvs = PDV.sliceMap({}, [], this.filtersService.tree?.hasTypeOf(PDV.geoTree));
     this.selects.forEach(select => select.reset());
     this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
     this.stack.length = 0;
