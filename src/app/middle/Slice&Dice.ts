@@ -405,7 +405,7 @@ export class PDV extends SimplePdv{
   //Getters for custom properties; used mostly in the table
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
-  get potential(): number {return this.getPotential()}
+  get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
   get typology(): number {return this.getValue('dn', 'segmentDnEnduit') as number;}
 
   get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
@@ -723,17 +723,13 @@ export class PDV extends SimplePdv{
   private getCiblage(enduit:boolean, dn:boolean){
     if (dn && enduit) return this.targetFinition ? 1: 0;
     if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
-    if (enduit) return Math.max(this.getPotential(), 0);
-    return (isNaN(this.targetP2cd) || this.lightTarget == 'r') ? 0: this.targetP2cd;
+    if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
+    return this.realTargetP2cd;
   }
 
   static computeCiblage(node: Node, enduit=false, dn=false){
-    let pdvs = PDV.childrenOfNode(node), ciblage = 0;
+    let pdvs = PDV.childrenOfNode(node);
     return pdvs.reduce((acc, pdv) => acc + pdv.getCiblage(enduit, dn), 0);
-  }
-
-  getPotential():number{
-    return this.computeSalesRepartition()['potentialFinition'];
   }
 
   static heightOf(tree: Tree, label: string){
