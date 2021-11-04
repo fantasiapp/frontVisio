@@ -150,6 +150,7 @@ export class Tree {
     return depthCallback(0, height, this.root);
   }
 
+  get natures() { return this.attributes['natures']; }
   get labels() { return this.attributes['labels']; }
   get dashboards() { return this.attributes['dashboards']; }
 };

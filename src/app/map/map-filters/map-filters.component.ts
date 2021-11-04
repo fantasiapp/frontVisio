@@ -51,7 +51,7 @@ export class MapFiltersComponent extends SubscriptionManager implements Interact
   pause() { this.unsubscribe(this.filtersService.stateSubject); }
 
   update() {
-    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.treeIs(PDV.geoTree));
+    this._pdvs = PDV.sliceMap(this.path, [], this.filtersService.tree?.hasTypeOf(PDV.geoTree));
     this.selects.forEach(select => select.reset());
     this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
     this.stack.length = 0;

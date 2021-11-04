@@ -2,7 +2,7 @@ import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { LoggerService } from '../behaviour/logger.service';
-import DEH from '../middle/DataExtractionHelper';
+import DEH, { Params } from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
 
 @Component({
@@ -18,7 +18,7 @@ export class SubUpperBarComponent implements OnInit {
   currentMonth: string = '';
   currentYear: string = '';
   path:  string = ''
-  years:{ value: number; label: string }[] = [{value : 2021, label:'Année 2021'}, {value : 2020, label:'Année 2020'}]
+  years: [number, number] = [Params.currentYear, Params.currentYear-1]
   otherYearDashboards: any;
 
   ngOnInit(): void {

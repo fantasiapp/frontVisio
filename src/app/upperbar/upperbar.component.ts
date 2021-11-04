@@ -30,7 +30,7 @@ export class UpperbarComponent extends SubscriptionManager {
 
   ngOnInit(): void {
     this.subscribe(this.filtersState.stateSubject, ({States}) => {
-      this.sldValue = this.filtersState.treeIs(PDV.geoTree) ? 1 : 0;
+      this.sldValue = this.filtersState.tree?.hasTypeOf(PDV.geoTree) ? 1 : 0;
     });
 
     this.subscribe(this.filtersState.filtersVisible, (val) => {
@@ -45,7 +45,7 @@ export class UpperbarComponent extends SubscriptionManager {
 
   toggle() {
     this.sldValue = 1 - this.sldValue;
-    this.filtersState.reset(
+    this.filtersState.setTree(
       this.sldValue ? PDV.geoTree : PDV.tradeTree
     );
   }
