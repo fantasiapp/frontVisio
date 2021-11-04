@@ -117,7 +117,7 @@ export class SliceTable {
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){}
 
     getPdvs(slice: any, type: string): PDV[] { // Transforms pdv from lists to objects, and counts title informations
-        this.sortedPdvsList = PDV.sliceTree(slice, this.sliceDice.geoTree)[0];
+        this.sortedPdvsList = PDV.slice(slice, this.sliceDice.geoTree);
         this.sortedPdvsList.sort(this.tableConfig[type]['customSort'])
         this.pdvsWithGroupslist = this.buildGroups(type);
         return this.pdvsWithGroupslist;
