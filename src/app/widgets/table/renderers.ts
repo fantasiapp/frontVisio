@@ -103,7 +103,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
             </div>
 
             <div [ngStyle]="{'background-color': defaultColor, 'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1', 'width': 100+overflow+'%'}">
-                <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
+                <div *ngFor="let sale of enduit; let i = index" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
                 <span *ngIf="sale.value"></span>
                 </div>
             </div>
@@ -112,6 +112,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
         display: flex;
         flex-direction: column;
         height: 100%;
+      }`,
+      `.description {
+        position: absolute;
+        z-index: 999999;
       }`]
   })
   export class TargetCellRenderer extends DefaultCellRenderer {
@@ -119,6 +123,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     enduit?: {[name: string]: number}[];
     overflow: number = 0;
     defaultColor = '#F0F0F0';
+    id = "";
     agInit(params: ICellRendererParams): void {
         this.p2cd = Object.values(params.value['p2cd']);
         this.enduit = Object.values(params.value['enduit']);

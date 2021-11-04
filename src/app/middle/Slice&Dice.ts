@@ -288,7 +288,7 @@ export class Sale {
   set date(val: number) {this.data[DEH.SALES_DATE_ID] = val}
   set industryId(val: number) {this.data[DEH.SALES_INDUSTRY_ID] = val;}
   set productId(val: number) {this.data[DEH.SALES_PRODUCT_ID] = val}
-  set volume(val: number) {console.log("setting volume to", val); this.data[DEH.SALES_VOLUME_ID] = val;}
+  set volume(val: number) {this.data[DEH.SALES_VOLUME_ID] = val;}
 
 };
 class SimplePdv { // Theses attributes are directly those received from the back
@@ -406,7 +406,7 @@ export class PDV extends SimplePdv{
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
-  get typology(): number {return this.getValue('dn', 'segmentDnEnduit') as number;}
+  get typology(): number {return this.property('typology')}
 
   get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
