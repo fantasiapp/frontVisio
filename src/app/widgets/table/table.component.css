@@ -20,23 +20,33 @@ span {
 }
 
 .graph-description {
-    position: fixed;
-    display: none;
     pointer-events: none;
+    position: fixed;
     background-color: #333;
     color: white;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.3s;
+    padding: 0.8em;
+    border-radius: 0.4em;
+}
+.graph-description.show {
+    opacity: 1;
+}
+.graph-description.hide {
+    opacity: 0;
 }
 .graph-description label{
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin: 3px;
+    margin: 0.4em;
 }
 
 .graph-description .color-square {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    margin-left: 5px;
-    margin-right: 5px;
+    width: 1em;
+    height: 1em;
+    border-radius: 0.2em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
 }
