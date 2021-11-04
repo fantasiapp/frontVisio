@@ -640,11 +640,13 @@ input[type=number] {
     pointer-events: none;
     display: none;
     position: fixed;
-    font: 300 13px Roboto; 
+    font-size: 0.8em;
     background-color: #333;
     color: white;
     height: fit-content;
-    z-index: 10
+    z-index: 10;
+    padding: 0.5em;
+    border-radius: 0.5em;
 }
 .disabled-input:hover + .disabled-description{
     display: block;

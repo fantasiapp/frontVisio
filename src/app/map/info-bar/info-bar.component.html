@@ -38,7 +38,7 @@
                         <div class="props">
                             <ul>
                                 <li>
-                                    <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
+                                    <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                                         Ne vend pas de plaque
                                         <input type="checkbox" [attr.checked]="target[TARGET_SALE_ID] === false" (change)="changeTargetSale()" [disabled]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noSale'](pdv!).val"  agentOnly>
                                         <span class="checkmark" ></span>
@@ -46,7 +46,7 @@
                                     <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!).message + conditionsParams['noSale'](pdv!).message }}</div>
                                 </li>
                                 <li>
-                                    <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
+                                    <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                                         Point de vente redistribue
                                         <input type="checkbox" [attr.checked]="target[TARGET_REDISTRIBUTED_ID] === false" (change)="changeRedistributed()" [disabled]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noRedistributed'](pdv!).val" agentOnly>
                                         <span class="checkmark"></span>
@@ -170,7 +170,7 @@
                         </ul>
                     </div>
                 </div>
-                <label class="container-checkbox disabled-input" (mouseenter)="getMouseCoordinnates()">
+                <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                     <span>Point de vente redistribué</span>
                     <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="target[TARGET_REDISTRIBUTED_FINITIONS_ID] === false" [disabled]="conditionsParams['noEmptySalesFinitions'](pdv!).val || conditionsParams['noRedistributedFinitions'](pdv!).val" agentFinitionsOnly>
                     <span class="checkmark" ></span>

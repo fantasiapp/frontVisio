@@ -25,6 +25,6 @@ export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, v
   },
   'noRedistributed' : (pdv: PDV ) => {
     let val = !pdv!.redistributed;
-    return { message : val ? 'Le siège a déclaré ce pdv comme ne "tant redistribué\n' : '', val : val}
+    return { message : val ? 'Le siège a déclaré ce pdv comme étant redistribué\n' : '', val : val}
   }
 }
