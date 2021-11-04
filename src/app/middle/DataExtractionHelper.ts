@@ -541,6 +541,8 @@ export const NavigationExtractionHelper: TreeExtractionHelper = {
   }
 };
 
+//factorize error messages and regroup similar functions
+
 export const TradeExtrationHelper: TreeExtractionHelper = {
   levels: [],
   data: {tree: 'tradeTree', levels: 'levelTrade'},
@@ -551,17 +553,16 @@ export const TradeExtrationHelper: TreeExtractionHelper = {
   getName(height: number, id: number) {
     if (height == 0) return '';
     let name = DEH.get(this.levels[height][DEH.LABEL_INDEX])[id];
-    if (name == undefined) {
+    if (name == undefined)
       throw `No trade level with id=${id} at height=${height}`;
-    }
     return name;
   },
   getLevelLabel(height: number) {
-    return this.levels[height][DEH.PRETTY_INDEX];
+    return NavigationExtractionHelper.getLevelLabel.call(this, height);
 
   },
   getDashboardsAt(height: number){
-    return this.levels[height][DEH.DASHBOARD_INDEX];
+    return NavigationExtractionHelper.getDashboardsAt.call(this, height);
   }
 };
 
