@@ -4,6 +4,8 @@ import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
 import { PDV } from './Slice&Dice';
 
+// !!!! change NavigationExtractionHelper to GeoExtractionHelper
+
 @Injectable()
 export class Navigation {
   tree?: Tree;
@@ -14,14 +16,14 @@ export class Navigation {
     console.log('[Navigation]: On.');
   }
 
-  setTree(t: Tree){    
-    this.tree = t ? t : new Tree(NavigationExtractionHelper);
-    this.currentLevel = this.tree.root;
+  setTree(tree: Tree){    
+    this.tree = tree;
+    this.currentLevel = this.tree.root
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
 
-  setNode(t: Tree, node: Node) {
-    this.tree = t;
+  setCurrentLevel(tree: Tree, node: Node) {
+    this.tree = tree;
     this.currentLevel = node;
     let dashboardId = this.currentDashboard!.id;
     let nextDashboard = node.dashboards.findIndex(
@@ -30,12 +32,10 @@ export class Navigation {
     this.currentDashboard = node.dashboards[nextDashboard] || node.dashboards[0];
   }
 
-  setDashboard(t: Tree, dashboard: Dashboard) {
-    if ( !dashboard )
-      throw 'uh oh';
-    
-    if ( this.tree?.is(t) ) {
-      this.tree = t;
+  setCurrentDashboard(tree: Tree, dashboard: Dashboard) {
+    //same type, rename is
+    if ( this.tree?.is(tree) ) {
+      this.tree = tree;
       this.currentLevel = this.tree.root;
     }
 
