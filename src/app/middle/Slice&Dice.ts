@@ -463,17 +463,18 @@ export class PDV extends SimplePdv{
 
   public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
     if (axisName && nonRegularAxis.includes(axisName!)){
-      if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator);
-      else return this.computIndustriesAxis(axisName);
+      let salesRepartition = this.computeSalesRepartition();
+      if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator, salesRepartition);
+      else return this.computIndustriesAxis(axisName, salesRepartition);
     } else return (indicator == 'dn') ? 1: 
       this.salesObject.filter(sale => sale.type == 'p2cd').reduce((acc, sale) => acc + sale.volume, 0);
   }
 
-  private computeIrregularAxis(axisName:string, indicator:string){
+  private computeIrregularAxis(axisName:string, indicator:string, params: {[key:string]:any}){
     if(nonRegularAxis.includes(axisName)){// condition à mettre dans le getValue
       let axis: string[] = Object.values(DEH.get(axisName, true)),
         repartition= new Array(axis.length).fill(0),
-        found = false, i = 0, params = this.computeSalesRepartition(); // à mettre dans le getValue
+        found = false, i = 0;
       let value = (indicator == 'dn') ? 1: ((indicator == 'visits') ? this.nbVisits : 
         this.nbVisits * Math.max(params['totalP2cd'] * DEH.get("params")["ratioPlaqueFinition"], params['totalEnduit']))
       while (!found){
@@ -487,11 +488,11 @@ export class PDV extends SimplePdv{
     } else return 1;
   }
 
-  private conditionAxis(axisName:string, item:string, params:{[key:string]:number}){
+  private conditionAxis(axisName:string, item:string, params:{[key:string]:any}){
     switch(item){
       // suiviAD axis
-      case 'Terminées': return this.adCompleted();
-      case 'Non mises à jour': return this.hasNonSiniatSale();
+      case 'Terminées': return this.onlySiniat || !this.redistributed || params['completed'];
+      case 'Non mises à jour': return params['totalSales'] != params['Siniat'];
       // DN finition axis
       case 'Non documenté': return (axisName == 'segmentDnEnduit' || axisName == 'segmentDnEnduitTarget' || axisName == 'segmentDnEnduitTargetVisits') ?
         this.sales.length == 0 || !this.redistributedFinitions || !this.redistributed || (params['Siniat'] == params['totalSales'] && !this.onlySiniat):
@@ -503,25 +504,25 @@ export class PDV extends SimplePdv{
       case 'Cible Pur Prospect': return this.targetFinition;
       // DN P2CD axis
       case 'Potentiel ciblé': return this.targetP2cd > 0 && this.lightTarget !== 'r';
-      case 'Client': return params['Siniat'] > 0.09 * params['totalP2cd']; // democker ça
+      case 'Client': return params['Siniat'] > DEH.getParam('ratioCustomerProspect') * params['totalP2cd'];
       default: return true;
     }
   }
 
-  private computIndustriesAxis(axisName:string){
+  private computIndustriesAxis(axisName:string, salesIndustries: {[key:string]:any}){
     let axis: string[] = Object.values(DEH.get(axisName, true)),
-      salesIndustries:{[key:string]:number} = this.computeSalesRepartition(),
       computedAxis = new Array(axis.length).fill(0);
     for (let i = 0; i < axis.length; i++)
       computedAxis[i] = this.computeElement(axis[i], salesIndustries, axisName);
     return computedAxis
   }
 
-  private computeSalesRepartition():{[key:string]:number}{
-    let salesRepartition: {[key:string]:any} = {Siniat: 0, Salsi: 0, Prégy: 0, Knauf: 0, Challengers: 0, Placo: 0, totalSales: 0, totalP2cd: 0, totalEnduit: 0, sumExceptSiniat: 0};
+  private computeSalesRepartition():{[key:string]:any}{
+    let salesRepartition: {[key:string]:any} = {Siniat: 0, Salsi: 0, Prégy: 0, Knauf: 0, Challengers: 0, Placo: 0, totalSales: 0, totalP2cd: 0, totalEnduit: 0, sumExceptSiniat: 0, completed: false};
     for (let sale of this.salesObject){
       let type = sale.type, industry = sale.industry, volume = sale.volume;
       salesRepartition['totalSales'] += volume;
+      if (sale.date != null) salesRepartition['completed'] = true;
       if (type == 'p2cd'){
         salesRepartition['totalP2cd'] += volume;
         if (industry !== 'Siniat') salesRepartition['sumExceptSiniat'] += volume;
