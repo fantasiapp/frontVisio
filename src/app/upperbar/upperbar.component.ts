@@ -5,6 +5,7 @@ import { MapComponent } from '../map/map.component';
 import { DataService } from '../services/data.service';
 import { Params } from '../middle/DataExtractionHelper';
 import { SubscriptionManager } from '../interfaces/Common';
+import { SearchbarComponent } from '../logged-page/searchbar/searchbar.component';
 
 
 @Component({
@@ -19,6 +20,9 @@ export class UpperbarComponent extends SubscriptionManager {
   updating: boolean = false;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
   @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
+
+  @ViewChild(SearchbarComponent)
+  private searchbar!: SearchbarComponent;
   
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
@@ -70,9 +74,11 @@ export class UpperbarComponent extends SubscriptionManager {
       // if ( this.filtersState.treeIs(PDV.tradeTree) )
       //   this.filtersState.reset(PDV.geoTree, false);      
       this.mapVisible.emit(true);
+      this.searchbar.freezeOnPattern('Points de vente');
     } else {
       this.mapComponent?.hide();
       this.mapVisible.emit(false);
+      this.searchbar.cancelPatternFreeze();
     }
   }
 
