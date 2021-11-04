@@ -229,7 +229,6 @@ export class InfoBarComponent {
     }
     for(let sale of this._pdv!.p2cdSalesObject) {
       let i = this.industryIdToIndex[sale.industryId], j = this.productIdToIndex[sale.productId];
-      console.log("Setting ", i, j, " with ", sale.volume)
       this.grid[i][j] = sale;
       this.gridFormatted[i][j] = BasicWidget.format(sale.volume);
       this.updateSum(i,j, 0, this.grid[i][j].volume)
@@ -237,9 +236,6 @@ export class InfoBarComponent {
     }
     for(let row = 0; row < this.industries.length; row++)
       this.salesColors[row][3] = 'black'
-    
-    console.log("GRID : ", this.grid)
-
   }
 
   getSaleColor(sale: Sale): string {

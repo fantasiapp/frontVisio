@@ -1,8 +1,8 @@
 import DEH, {GeoExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
-import { DataService, UpdateFields } from '../services/data.service';
-import { SliceTable } from './SliceTable';
+import {DataService, UpdateFields} from '../services/data.service';
+import {SliceTable} from './SliceTable';
 
 
 // à mettre dans le back
@@ -288,7 +288,7 @@ export class Sale {
   set date(val: number) {this.data[DEH.SALES_DATE_ID] = val}
   set industryId(val: number) {this.data[DEH.SALES_INDUSTRY_ID] = val;}
   set productId(val: number) {this.data[DEH.SALES_PRODUCT_ID] = val}
-  set volume(val: number) {console.log("setting volume to", val); this.data[DEH.SALES_VOLUME_ID] = val;}
+  set volume(val: number) {this.data[DEH.SALES_VOLUME_ID] = val;}
 
 };
 class SimplePdv { // Theses attributes are directly those received from the back
@@ -406,7 +406,7 @@ export class PDV extends SimplePdv{
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
-  get typology(): number {return this.getValue('dn', 'segmentDnEnduit') as number;}
+  get typology(): number {return this.property('typology')}
 
   get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
@@ -508,6 +508,7 @@ export class PDV extends SimplePdv{
     return repartition;
   }
 
+  // peut-être qu'il faudrait le merge avec computeElement à terme...
   private conditionAxis(axisName:string, item:string, params:{[key:string]:any}){
     switch(item){
       // suiviAD axis
@@ -523,7 +524,7 @@ export class PDV extends SimplePdv{
       case 'Enduit hors P2CD': return params['totalEnduit'] > 0;
       case 'Cible Pur Prospect': return this.targetFinition;
       // DN P2CD axis
-      case 'Potentiel ciblé': return this.targetP2cd > 0 && this.lightTarget !== 'r';
+      case 'Potentiel ciblé': return this.realTargetP2cd > 0;
       case 'Client': return params['Siniat'] > DEH.getParam('ratioCustomerProspect') * params['totalP2cd'];
       default: return true;
     }
@@ -587,11 +588,10 @@ export class PDV extends SimplePdv{
   }
 
   private static ComputeAxisName(slice:any, axis:string, geoTree:boolean){
-    let prettyPrintToKey:any = {Région: 'drv', Secteur: 'agent', Enseigne: 'enseigne', Ensemble: 'ensemble', 'Sous-Ensemble': 'sousEnsemble', PDV: 'site'}; // à mettre dans le back ou à tej
-    if (axis == 'lgp-1') return prettyPrintToKey[this.geoTree.attributes['labels'][1]];
+    if (axis == 'lgp-1') return this.geoTree.attributes['natures'][1];
     if (['lg-1', 'lt-1'].includes(axis)){
       let relevantNode = DEH.followSlice(slice, geoTree ? this.geoTree : this.tradeTree);
-      return prettyPrintToKey[(relevantNode.children[0] as Node).label];
+      return (relevantNode.children[0] as Node).nature;
     }
     return axis
   }
@@ -608,7 +608,7 @@ export class PDV extends SimplePdv{
       geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
     let [newAxis1, rowsTitles, idToI] = this.computeAxis(slice, axis1, geoTree),
         [newAxis2, columnsTitles, idToJ] = this.computeAxis(slice, axis2, geoTree);
-    let pdvs = PDV.slice(slice, newAxis1, newAxis2, rowsTitles, idToI, idToJ, geoTree);
+    let pdvs = PDV.slice(slice, geoTree);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
     this.fillUpTable(dataWidget, newAxis1, newAxis2, indicator, pdvs, addConditions);
     return dataWidget;
@@ -666,6 +666,7 @@ export class PDV extends SimplePdv{
       }
     return dictCounter
   }
+
   industriel(){
     let salesRepartition = this.displayIndustrieSaleVolumes(),
       industrieMax = 'Autres';
@@ -675,44 +676,11 @@ export class PDV extends SimplePdv{
   }
 
   ciblage(){
-    return (this.targetP2cd > 0 && this.lightTarget !== 'r') ? 2: 1;
-  }
-
-  static slice(sliceDict: {[key: string]: number}, axis1:string, axis2:string, 
-      rowsTitles:string[], idToI: {[key:number]: number}, idToJ: {[key:number]: number}, geoTree:boolean): PDV[]{
-    let pdvs: PDV[] = [], childrenOfSlice: any;
-    if (sliceDict) {
-      [pdvs, childrenOfSlice] = this.sliceTree(sliceDict, geoTree);
-      if (childrenOfSlice.hasOwnProperty(axis1)){
-        rowsTitles = childrenOfSlice[axis1].map((node: any) => node.name);
-        childrenOfSlice[axis1].forEach((id: number, index: number) => idToI[id] = index);
-      }
-      if (childrenOfSlice.hasOwnProperty(axis2)){
-        rowsTitles = childrenOfSlice[axis2].map((node: any) => node.name);
-        childrenOfSlice[axis2].forEach((id: number, index: number) => idToJ[id] = index);
-      }
-    } else pdvs = [...this.instances.values()];
-    return pdvs;
-  }
-
-  static hasNodeChildren(node: any): boolean{
-    return (node.children.length != 0) && !(node.children[0] instanceof Sale);
-  }
-
-  static sliceTree(slice: {[key:string]:number}, geoTree:boolean=true): [PDV[], {[key:string]:any[]}]{
-    let tree = geoTree ? this.geoTree : this.tradeTree;    
-    let relevantDepth = Math.max.apply(null, Object.keys(slice).map(key => tree.attributes['labels'].indexOf(key)));
-    let structure = tree.attributes['labels'];
-    let dictChildren: {[key:string]: any} = {};
-    structure.slice(relevantDepth).forEach(h => dictChildren[h] = []);    
-    let pdvs: PDV[] = this.computeSlice(tree, slice, dictChildren);
-    delete dictChildren[structure[relevantDepth]];
-    return [pdvs, dictChildren];
+    return (this.realTargetP2cd > 0) ? 2: 1; //Ca c'est hardcodé
   }
 
   static sliceMap(slice: {[key:string]:number}, addConditions:[string, any][], geoTree: boolean = true){
-    let pdvs = this.sliceTree(slice, geoTree)[0];
-    return PDV.reSlice(pdvs, addConditions);
+    return PDV.reSlice(this.slice(slice, geoTree), addConditions);
   }
   
   static ComputeListCiblage(nodes: Node[], dn:boolean){
@@ -724,6 +692,11 @@ export class PDV extends SimplePdv{
     if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
     if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
     return this.realTargetP2cd;
+  }
+
+  static slice(slice:any, geoTree:boolean){
+    let tree = geoTree ? this.geoTree : this.tradeTree;
+    return PDV.filterPdvs(PDV.childrenOfNode(DEH.followSlice(slice, tree)));
   }
 
   static computeCiblage(node: Node, enduit=false, dn=false){
@@ -747,24 +720,6 @@ export class PDV extends SimplePdv{
     dictChildren[structure[height]].push([node.id, node.name]);
     return node.children.map(
       (child: any) => this.getLeaves(tree, child, height+1, dictChildren)).reduce((a: PDV[], b: PDV[]) => a.concat(b), []);
-  }
-
-  static computeSlice(tree:Tree, slice: {[key:string]:number}, dictChildren: {}): PDV[]{
-    //verify if slice is correct
-    let keys: string[] = Object.keys(slice).sort((u, v) => this.heightOf(tree, u) - this.heightOf(tree, v)), connectedNodes;
-    if (keys.length == 0)
-      connectedNodes = [tree.root];
-    else
-      connectedNodes = tree.getNodesAtHeight(this.heightOf(tree, keys[0])).filter(node => node.id == slice[keys[0]]);
-    for ( let i = 1; i < keys.length; i++ )  {
-      connectedNodes = connectedNodes.map((node: Node) =>
-        (node.children as Node[]).filter((child: Node) => child.id == slice[keys[i]])
-      ).flat();
-    }
-    //incorrect slice
-    if (!connectedNodes.length) return [];
-    let pdvs = connectedNodes.map(node => this.getLeaves(tree, node, node.height, dictChildren)).flat();
-    return pdvs;
   }
 
   clientProspect2(index=false){
@@ -866,8 +821,8 @@ export class PDV extends SimplePdv{
 
   static computeTargetVisits(slice:any, threshold=false){
     let relevantNode = DEH.followSlice(slice);
-    let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DEH.get('agentFinitions')): 
-      ((relevantNode.label == 'Région') ? DEH.findFinitionAgentsOfDrv(relevantNode.id): 
+    let finitionAgents:any[] = (relevantNode.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
+      ((relevantNode.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(relevantNode.id): 
       [DEH.get('agentFinitions')[relevantNode.id]]);
     if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
       (acc, agent) => acc + agent[DEH.AGENTFINITION_RATIO_ID], 0);
@@ -916,7 +871,7 @@ export class SliceDice{
       let dn = indicator == 'dn';
       let node = DEH.followSlice(slice);      
       if(typeof(sum) == 'number'){
-        let targetValue = DEH.getTarget(node.label, node.id, dn, finition);      
+        let targetValue = DEH.getTarget(node.nature, node.id, dn, finition);      
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
@@ -924,10 +879,10 @@ export class SliceDice{
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
         let targetValues = 
-          DEH.getListTarget(finition ? 'agentFinitions': (node.children[0] as Node).label, elemIds, dn, finition);
+          DEH.getListTarget(finition ? 'agentFinitions': (node.children[0] as Node).nature, elemIds, dn, finition);;
         for (let i = 0; i < targetValues.length; i++) 
           rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
-        if (node.label == 'France' && !finition){ // This is to calculate the position of the ciblage rods
+        if (node.nature == 'root' && !finition){ // This is to calculate the position of the ciblage rods
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
           let ciblageValues = agentNodesMatrix.map(
@@ -940,8 +895,8 @@ export class SliceDice{
       }
       targetLevel['volumeIdentifier'] = dn ? 'dn': 'vol';
       if(finition) targetLevel['name'] = 'targetLevelAgentFinitions';
-      else if(node.label == 'France') targetLevel['name'] = 'targetLevelDrv';
-      else if(node.label == 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
+      else if(node.nature == 'root') targetLevel['name'] = 'targetLevelDrv';
+      else if(node.nature == 'drv') targetLevel['name'] = 'targetLevelAgentP2CD';
       else targetLevel['name'] = 'targetLevel'
       targetLevel['structure'] = 'structureTargetlevel';
     }
