@@ -588,11 +588,10 @@ export class PDV extends SimplePdv{
   }
 
   private static ComputeAxisName(slice:any, axis:string, geoTree:boolean){
-    let prettyPrintToKey:any = {Région: 'drv', Secteur: 'agent', Enseigne: 'enseigne', Ensemble: 'ensemble', 'Sous-Ensemble': 'sousEnsemble', PDV: 'site'}; // à mettre dans le back ou à tej
-    if (axis == 'lgp-1') return prettyPrintToKey[this.geoTree.attributes['labels'][1]];
+    if (axis == 'lgp-1') return this.geoTree.attributes['natures'][1];
     if (['lg-1', 'lt-1'].includes(axis)){
       let relevantNode = DEH.followSlice(slice, geoTree ? this.geoTree : this.tradeTree);
-      return prettyPrintToKey[(relevantNode.children[0] as Node).label];
+      return (relevantNode.children[0] as Node).nature;
     }
     return axis
   }
@@ -822,8 +821,8 @@ export class PDV extends SimplePdv{
 
   static computeTargetVisits(slice:any, threshold=false){
     let relevantNode = DEH.followSlice(slice);
-    let finitionAgents:any[] = (relevantNode.label == 'France') ? Object.values(DEH.get('agentFinitions')): 
-      ((relevantNode.label == 'Région') ? DEH.findFinitionAgentsOfDrv(relevantNode.id): 
+    let finitionAgents:any[] = (relevantNode.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
+      ((relevantNode.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(relevantNode.id): 
       [DEH.get('agentFinitions')[relevantNode.id]]);
     if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
       (acc, agent) => acc + agent[DEH.AGENTFINITION_RATIO_ID], 0);
@@ -872,7 +871,7 @@ export class SliceDice{
       let dn = indicator == 'dn';
       let node = DEH.followSlice(slice);      
       if(typeof(sum) == 'number'){
-        let targetValue = DEH.getTarget(node.label, node.id, dn, finition);      
+        let targetValue = DEH.getTarget(node.nature, node.id, dn, finition);      
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
@@ -880,10 +879,10 @@ export class SliceDice{
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
         let targetValues = 
-          DEH.getListTarget(finition ? 'Agent Finition': (node.children[0] as Node).label, elemIds, dn, finition);;
+          DEH.getListTarget(finition ? 'agentFinitions': (node.children[0] as Node).nature, elemIds, dn, finition);;
         for (let i = 0; i < targetValues.length; i++) 
           rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
-        if (node.label == 'France' && !finition){ // This is to calculate the position of the ciblage rods
+        if (node.nature == 'root' && !finition){ // This is to calculate the position of the ciblage rods
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
           let ciblageValues = agentNodesMatrix.map(
@@ -896,8 +895,8 @@ export class SliceDice{
       }
       targetLevel['volumeIdentifier'] = dn ? 'dn': 'vol';
       if(finition) targetLevel['name'] = 'targetLevelAgentFinitions';
-      else if(node.label == 'France') targetLevel['name'] = 'targetLevelDrv';
-      else if(node.label == 'Région') targetLevel['name'] = 'targetLevelAgentP2CD';
+      else if(node.nature == 'root') targetLevel['name'] = 'targetLevelDrv';
+      else if(node.nature == 'drv') targetLevel['name'] = 'targetLevelAgentP2CD';
       else targetLevel['name'] = 'targetLevel'
       targetLevel['structure'] = 'structureTargetlevel';
     }
