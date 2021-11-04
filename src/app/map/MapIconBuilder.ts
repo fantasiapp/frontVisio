@@ -1,3 +1,4 @@
+import DEH from "../middle/DataExtractionHelper";
 import DataExtractionHelper, { Params } from "../middle/DataExtractionHelper";
 import { PDV } from "../middle/Slice&Dice";
 
@@ -195,7 +196,7 @@ let LEGEND: {[key: string]: any} = {
     }
   }
 };
-
+let idNonDoc = +DEH.getKeyByValue(DEH.get('clientProspect'), "Non documenté")!;
 let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = {
   agentFinitions: [
     ['visited',  (visited: number) => +(visited != 2)],
@@ -203,7 +204,7 @@ let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = 
   ],
   default: [
     'industriel',
-    ['clientProspect', (prospect: number) => +(prospect == 3)],
+    ['clientProspect', (prospect: number) => +(prospect == idNonDoc)],
     'pointFeu',
     'segmentMarketing'
   ]

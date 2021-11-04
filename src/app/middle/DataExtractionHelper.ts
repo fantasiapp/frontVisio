@@ -3,6 +3,13 @@ import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
+const mainIndustries = {
+  1: "Siniat",
+  2: "Placo",
+  3: "Knauf",
+  4: "Challengers"
+}
+
 const enduitIndustry = {
   1: "Salsi", 
   2: "Prégy", 
@@ -45,13 +52,17 @@ const enduitIndustryTarget = {
 };
 
 const industryTarget = {
-  0: "Potentiel ciblé"
+  1: "Potentiel ciblé",
+  2: "Siniat",
+  3: "Placo",
+  4: "Knauf",
+  5: "Challengers"
 }
 
 const suiviAD = {
   1: "Terminées",
-  3: "Non mises à jour",
-  2: "Non renseignées"
+  2: "Non mises à jour",
+  3: "Non renseignées"
 }
 
 const weeks = {
@@ -396,6 +407,7 @@ class DEH{  // for DataExtractionHelper
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
     // A enlever quand le back sera à jour
     switch(fieldName){
+      case "mainIndustries": return mainIndustries;
       case 'enduitIndustry': return enduitIndustry;
       case 'segmentDnEnduit': return segmentDnEnduit;
       case 'clientProspect': return clientProspect;
@@ -413,8 +425,7 @@ class DEH{  // for DataExtractionHelper
       case 'segmentDnEnduitTarget': return segmentDnEnduitTarget;
       case 'enduitIndustryTarget': 
         return Object.assign({}, enduitIndustry, enduitIndustryTarget);
-      case 'industryTarget':
-        return Object.assign({}, this.get('industry'), industryTarget); 
+      case 'industryTarget': return industryTarget; 
       default: {
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;

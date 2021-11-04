@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable, OnDestroy } from '@angular/core';
 import DEH, { Params, TreeExtractionHelper } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
-import { loadAll, PDV, SliceDice } from '../middle/Slice&Dice';
+import { PDV, SliceDice } from '../middle/Slice&Dice';
 import { Tree } from '../middle/Node';
 import { Subject, Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
@@ -22,7 +22,7 @@ export class FiltersStatesService implements OnDestroy {
     this.subscription = this.dataservice.response.subscribe((data) => {
       if (data) {
         DEH.setData(data);
-        loadAll();
+        PDV.load(true);
         this.reset(PDV.geoTree, true);
       }
     });
@@ -201,7 +201,7 @@ export class FiltersStatesService implements OnDestroy {
     let change = this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
     if ( change ) {
-      loadAll();
+      PDV.load(true);
       this.reset(this.treeIs(PDV.geoTree) ? PDV.geoTree : PDV.tradeTree, true);
       this.dataservice.update.next();
     }
