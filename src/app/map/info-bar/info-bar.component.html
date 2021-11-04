@@ -51,7 +51,7 @@
                                         <input type="checkbox" [attr.checked]="target[TARGET_REDISTRIBUTED_ID] === false" (change)="changeRedistributed()" [disabled]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noRedistributed'](pdv!).val" agentOnly>
                                         <span class="checkmark"></span>
                                     </label>
-                                    <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!).message + conditionsParams['noRedistributed'](pdv!).message }} </div>
+                                    <div class="disabled-description" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySales'](pdv!).message + conditionsParams['noRedistributed'](pdv!).message }}</div>
                                 </li>
                             </ul>
                         </div>
@@ -216,6 +216,6 @@
     </div>
 </div>
 
-<div id="disabledDiv" *ngIf="disabledMsg">
+<div id="disabledDiv" *ngIf="disabledMsg !== ''">
     Action impossible : {{ disabledMsg }}
 </div>

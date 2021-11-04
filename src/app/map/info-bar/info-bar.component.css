@@ -652,6 +652,10 @@ input[type=number] {
     display: block;
 }
 
+/* .disabled-input>checkbox:not([disabled="true"]) + .disabled-description {
+    display: none;
+} */
+
 @media (max-width: 1367px) {
     :host {
         font-size: 15px;
