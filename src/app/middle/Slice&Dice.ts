@@ -288,7 +288,7 @@ export class Sale {
   set date(val: number) {this.data[DEH.SALES_DATE_ID] = val}
   set industryId(val: number) {this.data[DEH.SALES_INDUSTRY_ID] = val;}
   set productId(val: number) {this.data[DEH.SALES_PRODUCT_ID] = val}
-  set volume(val: number) {console.log("setting volume to", val); this.data[DEH.SALES_VOLUME_ID] = val;}
+  set volume(val: number) {this.data[DEH.SALES_VOLUME_ID] = val;}
 
 };
 class SimplePdv { // Theses attributes are directly those received from the back
