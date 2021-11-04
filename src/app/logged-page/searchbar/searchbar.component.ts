@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
@@ -34,9 +34,11 @@ export class SearchbarComponent extends SubscriptionManager {
   results: Subject<Suggestion[]> = new Subject;
   lastResults: Suggestion[] = [];
 
+  private frozen: boolean = false;
   private _pattern: string = '';
   get pattern() { return this._pattern; }
   set pattern(value: string) {
+    if ( this.frozen ) return;
     let switched =
       this.engine.switchMode(value ? SearchService.FIND_INSTANCE : SearchService.FIND_PATTERN, value);
     if ( !switched ) return;
@@ -57,7 +59,7 @@ export class SearchbarComponent extends SubscriptionManager {
     return SearchService.measureText(PatternPipe.transform(this.pattern), '14px Roboto')
   }
 
-  constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService) {
+  constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService, private cd: ChangeDetectorRef) {
     super();
     this.subscribe(this.term.pipe(debounceTime(this.debounceDuration)), term => {
       let results = this.engine.search(this.lastTerm = term);
@@ -66,6 +68,20 @@ export class SearchbarComponent extends SubscriptionManager {
 
     if ( this.pattern )
       this.engine.switchMode(SearchService.FIND_INSTANCE, this.pattern);
+  }
+
+  freezeOnPattern(pattern: string) {
+    if ( this.frozen ) return;
+    this.pattern = pattern;
+    this.frozen = true;
+    this.cd.detectChanges();
+  }
+
+  cancelPatternFreeze() {
+    if ( !this.frozen ) return;
+    this.frozen = false;
+    this.pattern = '';
+    this.cd.detectChanges();
   }
 
   onInput(e: Event) {
