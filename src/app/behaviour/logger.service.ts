@@ -42,7 +42,7 @@ export class LoggerService {
     switch ( event ) {
       case LoggerService.events.NAVIGATION_TREE_CHANGED:
         key = 'view';
-        if ( data.is(PDV.geoTree) )
+        if ( data.hasTypeOf(PDV.geoTree) )
           result = LoggerService.values.NAVIGATION_GEO_TREE;
         else
           result = LoggerService.values.NAVIGATION_TRADE_TREE;
