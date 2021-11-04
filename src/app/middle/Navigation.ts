@@ -140,14 +140,10 @@ export class Navigation {
     };
   }
 
-  isTopLevel(){
-    return this.currentLevel?.parent;
-  }
-
   childrenHaveSameDashboard(): boolean {
     let dashboardId = this.currentDashboard!.id;
     let child = this.currentLevel!.children[0];
-    if ( child instanceof PDV ) return false;
+    if ( !child || child instanceof PDV ) return false;
     let nextDashboard = child.dashboards.find(
       (dashboard) => dashboard.id == dashboardId
     );
@@ -195,18 +191,9 @@ export class Navigation {
     }
   }
 
-  getCurrentYear(){
-    let year = Params.currentYear;
-    return (DEH.currentYear ? year : year - 1).toString();
-  }
-
-  setCurrentYear(current: boolean) {
-    DEH.currentYear = current;
-  }
-
-  navigateUp(n: number) {
+  navigateUp(quantity: number) {
     let level: Node | null = this.currentLevel!;
-    while ( level && n-- )
+    while ( level && quantity-- )
       level = level.parent;
     
     if ( !level ) level = this.tree!.root;

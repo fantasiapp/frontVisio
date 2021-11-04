@@ -495,14 +495,13 @@ class DEH{  // for DataExtractionHelper
   static getOtherYearDashboards(tree: Tree, height: number = 0) {
     let name = tree.hasTypeOf(GeoExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
-    while ( height-- )
+    while ( height-- > 0 )
       level = level[this.SUBLEVEL_INDEX];
-    return level[this.DASHBOARD_INDEX];
+      return level[this.DASHBOARD_INDEX] || [];
   }
 };
 
 export type DataTree = [number, [DataTree]] | number;
-
 export abstract class TreeExtractionHelper {
   abstract data: {levels: string; tree: string};
   levels: any[] = [];

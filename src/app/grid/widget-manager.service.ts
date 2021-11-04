@@ -46,6 +46,7 @@ export class WidgetManagerService {
   }
 
   findComponent(name: string): any {
+//    console.log('resolving component', name);
     let component = this.mapping[name];
     if ( !component )
       return DefaultComponent;

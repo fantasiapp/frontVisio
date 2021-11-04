@@ -125,7 +125,7 @@ export class SearchbarComponent extends SubscriptionManager {
 
   onSelectionConfirmed(suggestion?: Suggestion) {
     if ( !suggestion ) {
-      this.filtersState.reset(this.filtersState.navigation.tree!, false);
+      this.filtersState.setTree(this.filtersState.navigation.tree!, false);
       //this.pattern = '';
       return;
     };
@@ -133,7 +133,7 @@ export class SearchbarComponent extends SubscriptionManager {
     if ( !this.pattern ) {
       let type = suggestion[2] as number;
       if ( type == SearchService.IS_REDIRECTION ) {
-        this.filtersState.reset(this.filtersState.navigation.tree!, false);
+        this.filtersState.setTree(this.filtersState.navigation.tree!, false);
         this.pattern = '';
       } else {
         this.pattern = suggestion[0] + suggestion[1];
