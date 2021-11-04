@@ -448,8 +448,8 @@ class DEH{  // for DataExtractionHelper
   static getTarget(level='national', id:number, dn=false, finition=false){
     let targetType = dn ? 'dn': 'vol';
     let targetTypeId:number = this.get('structureTargetlevel').indexOf(targetType);
-    if (level == 'Agent Finition') return this.get('targetLevelAgentFinitions')[id][targetTypeId];
-    if (finition && level == 'Région'){
+    if (level == 'agentFinitions') return this.get('targetLevelAgentFinitions')[id][targetTypeId];
+    if (finition && level == 'drv'){
       let finitionAgentsids = this.findFinitionAgentsOfDrv(id, true),
         targetsAgentFinition = this.get('targetLevelAgentFinitions');
       return finitionAgentsids.reduce((acc:number, id:number) => acc + targetsAgentFinition[id][targetTypeId], 0);
@@ -458,8 +458,8 @@ class DEH{  // for DataExtractionHelper
       let targetsAgentFinition = Object.values(this.get('targetLevelAgentFinitions'));
       return targetsAgentFinition.reduce((acc, target:any) => acc + target[targetTypeId], 0);
     }
-    if (level == 'Secteur') return this.get('targetLevelAgentP2CD')[id][targetTypeId];
-    if (level == 'Région') return this.get('targetLevelDrv')[id][targetTypeId];
+    if (level == 'agent') return this.get('targetLevelAgentP2CD')[id][targetTypeId];
+    if (level == 'drv') return this.get('targetLevelDrv')[id][targetTypeId];
     if (level == 'nationalByAgent'){
       let agentTargets: number[][] = Object.values(this.get('targetLevelAgentP2CD'));
       return agentTargets.reduce((acc, agentTarget) => acc + agentTarget[targetTypeId], 0)
