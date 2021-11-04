@@ -1,11 +1,11 @@
-import { Directive, ElementRef, Injectable, OnDestroy, OnInit } from "@angular/core";
+import { Directive, ElementRef } from "@angular/core";
 import { Chart } from "billboard.js";
 import * as d3 from "d3";
-import { combineLatest, Subject, Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import { FiltersStatesService } from "../filters/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
-import { Interactive, Updatable } from "../interfaces/Common";
+import { Updatable } from "../interfaces/Common";
 import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
 
@@ -69,7 +69,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   updateData(): {} {
     this.chart?.tooltip.hide();
     let data = this.sliceDice.getWidgetData(...this.getDataArguments());
-    
+
     if ( this.dynamicDescription ) {
       this.properties.description = BasicWidget.format(data.sum, 3, this.properties.unit.toLowerCase() == 'pdv') + ' ' + this.properties.unit;
       this.setSubtitle(this.properties.description);

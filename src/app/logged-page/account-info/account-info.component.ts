@@ -4,6 +4,7 @@ import { debounceTime } from 'rxjs/operators';
 import { AuthService } from 'src/app/connection/auth.service';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
 import { Params } from 'src/app/middle/DataExtractionHelper';
+import { PDV } from 'src/app/middle/Slice&Dice';
 import { DataService } from 'src/app/services/data.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 

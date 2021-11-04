@@ -247,7 +247,7 @@ export class SearchService {
       if ( level[DEH.PRETTY_INDEX] == pretty )
         return [level[DEH.LABEL_INDEX], false];
     
-    return ['@none', false];
+    throw `[Searchbar: no field called ${pretty}]`;
   }
 
   static findFieldHeight(pretty: string): [number, boolean] {
@@ -262,7 +262,7 @@ export class SearchService {
       if ( levels[i][DEH.PRETTY_INDEX] == pretty )
         return [i, false];
     
-    return [-1, false];
+    throw `[Searchbar: no field called ${pretty}]`;
   }
 
   static ruleFromRegexp(regexp: RegExp): MatchFunction {
