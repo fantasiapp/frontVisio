@@ -46,6 +46,7 @@ export class MapComponent extends SubscriptionManager implements Interactive {
   private pdvs: PDV[] = [];
   
   hide() {
+    if ( this.hidden ) return;
     this.hidden = true;
     this.pause();
     this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
@@ -53,6 +54,7 @@ export class MapComponent extends SubscriptionManager implements Interactive {
   }
 
   show() {
+    if ( this.shown ) return;
     if ( this.shouldUpdateIcons )
       this.onDataUpdate();
 
@@ -117,6 +119,7 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     let marker = this.createMarker(pdv);
     this.adjustMap([marker]);
     this.selectedPDV = pdv;
+    this.cd.markForCheck();
   }
 
   onPDVsChange(pdvs: PDV[]) {

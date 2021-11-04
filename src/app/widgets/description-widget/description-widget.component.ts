@@ -41,7 +41,7 @@ export class DescriptionWidgetComponent extends SubscriptionManager {
   }
 
   get DN() {
-    return BasicWidget.format(this.values[1 - this.currentSelection][1], 0, true);
+    return BasicWidget.format(this.values[1 - this.currentSelection][1], 3, true);
   }
 
   get ratio() {

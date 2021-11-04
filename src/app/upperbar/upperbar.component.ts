@@ -90,6 +90,9 @@ export class UpperbarComponent extends SubscriptionManager {
   }
   
   displayPDVOnTable(pdv: PDV) {
+    if ( this.mapComponent?.shown )
+      return this.displayPDVOnMap(pdv);
+    
     let transition = this.filtersState.gotoPDVsDashboard();
     if ( !transition )
       this.displayPDVOnMap(pdv);

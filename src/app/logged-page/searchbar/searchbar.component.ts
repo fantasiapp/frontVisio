@@ -141,10 +141,10 @@ export class SearchbarComponent extends SubscriptionManager {
     } else {
       let data = suggestion[2] as Result;
       if ( data.node ) {
-        this.navigation.setNode(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
+        this.navigation.setCurrentLevel(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.node);
         this.filtersState.refresh();
       } else if ( data.dashboard ) {
-        this.navigation.setDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
+        this.navigation.setCurrentDashboard(data.geoTree ? PDV.geoTree : PDV.tradeTree, data.dashboard)
         this.filtersState.refresh();
       } else if ( data.pdv ) {
         this.PDVfound.emit(data.pdv);
