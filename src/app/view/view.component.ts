@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, ViewChild 
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, GridState, Layout } from '../grid/grid-manager/grid-manager.component';
-import DEH from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
