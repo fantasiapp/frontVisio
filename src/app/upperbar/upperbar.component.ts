@@ -18,9 +18,8 @@ export class UpperbarComponent extends SubscriptionManager {
   searchModel: string = '';
   updating: boolean = false;
   @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
-
   @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
-
+  
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
 

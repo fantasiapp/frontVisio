@@ -21,7 +21,7 @@ type MarkerType = {
   styleUrls: ['./map.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapComponent extends SubscriptionManager implements Interactive {
+export class MapComponent extends SubscriptionManager {
   @HostBinding('style.display')
   private get display() { return this.hidden ? 'none' : 'flex'; }
 
@@ -48,7 +48,6 @@ export class MapComponent extends SubscriptionManager implements Interactive {
   hide() {
     if ( this.hidden ) return;
     this.hidden = true;
-    this.pause();
     this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
     this.logger.actionComplete();
   }
@@ -58,7 +57,6 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     if ( this.shouldUpdateIcons )
       this.onDataUpdate();
 
-    this.interactiveMode();
     this.hidden = false;
     this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, true);
     this.logger.actionComplete();
@@ -70,9 +68,6 @@ export class MapComponent extends SubscriptionManager implements Interactive {
     MapIconBuilder.initialize();
     this.initializeInfowindow();
     
-    if ( this.shown )
-      this.interactiveMode();
-    
     this.subscribe(this.dataservice.update, _ => {
       this.shouldUpdateIcons = true;
 
@@ -83,14 +78,6 @@ export class MapComponent extends SubscriptionManager implements Interactive {
 
   ngAfterViewInit() {
     this.createMap();
-  }
-
-  interactiveMode() {
-    this.filters?.interactiveMode();
-  }
-
-  pause() {
-    this.filters?.pause();
   }
 
   protected onDataUpdate() {
