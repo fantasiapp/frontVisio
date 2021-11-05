@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DEH from 'src/app/middle/DataExtractionHelper';
-import { PDV, Sale } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Slice&Dice';
+import { Sale } from 'src/app/middle/Sale';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
