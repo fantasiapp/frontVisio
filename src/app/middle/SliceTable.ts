@@ -3,6 +3,7 @@ import { DataService } from "../services/data.service";
 import DEH from "./DataExtractionHelper";
 import { SliceDice } from "./Slice&Dice";
 import { PDV } from "./Pdv";
+import {Node} from './Node';
 
 type GroupRow = { //Built to behave like a PDV type for the agGrid
     name: {
@@ -117,8 +118,8 @@ export class SliceTable {
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){}
 
-    getPdvs(slice: any, type: string): PDV[] { // Transforms pdv from lists to objects, and counts title informations
-        this.sortedPdvsList = PDV.slice(slice, this.sliceDice.geoTree);
+    getPdvs(node:Node, type: string): PDV[] { // Transforms pdv from lists to objects, and counts title informations
+        this.sortedPdvsList = PDV.slice(node);
         this.sortedPdvsList.sort(this.tableConfig[type]['customSort'])
         this.pdvsWithGroupslist = this.buildGroups(type);
         return this.pdvsWithGroupslist;
@@ -167,8 +168,8 @@ export class SliceTable {
         return this.tableConfig[type]['computeTitle']();;
     }
 
-    getData(slice: any = {}, type: string): TableData{
-        return {columnDefs: this.getColumnDefs(type), navOpts: this.getNavOpts(type), pdvs: this.getPdvs(slice, type), colInfos: this.groupInfos};
+    getData(node: Node, type: string): TableData{
+        return {columnDefs: this.getColumnDefs(type), navOpts: this.getNavOpts(type), pdvs: this.getPdvs(node, type), colInfos: this.groupInfos};
     }
 
     buildGroups(type: string) {

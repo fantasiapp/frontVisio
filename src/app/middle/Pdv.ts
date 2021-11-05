@@ -305,28 +305,25 @@ class SimplePdv { // Theses attributes are directly those received from the back
       }
     }
   
-    private static ComputeAxisName(slice:any, axis:string, geoTree:boolean){
+    private static ComputeAxisName(node:Node, axis:string){
       if (axis == 'lgp-1') return this.geoTree.attributes['natures'][1];
-      if (['lg-1', 'lt-1'].includes(axis)){
-        let relevantNode = DEH.followSlice(slice, geoTree ? this.geoTree : this.tradeTree);
-        return (relevantNode.children[0] as Node).nature;
-      }
+      if (['lg-1', 'lt-1'].includes(axis)) return (node.children[0] as Node).nature;
       return axis
     }
   
-    private static computeAxis(slice:any, axis:string, geoTree:boolean){
-      axis = this.ComputeAxisName(slice, axis, geoTree);
+    private static computeAxis(node:Node, axis:string){
+      axis = this.ComputeAxisName(node, axis);
       let dataAxis = DEH.get(axis, true), titles = Object.values(dataAxis),
         idToX:any = {};
       Object.keys(dataAxis).forEach((id, index) => idToX[parseInt(id)] = index);
       return [axis, titles, idToX];
     }
   
-    static getData(slice: any, axis1: string, axis2: string, indicator: string, 
-        geoTree:boolean, addConditions:[string, number[]][]): DataWidget{
-      let [newAxis1, rowsTitles, idToI] = this.computeAxis(slice, axis1, geoTree),
-          [newAxis2, columnsTitles, idToJ] = this.computeAxis(slice, axis2, geoTree);
-      let pdvs = PDV.slice(slice, geoTree);
+    static getData(node: Node, axis1: string, axis2: string, indicator: string,
+        addConditions:[string, number[]][]): DataWidget{
+      let [newAxis1, rowsTitles, idToI] = this.computeAxis(node, axis1),
+          [newAxis2, columnsTitles, idToJ] = this.computeAxis(node, axis2);
+      let pdvs = PDV.slice(node);
       let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
       this.fillUpTable(dataWidget, newAxis1, newAxis2, indicator, pdvs, addConditions);
       return dataWidget;
@@ -396,10 +393,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
     ciblage(){
       return (this.realTargetP2cd > 0) ? 2: 1; //Ca c'est hardcodé
     }
-  
-    static sliceMap(slice: {[key:string]:number}, addConditions:[string, any][], geoTree: boolean = true){
-      return PDV.reSlice(this.slice(slice, geoTree), addConditions);
-    }
     
     static ComputeListCiblage(nodes: Node[], dn:boolean){
       return nodes.map(node => dn ? PDV.computeCiblage(node, false, dn): PDV.computeCiblage(node, false, dn)/1000);
@@ -412,9 +405,8 @@ class SimplePdv { // Theses attributes are directly those received from the back
       return this.realTargetP2cd;
     }
   
-    static slice(slice:any, geoTree:boolean){
-      let tree = geoTree ? this.geoTree : this.tradeTree;
-      return PDV.filterPdvs(PDV.childrenOfNode(DEH.followSlice(slice, tree)));
+    static slice(node:Node){
+      return PDV.filterPdvs(PDV.childrenOfNode(node));
     }
   
     static computeCiblage(node: Node, enduit=false, dn=false){
@@ -506,19 +498,19 @@ class SimplePdv { // Theses attributes are directly those received from the back
       return this.onlySiniat || !this.redistributed || this.salesObject.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
     }
   
-    static computeJauge(slice:any, indicator:string): [[string, number][], number[]]{
-      let pdvs = PDV.filterPdvs(PDV.childrenOfNode(DEH.followSlice(slice)));
+    static computeJauge(node:Node, indicator:string): [[string, number][], number[]]{
+      let pdvs = PDV.filterPdvs(PDV.childrenOfNode(node));
       switch(indicator){
         case 'visits': {
           let totalVisits: number= 0,
-            cibleVisits:number = PDV.computeTargetVisits(slice) as number,
+            cibleVisits:number = PDV.computeTargetVisits(node) as number,
             threshold = [50, 99.99, 100];
           for (let pdv of pdvs) totalVisits += pdv.nbVisits;
           let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
           return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
         };
         case 'targetedVisits': {
-          let totalVisits = 0, totalCibleVisits = 0, thresholdForGreen = 100 * PDV.computeTargetVisits(slice, true),
+          let totalVisits = 0, totalCibleVisits = 0, thresholdForGreen = 100 * PDV.computeTargetVisits(node, true),
             threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
           for (let pdv of pdvs){
             totalVisits += pdv.nbVisits;
@@ -537,11 +529,10 @@ class SimplePdv { // Theses attributes are directly those received from the back
       }
     }
   
-    static computeTargetVisits(slice:any, threshold=false){
-      let relevantNode = DEH.followSlice(slice);
-      let finitionAgents:any[] = (relevantNode.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
-        ((relevantNode.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(relevantNode.id): 
-        [DEH.get('agentFinitions')[relevantNode.id]]);
+    static computeTargetVisits(node:Node, threshold=false){
+      let finitionAgents:any[] = (node.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
+        ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): 
+        [DEH.get('agentFinitions')[node.id]]);
       if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
         (acc, agent) => acc + agent[DEH.AGENTFINITION_RATIO_ID], 0);
       return finitionAgents.reduce(

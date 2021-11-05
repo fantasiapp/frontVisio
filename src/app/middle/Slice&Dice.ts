@@ -11,19 +11,19 @@ const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget'
   
 @Injectable({providedIn: 'root'})
 export class SliceDice{
-  geoTree: boolean = true;
+  geoTree: boolean = true; // on peut le supprimer maintenant je pense
   private updateTargetName?: string;
   constructor(private dataService: DataService){console.log('[SliceDice]: on');}
 
-  getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
+  getWidgetData(node:Node, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
       
     if (gaugesAxis.includes(axis1)){
-      let jauge = PDV.computeJauge(slice, axis1);
+      let jauge = PDV.computeJauge(node, axis1);
       return {data: jauge[0], sum: 0, target: undefined, colors: undefined, targetLevel: {}, threshold: jauge[1]};
     }
     let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
-    let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
+    let dataWidget = PDV.getData(node, axis1, axis2, indicator.toLowerCase(), addConditions);
     let km2 = !['dn', 'visits'].includes(indicator) ? true : false, sortLines = percentIndicator !== 'classic' && axis1 != 'suiviAD';
     dataWidget.widgetTreatement(km2, sortLines, false, percentIndicator, groupsAxis1 as string[], groupsAxis2 as string[]);
     let sum = dataWidget.getSum();
@@ -33,8 +33,7 @@ export class SliceDice{
         {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
-      let dn = indicator == 'dn';
-      let node = DEH.followSlice(slice);      
+      let dn = indicator == 'dn';   
       if(typeof(sum) == 'number'){
         let targetValue = DEH.getTarget(node.nature, node.id, dn, finition);      
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
@@ -80,9 +79,9 @@ export class SliceDice{
     return [colors, groupsAxis1, groupsAxis2];
   }
 
-  rubiksCubeCheck(slice:any, indicator: string, percent:string){
+  rubiksCubeCheck(node:any, indicator: string, percent:string){
     let sortLines = percent !== 'classic';
-    let dataWidget = PDV.getData(slice, 'enseigne', 'segmentMarketing', indicator.toLowerCase(), this.geoTree, []);
+    let dataWidget = PDV.getData(node, 'enseigne', 'segmentMarketing', indicator.toLowerCase(), []);
     dataWidget.widgetTreatement(false, sortLines, true);
     return dataWidget.numberToBool()
   }

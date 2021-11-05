@@ -36,7 +36,7 @@ export class MapFiltersComponent {
   ngAfterViewInit() { this.update(); }
 
   update() {
-    this._pdvs = PDV.sliceMap({}, [], this.filtersService.tree?.hasTypeOf(PDV.geoTree));
+    this._pdvs = Object.values(PDV.getInstances());
     this.selects.forEach(select => select.reset());
     this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
     this.stack.length = 0;
