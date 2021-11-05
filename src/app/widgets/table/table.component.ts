@@ -4,7 +4,7 @@ import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
 import { SliceTable, TableData } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
-import { AsyncSubject, Observable } from 'rxjs';
+import { AsyncSubject } from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 
@@ -23,9 +23,9 @@ export class TableComponent extends BasicWidget {
   @ViewChild('title', {static: false, read: ElementRef})
   private titleContainer?: ElementRef;
   
-  /**************/
-  /*  Variables */
-  /**************/
+                      /**************/
+                      /*  Variables */
+                      /**************/
 
   /** Can be 'p2cd' or 'enduit' **/
   type: TableType = TableType.p2cd;
@@ -65,8 +65,16 @@ export class TableComponent extends BasicWidget {
       },
       rowClassRules: {          //Allow to define dynamically classes to grid rows
                                     'group-row': 'data.groupRow === true',
-                                    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
-                                    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data) == 'red') return true; return false;}
+                                    'pdv-displayed-orange': (params: any) =>  {
+                                      if(params.data['groupRow'] || this.type == 'enduit') return false;
+                                      if(this.sliceTable.getRowColor(params.data) == 'orange') return true;
+                                      return false;
+                                    },
+                                    'pdv-displayed-red': (params: any) =>  {
+                                      if(params.data['groupRow'] || this.type == 'enduit') return false;
+                                      if(this.sliceTable.getRowColor(params.data) == 'red') return true;
+                                      return false;
+                                    }
       },
       frameworkComponents: {    //Here are listed the renderers defined in renderer.ts used for custom cell render
                                     editCellRenderer: EditCellRenderer,
@@ -89,12 +97,21 @@ export class TableComponent extends BasicWidget {
     }
   }
 
+                      /*****************************************/
+                      /*  Inherited Methods (from BasicWidget) */
+                      /*****************************************/
+  
+  /** Useless in this Widget **/
+  start(): void {}
+
+  /** Called when next is called on the DataService update Subject **/
   refresh() {
     this.gridOptions.api.redrawRows()
     this.renderTitle()
   }
 
-  update() { //could be smoother ? (spoiler : yes)
+  /** Called when browsing the navigation **/
+  update() {
     this.createGraph(this.createData())
   }
 
@@ -113,7 +130,11 @@ export class TableComponent extends BasicWidget {
     return this.sliceTable.getData(this.path, this.type);
   }
 
+                      /******************/
+                      /*  Local methods */
+                      /******************/
 
+  /** Called by the navigation radio buttons **/
   updateGroups(id: string) {
     this.currentOpt = id;
     SliceTable.currentGroupField = this.currentOpt;
@@ -122,13 +143,15 @@ export class TableComponent extends BasicWidget {
     hiddenGroups = {}
   }
 
-  renderTitle() {
+  /** Called whenever the title should be updated */ 
+  private renderTitle() {
     let titleData = this.sliceTable.computeTitle(this.type);
     if(this.type === 'p2cd') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, Siniat : ${BasicWidget.format(titleData[1]/1000)}, sur un total identifié de ${BasicWidget.format(titleData[2]/1000)} en Km²`;
     if(this.type === 'enduit') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, ciblé : ${BasicWidget.format(titleData[1]/1000, 3, true)} Tonnes, sur un potentiel de ${BasicWidget.format(titleData[2]/1000)} en Tonnes`
   }
 
-  setupCellRenderers(columnDefs: any[]): any[] { //If necessary, sets the cellRenderer, or the valueFormatter of the column
+  /** Sets the necessary cellRenderer / valueFormatter for the grid columns */
+  private setupCellRenderers(columnDefs: any[]): any[] {
         for(let cd of columnDefs){
           switch (cd.field) {
             case 'name':
@@ -218,46 +241,22 @@ export class TableComponent extends BasicWidget {
     return columnDefs;
   }
 
-  onGridReady(params: any) {
-    this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
-    this.createGraph(this.createData());
-    this.gridLoaded.next(null);
-    this.gridLoaded.complete();
+  computeDescription(graphValue: {[type in TableType]: any[]}) {
+    return [
+      Object.entries(graphValue[TableType.p2cd]).map(
+        (entry: any) => [
+          entry[0],
+          {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}
+        ]
+      ),
+      Object.entries(graphValue[TableType.enduit]).map(
+        (entry: any) => [
+          entry[0],
+          {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}
+        ]
+      )
+    ]
   }
-
-  onCellClicked(event: any) {
-    console.log("Data : ", event['data'], event)
-    if(event['data'].groupRow === true) {
-      this.externalFilterChanged(event['data'].name.name)
-      let arrowImg = document.getElementById(event['node'].data.name.name);
-      if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
-      else arrowImg!.style.transform = "rotate(-0.5turn)"
-    } else {
-      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') {
-        this.displayInfobar(event['data'])
-      }
-    }
-  }
-  onCellMouseOver(event: any) {
-    if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
-      this.showDescription = true;
-      let objectCopy = JSON.parse(JSON.stringify(event.value))
-      this.description = [(Object.entries(objectCopy['p2cd']).map((entry: any) => [entry[0], {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}])),
-              Object.entries(objectCopy['enduit']).map((entry: any) => [entry[0], {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}])]
-    }
-  }
-  onCellMouseOut(event: any) {
-    if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
-      this.showDescription = false;
-    }
-  }
-
-  getMousePosition() {
-    let e = window.event as any;
-    this.mouseX = e.pageX;
-    this.mouseY = e.pageY;
-  }
-
 
   displayInfobar(pdv: PDV | number) {
     if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
@@ -265,10 +264,51 @@ export class TableComponent extends BasicWidget {
     this.cd.markForCheck();
   }
 
+  /** Bound with (mousemove) on the whol agGrid component **/
+  getMousePosition() { 
+    let e = window.event as any;
+    this.mouseX = e.pageX;
+    this.mouseY = e.pageY;
+  }
+
+  /** Manages custom group feature **/
   externalFilterChanged(value: any) {
     if (hiddenGroups[value] === true) delete hiddenGroups[value];
     else hiddenGroups[value] = true;
     this.gridOptions.api.onFilterChanged();
+  }
+
+                      /*******************************/
+                      /*  Ag-Grid data bound methods */
+                      /*******************************/
+
+  onGridReady(params: any) { //Grid initializations
+    this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
+    this.createGraph(this.createData());
+    this.gridLoaded.next(null);
+    this.gridLoaded.complete();
+  }
+  onCellClicked(event: any) { //
+    console.log("Data : ", event['data'], event)
+    if(event['data'].groupRow === true) { //Defines custom group feature
+      this.externalFilterChanged(event['data'].name.name)
+      let arrowImg = document.getElementById(event['node'].data.name.name);
+      if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
+      else arrowImg!.style.transform = "rotate(-0.5turn)"
+    } else {
+      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') this.displayInfobar(event['data'])
+    }
+  }
+  onCellMouseOver(event: any) {
+    if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
+      this.showDescription = true;
+      this.description = this.computeDescription(JSON.parse(JSON.stringify(event.value))) // JSON.parse(JSON.stringify(object)) performs a deepcopy
+    }
+  }
+  onCellMouseOut(event: any) {
+    if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
+      this.showDescription = false;
+    }
   }
 
 }
