@@ -1,8 +1,7 @@
-import DEH, {GeoExtractionHelper, Params} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
-import { PDV } from './Slice&Dice';
+import { PDV } from './Pdv';
 
 @Injectable()
 export class Navigation {

@@ -1,9 +1,6 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs/internal/Subject';
-import { LoggerService } from '../behaviour/logger.service';
+import { Component, OnInit } from '@angular/core';
 import DEH, { Params } from '../middle/DataExtractionHelper';
-import { PDV } from '../middle/Slice&Dice';
 import { SubscriptionManager } from '../interfaces/Common';
 
 @Component({

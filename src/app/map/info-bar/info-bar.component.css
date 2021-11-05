@@ -644,17 +644,13 @@ input[type=number] {
     background-color: #333;
     color: white;
     height: fit-content;
-    z-index: 10;
+    z-index: 99999999;
     padding: 0.5em;
     border-radius: 0.5em;
 }
 .disabled-input:hover + .disabled-description{
     display: block;
 }
-
-/* .disabled-input>checkbox:not([disabled="true"]) + .disabled-description {
-    display: none;
-} */
 
 @media (max-width: 1367px) {
     :host {

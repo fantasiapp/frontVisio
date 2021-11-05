@@ -1,6 +1,6 @@
 import Dashboard from "./Dashboard";
-import DEH, { DataTree, TreeExtractionHelper, GeoExtractionHelper, TradeExtrationHelper } from "./DataExtractionHelper";
-import { PDV } from "./Slice&Dice";
+import DEH, { DataTree, TreeExtractionHelper } from "./DataExtractionHelper";
+import { PDV } from "./Pdv";
 
 export interface Node {
   id: number;

@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { AgRendererComponent } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
-import { PDV } from "src/app/middle/Slice&Dice";
+import { PDV } from "src/app/middle/Pdv";
 import { SliceTable } from "src/app/middle/SliceTable";
 
 abstract class DefaultCellRenderer implements AgRendererComponent {

@@ -4,7 +4,7 @@ import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
 import { Navigation } from 'src/app/middle/Navigation';
-import { PDV } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
 import {  Result, SearchService, Suggestion } from 'src/app/services/search.service';
 import { PatternPipe } from './pattern.pipe';
 import { SuggestionBox } from './suggestionbox/suggestionbox.component';
