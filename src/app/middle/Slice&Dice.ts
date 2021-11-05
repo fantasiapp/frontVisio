@@ -841,20 +841,11 @@ export class SliceDice{
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
       
-    let colors: undefined;
-    if ([typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')){
-      let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
-      let labelsIds = DEH.get('axisForGraph')[+groupsAxis][DEH.AXISFORGRAHP_LABELS_ID];
-       groupsAxis = labelsIds.map(
-         (labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_LABEL_ID]);
-       colors = labelsIds.map(
-         (labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_COLOR_ID]);
-      if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
-    }
     if (gaugesAxis.includes(axis1)){
       let jauge = PDV.computeJauge(slice, axis1);
-      return {data: jauge[0], sum: 0, target: undefined, colors: colors, targetLevel: {}, threshold: jauge[1]};
+      return {data: jauge[0], sum: 0, target: undefined, colors: undefined, targetLevel: {}, threshold: jauge[1]};
     }
+    let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
     let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false,
       sortLines = percent !== 'classic' && axis1 != 'suiviAD';
@@ -903,6 +894,16 @@ export class SliceDice{
     if (typeof(sum) !== 'number') sum = 0;
     return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, 
       colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage}    
+  }
+
+  private computeColorsWidget(groupsAxis1: number|string[], groupsAxis2: number|string[]){
+    let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
+    let labelsIds = DEH.get('axisForGraph')[+groupsAxis][DEH.AXISFORGRAHP_LABELS_ID];
+    groupsAxis = labelsIds.map(
+      (labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_LABEL_ID]);
+    let colors = labelsIds.map((labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_COLOR_ID]);
+    if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
+    return [colors, groupsAxis1, groupsAxis2];
   }
 
   rubiksCubeCheck(slice:any, indicator: string, percent:string){
