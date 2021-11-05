@@ -1,6 +1,6 @@
 import DEH from "../middle/DataExtractionHelper";
 import DataExtractionHelper, { Params } from "../middle/DataExtractionHelper";
-import { PDV } from "../middle/Slice&Dice";
+import { PDV } from "../middle/Pdv";
 
 //static class that builds icons
 export class MapIconBuilder {

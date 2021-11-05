@@ -1,6 +1,6 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { PDV } from '../middle/Slice&Dice';
+import { PDV } from '../middle/Pdv';
 import { MapComponent } from '../map/map.component';
 import { DataService } from '../services/data.service';
 import { Params } from '../middle/DataExtractionHelper';

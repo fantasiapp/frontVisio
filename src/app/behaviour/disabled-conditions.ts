@@ -1,5 +1,5 @@
 import DEH from '../middle/DataExtractionHelper';
-import { PDV } from '../middle/Slice&Dice';
+import { PDV } from '../middle/Pdv';
 
 export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, val : boolean}} = {
   'noRedistributedFinitions': (pdv: PDV ) => {

@@ -1,6 +1,6 @@
 import { Node } from "./Node";
 import DEH from "./DataExtractionHelper";
-import {PDV} from "./Slice&Dice";
+import {PDV} from "./Pdv";
 
 export class CD{ //For ComputeDescription
   static computeDescription(slice:any, description:string[]){

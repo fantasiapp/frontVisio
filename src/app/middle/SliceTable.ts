@@ -1,7 +1,8 @@
 import { Injectable, LOCALE_ID, Inject  } from "@angular/core";
 import { DataService } from "../services/data.service";
 import DEH from "./DataExtractionHelper";
-import { PDV, SliceDice } from "./Slice&Dice";
+import { SliceDice } from "./Slice&Dice";
+import { PDV } from "./Pdv";
 
 type GroupRow = { //Built to behave like a PDV type for the agGrid
     name: {

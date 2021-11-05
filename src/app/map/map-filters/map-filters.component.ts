@@ -1,11 +1,9 @@
-import { Component, HostBinding, Input, Output, EventEmitter, ViewChildren, QueryList, OnInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, HostBinding, Output, EventEmitter, ViewChildren, QueryList, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DEH, { Params } from 'src/app/middle/DataExtractionHelper';
-import { PDV } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
 import { MapSelectComponent } from '../map-select/map-select.component';
-import { BasicWidget } from 'src/app/widgets/BasicWidget'; 
-import { Interactive, SubscriptionManager } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'map-filters',

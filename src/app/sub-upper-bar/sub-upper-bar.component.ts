@@ -1,9 +1,7 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
-import { LoggerService } from '../behaviour/logger.service';
 import DEH, { Params } from '../middle/DataExtractionHelper';
-import { PDV } from '../middle/Slice&Dice';
 
 @Component({
   selector: 'app-sub-upper-bar',

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
-import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar} from 'billboard.js';
 import { RubixCube } from './RubixCube';

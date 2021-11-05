@@ -1,8 +1,7 @@
 import { Directive, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { SubscriptionManager } from '../interfaces/Common';
-import { PDV } from '../middle/Slice&Dice';
+import { PDV } from '../middle/Pdv';
 
 @Directive({
   selector: '[rootLevelOnly]'
