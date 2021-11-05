@@ -337,7 +337,6 @@ export class MapComponent extends SubscriptionManager {
     let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
 
     this.map!.setZoom(zoom || 13);
-    this.map!.setZoom(zoom || 13);
     this.map!.panTo(
       new google.maps.LatLng(
         center[0] || 48.52,
