@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DataService, UpdateData } from './data.service';
+import { UpdateDataWithLogs } from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -68,11 +68,11 @@ export class LocalStorageService {
     return JSON.parse(this.localStorage.getItem('lastUpdateTimestamp') || '0') as number
   }
 
-  saveQueueUpdate(queueUpdate: UpdateData) {
+  saveQueueUpdate(queueUpdate: UpdateDataWithLogs) {
     this.localStorage.setItem('queuedDataToUpdate', JSON.stringify(queueUpdate))
   }
-  getQueueUpdate(): UpdateData {
-    return JSON.parse(this.localStorage.getItem('queuedDataToUpdate') || 'null') as UpdateData;
+  getQueueUpdate(): UpdateDataWithLogs {
+    return JSON.parse(this.localStorage.getItem('queuedDataToUpdate') || 'null') as UpdateDataWithLogs;
   }
   removeQueueUpdate() {
     this.localStorage.removeItem('queuedDataToUpdate')
