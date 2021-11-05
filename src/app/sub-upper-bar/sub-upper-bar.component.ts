@@ -32,7 +32,7 @@ export class SubUpperBarComponent extends SubscriptionManager implements OnInit 
   ngOnInit(): void {
     this.currentYear = this.filtersStates.getYear();
     this.currentMonth = this.filtersStates.getMonth();
-    this.filtersStates.updateFilters();
+    this.filtersStates.emitState();
   }
 
   onYearChange(e: Event) {

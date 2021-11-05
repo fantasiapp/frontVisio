@@ -46,10 +46,9 @@ export class FiltersStatesService extends SubscriptionManager {
     subLevels: Node[]
   }>();
 
-  updateFilters() {
+  emitFilters() {
     let {node, dashboard} = this._state!;
     
-    this.state.next(this._state!);
     this.filters.next({
       dashboard,
       path: node.path,
@@ -59,6 +58,10 @@ export class FiltersStatesService extends SubscriptionManager {
       superLevel: node.parent,
       subLevels: this.navigation.getNodeChildren(node)
     });
+  }
+
+  emitState() {
+    this.state.next(this._state!);
   }
 
   getState() { return this.navigation.getState(); }
@@ -101,7 +104,7 @@ export class FiltersStatesService extends SubscriptionManager {
 
     this.navigation.setCurrent(levelId, dashboardId, superlevel);
     if ( superlevel !== undefined || levelId !== undefined )
-      this.logPathChanged.next(this.currentPath);
+      this.logPathChanged.next(this._state!.node.path);
 
     this._state = this.navigation.getState();
     if ( dashboardId ) {
@@ -183,7 +186,8 @@ export class FiltersStatesService extends SubscriptionManager {
       States
     };
     this.stateSubject.next(currentState);
-    this.updateFilters();
+    this.emitFilters();
+    this.emitState();
   }
 
   navigateUp(height: number) {

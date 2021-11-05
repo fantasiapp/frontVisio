@@ -34,7 +34,6 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
         this.layout = dashboard;
       }
       this.node = node
-      this.cd.detectChanges();
     });
 
     this.subscribe(dataservice.update, this.refresh.bind(this));
@@ -42,6 +41,8 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
 
   update() { this.gridManager.update(); }
   refresh() { this.gridManager.refresh(); }
+
+  ngOnInit() { this.filtersService.emitState(); }
 
   get shouldComputeDescription(): boolean {
     return !!(this.layout && this.layout.description && this.layout.description.length);

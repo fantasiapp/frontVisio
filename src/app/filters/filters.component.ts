@@ -61,9 +61,7 @@ export class FiltersComponent extends SubscriptionManager {
   viewList: (Node | Dashboard)[] = []; //actually Node[] | Dashboard[]
   isShowingDashboards: boolean = true;
 
-  ngOnInit(): void {
-    this.filtersState.updateFilters();
-  }
+  ngOnInit(): void { this.filtersState.emitFilters(); }
 
   showSuper() {
     this.filtersState.updateState(undefined, undefined, true);

@@ -84,9 +84,9 @@ export class GridManager implements Interactive {
       this.createComponents();
       this.layoutChanged.emit(this.layout);
     }    
-    let pathChanges = changes['path'];
-    if ( !pathChanges || layoutChanges ) return;
-    if ( pathChanges.currentValue !== pathChanges.previousValue )
+    let nodeChanges = changes['node'];
+    if ( !nodeChanges || layoutChanges ) return;
+    if ( nodeChanges.currentValue !== nodeChanges.previousValue )
       this.onPathChanged();
   }
 
