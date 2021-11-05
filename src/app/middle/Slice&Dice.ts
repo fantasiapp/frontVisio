@@ -43,8 +43,91 @@ class DataWidget{
   get(fieldId1: number, fieldId2: number){
     return this.data[this.idToI[fieldId1] as number][this.idToJ[fieldId2] as number];
   }
-
-  groupData(groupsAxis1: string[], groupsAxis2: string[], simpleFormat=false){
+  
+  widgetTreatement(km2 = false, sortLines=true, justremoveNullLines:boolean=false, percent?:string, groupsAxis1?: string[], groupsAxis2?:string[]){
+    if (km2) this.m2ToKm2();
+    if (justremoveNullLines) this.removeNullLine(); else this.removeZeros();
+    if (sortLines) this.sortLines();
+    if (groupsAxis1 && groupsAxis2) this.groupData(groupsAxis1, groupsAxis2, true);
+    if (percent == 'classic') this.percent(); else if (percent == 'cols') this.percent(true);
+  }
+  
+  formatWidget(transpose:boolean){
+    if (this.dim == 0) return [[this.rowsTitles[0], this.data]];
+    if (this.dim == 1){
+      let widgetParts: [string, number][] = [];    
+      for (let i = 0; i < this.rowsTitles.length; i++)
+      widgetParts.push([this.rowsTitles[i], this.data[i]]);
+      return widgetParts
+    }
+    if (transpose){
+      let widgetParts: (number | string)[][] = [['x'].concat(this.rowsTitles)];
+      for (let j = 0; j < this.columnsTitles.length; j++){
+        let line: (number | string)[] = [this.columnsTitles[j]]
+        for (let i = 0; i < this.rowsTitles.length; i++)
+        line.push(this.data[i][j]);
+        widgetParts.push(line);
+      }
+      return widgetParts;  
+    }
+    let widgetParts: (number | string)[][] = [['x'].concat(this.columnsTitles)];
+    for (let i = 0; i < this.rowsTitles.length; i++){
+      let line: (number | string)[] = [this.rowsTitles[i]]
+      for (let j = 0; j < this.columnsTitles.length; j++)
+      line.push(this.data[i][j]);
+      widgetParts.push(line);
+    }
+    return widgetParts;    
+  }
+  
+  getSum(){
+    if (this.dim == 0) return Math.round(this.data);
+    if (this.dim == 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
+    let sumCols = new Array(this.columnsTitles.length).fill(0);
+    for(let j = 0; j < this.columnsTitles.length; j++) 
+    sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
+    return sumCols
+  }
+  
+  completeWithCurveForHistoCurve(nbPdvs:number){
+    let nbPdvsCompletedInPercent = 0;
+    for (let j = 0; j < this.columnsTitles.length; j++){
+      nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
+      this.data[1][j] = nbPdvsCompletedInPercent;
+    }
+  }
+  
+  getTargetStartingPoint(axis:string){
+    if (rodAfterFirstCategAxis.includes(axis)) return this.data[0];  
+    if (rodAfterSecondCategAxis.includes(axis)){
+      if (this.dim == 1) return this.data[0] + this.data[1];
+      let startingPoints = new Array(this.columnsTitles.length).fill(0);
+      for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];
+      return startingPoints
+    }       
+  }
+  
+  numberToBool(){
+    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
+    let firstLine: boolean[] = [];
+    for (let j = 0; j < this.columnsTitles.length; j++) 
+    firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
+    firstLine.pop();
+    let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
+    for (let i = 0; i < this.rowsTitles.length; i++)
+    extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
+    let lineIds = new Array(this.columnsTitles.length).fill(0),
+    columnsIds = new Array(this.columnsTitles.length).fill(0);
+    let industriesDict = DEH.get('enseigne')
+    lineIds = this.rowsTitles.map(title => DEH.getKeyByValue(industriesDict, title)); // ) changer quand le idToJ sera à jour
+    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
+    return {boolMatrix: extendedBoolMatrix,
+      enseigneIndexes: lineIds,
+      segmentMarketingIndexes: columnsIds
+    }
+  }
+  
+  private groupData(groupsAxis1: string[], groupsAxis2: string[], simpleFormat=false){
     let isOne1 = groupsAxis1.length == 1,
       isOne2 = groupsAxis2.length == 1;
     groupsAxis1 = (groupsAxis1.length == 0) ? this.rowsTitles : groupsAxis1;
@@ -81,7 +164,7 @@ class DataWidget{
     this.columnsTitles = groupsAxis2;
   }  
   
-  percent(onCols=false){
+  private percent(onCols=false){
     let almost100 = 99.999;
     if (this.dim == 0) this.data = almost100;
     else if (this.dim == 1){
@@ -106,93 +189,13 @@ class DataWidget{
       }
     }
   }
-  
-  basicTreatement(km2 = false, sortLines=true, removeNullColumns:boolean=true){
-    if (km2) this.m2ToKm2();
-    if (removeNullColumns) this.removeZeros() ; else this.removeNullLine();
-    if (sortLines) this.sortLines();
-  }
-  
-  formatWidget(transpose:boolean){
-    if (this.dim == 0) return [[this.rowsTitles[0], this.data]];
-    if (this.dim == 1){
-      let widgetParts: [string, number][] = [];    
-      for (let i = 0; i < this.rowsTitles.length; i++)
-      widgetParts.push([this.rowsTitles[i], this.data[i]]);
-      return widgetParts
-    }
-    if (transpose){
-      let widgetParts: (number | string)[][] = [['x'].concat(this.rowsTitles)];
-      for (let j = 0; j < this.columnsTitles.length; j++){
-        let line: (number | string)[] = [this.columnsTitles[j]]
-        for (let i = 0; i < this.rowsTitles.length; i++)
-        line.push(this.data[i][j]);
-        widgetParts.push(line);
-      }
-      return widgetParts;  
-    }
-    let widgetParts: (number | string)[][] = [['x'].concat(this.columnsTitles)];
-    for (let i = 0; i < this.rowsTitles.length; i++){
-      let line: (number | string)[] = [this.rowsTitles[i]]
-      for (let j = 0; j < this.columnsTitles.length; j++)
-      line.push(this.data[i][j]);
-      widgetParts.push(line);
-    }
-    return widgetParts;    
-  }
 
-  getSum(){
-    if (this.dim == 0) return Math.round(this.data);
-    if (this.dim == 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
-    let sumCols = new Array(this.columnsTitles.length).fill(0);
-    for(let j = 0; j < this.columnsTitles.length; j++) 
-      sumCols[j] = this.data.reduce((acc:number, line:number[]) => acc + line[j], 0);
-    return sumCols
-  }
-
-  completeWithCurveForHistoCurve(nbPdvs:number){
-    let nbPdvsCompletedInPercent = 0;
-    for (let j = 0; j < this.columnsTitles.length; j++){
-      nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;
-      this.data[1][j] = nbPdvsCompletedInPercent;
-    }
-  }
-
-  getTargetStartingPoint(axis:string){
-    if (rodAfterFirstCategAxis.includes(axis)) return this.data[0];  
-    if (rodAfterSecondCategAxis.includes(axis)){
-      if (this.dim == 1) return this.data[0] + this.data[1];
-      let startingPoints = new Array(this.columnsTitles.length).fill(0);
-      for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];
-      return startingPoints
-    }       
-  }
-
-  numberToBool(){
-    let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
-    let firstLine: boolean[] = [];
-    for (let j = 0; j < this.columnsTitles.length; j++) 
-      firstLine.push(boolMatrix.map((line:Boolean[]) => line[j]).reduce((acc: boolean, value:boolean) => acc || value, false));
-    firstLine.pop();
-    let extendedBoolMatrix: boolean[][] = [[firstLine.reduce((acc: boolean, value:boolean) => acc || value, false)].concat(firstLine)];
-    for (let i = 0; i < this.rowsTitles.length; i++)
-      extendedBoolMatrix.push([boolMatrix[i].reduce((acc: boolean, value:boolean) => acc || value, false)].concat(boolMatrix[i]));
-    let lineIds = new Array(this.columnsTitles.length).fill(0),
-      columnsIds = new Array(this.columnsTitles.length).fill(0);
-    let industriesDict = DEH.get('enseigne')
-    lineIds = this.rowsTitles.map(title => DEH.getKeyByValue(industriesDict, title)); // ) changer quand le idToJ sera à jour
-    for (let [id, j] of Object.entries(this.idToJ)) if (j !== undefined) columnsIds[j] = id;   
-    return {boolMatrix: extendedBoolMatrix,
-      enseigneIndexes: lineIds,
-      segmentMarketingIndexes: columnsIds
-    }
-  }
-  
   private m2ToKm2(){
     for (let i = 0; i < this.rowsTitles.length; i++)
-      for (let j = 0; j < this.columnsTitles.length; j++)
-        this.data[i][j] = this.data[i][j]/1000;
+    for (let j = 0; j < this.columnsTitles.length; j++)
+    this.data[i][j] = this.data[i][j]/1000;
   }
+
   // ça ne change pas le idToJ (pour le moment on s'en fout mais l'info peut être utile plus tard)
   private sortLines(sortFunct = ((line: number[]) => line.reduce((acc: number, value: number) => acc + value, 0))){
     let coupleList: [string, number[]][] = [];
@@ -839,7 +842,7 @@ export class SliceDice{
   constructor(private dataService: DataService){console.log('[SliceDice]: on');}
 
   getWidgetData(slice:any, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
-      groupsAxis2:(number|string[]), percent:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
+      groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
       
     if (gaugesAxis.includes(axis1)){
       let jauge = PDV.computeJauge(slice, axis1);
@@ -847,13 +850,10 @@ export class SliceDice{
     }
     let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
     let dataWidget = PDV.getData(slice, axis1, axis2, indicator.toLowerCase(), this.geoTree, addConditions);
-    let km2 = (!(indicator == 'dn' || indicator == 'visits')) ? true : false,
-      sortLines = percent !== 'classic' && axis1 != 'suiviAD';
-    dataWidget.basicTreatement(km2, sortLines);
-    dataWidget.groupData(groupsAxis1 as string[], groupsAxis2 as string[], true);
+    let km2 = !['dn', 'visits'].includes(indicator) ? true : false, sortLines = percentIndicator !== 'classic' && axis1 != 'suiviAD';
+    dataWidget.widgetTreatement(km2, sortLines, false, percentIndicator, groupsAxis1 as string[], groupsAxis2 as string[]);
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1);
-    if (percent == 'classic') dataWidget.percent(); else if (percent == 'cols') dataWidget.percent(true);
     let rodPosition = undefined, rodPositionForCiblage = undefined,
       targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = 
         {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
@@ -909,7 +909,7 @@ export class SliceDice{
   rubiksCubeCheck(slice:any, indicator: string, percent:string){
     let sortLines = percent !== 'classic';
     let dataWidget = PDV.getData(slice, 'enseigne', 'segmentMarketing', indicator.toLowerCase(), this.geoTree, []);
-    dataWidget.basicTreatement(false, sortLines, false);
+    dataWidget.widgetTreatement(false, sortLines, true);
     return dataWidget.numberToBool()
   }
 
