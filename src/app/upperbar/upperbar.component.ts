@@ -32,7 +32,7 @@ export class UpperbarComponent extends SubscriptionManager {
   }
 
   ngOnInit(): void {
-    this.subscribe(this.filtersState.stateSubject, ({States}) => {
+    this.subscribe(this.filtersState.state, () => {
       this.sldValue = this.filtersState.tree?.hasTypeOf(PDV.geoTree) ? 1 : 0;
     });
 

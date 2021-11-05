@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, ViewChild } from '@angular/core';
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
@@ -16,6 +16,7 @@ import { Node } from '../middle/Node'
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
   providers: [Navigation, FiltersStatesService, LoggerService, TargetService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewComponent extends SubscriptionManager implements Updatable {
   @ViewChild(GridManager)
@@ -25,7 +26,7 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
   public node?: Node;
   private mapVisible: boolean = false;
 
-  constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
+  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
     super();
     this.subscribe(filtersService.state, ({node, dashboard}) => {
       if ( this.layout?.id !== dashboard.id ) {
@@ -36,13 +37,18 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
       this.node = node
     });
 
-    this.subscribe(dataservice.update, this.refresh.bind(this));
+    this.subscribe(dataservice.update, () => {
+      this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id));
+      this.gridManager.node = this.node;
+      this.refresh();
+    });
+    (window as any).ouf = this;
   }
+
+  ngOnInit() { this.filtersService.emitState(); }
 
   update() { this.gridManager.update(); }
   refresh() { this.gridManager.refresh(); }
-
-  ngOnInit() { this.filtersService.emitState(); }
 
   get shouldComputeDescription(): boolean {
     return !!(this.layout && this.layout.description && this.layout.description.length);
@@ -60,10 +66,7 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
   }
 
   onLayoutChange(layout: Layout) {
-    if ( this.mapVisible )
-      this.gridManager.pause();
-    else
-      this.gridManager.interactiveMode();
+    console.log('layout changed');
   }
 
   displayPDV(id: number) {

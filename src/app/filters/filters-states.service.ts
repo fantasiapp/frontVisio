@@ -61,30 +61,13 @@ export class FiltersStatesService extends SubscriptionManager {
   }
 
   emitState() {
-    this.state.next(this._state!);
+    this._state = this.navigation.getState();
+    this.state.next(this._state);
   }
 
   getState() { return this.navigation.getState(); }
 
   logPathChanged: Subject<{}> = new Subject;
-  stateSubject = new BehaviorSubject({
-    States: {
-      level:{
-        id : 0,
-        name: '',
-        label:'',
-      },
-      dashboard: {
-        id: 0,
-        name: '',
-        grid: ["1", "1"] as [string, string],
-        areas: {x: null},
-        template: 'x',
-        description: ''
-      },
-      path: []
-    },
-  });
 
   getYear() {
     let year = Params.currentYear;
@@ -106,7 +89,6 @@ export class FiltersStatesService extends SubscriptionManager {
     if ( superlevel !== undefined || levelId !== undefined )
       this.logPathChanged.next(this._state!.node.path);
 
-    this._state = this.navigation.getState();
     if ( dashboardId ) {
       this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
       this.logger.actionComplete();
@@ -116,15 +98,6 @@ export class FiltersStatesService extends SubscriptionManager {
       this.emitEvents();
   }
 
-  getPath(States: any) {
-    let path = States._path.slice(1).reduce((acc: {[key:string]:number}, level: [string, number], idx: number) => {
-      acc[level[0]]=level[1];
-      return acc;
-    }, {});
-    return path;
-  }
-
-  get currentPath() { return this.getPath(this.stateSubject.value.States); }
   get tree() { return this.navigation.tree; }
 
   public setTree(t: Tree, follow: boolean = true) {
@@ -134,7 +107,6 @@ export class FiltersStatesService extends SubscriptionManager {
     else
       this.navigation.setTree(t);
     
-    this._state = this.navigation.getState();
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
@@ -142,7 +114,6 @@ export class FiltersStatesService extends SubscriptionManager {
   }
 
   refresh() {
-    this._state = this.navigation.getState();
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.tree);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
@@ -157,7 +128,6 @@ export class FiltersStatesService extends SubscriptionManager {
     
     let change = this.navigation.gotoPDVsDashboard();
     if ( !change ) return false;
-    this._state = this.navigation.getState();
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
     this.emitEvents();
@@ -168,11 +138,16 @@ export class FiltersStatesService extends SubscriptionManager {
     return this.navigation.childrenHaveSameDashboard();
   }
 
+  navigateUp(height: number) {
+    if ( !height ) return;
+    this.navigation.navigateUp(height);
+    this.emitEvents();
+  }
+
   setYear(current: boolean) {
     DEH.currentYear = current;
     let change = this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
-    console.log(change);
     if ( change ) {
       PDV.load(true);
       this.setTree(this.tree?.hasTypeOf(PDV.geoTree) ? PDV.geoTree : PDV.tradeTree, true);
@@ -181,19 +156,7 @@ export class FiltersStatesService extends SubscriptionManager {
   }
 
   emitEvents() {
-    const States = this.navigation.getCurrent();
-    const currentState = {
-      States
-    };
-    this.stateSubject.next(currentState);
-    this.emitFilters();
     this.emitState();
-  }
-
-  navigateUp(height: number) {
-    if ( !height ) return;
-    this.navigation.navigateUp(height);
-    this._state = this.navigation.getState();
-    this.emitEvents();
+    this.emitFilters();
   }
 }

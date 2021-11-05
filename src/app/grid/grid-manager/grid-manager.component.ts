@@ -86,7 +86,9 @@ export class GridManager implements Interactive {
     }    
     let nodeChanges = changes['node'];
     if ( !nodeChanges || layoutChanges ) return;
-    if ( nodeChanges.currentValue !== nodeChanges.previousValue )
+    let oldPath = nodeChanges.currentValue.path.map((node: Node) => node.id),
+      newPath = nodeChanges.previousValue.path.map((node: Node) => node.id);
+    if ( !BasicWidget.shallowArrayEquality(oldPath, newPath) )
       this.onPathChanged();
   }
 
@@ -127,14 +129,13 @@ export class GridManager implements Interactive {
   }
 
   interactiveMode() {
+    console.log('interactive', this._paused);
     if ( !this._paused ) return;
     this._paused = false;
     this.onPathChanged();
   }
 
-  pause() {
-    this._paused = true;
-  }
+  pause() { console.log('paused'); this._paused = true; }
 
   clear() {
     while ( this.ref.length )
@@ -149,9 +150,11 @@ export class GridManager implements Interactive {
       component.update();
   }
 
-  refresh() { //mainly a transition without animation
-    for ( let component of this.instances )
+  refresh() {
+    for ( let component of this.instances ) {
+      component.node = this.node;
       component.refresh();
+    }
   }
 
   /* = delete */

@@ -165,7 +165,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
     // Il faudra penser à delete la requête de la ram après l'avoir utilisée
     static load(loadTrees = true){
       SimplePdv._initialize();
-      // this.instances.clear(); //<- clear before
+      this.instances.clear(); //<- clear before
       for (let [id, data] of Object.entries(DEH.get('pdvs'))){
         let intId = parseInt(id);
         if (Number.isNaN(intId)) continue;

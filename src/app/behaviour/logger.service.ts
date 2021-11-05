@@ -97,14 +97,13 @@ export class LoggerService {
 
   log() {
     this.autofillFields();
-    console.log('[Logger] snapshot changed:', this.snapshot)
     this.dataService.queueSnapshot(this.snapshot);
     this.dataService.beginUpdateThread()
     this.change = false;
   }
 
   autofillFields() {
-    let path = this.navigation.currentLevel?.path.map(node => node.id);
+    let path = this.navigation.currentLevel!.path.map(node => node.id);
     this.snapshot.path = path?.slice(1);
   }
 
