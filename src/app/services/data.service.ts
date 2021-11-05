@@ -155,28 +155,28 @@ export class DataService {
     console.log("Sending data for update : ", data)
   }
 
-    /** Called to request the updates performed by other sessions **/
-    public requestUpdateData() {
-      this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DEH.get('timestamp')}})
-      .subscribe((response : any) => {
-        if( response ) {
-          if(response.message) {
-            console.debug("Empty update")
-          } else if(response.warning) {
-            console.debug("Server temporarly unavailable")
-          }
-          else {
-            console.log("Updates received from back : ", response)
-            DEH.updateData(response as UpdateData);
-            this.update.next()
-            this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
-            )
-          }
-          
-          this.sendQueuedDataToUpdate();
+  /** Called to request the updates performed by other sessions **/
+  public requestUpdateData() {
+    this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DEH.get('timestamp')}})
+    .subscribe((response : any) => {
+      if( response ) {
+        if(response.message) {
+          console.debug("Empty update")
+        } else if(response.warning) {
+          console.debug("Server temporarly unavailable")
         }
-      });
-    }
+        else {
+          console.log("Updates received from back : ", response)
+          DEH.updateData(response as UpdateData);
+          this.update.next()
+          this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
+          )
+        }
+        
+        this.sendQueuedDataToUpdate();
+      }
+    });
+  }
 
   /** Called regularly to send locally stored updates **/
   public sendQueuedDataToUpdate() {
