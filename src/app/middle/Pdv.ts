@@ -307,7 +307,10 @@ class SimplePdv { // Theses attributes are directly those received from the back
   
     private static ComputeAxisName(node:Node, axis:string){
       if (axis == 'lgp-1') return this.geoTree.attributes['natures'][1];
-      if (['lg-1', 'lt-1'].includes(axis)) return (node.children[0] as Node).nature;
+      if (['lg-1', 'lt-1'].includes(axis)){
+        let childNature = node.children[0] instanceof PDV ? 'site': (node.children[0] as Node).nature;
+        return childNature;
+      }
       return axis
     }
   
