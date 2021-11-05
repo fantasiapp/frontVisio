@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, ViewChild } from '@angular/core';
 import { LoggerService } from '../behaviour/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
-import { GridManager, GridState, Layout } from '../grid/grid-manager/grid-manager.component';
+import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
@@ -9,6 +9,7 @@ import { TableComponent } from '../widgets/table/table.component';
 import { SubscriptionManager, Updatable } from '../interfaces/Common';
 import { CD } from '../middle/Descriptions';
 import { TargetService } from '../widgets/description-widget/description-service.service';
+import { Node } from '../middle/Node'
 
 @Component({
   selector: 'app-view',
@@ -21,20 +22,19 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
   gridManager!: GridManager;
 
   public layout: (Layout & {id: number}) | null = null;
-  public path: any = {};
+  public node?: Node;
   private mapVisible: boolean = false;
 
-  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
+  constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
     super();
-    this.subscribe(filtersService.stateSubject, ({States}) => {
-      let {dashboard} = States,
-        path = filtersService.getPath(States);
-        
+    this.subscribe(filtersService.state, ({node, dashboard}) => {
       if ( this.layout?.id !== dashboard.id ) {
         console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.');
         this.gridManager?.clear();
         this.layout = dashboard;
-      } this.path = path;
+      }
+      this.node = node
+      this.cd.detectChanges();
     });
 
     this.subscribe(dataservice.update, this.refresh.bind(this));
@@ -81,7 +81,7 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
     let isArray = Array.isArray(description),
       compute = isArray && description.length >= 1;
     if ( compute )
-      return CD.computeDescription(this.filtersService.getPath(this.filtersService.stateSubject.value.States), description as string[]);
+      return CD.computeDescription(this.filtersService.getState().node, description as string[]);
 
     return isArray ? description[0] : (description as string);
   }

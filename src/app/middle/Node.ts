@@ -17,6 +17,8 @@ export interface Node {
   isLeaf: () => boolean;
   goChild: (id: number) => Node;
   goBack: () => Node;
+
+  getArray: (type: 'level' | 'dashboard') => any;
 }
 
 function createNode(tree: Tree, extractor: TreeExtractionHelper) {
@@ -51,13 +53,17 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
     get nature(): string { return tree.attributes['natures'][this.height]; }
     
     isLeaf(): boolean { return this.children.length == 0;}
+
+    getArray(type: 'level' | 'dashboard') {
+      
+    }
   
     goChild(id: number): TreeNode {
-      //dont navigation to PDV
+      //dont navigate to PDV
       if ( this.height == extractor.height )
         return this;
       
-      return (this.children as Node[]).find((child: Node) => child.id == id) || this;
+      return (this.children as TreeNode[]).find((child: Node) => child.id == id) || this;
     }
   
     goBack(): TreeNode  {

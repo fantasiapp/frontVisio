@@ -4,14 +4,25 @@ import { Subject } from 'rxjs/internal/Subject';
 import { LoggerService } from '../behaviour/logger.service';
 import DEH, { Params } from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Slice&Dice';
+import { SubscriptionManager } from '../interfaces/Common';
 
 @Component({
   selector: 'app-sub-upper-bar',
   templateUrl: './sub-upper-bar.component.html',
   styleUrls: ['./sub-upper-bar.component.css'],
 })
-export class SubUpperBarComponent implements OnInit {
-  constructor(private filtersStates: FiltersStatesService) {}
+export class SubUpperBarComponent extends SubscriptionManager implements OnInit {
+  constructor(private filtersStates: FiltersStatesService) {
+    super();
+    this.subscribe(this.filtersStates.state, ({node, dashboard}) => {
+      let height = node.path.length;
+      this.currentDashboard = dashboard.name;
+      this.currentLevel = node.name;
+      this.path = node.label + (node.name ? ' : ' + node.name : '');
+      this.currentDashboardId = dashboard.id;
+      this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.tree!, height-1);  
+    });
+  }
   currentDashboardId: number = 0;
   currentDashboard: string = '';
   currentLevel: string ='';
@@ -19,34 +30,18 @@ export class SubUpperBarComponent implements OnInit {
   currentYear: string = '';
   path:  string = ''
   years: [number, number] = [Params.currentYear, Params.currentYear-1]
-  otherYearDashboards: any; //-> whether we can transition to another year on this dashboard
+  otherYearDashboards: number[] = []; //-> whether we can transition to another year on this dashboard
 
   ngOnInit(): void {
-    this.filtersStates.stateSubject.subscribe(
-      ({States}) => {
-        let height = States.path.length;
-        this.currentDashboard = States.dashboard.name;
-        this.currentLevel = States.level.name;
-        this.path = (<string>States.path[States.path.length-1]);
-        this.currentDashboardId = States.dashboard.id;
-        this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.navigation.tree!, height-1);  
-      }
-    );
-
     this.currentYear = this.filtersStates.getYear();
     this.currentMonth = this.filtersStates.getMonth();
-  }
-  private destroy$: Subject<void> = new Subject<void>();
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.filtersStates.updateFilters();
   }
 
   onYearChange(e: Event) {
     let current = !!(((e.target as any).value) | 0);
     this.filtersStates.setYear(current);
-    this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.navigation.tree!, this.filtersStates.stateSubject.value.States.path.length - 1);
+    this.otherYearDashboards = DEH.getOtherYearDashboards(this.filtersStates.tree!, this.filtersStates.getState().node.path.length - 1);
     this.currentYear = current ? this.filtersStates.getYear() : '';
   }
 }

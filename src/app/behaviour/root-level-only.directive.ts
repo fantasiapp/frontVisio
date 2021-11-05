@@ -15,8 +15,8 @@ export class RootLevelOnlyDirective extends SubscriptionManager implements OnIni
 
 
   ngOnInit() {
-    this.subscribe(this.filtersService.stateSubject, ({States}) => {
-      if ( States.level.label != PDV.geoTree.root.label )
+    this.subscribe(this.filtersService.state, ({node}) => {
+      if ( node.label != PDV.geoTree.root.label )
         this.el.nativeElement.style.display = 'none';
       else
         this.el.nativeElement.style.display = 'initial';

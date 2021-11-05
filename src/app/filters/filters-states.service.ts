@@ -1,23 +1,25 @@
 import { DataService } from './../services/data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Injectable, OnDestroy } from '@angular/core';
-import DEH, { Params, TreeExtractionHelper } from '../middle/DataExtractionHelper';
+import { Injectable, OnDestroy, Pipe, PipeTransform } from '@angular/core';
+import DEH, { Params } from '../middle/DataExtractionHelper';
 import { Navigation } from '../middle/Navigation';
 import { PDV, SliceDice } from '../middle/Slice&Dice';
-import { Tree } from '../middle/Node';
+import { Node, Tree } from '../middle/Node';
 import { Subject, Subscription } from 'rxjs';
 import { LoggerService } from '../behaviour/logger.service';
 import { debounceTime } from 'rxjs/operators';
+import Dashboard from '../middle/Dashboard';
+import { SubscriptionManager } from '../interfaces/Common';
 
 @Injectable()
-export class FiltersStatesService implements OnDestroy {
+export class FiltersStatesService extends SubscriptionManager {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
-  subscription?: Subscription;
 
   constructor(public navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
-    console.log('[FiltersStates]: On.')
-    this.subscription = this.dataservice.response.subscribe((data) => {
+    super();
+    console.log('[FiltersStates]: On.');
+    this.subscribe(this.dataservice.response, (data) => {
       if (data) {
         DEH.setData(data);
         PDV.load(true);
@@ -25,10 +27,40 @@ export class FiltersStatesService implements OnDestroy {
       }
     });
 
-    this.logPathChanged.pipe(debounceTime(5000)).subscribe((path) => {
+    this.logPathChanged.pipe(debounceTime(5000)).subscribe(() => {
       this.logger.log();
     });
   }
+
+  private _state?: {node: Node; dashboard: Dashboard};
+  state = new Subject<{node: Node; dashboard: Dashboard}>();
+
+  filters = new Subject<{
+    dashboard: Dashboard,
+    path: Node[],
+    listLevel: Node[],
+    listDashboards: Dashboard[],
+    level: Node,
+    superLevel: Node | null,
+    subLevels: Node[]
+  }>();
+
+  updateFilters() {
+    let {node, dashboard} = this._state!;
+    
+    this.state.next(this._state!);
+    this.filters.next({
+      dashboard,
+      path: node.path,
+      listLevel: this.navigation.sort(node.siblings),
+      listDashboards: node.dashboards,
+      level: node,
+      superLevel: node.parent,
+      subLevels: this.navigation.getNodeChildren(node)
+    });
+  }
+
+  getState() { return this.navigation.getState(); }
 
   logPathChanged: Subject<{}> = new Subject;
   stateSubject = new BehaviorSubject({
@@ -49,32 +81,10 @@ export class FiltersStatesService implements OnDestroy {
       path: []
     },
   });
-  arraySubject = new BehaviorSubject({
-    levelArray: {
-    currentLevel: {
-      name: [],
-      id: [],
-      label: [],
-    },
-    subLevel: {
-      name: [],
-      id: [],
-      label: [],
-    },
-    superLevel: {
-      name:'',
-      id: 0,
-      label: '',
-    }},
-    dashboardArray: {
-      id: [],
-      name: [],      
-    },
-  });
 
   getYear() {
     let year = Params.currentYear;
-    return (DEH.currentYear ? year : year - 1).toString();
+    return DEH.currentYear ? year : year - 1;
   }
 
   getMonth(): string {
@@ -92,6 +102,7 @@ export class FiltersStatesService implements OnDestroy {
     if ( superlevel !== undefined || levelId !== undefined )
       this.logPathChanged.next(this.currentPath);
 
+    this._state = this.navigation.getState();
     if ( dashboardId ) {
       this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
       this.logger.actionComplete();
@@ -119,6 +130,7 @@ export class FiltersStatesService implements OnDestroy {
     else
       this.navigation.setTree(t);
     
+    this._state = this.navigation.getState();
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
@@ -126,6 +138,7 @@ export class FiltersStatesService implements OnDestroy {
   }
 
   refresh() {
+    this._state = this.navigation.getState();
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.tree);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
@@ -140,6 +153,7 @@ export class FiltersStatesService implements OnDestroy {
     
     let change = this.navigation.gotoPDVsDashboard();
     if ( !change ) return false;
+    this._state = this.navigation.getState();
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
     this.emitEvents();
@@ -163,25 +177,18 @@ export class FiltersStatesService implements OnDestroy {
   }
 
   emitEvents() {
-    const currentArrays = {
-      levelArray: this.navigation.getArray('level'),
-      dashboardArray: this.navigation.getArray('dashboard'),
-    };
     const States = this.navigation.getCurrent();
     const currentState = {
       States
     };
     this.stateSubject.next(currentState);
-    this.arraySubject.next(currentArrays);
+    this.updateFilters();
   }
 
-  navigateUp(quantity: number) {
-    if ( !quantity ) return;
-    this.navigation.navigateUp(quantity);
+  navigateUp(height: number) {
+    if ( !height ) return;
+    this.navigation.navigateUp(height);
+    this._state = this.navigation.getState();
     this.emitEvents();
-  }
-
-  ngOnDestroy() {
-    this.subscription?.unsubscribe();
   }
 }
