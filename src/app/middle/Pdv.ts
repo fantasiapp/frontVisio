@@ -343,7 +343,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
       return (this.realTargetP2cd > 0) ? 2: 1; //Ca c'est hardcodé
     }
   
-    private getCiblage(enduit:boolean, dn:boolean){
+    getCiblage(enduit:boolean, dn:boolean){
       if (dn && enduit) return this.targetFinition ? 1: 0;
       if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
       if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
@@ -352,11 +352,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
   
     static slice(node:Node){
       return PDV.filterPdvs(PDV.childrenOfNode(node));
-    }
-  
-    static computeCiblage(node: Node, enduit=false, dn=false){
-      let pdvs = PDV.childrenOfNode(node);
-      return pdvs.reduce((acc, pdv) => acc + pdv.getCiblage(enduit, dn), 0);
     }
   
     static childrenOfNode(node: Node | PDV):PDV[]{

@@ -1,6 +1,7 @@
 import { Node } from "./Node";
 import DEH from "./DataExtractionHelper";
 import {PDV} from "./Pdv";
+import { SliceDice } from "./Slice&Dice";
 
 export class CD{ //For ComputeDescription
   static computeDescription(node:Node, description:string[]){
@@ -33,8 +34,8 @@ export class CD{ //For ComputeDescription
 
   private static getCompleteCiblageFinitions(node: Node){
     if (!['root', 'drv', 'agentFinitions'].includes(node.nature)) return "";
-    let ciblageDn = PDV.computeCiblage(node, true, true),
-        ciblageFinitions = PDV.computeCiblage(node, true),
+    let ciblageDn = this.computeCiblage(true, true),
+        ciblageFinitions = this.computeCiblage(true),
         objective = DEH.getTarget(node.nature, node.id, false, true);
     let percent = (objective == 0) ? 0: 0.1 * ciblageFinitions/objective,
       appropriatePresentation = (percent <= 100) ? Math.round(percent).toString().concat(" %"): "plus de 100 %";
@@ -42,7 +43,7 @@ export class CD{ //For ComputeDescription
   }
 
   private static getCiblage(node: Node, enduit=false, dn=false){
-    let ciblage:number = +PDV.computeCiblage(node, enduit, dn);
+    let ciblage:number = +this.computeCiblage(enduit, dn);
     if (enduit) return "Ciblage: ".concat(Math.round(ciblage/1000).toString(), " T.");
     else if (dn) return "Ciblage: ".concat(ciblage.toString(), " PdV.");
     else return "Ciblage: ".concat(Math.round(ciblage/1000).toString(), " km²."); // les ciblages c'est les seuls à être en m² et pas en km²
@@ -70,7 +71,7 @@ export class CD{ //For ComputeDescription
   }
 
   static computeDescriptionWidget(node:Node): [number, number, number][]{
-    let ciblage = PDV.computeCiblage(node);
+    let ciblage = this.computeCiblage();
     let objectiveWidget: [number, number, number] = [
       (node.children as Node[]).map(subLevelNode => DEH.getTarget(subLevelNode.nature, subLevelNode.id)).reduce((acc, value) => acc + value, 0),
       (node.children as Node[]).map(subLevelNode => DEH.getTarget(subLevelNode.nature, subLevelNode.id, true)).reduce((acc, value) => acc + value, 0),
@@ -86,8 +87,12 @@ export class CD{ //For ComputeDescription
       ciblageWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / ciblageWidget[0]; 
     } else ciblageWidget = [
       ciblage / 1000,
-      PDV.computeCiblage(node, false, true),
+      this.computeCiblage(false, true),
       100];
     return [objectiveWidget, ciblageWidget];
+  }
+
+  static computeCiblage(enduit=false, dn=false){
+    return SliceDice.currentSlice.reduce((acc, pdv) => acc + pdv.getCiblage(enduit, dn), 0);
   }
 }
