@@ -6,9 +6,13 @@ import { WidgetManagerService } from '../widget-manager.service';
 import { BehaviorSubject } from 'rxjs';
 import { Interactive } from 'src/app/interfaces/Common';
 import { Node } from '../../middle/Node';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
+import Dashboard from 'src/app/middle/Dashboard';
 
 type BasicWidgetParams = [string, string, string, string[], string[], boolean];
 export interface Layout {
+  id: number;
   grid: [number, number];
   description: string | any[];
   template: string;
@@ -30,7 +34,6 @@ export type GridState = {
 })
 export class GridManager implements Interactive {
   //default layout
-  private _layout: Layout = defaultLayout;
 
   //grid structure
   @HostBinding('style.grid-template-columns')
@@ -40,23 +43,36 @@ export class GridManager implements Interactive {
   @HostBinding('style.grid-template-areas')
   private gridAreaTemplate: string = '';
 
-
-  get layout(): Layout {
-    return this._layout;
-  }
-
   get loaded() {
     return this.state.getValue().loaded;
   }
 
+  
+  private _layout?: Layout;
+  get layout() { return this._layout; }
   @Input()
-  set layout(layout: Layout | null) {
-    this._layout = layout || defaultLayout;
+  set layout(layout: Layout | undefined) {
+    this._layout = layout;
     this.computeLayout();
+    this.layoutChanged.emit(this.layout);
+    this.createComponents();
+    this.skipOneUpdate = true; //already made the items, no need to update
   }
 
+  private skipOneUpdate: boolean = false;
+  
+  //means nothing, use view to change node
+  private _node?: Node;
+  get node() { return this._node }
   @Input()
-  node?: Node;
+  set node(node: Node | undefined) {
+    this._node = node;
+    if ( this.skipOneUpdate )
+      this.skipOneUpdate = false;
+    else this.onPathChanged();
+  }
+
+  ngOnChanges(changes: SimpleChanges) { this.skipOneUpdate = false; }
 
   @Output()
   layoutChanged: EventEmitter<Layout> = new EventEmitter;
@@ -70,31 +86,14 @@ export class GridManager implements Interactive {
   protected _paused: boolean = false;
   get paused() { return this._paused; }
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-    //console.debug('[GridManager]: On.')
-  }
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {}
   
   ngAfterViewInit() {
     this.createComponents();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    let layoutChanges = changes['layout'];
-    if ( layoutChanges && !layoutChanges.isFirstChange() ) {
-      this.createComponents();
-      this.layoutChanged.emit(this.layout);
-      return;
-    }
-
-    let nodeChanges = changes['node'];
-    if ( !nodeChanges ) return;
-    let current = nodeChanges.currentValue as Node,
-      previous = nodeChanges.previousValue as Node;
-    if ( previous && !(current.height == previous.height && current.id == previous.id) )
-      this.onPathChanged();
-  }
-
   private createComponents() {
+    if ( !this.ref || !this.layout ) return;
     this.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
@@ -122,7 +121,7 @@ export class GridManager implements Interactive {
     });
   }
 
-  protected onPathChanged() {
+  onPathChanged() {
     if ( this._paused ) return;
     for ( let component of this.instances ) {
       component.onPathChanged(this.node);
@@ -151,13 +150,6 @@ export class GridManager implements Interactive {
       component.update();
   }
 
-  refresh() {
-    for ( let component of this.instances ) {
-      component.node = this.node;
-      component.refresh();
-    }
-  }
-
   /* = delete */
   reload() {
     this.clear();
@@ -170,21 +162,9 @@ export class GridManager implements Interactive {
   }
 
   private computeLayout() {
+    if ( !this.layout ) return;
     this.gridColumns = 'repeat(' + this.layout.grid[1] + ', minmax(0, 1fr))';
     this.gridRows = 'repeat(' + this.layout.grid[0] + ', minmax(0, 1fr))';
     this.gridAreaTemplate = this.layout.template;
   }
 }
-
-
-/******** DEFAULTS *********/
-
-const defaultLayout: Layout = {
-  grid: [1, 1],
-  description: 'default dashboard',
-  template: `x`,
-  areas: {'x': ['<title>', '<description>', 'm','default', [
-    "segmentMarketing", "segmentCommercial", "dn",
-    [], ["@other"], true
-  ]]}
-};

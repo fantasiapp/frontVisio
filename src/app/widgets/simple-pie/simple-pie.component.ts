@@ -69,7 +69,7 @@ export class SimplePieComponent extends BasicWidget {
         inset: {
           anchor: 'bottom-left',
           y: 20 + (data.length - 0.5) * BasicWidget.legendItemHeight,
-          x: 20
+          x: 10
         }
       },
       transition: {
@@ -82,10 +82,8 @@ export class SimplePieComponent extends BasicWidget {
         this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
       },
       onresized: () => {
-        console.log(BasicWidget.legendItemHeight, this.chart!.data().length);
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
-        //this.chart!.flush();
       },
       // add opt
       ...opt

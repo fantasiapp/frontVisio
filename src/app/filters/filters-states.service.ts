@@ -22,6 +22,7 @@ export class FiltersStatesService extends SubscriptionManager {
     super();
     //console.log('[FiltersStates]: On.');
     this.subscribe(this.dataservice.response, (data) => {
+      console.log('got new data');
       if (data) {
         DEH.setData(data);
         PDV.load(true);
@@ -31,6 +32,10 @@ export class FiltersStatesService extends SubscriptionManager {
           this.setTree(PDV.geoTree, true);
         this.started = true;
       }
+    });
+
+    this.subscribe(this.dataservice.update, () => {
+      this.setTree(this.tree!.hasTypeOf(PDV.geoTree) ? PDV.geoTree : PDV.tradeTree, true);
     });
 
     this.logPathChanged.pipe(debounceTime(5000)).subscribe(() => {
@@ -111,10 +116,10 @@ export class FiltersStatesService extends SubscriptionManager {
     else
       this.navigation.setTree(tree);
     
-    this.refresh();
+    this.update();
   }
 
-  refresh() {
+  update() {
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.tree);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();

@@ -56,6 +56,7 @@ enum TableProperties {
 @Injectable({
     providedIn: 'root'
   })
+@Injectable()
 export class SliceTable {
     private sortedPdvsList: PDV[] = [];
     private pdvsWithGroupslist: PDV[] = [];

@@ -111,7 +111,7 @@ import { MapLegendComponent } from './map/map-legend/map-legend.component';
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService],
+  providers: [httpInterceptorProviders, DataService, AuthService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

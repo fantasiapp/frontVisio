@@ -198,12 +198,6 @@ export class HistoRowComponent extends BasicWidget {
       });
     });
   }
-
-  refresh() {
-    this.onPathChanged(this.node);
-    super.refresh();
-  }
-
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
     return [this.node, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube?.conditions || []];

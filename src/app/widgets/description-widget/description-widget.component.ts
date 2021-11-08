@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { DataService } from 'src/app/services/data.service';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, Input } from '@angular/core';
 import { TargetService } from './description-service.service';
 import { BasicWidget } from '../BasicWidget';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
+import { Node } from '../../middle/Node';
 import { CD } from 'src/app/middle/Descriptions';
 
 @Component({
@@ -22,19 +21,16 @@ export class DescriptionWidgetComponent extends SubscriptionManager {
     [0, 0, 0]
   ];
 
-  constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private targetService: TargetService) {
-    super();
-    this.subscribe(filtersService.state, ({node}) => {
-      //do something with path
-      this.values = CD.computeDescriptionWidget(node);
-      this.cd.markForCheck();
-    });
+  @Input()
+  set node(value: Node | undefined) {
+    this.values = CD.computeDescriptionWidget(value!);
+  };
 
-    this.subscribe(dataservice.update, _ => {
-      this.values = CD.computeDescriptionWidget(this.filtersService.getState().node);
-      this.cd.markForCheck();
-    });
+  constructor(public targetService: TargetService) {
+    super();
   }
+
+  ngOnInit() { this.targetService.reset(); }
 
   get volume() {
     return BasicWidget.format(this.values[1 - this.currentSelection][0]);

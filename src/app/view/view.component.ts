@@ -10,46 +10,49 @@ import { SubscriptionManager, Updatable } from '../interfaces/Common';
 import { CD } from '../middle/Descriptions';
 import { TargetService } from '../widgets/description-widget/description-service.service';
 import { Node } from '../middle/Node'
+import { SliceDice } from '../middle/Slice&Dice';
+import { SliceTable } from '../middle/SliceTable';
+import { PDV } from '../middle/Pdv';
 
 @Component({
   selector: 'app-view',
   templateUrl: './view.component.html',
   styleUrls: ['./view.component.css'],
-  providers: [Navigation, FiltersStatesService, LoggerService, TargetService],
+  providers: [Navigation, FiltersStatesService, SliceDice, SliceTable, LoggerService, TargetService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ViewComponent extends SubscriptionManager implements Updatable {
+export class ViewComponent extends SubscriptionManager  {
   @ViewChild(GridManager)
   gridManager!: GridManager;
 
-  public layout: (Layout & {id: number}) | null = null;
+  public layout?: Layout;
   public node?: Node;
 
-  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService) {
+  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService, private sliceDice: SliceDice, private cd: ChangeDetectorRef) {
     super();
-    this.subscribe(filtersService.state, ({node, dashboard}) => {
-      if ( this.layout?.id !== dashboard.id ) {
-        //console.log('[ViewComponent]: Layout(.id)=', dashboard.id ,'changed.');
-        this.gridManager?.clear();
-        this.layout = dashboard;
-      }
-      this.node = node;
-    });
-
-    this.subscribe(dataservice.update, () => {
-      this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id));
-      //same node but of an updated tree, force the refresh
-      this.refresh();
-    });
   }
 
-  ngOnInit() { this.filtersService.emitState(); }
+  ngOnInit() {
+    this.subscribe(this.filtersService.state, ({node, dashboard}) => {
+      let current = node as Node,
+        previous = this.node as Node;
+            
+      if ( !previous || !previous.equals(current) ) {
+        this.sliceDice.updateCurrentSlice(current);
+        this.node = node;
+      }
 
-  update() { this.gridManager.update(); }
-  refresh() { this.gridManager.node = this.node; this.gridManager.refresh(); }
+      if ( this.layout?.id !== dashboard.id )
+        this.layout = dashboard;
+    });
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('view changes', changes);
+    this.subscribe(this.dataservice.update, () => {
+      //just update
+      this.sliceDice.updateCurrentSlice(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
+      this.cd.markForCheck();
+    });
+
+    this.filtersService.emitState();
   }
 
   get shouldComputeDescription(): boolean {
