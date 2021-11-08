@@ -417,7 +417,7 @@ class DEH{  // for DataExtractionHelper
       case 'clientProspect': return clientProspect;
       case 'suiviAD': return suiviAD;
       case 'weeks': return weeks;
-      case 'histo&curve': return histoCurve;    
+      case 'histoCurve': return histoCurve;    
       case 'ciblage': return ciblage;
       case 'pointFeuFilter': return pointFeuFilter;
       case 'industriel': return industriel;
@@ -481,15 +481,6 @@ class DEH{  // for DataExtractionHelper
         else finitionAgentsOfDrv.push(agent);
       }
     return finitionAgentsOfDrv;
-  }
-
-  static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {
-    let keys = Object.keys(slice).sort((u, v) => PDV.heightOf(tree, u) - PDV.heightOf(tree, v));
-    let values = keys.map(key => slice[key]),
-      node = tree.root;
-    for ( let id of values )
-      node = node.goChild(id);
-    return node;
   }
 
   static getOtherYearDashboards(tree: Tree, height: number = 0) {

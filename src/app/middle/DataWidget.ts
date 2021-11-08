@@ -34,15 +34,15 @@ export class DataWidget{
       return this.data[this.idToI[fieldId1] as number][this.idToJ[fieldId2] as number];
     }
     
-    widgetTreatement(km2 = false, sortLines=true, justremoveNullLines:boolean=false, percent?:string, groupsAxis1?: string[], groupsAxis2?:string[]){
+    widgetTreatement(km2 = false, sortLines=true, removeZeros:string, groupsAxis1?: string[], groupsAxis2?:string[]){
       if (km2) this.m2ToKm2();
-      if (justremoveNullLines) this.removeNullLine(); else this.removeZeros();
+      if (removeZeros == 'justLines') this.removeNullLine(); else if (removeZeros == 'all') this.removeZeros();
       if (sortLines) this.sortLines();
       if (groupsAxis1 && groupsAxis2) this.groupData(groupsAxis1, groupsAxis2, true);
-      if (percent == 'classic') this.percent(); else if (percent == 'cols') this.percent(true);
     }
     
-    formatWidget(transpose:boolean){
+    formatWidget(transpose:boolean, histoCurve:Boolean, nbPdvs:number){
+      if (histoCurve) this.completeWithCurve(nbPdvs);
       if (this.dim == 0) return [[this.rowsTitles[0], this.data]];
       if (this.dim == 1){
         let widgetParts: [string, number][] = [];    
@@ -68,6 +68,10 @@ export class DataWidget{
         widgetParts.push(line);
       }
       return widgetParts;    
+    }
+
+    getDim(){
+      return this.dim;
     }
     
     getSum(){
@@ -154,7 +158,7 @@ export class DataWidget{
       this.columnsTitles = groupsAxis2;
     }  
     
-    private percent(onCols=false){
+    percent(onCols=false){
       let almost100 = 99.999;
       if (this.dim == 0) this.data = almost100;
       else if (this.dim == 1){

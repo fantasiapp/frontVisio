@@ -5,7 +5,7 @@ import {Tree, Node} from './Node';
 
 
 const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'];
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'];
 
 class SimplePdv { // Theses attributes are directly those received from the back
     private static indexMapping: Map<string, number>;
@@ -148,6 +148,8 @@ class SimplePdv { // Theses attributes are directly those received from the back
     get info(): boolean {return true}
     get checkboxP2cd(): boolean {return this.ciblage() === 2}
     get clientProspect(){return this.clientProspect2(true)}
+
+    get histoCurve(){return 1} // harcodé moche
   
     get realTargetP2cd(){
       if (this.targetP2cd > 0 && this.lightTarget !== 'r') return this.targetP2cd;
@@ -179,6 +181,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
     }
     
     public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
+      if (axisName == 'weeks') return this.computeWeeksRepartitionAD();
       if (axisName && nonRegularAxis.includes(axisName!)){
         let salesRepartition = this.computeSalesRepartition();
         if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator, salesRepartition);
@@ -339,12 +342,8 @@ class SimplePdv { // Theses attributes are directly those received from the back
     ciblage(){
       return (this.realTargetP2cd > 0) ? 2: 1; //Ca c'est hardcodé
     }
-    
-    static ComputeListCiblage(nodes: Node[], dn:boolean){
-      return nodes.map(node => dn ? PDV.computeCiblage(node, false, dn): PDV.computeCiblage(node, false, dn)/1000);
-    }
   
-    private getCiblage(enduit:boolean, dn:boolean){
+    getCiblage(enduit:boolean, dn:boolean){
       if (dn && enduit) return this.targetFinition ? 1: 0;
       if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
       if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
@@ -355,23 +354,14 @@ class SimplePdv { // Theses attributes are directly those received from the back
       return PDV.filterPdvs(PDV.childrenOfNode(node));
     }
   
-    static computeCiblage(node: Node, enduit=false, dn=false){
-      let pdvs = PDV.childrenOfNode(node);
-      return pdvs.reduce((acc, pdv) => acc + pdv.getCiblage(enduit, dn), 0);
-    }
-  
-    static heightOf(tree: Tree, label: string){
-      return tree.attributes['labels'].indexOf(label);
-    }
-  
     static childrenOfNode(node: Node | PDV):PDV[]{
-      if ( node instanceof PDV ) return [node];
+      if (node instanceof PDV) return [node];
       return node.children.map(
         (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
     }
   
     static getLeaves(tree: Tree, node: Node | PDV, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
-      if ( node instanceof PDV ) return [node];
+      if (node instanceof PDV) return [node];
       let structure = tree.attributes['labels'];
       dictChildren[structure[height]].push([node.id, node.name]);
       return node.children.map(
@@ -437,38 +427,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   
     adCompleted(){
       return this.onlySiniat || !this.redistributed || this.salesObject.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
-    }
-  
-    static computeJauge(node:Node, indicator:string): [[string, number][], number[]]{
-      let pdvs = PDV.filterPdvs(PDV.childrenOfNode(node));
-      switch(indicator){
-        case 'visits': {
-          let totalVisits: number= 0,
-            cibleVisits:number = PDV.computeTargetVisits(node) as number,
-            threshold = [50, 99.99, 100];
-          for (let pdv of pdvs) totalVisits += pdv.nbVisits;
-          let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
-          return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
-        };
-        case 'targetedVisits': {
-          let totalVisits = 0, totalCibleVisits = 0, thresholdForGreen = 100 * PDV.computeTargetVisits(node, true),
-            threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
-          for (let pdv of pdvs){
-            totalVisits += pdv.nbVisits;
-            if (pdv.targetFinition) totalCibleVisits += pdv.nbVisits;
-          }
-          let adaptedVersion = (totalCibleVisits >= 2) ? ' visites ciblées': ' visite ciblée';
-          return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
-        };
-        case 'avancementAD': {
-          let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
-            ratio = nbCompletedPdv / pdvs.length,
-            adaptedVersion = (nbCompletedPdv >= 2) ? ' PdV complétés':  'PdV complété';
-          return [[[nbCompletedPdv.toString().concat(adaptedVersion, ' sur un total de ', pdvs.length.toString()), 100 * ratio]], [33, 66, 100]];
-         }
-        default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
-      }
-    }
+    }  
   
     static computeTargetVisits(node:Node, threshold=false){
       let finitionAgents:any[] = (node.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
