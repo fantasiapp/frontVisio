@@ -76,7 +76,7 @@ export class DataService {
         } else if(response.warning) {
           console.debug("Server temporarly unavailable")
         }
-        else {
+        else if(DEH.currentYear) {
           console.log("Updates received from back : ", response)
           DEH.updateData(response);
           this.update.next()

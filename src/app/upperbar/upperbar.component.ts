@@ -3,7 +3,7 @@ import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { PDV } from '../middle/Pdv';
 import { MapComponent } from '../map/map.component';
 import { DataService } from '../services/data.service';
-import { Params } from '../middle/DataExtractionHelper';
+import DEH, { Params } from '../middle/DataExtractionHelper';
 import { SubscriptionManager } from '../interfaces/Common';
 import { SearchbarComponent } from '../logged-page/searchbar/searchbar.component';
 
@@ -83,7 +83,8 @@ export class UpperbarComponent extends SubscriptionManager {
   }
 
   updateData() {
-    this.dataService.requestData();
+    if(DEH.currentYear)
+      this.dataService.requestData();
   }
 
   @Output()
