@@ -4,7 +4,7 @@
             {{ description }}
         </div>
         <ng-template #elseBlock>
-            <description-widget class="aligned description"></description-widget>
+            <description-widget class="aligned description" [node]="node"></description-widget>
         </ng-template>
     </app-upperbar>
     <grid-manager [layout]="layout" [node]="node" (layoutChanged)="onLayoutChange($event)" #gridManager>

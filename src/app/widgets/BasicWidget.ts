@@ -12,7 +12,7 @@ import { SequentialSchedule } from "./Schedule";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements Updatable {
-  protected node: any;
+  protected node?: Node; //apparently node is needed along with the slice
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
@@ -68,7 +68,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   }
   
   updateData(): {} {
-    this.chart?.tooltip.hide();
+    this.chart?.tooltip?.hide();
     let data = this.sliceDice.getWidgetData(...this.getDataArguments());
 
     if ( this.dynamicDescription ) {

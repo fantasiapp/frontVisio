@@ -20,7 +20,7 @@ import { SliceTable } from '../middle/SliceTable';
   providers: [Navigation, FiltersStatesService, SliceDice, SliceTable, LoggerService, TargetService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ViewComponent extends SubscriptionManager implements Updatable {
+export class ViewComponent extends SubscriptionManager  {
   @ViewChild(GridManager)
   gridManager!: GridManager;
 
@@ -35,7 +35,7 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
     this.subscribe(this.filtersService.state, ({node, dashboard}) => {
       let current = node as Node,
         previous = this.node as Node;
-      
+            
       if ( !previous || !previous.equals(current) ) {
         this.sliceDice.updateCurrentSlice(current);
         this.node = node;
@@ -52,8 +52,6 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
 
     this.filtersService.emitState();
   }
-
-  update() { this.gridManager.update(); }
 
   get shouldComputeDescription(): boolean {
     return !!(this.layout && this.layout.description && this.layout.description.length);
