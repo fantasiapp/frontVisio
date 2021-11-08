@@ -47,8 +47,7 @@ export class ViewComponent extends SubscriptionManager implements Updatable {
 
     this.subscribe(this.dataservice.update, () => {
       //just update
-      this.sliceDice.updateCurrentSlice(this.node!);
-      this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id));
+      this.sliceDice.updateCurrentSlice(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
     });
 
     this.filtersService.emitState();
