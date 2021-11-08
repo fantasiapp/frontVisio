@@ -16,14 +16,10 @@ const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget'
 @Injectable({providedIn: 'root'})
 export class SliceDice{
   geoTree: boolean = true; // on peut le supprimer maintenant je pense
-<<<<<<< HEAD
+  currentSlice: PDV[] = [];
   constructor(private dataService: DataService){
     //console.log('[SliceDice]: on');
   }
-=======
-  currentSlice: PDV[] = [];
-  constructor(private dataService: DataService){}
->>>>>>> 70a93161867a4b8056c3c08e3b47af39b130df03
 
   getWidgetData(node:Node, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
