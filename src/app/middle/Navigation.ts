@@ -10,7 +10,7 @@ export class Navigation {
   currentDashboard?: Dashboard;
 
   constructor() {
-    console.log('[Navigation]: On.');
+    //console.log('[Navigation]: On.');
   }
 
   setTree(tree: Tree){    

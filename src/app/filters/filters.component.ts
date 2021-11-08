@@ -1,24 +1,9 @@
 import { FiltersStatesService } from './filters-states.service';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { combineLatest } from 'rxjs';
 import { SubscriptionManager } from '../interfaces/Common';
 import { Node } from '../middle/Node'
 import Dashboard from '../middle/Dashboard';
 
-interface listDash {
-  name: string[];
-  id: number[];
-}
-interface listLev {
-  name: string[];
-  id: number[];
-  label: string[];
-}
-interface lev {
-  name: string;
-  id: number;
-  label: string;
-}
 @Component({
   selector: 'app-filters',
   templateUrl: './filters.component.html',
