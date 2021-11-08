@@ -22,8 +22,9 @@ export class SliceDice{
   getWidgetData(node:Node, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
  
+    this.updateCurrentSlice(node); // à enlever par la suite bien sûr
     if (gaugesAxis.includes(axis1)){
-      let jauge = PDV.computeJauge(node, axis1);
+      let jauge = this.computeJauge(node, axis1);
       return {data: jauge[0], sum: 0, target: undefined, colors: undefined, targetLevel: {}, threshold: jauge[1]};
     }
     let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
@@ -86,11 +87,41 @@ export class SliceDice{
   updateCurrentSlice(node:Node){
     this.currentSlice = PDV.slice(node);
   }
+
+  private computeJauge(node:Node, indicator:string): [[string, number][], number[]]{
+    switch(indicator){
+      case 'visits': {
+        let totalVisits: number= 0,
+          cibleVisits:number = PDV.computeTargetVisits(node) as number,
+          threshold = [50, 99.99, 100];
+        for (let pdv of this.currentSlice) totalVisits += pdv.nbVisits;
+        let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
+        return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
+      };
+      case 'targetedVisits': {
+        let totalVisits = 0, totalCibleVisits = 0, thresholdForGreen = 100 * PDV.computeTargetVisits(node, true),
+          threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
+        for (let pdv of this.currentSlice){
+          totalVisits += pdv.nbVisits;
+          if (pdv.targetFinition) totalCibleVisits += pdv.nbVisits;
+        }
+        let adaptedVersion = (totalCibleVisits >= 2) ? ' visites ciblées': ' visite ciblée';
+        return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
+      };
+      case 'avancementAD': {
+        let nbCompletedPdv = this.currentSlice.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
+          ratio = nbCompletedPdv / this.currentSlice.length,
+          adaptedVersion = (nbCompletedPdv >= 2) ? ' PdV complétés':  'PdV complété';
+        return [[[nbCompletedPdv.toString().concat(adaptedVersion, ' sur un total de ', this.currentSlice.length.toString()), 100 * ratio]], [33, 66, 100]];
+       }
+      default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
+    }
+  }
   
   private fillUpWidget(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
       addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(this.currentSlice, addConditions);
-    if (axis1 == 'histo&curve'){
+    if (axis1 == 'histoCurve'){
       this.fillHisto(dataWidget, this.currentSlice);
       dataWidget.completeWithCurve(newPdvs.length);
     }

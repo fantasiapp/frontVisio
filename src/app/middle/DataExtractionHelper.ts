@@ -417,7 +417,7 @@ class DEH{  // for DataExtractionHelper
       case 'clientProspect': return clientProspect;
       case 'suiviAD': return suiviAD;
       case 'weeks': return weeks;
-      case 'histo&curve': return histoCurve;    
+      case 'histoCurve': return histoCurve;    
       case 'ciblage': return ciblage;
       case 'pointFeuFilter': return pointFeuFilter;
       case 'industriel': return industriel;

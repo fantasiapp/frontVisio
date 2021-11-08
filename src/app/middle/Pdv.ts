@@ -339,10 +339,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
     ciblage(){
       return (this.realTargetP2cd > 0) ? 2: 1; //Ca c'est hardcodé
     }
-    
-    static ComputeListCiblage(nodes: Node[], dn:boolean){
-      return nodes.map(node => dn ? PDV.computeCiblage(node, false, dn): PDV.computeCiblage(node, false, dn)/1000);
-    }
   
     private getCiblage(enduit:boolean, dn:boolean){
       if (dn && enduit) return this.targetFinition ? 1: 0;
@@ -437,38 +433,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   
     adCompleted(){
       return this.onlySiniat || !this.redistributed || this.salesObject.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
-    }
-  
-    static computeJauge(node:Node, indicator:string): [[string, number][], number[]]{
-      let pdvs = PDV.filterPdvs(PDV.childrenOfNode(node));
-      switch(indicator){
-        case 'visits': {
-          let totalVisits: number= 0,
-            cibleVisits:number = PDV.computeTargetVisits(node) as number,
-            threshold = [50, 99.99, 100];
-          for (let pdv of pdvs) totalVisits += pdv.nbVisits;
-          let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
-          return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
-        };
-        case 'targetedVisits': {
-          let totalVisits = 0, totalCibleVisits = 0, thresholdForGreen = 100 * PDV.computeTargetVisits(node, true),
-            threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
-          for (let pdv of pdvs){
-            totalVisits += pdv.nbVisits;
-            if (pdv.targetFinition) totalCibleVisits += pdv.nbVisits;
-          }
-          let adaptedVersion = (totalCibleVisits >= 2) ? ' visites ciblées': ' visite ciblée';
-          return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
-        };
-        case 'avancementAD': {
-          let nbCompletedPdv = pdvs.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
-            ratio = nbCompletedPdv / pdvs.length,
-            adaptedVersion = (nbCompletedPdv >= 2) ? ' PdV complétés':  'PdV complété';
-          return [[[nbCompletedPdv.toString().concat(adaptedVersion, ' sur un total de ', pdvs.length.toString()), 100 * ratio]], [33, 66, 100]];
-         }
-        default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
-      }
-    }
+    }  
   
     static computeTargetVisits(node:Node, threshold=false){
       let finitionAgents:any[] = (node.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
