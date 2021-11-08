@@ -2,17 +2,12 @@ import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/co
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { PDV } from 'src/app/middle/Pdv';
-import { SliceTable, TableData } from 'src/app/middle/SliceTable';
+import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject } from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
-
-enum TableType {
-  p2cd = 'p2cd',
-  enduit = 'enduit'
-}
 
 @Component({
   selector: 'app-table',
@@ -29,7 +24,7 @@ export class TableComponent extends BasicWidget {
                       /**************/
 
   /** Can be 'p2cd' or 'enduit' **/
-  type: TableType = TableType.p2cd;
+  type: TableTypes = TableTypes.p2cd;
   /** Navigation menu **/
   navOpts: any;
   currentOpt: any;
@@ -242,15 +237,15 @@ export class TableComponent extends BasicWidget {
     return columnDefs;
   }
 
-  computeDescription(graphValue: {[type in TableType]: any[]}) {
+  computeDescription(graphValue: {[type in TableTypes]: any[]}) {
     return [
-      Object.entries(graphValue[TableType.p2cd]).map(
+      Object.entries(graphValue[TableTypes.p2cd]).map(
         (entry: any) => [
           entry[0],
           {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}
         ]
       ),
-      Object.entries(graphValue[TableType.enduit]).map(
+      Object.entries(graphValue[TableTypes.enduit]).map(
         (entry: any) => [
           entry[0],
           {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}

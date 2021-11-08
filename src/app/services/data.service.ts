@@ -10,35 +10,117 @@ import { LocalStorageService } from './local-storage.service';
 import { Snapshot, structureSnapshot } from '../behaviour/logger.service';
 
 export const enum UpdateFields {
+  pdvs = "pdvs",
   targetLevelAgentP2CD = "targetLevelAgentP2CD",
   targetLevelAgentFinitions = "targetLevelAgentFinitions",
   targetLevelDrv = "targetLevelDrv",
-  pdvs = "pdvs",
-  logs = "logs"
 }
 
 export type UpdateData = {
   [key in UpdateFields]: { [id: number]: any[]; };
 };
 
+export interface UpdateDataWithLogs extends UpdateData {
+  logs: any[][];
+}
+
+/**
+ * The service is responsible the communication with the server through request
+ * 
+ * Some of the request behiavour is defined with the HttpInterceptors (src/app/http-interceptors)
+ */
+
+/**
+ * 
+ *    [--------]                                                                                                                                                                                  [--------]
+ *    |        |  [ ---- requestData() ------------------------------------------------------------------------------------------------------------------------------------------------------> ]  |        |
+ *    |        |  [   GET request at '{backUrl}/visioServer/data/?action=dashboard'                                                                                                            ]  |        |
+ *    |        |  [                                                                                                                                                                            ]  |        |
+ *    |        |  [ <-----------------------------------------------------------------------------------------------------------------------------------------------------------response ----  ]  |        |
+ *    |        |  [   {warning: '...'} or {error: '...'}                                                                                                                                       ]  |        |
+ *    |        |  [     The server is currently unavailable.                                                                                                                                   ]  |        |
+ *    |        |  [     The request is then reposted after 30 seconds                                                                                                                          ]  |        |
+ *    |        |  [ OR                                                                                                                                                                         ]  |        |
+ *    |        |  [   Full data json                                                                                                                                                           ]  |        |
+ *    |        |  [     - Calls next on Observables for AuthService, LocalStorageService, FilterStateService                                                                                   ]  |        |
+ *    |        |  [     - Updates last update timestamp                                                                                                                                        ]  |        |
+ *    |        |  [     - Initiates update thread                                                                                                                                              ]  |        |
+ *    |        |  [     - If necessary, sends request for stored updates from last session                                                                                                     ]  |        |
+ *    |        |                                                                                                                                                                                  |        |
+ *    |        |                                                                                                                                                                                  |        |
+ *    |        |  [ ---- sendQueuedDataToUpdate() -------------------------------------------------------------------------------------------------------------------------------------------->]  |        |
+ *    |        |  [   POST request at '{backUrl}/visioServer/data/?action=update' containing the UpdateData object stored by the LocalStorageService                                           ]  |        |
+ *    |        |  [                                                                                                                                                                            ]  |        |
+ *    |        |  [ <----------------------------------------------------------------------------------------------------------------------------------------------------------- response ---- ]  |        |
+ *    |        |  [   {message: "postUpdate received"}                                                                                                                                         ]  |        |
+ *    |        |  [     Stored UpdateData is deleted from LocalStorageService                                                                                                                  ]  |        |
+ *    |        |  [ OR                                                                                                                                                                         ]  |        |
+ *    | CLIENT |  [   Anything else                                                                                                                                                            ]  | SERVER |
+ *    |        |  [     Something went wrong, the updates were not considered by the server. Do nothing                                                                                        ]  |        |
+ *    |        |                                                                                                                                                                                  |        |
+ *    |        |                                                                                                                                                                                  |        |
+ *    |        |  [ ---- sendDataToUpdate(data: UpdateDataWithLogs) -------------------------------------------------------------------------------------------------------------------------->]  |        |
+ *    |        |  [   POST request at '{backUrl}/visioServer/data/?action=update' containing data                                                                                              ]  |        |
+ *    |        |  [                                                                                                                                                                            ]  |        |
+ *    |        |  [ <------------------------------------------------------------------------------------------------------------------------------------------------------------- response ---]  |        |
+ *    |        |  [ IF HttpError                                                                                                                                                               ]  |        |
+ *    |        |  [     (This behaviour is handled by src/app/http-interceptors/error-interceptor.ts)                                                                                          ]  |        |
+ *    |        |  [     An error occured, the server didn't receive the data.                                                                                                                  ]  |        |
+ *    |        |  [     The UpdateData object is added to the queued updates by the LocalStorageService                                                                                        ]  |        |
+ *    |        |  [ IN ANY CASE                                                                                                                                                                ]  |        |
+ *    |        |  [     Calls local update in DEH with data                                                                                                                                    ]  |        |
+ *    |        |                                                                                                                                                                                  |        |
+ *    |        |                                                                                                                                                                                  |        |
+ *    |        |  [ ---- requestUpdateData() ------------------------------------------------------------------------------------------------------------------------------------------------->]  |        |
+ *    |        |  [   GET request at '{backUrl}/visioServer/data/?action=update&nature=request&timestamp={lastUpdateTimestamp}'                                                                ]  |        |
+ *    |        |  [                                                                                                                                                                            ]  |        |
+ *    |        |  [ <------------------------------------------------------------------------------------------------------------------------------------------------------------- response ---]  |        |
+ *    |        |  [   {message: '...'} OR {warning: '...'}                                                                                                                                     ]  |        |
+ *    |        |  [     Something went wrong. Do nothing                                                                                                                                       ]  |        |
+ *    |        |  [ OR                                                                                                                                                                         ]  |        |
+ *    |        |  [   UpdateData object                                                                                                                                                        ]  |        |
+ *    |        |  [     - Calls local update in DEH with data                                                                                                                                  ]  |        |
+ *    |        |  [     - Calls next on update Observable                                                                                                                                      ]  |        |
+ *    |        |  [     - Sends GET request as Acknowledgment at {backUrl}/visioServer/data/?action=update&nature=acknowledge'                                                                 ]  |        |
+ *    |        |  [ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------->]  |        |
+ *    |        |  [ <------------------------------------------------------------------------------------------------------------------------------------------------------------- response ---]  |        |
+ *    |        |  [     Calls udpate  LastUpdateTimestamp in LocalStorageService                                                                                                               ]  |        |
+ *    [--------]                                                                                                                                                                                  [--------]
+ * 
+ */
+
 @Injectable()
 export class DataService {
-
-  constructor(private http : HttpClient, private localStorage : LocalStorageService) {
-    console.log('[DataService]: On.');
-  }
   
-  response = new BehaviorSubject<Object|null>(null);
-  update: Subject<null> = new Subject;
-  load: Subject<null> = new Subject;
+                    /**************/
+                    /*  Variables */
+                    /**************/
+
+  response = new BehaviorSubject<Object|null>(null); //Used to notify the AuthSercvice and FilterService once the data has been fetched
+  update: Subject<null> = new Subject;  //Used once an UpdateData object has been handled by the back (for sending or receiving)
+  load: Subject<null> = new Subject;  //Used to notify the LoginPageComponent once the full data has been received
 
   private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
   $serverLoading: AsyncSubject<boolean> = new AsyncSubject();
 
+  private dataToUpdate: UpdateDataWithLogs = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
+  private queuedDataToUpdate: UpdateDataWithLogs = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
+  
+  constructor(private http : HttpClient, private localStorage : LocalStorageService) {
+    console.log('[DataService]: On.');
+  }
 
-  public requestData(){ //used at login, and with refresh button to ask immediatly data from the back
+
+                    /********************/
+                    /*  Request methods */
+                    /********************/
+
+  public forceRequestData: boolean = false;
+  /** Called to get the last version of the full data, on login, offline connection, or application refresh **/
+  public requestData(force: boolean = false){
+    this.forceRequestData = force;
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         params : {"action" : "dashboard"},
@@ -46,12 +128,12 @@ export class DataService {
     ) 
       .pipe(
         map((data: any) => {
-          // data.params['isAdOpen'] = false
           return data;
         })
       )
       .subscribe((data: any) => {
-        if(data.warning ||data.error) {
+        this.forceRequestData = false;
+        if(data.warning || data.error) {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
           this.$serverLoading.next(true);
           this.$serverLoading.complete();
@@ -67,10 +149,20 @@ export class DataService {
         }});
   }
 
-  public requestUpdateData() { //
+  /** Must be called immediatly after each data modification performed by the user **/
+  private sendDataToUpdate(data: UpdateDataWithLogs) {
+    this.http.post(environment.backUrl + 'visioServer/data/', data
+    , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
+    DEH.updateData(data as UpdateData);
+    this.update.next();
+    console.log("Sending data for update : ", data)
+  }
+
+  /** Called to request the updates performed by other sessions **/
+  public requestUpdateData() {
     this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "request", "timestamp": this.localStorage.getLastUpdateTimestamp() || DEH.get('timestamp')}})
     .subscribe((response : any) => {
-      if( response ) { //this is always false response !== {}
+      if( response ) {
         if(response.message) {
           console.debug("Empty update")
         } else if(response.warning) {
@@ -78,7 +170,7 @@ export class DataService {
         }
         else if(DEH.currentYear) {
           console.log("Updates received from back : ", response)
-          DEH.updateData(response);
+          DEH.updateData(response as UpdateData);
           this.update.next()
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
           )
@@ -89,57 +181,36 @@ export class DataService {
     });
   }
 
-  private dataToUpdate:UpdateData = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
-  private queuedDataToUpdate: UpdateData = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
-
-  public updatePdv(pdv: any[], id: number) {
-    this.dataToUpdate.pdvs[id] = pdv;
-    this.sendDataToUpdate(this.dataToUpdate);
-    this.dataToUpdate = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
-  }
-
-  updateTargetLevel(targetLevel: number[], targetLevelName: UpdateFields, id: number) {
-    this.dataToUpdate[targetLevelName][id] = targetLevel;
-    this.sendDataToUpdate(this.dataToUpdate);
-    this.dataToUpdate = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
-  }
-
-  // public updateData(data: UpdateData) { //then sends immediate changes to the back, and the logs, sends the queuedData to the back 
-  //   this.sendDataToUpdate(data)
-  // }
-
-  private sendDataToUpdate(data: UpdateData) { //used to send immediatly data to the back
-    this.http.post(environment.backUrl + 'visioServer/data/', data
-    , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
-    DEH.updateData(data);
-    this.update.next();
-    console.log("Sending data for update : ", data)
-  }
-  
-  public BEFOREsendQueuedDataToUpdate() { //used jsut before getting data from the server, to send stored queued updates
-    this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
-    if(this.queuedDataToUpdate) {
-      this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
-      , {params : {"action" : "update"}}).subscribe((response: any) => {
-            if(response && !response.error) {
-              this.localStorage.removeQueueUpdate();
-              this.queuedDataToUpdate = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
-            }
-          })
-    }
-  }
-
-  public sendQueuedDataToUpdate() { //used to send data every 10 seconds to the back
+  /** Called regularly to send locally stored updates **/
+  public sendQueuedDataToUpdate() {
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
     if(this.queuedDataToUpdate) {
       this.http.post(environment.backUrl + 'visioServer/data/', this.queuedDataToUpdate
       , {params : {"action" : "update"}}).subscribe((response: any) => {
           if(response.message != false)
             this.localStorage.removeQueueUpdate(); 
-            this.queuedDataToUpdate = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
+            this.emptyData(this.queuedDataToUpdate);
         })
     }
   }
+
+                    /******************/
+                    /*  Local methods */
+                    /******************/
+
+  public updatePdv(pdv: any[], id: number) {
+    this.dataToUpdate.pdvs[id] = pdv;
+    this.sendDataToUpdate(this.dataToUpdate);
+    this.emptyData(this.dataToUpdate);
+  }
+
+  public updateTargetLevel(targetLevel: number[], targetLevelName: UpdateFields, id: number) {
+    this.dataToUpdate[targetLevelName][id] = targetLevel;
+    this.sendDataToUpdate(this.dataToUpdate);
+    this.emptyData(this.dataToUpdate);
+  }
+
+  /** Logs are never sent synchronously **/
   public queueSnapshot(snapshot: Snapshot) {
     this.queuedDataToUpdate = this.localStorage.getQueueUpdate() || {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
     let snapshotAsList: any[] = []
@@ -148,6 +219,19 @@ export class DataService {
     (this.queuedDataToUpdate.logs as any[][]).push(snapshotAsList)
     this.localStorage.saveQueueUpdate(this.queuedDataToUpdate);
   }
+
+  queueUpdate(dict: UpdateData) {
+    this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
+    if(!this.queuedDataToUpdate) this.emptyData(this.queuedDataToUpdate);
+    for(let [field, updates] of Object.entries(dict)) {
+      for(let [id, update] of Object.entries(updates)) {
+        this.queuedDataToUpdate[field as UpdateFields][+id] = update;
+      }
+    }
+    this.localStorage.saveQueueUpdate(this.queuedDataToUpdate)
+  }
+
+  /** Starts cyclic POST and GET update requests **/
   public beginUpdateThread() {
     if(!this.threadIsOn) {
       console.log("[Data Service] Begin update threads")
@@ -165,22 +249,20 @@ export class DataService {
     this.logSubscriber?.unsubscribe();
   }
 
-  setLastUpdateDate(timestamp: string) {
+  private setLastUpdateDate(timestamp: string) {
     this.localStorage.saveLastUpdateTimestamp(+timestamp)
   }
+
   getLastUpdateDate() {
     let lastUpdateTimestamp: number = this.localStorage.getLastUpdateTimestamp()*1000 || 0
     return new Date(lastUpdateTimestamp);
   }
 
-  queueUpdate(dict: UpdateData) {
-    this.queuedDataToUpdate = this.localStorage.getQueueUpdate();
-    if(!this.queuedDataToUpdate) this.queuedDataToUpdate = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
-    for(let [field, updates] of Object.entries(dict)) {
-      for(let [id, update] of Object.entries(updates)) {
-        this.queuedDataToUpdate[field as UpdateFields][+id] = update;
-      }
-    }
-    this.localStorage.saveQueueUpdate(this.queuedDataToUpdate)
-  }  
+  private emptyData(data: UpdateDataWithLogs) {
+    data.pdvs = {}
+    data.targetLevelAgentP2CD = {}
+    data.targetLevelAgentFinitions = {}
+    data.targetLevelDrv = {}
+    data.logs = []
+  }
 }
