@@ -68,7 +68,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   }
   
   updateData(): {} {
-    this.chart?.tooltip?.hide();
+    this.chart && this.chart.tooltip && this.chart.tooltip.hide();
     let data = this.sliceDice.getWidgetData(...this.getDataArguments());
 
     if ( this.dynamicDescription ) {
