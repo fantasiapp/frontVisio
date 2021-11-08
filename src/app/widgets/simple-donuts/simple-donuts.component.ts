@@ -68,7 +68,7 @@ export class SimpleDonutComponent extends BasicWidget {
         inset: {
           anchor: 'bottom-left',
           y: 20 + (data.length - 0.5) * BasicWidget.legendItemHeight,
-          x: 20
+          x: 10
         }
       },
       transition: {
