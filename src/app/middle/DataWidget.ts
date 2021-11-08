@@ -79,7 +79,7 @@ export class DataWidget{
       return sumCols
     }
     
-    completeWithCurveForHistoCurve(nbPdvs:number){
+    completeWithCurve(nbPdvs:number){
       let nbPdvsCompletedInPercent = 0;
       for (let j = 0; j < this.columnsTitles.length; j++){
         nbPdvsCompletedInPercent += (this.data[0][j] / nbPdvs) * 100;

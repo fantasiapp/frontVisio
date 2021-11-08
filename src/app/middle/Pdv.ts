@@ -1,13 +1,11 @@
 import DEH, {GeoExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
 import {SliceTable} from './SliceTable';
-import {DataWidget} from './DataWidget';
 import {Sale} from './Sale';
 import {Tree, Node} from './Node';
 
 
 const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'],
-    visitAxis = ['segmentDnEnduitTargetVisits'];
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'];
 
 class SimplePdv { // Theses attributes are directly those received from the back
     private static indexMapping: Map<string, number>;
@@ -277,61 +275,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
       return pdvs.filter(pdv => pdv.available && pdv.sale);
     }
   
-    static fillUpTable(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
-        pdvs: PDV[], addConditions:[string, number[]][]): void{
-      let newPdvs = PDV.reSlice(pdvs, addConditions);
-      if (axis1 == 'histo&curve'){
-        PDV.fillFirstLineOfHistoCurve(dataWidget, pdvs);
-        dataWidget.completeWithCurveForHistoCurve(newPdvs.length);
-      }
-      else {
-        let irregular: string = 'no';
-        if (nonRegularAxis.includes(axis1)) irregular = 'line';
-        else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-        let visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
-        for (let pdv of newPdvs){
-          if (pdv.available && pdv.sale){// condition à mettre dans le reslice peut-être
-            if (irregular == 'no') 
-              dataWidget.addOnCase(
-                pdv[axis1 as keyof PDV], pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number);
-            else if (irregular == 'line') 
-              dataWidget.addOnColumn(
-                pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number[]);
-            else if (irregular == 'col') 
-              dataWidget.addOnRow(
-                pdv[axis1 as keyof PDV], pdv.getValue(indicator, axis2, visit) as number[]);
-          }
-        }
-      }
-    }
-  
-    private static ComputeAxisName(node:Node, axis:string){
-      if (axis == 'lgp-1') return this.geoTree.attributes['natures'][1];
-      if (['lg-1', 'lt-1'].includes(axis)){
-        let childNature = node.children[0] instanceof PDV ? 'site': (node.children[0] as Node).nature;
-        return childNature;
-      }
-      return axis
-    }
-  
-    private static computeAxis(node:Node, axis:string){
-      axis = this.ComputeAxisName(node, axis);
-      let dataAxis = DEH.get(axis, true), titles = Object.values(dataAxis),
-        idToX:any = {};
-      Object.keys(dataAxis).forEach((id, index) => idToX[parseInt(id)] = index);
-      return [axis, titles, idToX];
-    }
-  
-    static getData(node: Node, axis1: string, axis2: string, indicator: string,
-        addConditions:[string, number[]][]): DataWidget{
-      let [newAxis1, rowsTitles, idToI] = this.computeAxis(node, axis1),
-          [newAxis2, columnsTitles, idToJ] = this.computeAxis(node, axis2);
-      let pdvs = PDV.slice(node);
-      let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
-      this.fillUpTable(dataWidget, newAxis1, newAxis2, indicator, pdvs, addConditions);
-      return dataWidget;
-    }
-  
     static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
       if (conditions.length == 0) return pdvs;
       let newPdvs: PDV[] = [];
@@ -459,7 +402,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
       return firstSaleDateInSeconds;
     }
   
-    private computeWeeksRepartitionAD(){    
+    computeWeeksRepartitionAD(){    
       let axe : string[]= Object.values(DEH.get('weeks')),
         dnAd = new Array(axe.length).fill(0);
       if (!this.adCompleted()) return dnAd;
@@ -485,11 +428,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
       }
       if (!find) dnAd[associatedIndex['avant']] = 1;
       return dnAd
-    }
-  
-    private static fillFirstLineOfHistoCurve(widget: DataWidget, pdvs:PDV[]){
-      for (let pdv of pdvs)
-        widget.addOnRow(1, pdv.computeWeeksRepartitionAD())// Le 1 est harcodé car c'est l'id de "Nombre de PdV complétés", il faudra changer ça
     }
   
     hasNonSiniatSale(){
