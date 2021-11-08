@@ -355,13 +355,13 @@ class SimplePdv { // Theses attributes are directly those received from the back
     }
   
     static childrenOfNode(node: Node | PDV):PDV[]{
-      if ( node instanceof PDV ) return [node];
+      if (node instanceof PDV) return [node];
       return node.children.map(
         (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
     }
   
     static getLeaves(tree: Tree, node: Node | PDV, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
-      if ( node instanceof PDV ) return [node];
+      if (node instanceof PDV) return [node];
       let structure = tree.attributes['labels'];
       dictChildren[structure[height]].push([node.id, node.name]);
       return node.children.map(
