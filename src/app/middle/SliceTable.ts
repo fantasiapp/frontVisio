@@ -5,7 +5,19 @@ import { SliceDice } from "./Slice&Dice";
 import { PDV } from "./Pdv";
 import {Node} from './Node';
 
-type GroupRow = { //Built to behave like a PDV type for the agGrid
+/**
+ * The tableComponent is the only Widget using the AgGrid library
+ * TableSlice implements the specific function this library needs, and relies as much as possible on existing methods in SliceDice
+ */
+
+
+                      /**************/
+                      /*  Strucures */
+                      /**************/   // Used to type the variables, and make use of TypeScript
+
+
+/** Built to behave like a PDV type for the AgGrid **/
+type GroupRow = {
     name: {
         name: string;
         number: number;
@@ -16,6 +28,7 @@ type GroupRow = { //Built to behave like a PDV type for the agGrid
     groupRow: boolean;
 }
 
+/** Used by AgGrid to define a column **/
 interface ColumnConfig {
     field: string;
     hide: boolean;
@@ -25,6 +38,7 @@ interface ColumnConfig {
     cellStyle?: (params: any) => any;
 }
 
+/** Structure passed to TableComponent to initiate its variables **/
 export type TableData = {
     columnDefs: {[k: string]: any}[];
     navOpts: {id: any, name: any}[];
@@ -32,11 +46,13 @@ export type TableData = {
     colInfos: {field: string, values: string[]};
 }
 
+/** All hard-coded variables are built for theses 2 possible table types **/
 export enum TableTypes {
     p2cd = 'p2cd',
     enduit = 'enduit'
   }
 
+/** Properties I chose to define a TableComponent (using AgGrid) **/
 enum TableProperties {
     computeTitle = 'computeTitle',
     navIds = 'navIds',
@@ -47,19 +63,18 @@ enum TableProperties {
     groupRowConfig = 'groupRowConfig'
 }
 
-
-/**
- * The tableComponent is the only Widget using the AgGrid library
- * TableSlice implements the specific function this library needs, and relies as much as possible on existing methods in SliceDice
- */
-
 @Injectable({
     providedIn: 'root'
   })
 @Injectable()
 export class SliceTable {
-    private sortedPdvsList: PDV[] = [];
-    private pdvsWithGroupslist: PDV[] = [];
+
+                      /**************/
+                      /*  Variables */
+                      /**************/
+
+    private sortedPdvsList: PDV[] = []; //List of all pdvs during the building of a Table
+    private pdvsWithGroupslist: PDV[] = []; //Sorted list of all pdvs + GroupRow instances to provide the agGrid component
     groupInfos: {field: string, values: string[]} = {field : '', values: []};
 
     static currentGroupField: string = "enseigne";
@@ -147,21 +162,25 @@ export class SliceTable {
         }
     }
 
+                      /********************************************/
+                      /*  Private methods used for data computing */
+                      /********************************************/
+
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){}
 
-    getPdvs(node:Node, type: TableTypes): PDV[] { // Transforms pdv from lists to objects, and counts title informations
+    private getPdvs(node:Node, type: TableTypes): PDV[] { // Transforms pdv from lists to objects, and counts title informations
         this.sortedPdvsList = PDV.slice(node);
         this.sortedPdvsList.sort(this.tableConfig[type]['customSort'])
         this.pdvsWithGroupslist = this.buildGroups(type);
         return this.pdvsWithGroupslist;
     }
 
-    getAllHiddenColumns(type: TableTypes) {
+    private getAllHiddenColumns(type: TableTypes) {
         let visibleFields = this.tableConfig[type]['visibleColumns'].map((val: {'field': string}) => val.field);
         return DEH.get('structurePdvs').filter((field: string) => !visibleFields.includes(field));;
     }
 
-    getColumnDefs(type: TableTypes): ColumnConfig[]{
+    private getColumnDefs(type: TableTypes): ColumnConfig[]{
         let columnDefs: ColumnConfig[] = [];
 
         for(let field of this.getAllHiddenColumns(type)) { //first all hidden fields
@@ -182,7 +201,11 @@ export class SliceTable {
         return columnDefs;
     }
 
-    getNavIds(type: TableTypes): string[] {
+                      /**************************************/
+                      /*  Public methods for TableComponent */
+                      /**************************************/
+
+    public getNavIds(type: TableTypes): string[] {
         return this.tableConfig[type]['navIds']();
     }
 
@@ -249,6 +272,10 @@ export class SliceTable {
         }
         return hardCodedColors[axis][enseigne];
     }
+
+                      /**************************/
+                      /*  Methods updating Data */
+                      /**************************/
 
     /*** From the table component, only way to modify the data ***/
     changeTargetTargetFinitions(pdv: PDV) {
