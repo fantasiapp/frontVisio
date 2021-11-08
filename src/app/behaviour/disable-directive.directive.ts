@@ -5,12 +5,12 @@ import { Directive, AfterViewInit, ElementRef } from '@angular/core';
 })
 export abstract class DisableDirective implements AfterViewInit {
 
-  constructor(private el: ElementRef) { }
+  constructor(protected el: ElementRef) { }
 
   abstract computeDisabled(): boolean;
 
   ngAfterViewInit(): void {
     if( this.computeDisabled() )
-      this.el.nativeElement.disabled = true; 
+      this.el.nativeElement.disabled = true;
   }
 }

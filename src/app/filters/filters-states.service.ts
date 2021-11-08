@@ -154,7 +154,7 @@ export class FiltersStatesService implements OnDestroy {
     DEH.currentYear = current;
     let change = this.logger.handleEvent(LoggerService.events.DATA_YEAR_CHANGED, current);
     this.logger.actionComplete();
-    console.log(change);
+    console.log(current);
     if ( change ) {
       PDV.load(true);
       this.setTree(this.tree?.hasTypeOf(PDV.geoTree) ? PDV.geoTree : PDV.tradeTree, true);

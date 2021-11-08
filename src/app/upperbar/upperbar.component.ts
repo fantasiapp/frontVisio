@@ -1,9 +1,9 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, OnInit } from '@angular/core';
 import { PDV } from '../middle/Slice&Dice';
 import { MapComponent } from '../map/map.component';
 import { DataService } from '../services/data.service';
-import { Params } from '../middle/DataExtractionHelper';
+import DEH, { Params } from '../middle/DataExtractionHelper';
 import { SubscriptionManager } from '../interfaces/Common';
 import { SearchbarComponent } from '../logged-page/searchbar/searchbar.component';
 
@@ -13,7 +13,7 @@ import { SearchbarComponent } from '../logged-page/searchbar/searchbar.component
   templateUrl: './upperbar.component.html',
   styleUrls: ['./upperbar.component.css'],
 })
-export class UpperbarComponent extends SubscriptionManager {
+export class UpperbarComponent extends SubscriptionManager implements OnInit {
   sldValue: number = 1;
   isFilterVisible = false;
   searchModel: string = '';
@@ -27,6 +27,7 @@ export class UpperbarComponent extends SubscriptionManager {
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
 
+  private change = DEH.currentYear;
   constructor(private filtersState: FiltersStatesService, private dataService: DataService) {
     super();
   }
@@ -38,7 +39,7 @@ export class UpperbarComponent extends SubscriptionManager {
 
     this.subscribe(this.filtersState.filtersVisible, (val) => {
       this.isFilterVisible = val;
-    });
+    })
   }
 
   showFilters() {
@@ -83,7 +84,8 @@ export class UpperbarComponent extends SubscriptionManager {
   }
 
   updateData() {
-    this.dataService.requestData();
+    if(DEH.currentYear)
+      this.dataService.requestData(true);
   }
 
   @Output()

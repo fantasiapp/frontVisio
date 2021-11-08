@@ -117,8 +117,10 @@ export class DataService {
                     /*  Request methods */
                     /********************/
 
+  public forceRequestData: boolean = false;
   /** Called to get the last version of the full data, on login, offline connection, or application refresh **/
-  public requestData(){
+  public requestData(force: boolean = false){
+    this.forceRequestData = force;
     (
       this.http.get(environment.backUrl + 'visioServer/data/', {
         params : {"action" : "dashboard"},
@@ -130,6 +132,7 @@ export class DataService {
         })
       )
       .subscribe((data: any) => {
+        this.forceRequestData = false;
         if(data.warning || data.error) {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
           this.$serverLoading.next(true);
@@ -165,7 +168,7 @@ export class DataService {
         } else if(response.warning) {
           console.debug("Server temporarly unavailable")
         }
-        else {
+        else if (DEH.currentYear){
           console.log("Updates received from back : ", response)
           DEH.updateData(response as UpdateData);
           this.update.next()
