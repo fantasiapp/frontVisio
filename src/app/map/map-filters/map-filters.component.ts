@@ -30,7 +30,7 @@ export class MapFiltersComponent {
   selects!: QueryList<MapSelectComponent>;
 
   constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private logger: LoggerService) {
-    console.log('[MapFiltersComponent]: On.');
+    //console.log('[MapFiltersComponent]: On.');
   }
 
   ngAfterViewInit() { this.update(); }

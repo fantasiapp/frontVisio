@@ -71,7 +71,7 @@ export class GridManager implements Interactive {
   get paused() { return this._paused; }
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-    console.debug('[GridManager]: On.')
+    //console.debug('[GridManager]: On.')
   }
   
   ngAfterViewInit() {
@@ -83,12 +83,14 @@ export class GridManager implements Interactive {
     if ( layoutChanges && !layoutChanges.isFirstChange() ) {
       this.createComponents();
       this.layoutChanged.emit(this.layout);
-    }    
+      return;
+    }
+
     let nodeChanges = changes['node'];
-    if ( !nodeChanges || layoutChanges ) return;
-    let oldPath = nodeChanges.currentValue.path.map((node: Node) => node.id),
-      newPath = nodeChanges.previousValue.path.map((node: Node) => node.id);
-    if ( !BasicWidget.shallowArrayEquality(oldPath, newPath) )
+    if ( !nodeChanges ) return;
+    let current = nodeChanges.currentValue as Node,
+      previous = nodeChanges.previousValue as Node;
+    if ( previous && !(current.height == previous.height && current.id == previous.id) )
       this.onPathChanged();
   }
 
@@ -129,13 +131,12 @@ export class GridManager implements Interactive {
   }
 
   interactiveMode() {
-    console.log('interactive', this._paused);
     if ( !this._paused ) return;
     this._paused = false;
     this.onPathChanged();
   }
 
-  pause() { console.log('paused'); this._paused = true; }
+  pause() { this._paused = true; }
 
   clear() {
     while ( this.ref.length )

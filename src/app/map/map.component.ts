@@ -64,7 +64,7 @@ export class MapComponent extends SubscriptionManager {
   
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     super();
-    console.log('[MapComponent]: On');
+    //console.log('[MapComponent]: On');
     MapIconBuilder.initialize();
     this.initializeInfowindow();
     

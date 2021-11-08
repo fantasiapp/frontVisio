@@ -24,18 +24,18 @@ export class ErrorInterceptor implements HttpInterceptor{
                   let errorMsg = '';
                   this.auth.errorCode = error.status;
                   if (error.error instanceof ErrorEvent) {
-                    console.log('Client-side error');
+                    //console.log('Client-side error');
                     errorMsg = `Error: ${error.error.message}`;
                   }
                   else {
-                    console.log('Server-side error');
+                    //console.log('Server-side error');
                     errorMsg = `Error Code: ${error.status},  Message: ${error.message}`;
                   }
-                  console.debug(errorMsg);
+                  //console.debug(errorMsg);
                   if(req.method === "POST" && req.urlWithParams.includes("action=update")) //not so clean
                       this.dataService.queueUpdate(req.body);
                   if(error.status === 401) {
-                    console.log("Unauthorized token")
+                    //console.log("Unauthorized token")
                     this.auth.logoutFromServer()
                   }
                   return throwError(errorMsg);

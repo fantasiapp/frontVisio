@@ -16,15 +16,20 @@ import { SubscriptionManager } from '../interfaces/Common';
 export class FiltersStatesService extends SubscriptionManager {
   currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
+  started: boolean = false;
 
   constructor(public navigation: Navigation, private dataservice : DataService, private sliceDice: SliceDice, private logger: LoggerService) {
     super();
-    console.log('[FiltersStates]: On.');
+    //console.log('[FiltersStates]: On.');
     this.subscribe(this.dataservice.response, (data) => {
       if (data) {
         DEH.setData(data);
         PDV.load(true);
-        this.setTree(PDV.geoTree, true);
+        if ( this.started )
+          this.setTree(this.tree!.hasTypeOf(PDV.geoTree) ? PDV.geoTree : PDV.tradeTree, true);
+        else
+          this.setTree(PDV.geoTree, true);
+        this.started = true;
       }
     });
 
@@ -100,17 +105,13 @@ export class FiltersStatesService extends SubscriptionManager {
 
   get tree() { return this.navigation.tree; }
 
-  public setTree(t: Tree, follow: boolean = true) {
-    this.sliceDice.geoTree = t.hasTypeOf(PDV.geoTree);
+  public setTree(tree: Tree, follow: boolean = true) {
     if ( follow )
-      this.navigation.followTree(t);
+      this.navigation.followTree(tree);
     else
-      this.navigation.setTree(t);
+      this.navigation.setTree(tree);
     
-    this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, t);
-    this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
-    this.logger.actionComplete();
-    this.emitEvents();
+    this.refresh();
   }
 
   refresh() {
