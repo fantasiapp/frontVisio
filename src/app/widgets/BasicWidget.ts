@@ -86,7 +86,6 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   }
   
   update() { this.updateGraph(this.updateData()); }
-  refresh() { this.update(); }
   
   ngOnDestroy() {
     super.ngOnDestroy();

@@ -111,10 +111,10 @@ export class FiltersStatesService extends SubscriptionManager {
     else
       this.navigation.setTree(tree);
     
-    this.refresh();
+    this.update();
   }
 
-  refresh() {
+  update() {
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.tree);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();

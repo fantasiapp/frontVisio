@@ -13,7 +13,7 @@ const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget'
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'],
   visitAxis = ['segmentDnEnduitTargetVisits'];
   
-@Injectable({providedIn: 'root'})
+@Injectable()
 export class SliceDice{
   geoTree: boolean = true; // on peut le supprimer maintenant je pense
   currentSlice: PDV[] = [];
