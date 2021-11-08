@@ -4,7 +4,7 @@ import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
 import { Navigation } from 'src/app/middle/Navigation';
-import { PDV } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
 import {  Result, SearchService, Suggestion } from 'src/app/services/search.service';
 import { PatternPipe } from './pattern.pipe';
 import { SuggestionBox } from './suggestionbox/suggestionbox.component';
@@ -59,7 +59,7 @@ export class SearchbarComponent extends SubscriptionManager {
     return SearchService.measureText(PatternPipe.transform(this.pattern), '14px Roboto')
   }
 
-  constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService, private cd: ChangeDetectorRef) {
+  constructor(private ref: ElementRef, private engine: SearchService, private navigation: Navigation, private filtersState: FiltersStatesService) {
     super();
     this.subscribe(this.term.pipe(debounceTime(this.debounceDuration)), term => {
       let results = this.engine.search(this.lastTerm = term);
@@ -74,14 +74,12 @@ export class SearchbarComponent extends SubscriptionManager {
     if ( this.frozen ) return;
     this.pattern = pattern;
     this.frozen = true;
-    this.cd.detectChanges();
   }
 
   cancelPatternFreeze() {
     if ( !this.frozen ) return;
     this.frozen = false;
     this.pattern = '';
-    this.cd.detectChanges();
   }
 
   onInput(e: Event) {

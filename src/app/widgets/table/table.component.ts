@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
 import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
@@ -122,7 +123,7 @@ export class TableComponent extends BasicWidget {
   createData(): TableData {
     this.type = this.properties.arguments[2];
     SliceTable.currentGroupField = this.currentOpt;
-    return this.sliceTable.getData(this.path, this.type);
+    return this.sliceTable.getData(this.node, this.type);
   }
 
                       /******************/

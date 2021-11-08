@@ -1,6 +1,6 @@
 import Dashboard from "./Dashboard";
-import DEH, { DataTree, TreeExtractionHelper, GeoExtractionHelper, TradeExtrationHelper } from "./DataExtractionHelper";
-import { PDV } from "./Slice&Dice";
+import DEH, { DataTree, TreeExtractionHelper } from "./DataExtractionHelper";
+import { PDV } from "./Pdv";
 
 export interface Node {
   id: number;
@@ -53,11 +53,11 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
     isLeaf(): boolean { return this.children.length == 0;}
   
     goChild(id: number): TreeNode {
-      //dont navigation to PDV
+      //dont navigate to PDV
       if ( this.height == extractor.height )
         return this;
       
-      return (this.children as Node[]).find((child: Node) => child.id == id) || this;
+      return (this.children as TreeNode[]).find((child: Node) => child.id == id) || this;
     }
   
     goBack(): TreeNode  {
@@ -124,6 +124,13 @@ export class Tree {
   //including pdvs
   get height() {
     return this.attributes['labels'].length;
+  }
+
+  follow(path: number[]) {
+    let node = this.root;
+    for ( let id of path.slice(1) )
+      node = node.goChild(id);
+    return node;
   }
 
   hasTypeOf(t: Tree | TreeExtractionHelper) {

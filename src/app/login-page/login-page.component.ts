@@ -125,7 +125,7 @@ export class LoginPageComponent implements OnInit {
 
   onLoading(username: string, password: string, stayConnected: boolean) {
     if(this.isAlreadyConnected()) return;
-    console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
+    //console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
     this.authService
       .loginToServer(username, password)

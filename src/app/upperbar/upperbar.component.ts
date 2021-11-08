@@ -1,6 +1,6 @@
 import { FiltersStatesService } from './../filters/filters-states.service';
 import { Component, EventEmitter, Output, ViewChild, OnInit } from '@angular/core';
-import { PDV } from '../middle/Slice&Dice';
+import { PDV } from '../middle/Pdv';
 import { MapComponent } from '../map/map.component';
 import { DataService } from '../services/data.service';
 import DEH, { Params } from '../middle/DataExtractionHelper';
@@ -33,7 +33,7 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
   }
 
   ngOnInit(): void {
-    this.subscribe(this.filtersState.stateSubject, ({States}) => {
+    this.subscribe(this.filtersState.state, () => {
       this.sldValue = this.filtersState.tree?.hasTypeOf(PDV.geoTree) ? 1 : 0;
     });
 

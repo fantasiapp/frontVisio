@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { LoggerService } from '../behaviour/logger.service';
-import { Interactive, SubscriptionManager } from '../interfaces/Common';
-import { PDV } from '../middle/Slice&Dice';
+import { SubscriptionManager } from '../interfaces/Common';
+import { PDV } from '../middle/Pdv';
 import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
 import { MapLegendComponent } from './map-legend/map-legend.component';
@@ -64,7 +64,7 @@ export class MapComponent extends SubscriptionManager {
   
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     super();
-    console.log('[MapComponent]: On');
+    //console.log('[MapComponent]: On');
     MapIconBuilder.initialize();
     this.initializeInfowindow();
     

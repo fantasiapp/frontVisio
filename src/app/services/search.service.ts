@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import Dashboard from '../middle/Dashboard';
 import DEH from '../middle/DataExtractionHelper';
 import { Node } from '../middle/Node';
-import { PDV } from '../middle/Slice&Dice';
+import { PDV } from '../middle/Pdv';
 
 type MatchFunction = (term: string) => string | null;
 type SearchFunction = (term: string, ...args: any[]) => Suggestion[];

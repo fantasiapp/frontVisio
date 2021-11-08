@@ -24,14 +24,14 @@ export class DescriptionWidgetComponent extends SubscriptionManager {
 
   constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private targetService: TargetService) {
     super();
-    this.subscribe(filtersService.stateSubject, ({States}) => {
+    this.subscribe(filtersService.state, ({node}) => {
       //do something with path
-      this.values = CD.computeDescriptionWidget(this.filtersService.getPath(States));
+      this.values = CD.computeDescriptionWidget(node);
       this.cd.markForCheck();
     });
 
     this.subscribe(dataservice.update, _ => {
-      this.values = CD.computeDescriptionWidget(this.filtersService.currentPath);
+      this.values = CD.computeDescriptionWidget(this.filtersService.getState().node);
       this.cd.markForCheck();
     });
   }

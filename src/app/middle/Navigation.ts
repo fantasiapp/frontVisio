@@ -1,8 +1,7 @@
-import DEH, {GeoExtractionHelper, Params} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
-import { PDV } from './Slice&Dice';
+import { PDV } from './Pdv';
 
 @Injectable()
 export class Navigation {
@@ -11,7 +10,7 @@ export class Navigation {
   currentDashboard?: Dashboard;
 
   constructor() {
-    console.log('[Navigation]: On.');
+    //console.log('[Navigation]: On.');
   }
 
   setTree(tree: Tree){    
@@ -57,6 +56,20 @@ export class Navigation {
       
       this.currentDashboard = dashboard || this.currentLevel?.dashboards[0];
     }
+  }
+
+  getNodeChildren(node: Node) {
+    return this.childIsPdv(node) ? [] : this.sort(node.children as Node[]);
+  }
+
+  sort(nodes: Node[]) {
+    return nodes.sort(
+      (a, b) => 1 - 2* +(a.name < b.name)
+    );
+  }
+
+  getState() {
+    return {node: this.currentLevel!, dashboard: this.currentDashboard!}
   }
 
   getArray(dataType: 'level' | 'dashboard'): any{
@@ -129,14 +142,8 @@ export class Navigation {
         template: currentDashboard.template,
         areas: currentDashboard.areas
       },
-      path: currentLevel.path.map(
-        (level) => {
-          return level.label + (level.name ? ' : ' + level.name : '')
-        }
-      ),
-      _path: currentLevel.path.map(
-        (level) => [level.label, level.id] 
-      )
+      path: currentLevel.path,
+      _path: currentLevel.path.map(level => [level.label, level.id])
     };
   }
 
@@ -191,9 +198,9 @@ export class Navigation {
     }
   }
 
-  navigateUp(quantity: number) {
+  navigateUp(height: number) {
     let level: Node | null = this.currentLevel!;
-    while ( level && quantity-- )
+    while ( level && height-- )
       level = level.parent;
     
     if ( !level ) level = this.tree!.root;
