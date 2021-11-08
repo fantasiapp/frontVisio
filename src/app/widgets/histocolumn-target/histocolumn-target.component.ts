@@ -54,8 +54,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       let data = this.updateData() as any;
       if ( this.needles )
         this.createNeedles(data);
-      
-//      this.cd.detectChanges();
+      this.cd.markForCheck();
     });
   }
 
@@ -142,7 +141,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   updateGraph(data: any) {
     //wait for animation
-    if ( this.inputIsOpen ) { this.toggleTargetControl(); /*this.cd.detectChanges();*/ }
     super.updateGraph(data); //queue first
     this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
@@ -150,6 +148,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
+        if ( this.inputIsOpen ) { this.cd.markForCheck(); }
       }, this.transitionDuration);
     });
   }
@@ -215,8 +214,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   toggleTargetControl() {
     this.inputIsOpen = !this.inputIsOpen;
     
-    let self = this;
-    let container = d3.select(this.content.nativeElement)
+    d3.select(this.content.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);
     
     //make target control just in case

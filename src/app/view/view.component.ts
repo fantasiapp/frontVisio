@@ -12,6 +12,7 @@ import { TargetService } from '../widgets/description-widget/description-service
 import { Node } from '../middle/Node'
 import { SliceDice } from '../middle/Slice&Dice';
 import { SliceTable } from '../middle/SliceTable';
+import { PDV } from '../middle/Pdv';
 
 @Component({
   selector: 'app-view',
@@ -27,7 +28,7 @@ export class ViewComponent extends SubscriptionManager  {
   public layout?: Layout;
   public node?: Node;
 
-  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService, private sliceDice: SliceDice) {
+  constructor(private filtersService: FiltersStatesService, private dataservice: DataService, private localStorageService: LocalStorageService, private sliceDice: SliceDice, private cd: ChangeDetectorRef) {
     super();
   }
 
@@ -48,6 +49,7 @@ export class ViewComponent extends SubscriptionManager  {
     this.subscribe(this.dataservice.update, () => {
       //just update
       this.sliceDice.updateCurrentSlice(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
+      this.cd.markForCheck();
     });
 
     this.filtersService.emitState();
