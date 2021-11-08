@@ -154,16 +154,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     });
   }
 
-  //override the update method, the make target move immediately
-  refresh() {
-    let data = this.data = this.updateData(), oldDuration = this.transitionDuration;
-    this.getNeedleGroup()?.remove();
-    this.transitionDuration = 0;
-    super.updateGraph(data); //immediate update
-    this.createNeedles(data); //maybe setTimeout
-    this.transitionDuration = oldDuration;
-  }
-
   private createNeedles(allData: any) {
     let data = allData.data;
     let target = this.barTargets = this.canSetTargets ? allData.target : allData.ciblage;

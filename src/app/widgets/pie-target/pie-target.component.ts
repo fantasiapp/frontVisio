@@ -40,18 +40,19 @@ export class PieTargetComponent extends SimplePieComponent {
         },
         order: null
       },
-      onresized: () => {
-        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 20 + this.chart!.data().length * BasicWidget.legendItemHeight);
-        this.chart!.flush();
-        requestAnimationFrame(_ => this.createNeedle({data: null, target: this.needleRotate - 90}))
-      },
-      onrendered(this: Chart) {
+      onresized(this: Chart) {
+        if ( !this ) return;
+        //apparently this is sometimes an instance of ChartInternal (maybe a bug in billboard), so we'll use self.chart
         self.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         self.chart!.config('legend_inset_y', 20 + self.chart!.data().length * BasicWidget.legendItemHeight);
-        self.createNeedle(data);
-        self.chart!.flush();
+        self.createNeedle({data: null, target: self.needleRotate - 90});
+      },
+      onrendered(this: Chart) {
+        if ( !this ) return;
         this.config('onrendered', null);
+        this.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        this.config('legend_inset_y', 20 + this.data().length * BasicWidget.legendItemHeight);
+        self.createNeedle(data);
       }
     });
   }

@@ -6,9 +6,11 @@ import { WidgetManagerService } from '../widget-manager.service';
 import { BehaviorSubject } from 'rxjs';
 import { Interactive } from 'src/app/interfaces/Common';
 import { Node } from '../../middle/Node';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
 
 type BasicWidgetParams = [string, string, string, string[], string[], boolean];
 export interface Layout {
+  id: number;
   grid: [number, number];
   description: string | any[];
   template: string;
@@ -30,7 +32,6 @@ export type GridState = {
 })
 export class GridManager implements Interactive {
   //default layout
-  private _layout: Layout = defaultLayout;
 
   //grid structure
   @HostBinding('style.grid-template-columns')
@@ -40,23 +41,28 @@ export class GridManager implements Interactive {
   @HostBinding('style.grid-template-areas')
   private gridAreaTemplate: string = '';
 
-
-  get layout(): Layout {
-    return this._layout;
-  }
-
   get loaded() {
     return this.state.getValue().loaded;
   }
 
-  @Input()
-  set layout(layout: Layout | null) {
-    this._layout = layout || defaultLayout;
-    this.computeLayout();
-  }
+  private _layout?: Layout;
+  get layout() { return this._layout; }
 
   @Input()
-  node?: Node;
+  set layout(layout: Layout | undefined) {
+    this._layout = layout;
+    this.computeLayout();
+    this.layoutChanged.emit(this.layout);
+    this.createComponents();
+  }
+
+  private _node?: Node;
+  get node() { return this._node }
+  @Input()
+  set node(node: Node | undefined) {
+    this._node = node;
+    this.onPathChanged();
+  }
 
   @Output()
   layoutChanged: EventEmitter<Layout> = new EventEmitter;
@@ -78,23 +84,8 @@ export class GridManager implements Interactive {
     this.createComponents();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    let layoutChanges = changes['layout'];
-    if ( layoutChanges && !layoutChanges.isFirstChange() ) {
-      this.createComponents();
-      this.layoutChanged.emit(this.layout);
-      return;
-    }
-
-    let nodeChanges = changes['node'];
-    if ( !nodeChanges ) return;
-    let current = nodeChanges.currentValue as Node,
-      previous = nodeChanges.previousValue as Node;
-    if ( previous && !(current.height == previous.height && current.id == previous.id) )
-      this.onPathChanged();
-  }
-
   private createComponents() {
+    if ( !this.ref || !this.layout ) return;
     this.clear();
     for ( let name of Object.keys(this.layout.areas) ) {
       let desc = this.layout.areas[name];
@@ -122,7 +113,7 @@ export class GridManager implements Interactive {
     });
   }
 
-  protected onPathChanged() {
+  onPathChanged() {
     if ( this._paused ) return;
     for ( let component of this.instances ) {
       component.onPathChanged(this.node);
@@ -151,13 +142,6 @@ export class GridManager implements Interactive {
       component.update();
   }
 
-  refresh() {
-    for ( let component of this.instances ) {
-      component.node = this.node;
-      component.refresh();
-    }
-  }
-
   /* = delete */
   reload() {
     this.clear();
@@ -170,21 +154,9 @@ export class GridManager implements Interactive {
   }
 
   private computeLayout() {
+    if ( !this.layout ) return;
     this.gridColumns = 'repeat(' + this.layout.grid[1] + ', minmax(0, 1fr))';
     this.gridRows = 'repeat(' + this.layout.grid[0] + ', minmax(0, 1fr))';
     this.gridAreaTemplate = this.layout.template;
   }
 }
-
-
-/******** DEFAULTS *********/
-
-const defaultLayout: Layout = {
-  grid: [1, 1],
-  description: 'default dashboard',
-  template: `x`,
-  areas: {'x': ['<title>', '<description>', 'm','default', [
-    "segmentMarketing", "segmentCommercial", "dn",
-    [], ["@other"], true
-  ]]}
-};

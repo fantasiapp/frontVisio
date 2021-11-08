@@ -13,11 +13,13 @@ const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget'
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
   visitAxis = ['segmentDnEnduitTargetVisits'];
   
-@Injectable({providedIn: 'root'})
+@Injectable()
 export class SliceDice{
   geoTree: boolean = true; // on peut le supprimer maintenant je pense
   currentSlice: PDV[] = [];
-  constructor(private dataService: DataService){}
+  constructor(private dataService: DataService){
+    //console.log('[SliceDice]: on');
+  }
 
   getWidgetData(node:Node, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){

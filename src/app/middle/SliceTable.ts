@@ -23,9 +23,7 @@ export type TableData = {
     colInfos: {field: string, values: string[]};
 }
 
-@Injectable({
-    providedIn: 'root'
-  })
+@Injectable()
 export class SliceTable {
     private sortedPdvsList: PDV[] = [];
     private pdvsWithGroupslist: PDV[] = [];
