@@ -103,7 +103,7 @@ export class LoggerService {
   }
 
   autofillFields() {
-    let path = this.navigation.currentLevel!.path.map(node => node.id);
+    let path = this.navigation.currentLevel?.path.map(node => node.id) || [];
     this.snapshot.path = path?.slice(1);
   }
 
