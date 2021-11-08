@@ -16,9 +16,8 @@ const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget'
 @Injectable({providedIn: 'root'})
 export class SliceDice{
   geoTree: boolean = true; // on peut le supprimer maintenant je pense
-  constructor(private dataService: DataService){
-    //console.log('[SliceDice]: on');
-  }
+  currentSlice: PDV[] = [];
+  constructor(private dataService: DataService){}
 
   getWidgetData(node:Node, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
@@ -82,6 +81,10 @@ export class SliceDice{
     let colors = labelsIds.map((labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_COLOR_ID]);
     if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     return [colors, groupsAxis1, groupsAxis2];
+  }
+
+  updateCurrentSlice(node:Node){
+    this.currentSlice = PDV.slice(node);
   }
   
   private static fillUpWidget(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
