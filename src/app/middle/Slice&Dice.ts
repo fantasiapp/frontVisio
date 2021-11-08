@@ -57,7 +57,6 @@ export class SliceDice{
           let ciblageValues = (node.children as Node[]).map(
             (drvNode:Node) => (drvNode.children as Node[]).reduce(
               (acc:number, agentNode:Node) => acc + DEH.getTarget(agentNode.nature, agentNode.id, dn), 0));
-          console.log(ciblageValues)
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
           for (let i = 0; i < targetValues.length; i++)
             rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / (sum as number[])[i], 1);
