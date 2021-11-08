@@ -118,7 +118,7 @@ export class TableComponent extends BasicWidget {
   createData(): TableData {
     this.type = this.properties.arguments[2];
     SliceTable.currentGroupField = this.currentOpt;
-    return this.sliceTable.getData(this.node, this.type);
+    return this.sliceTable.getData(this.node!, this.type);
   }
 
 

@@ -7,6 +7,8 @@ import { BehaviorSubject } from 'rxjs';
 import { Interactive } from 'src/app/interfaces/Common';
 import { Node } from '../../middle/Node';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
+import Dashboard from 'src/app/middle/Dashboard';
 
 type BasicWidgetParams = [string, string, string, string[], string[], boolean];
 export interface Layout {
@@ -45,24 +47,32 @@ export class GridManager implements Interactive {
     return this.state.getValue().loaded;
   }
 
+  
   private _layout?: Layout;
   get layout() { return this._layout; }
-
   @Input()
   set layout(layout: Layout | undefined) {
     this._layout = layout;
     this.computeLayout();
     this.layoutChanged.emit(this.layout);
     this.createComponents();
+    this.skipOneUpdate = true; //already made the items, no need to update
   }
 
+  private skipOneUpdate: boolean = false;
+  
+  //means nothing, use view to change node
   private _node?: Node;
   get node() { return this._node }
   @Input()
   set node(node: Node | undefined) {
     this._node = node;
-    this.onPathChanged();
+    if ( this.skipOneUpdate )
+      this.skipOneUpdate = false;
+    else this.onPathChanged();
   }
+
+  ngOnChanges(changes: SimpleChanges) { this.skipOneUpdate = false; }
 
   @Output()
   layoutChanged: EventEmitter<Layout> = new EventEmitter;
@@ -76,9 +86,7 @@ export class GridManager implements Interactive {
   protected _paused: boolean = false;
   get paused() { return this._paused; }
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-    //console.debug('[GridManager]: On.')
-  }
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {}
   
   ngAfterViewInit() {
     this.createComponents();
