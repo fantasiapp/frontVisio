@@ -16,9 +16,14 @@ const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget'
 @Injectable({providedIn: 'root'})
 export class SliceDice{
   geoTree: boolean = true; // on peut le supprimer maintenant je pense
+<<<<<<< HEAD
   constructor(private dataService: DataService){
     //console.log('[SliceDice]: on');
   }
+=======
+  currentSlice: PDV[] = [];
+  constructor(private dataService: DataService){}
+>>>>>>> 70a93161867a4b8056c3c08e3b47af39b130df03
 
   getWidgetData(node:Node, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
@@ -28,7 +33,7 @@ export class SliceDice{
       return {data: jauge[0], sum: 0, target: undefined, colors: undefined, targetLevel: {}, threshold: jauge[1]};
     }
     let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
-    let dataWidget = SliceDice.getDataFromPdvs(node, axis1, axis2, indicator.toLowerCase(), addConditions);
+    let dataWidget = this.getDataFromPdvs(node, axis1, axis2, indicator.toLowerCase(), addConditions);
     let km2 = !['dn', 'visits'].includes(indicator) ? true : false, sortLines = percentIndicator !== 'classic' && axis1 != 'suiviAD';
     dataWidget.widgetTreatement(km2, sortLines, false, percentIndicator, groupsAxis1 as string[], groupsAxis2 as string[]);
     let sum = dataWidget.getSum();
@@ -83,12 +88,16 @@ export class SliceDice{
     if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     return [colors, groupsAxis1, groupsAxis2];
   }
+
+  updateCurrentSlice(node:Node){
+    this.currentSlice = PDV.slice(node);
+  }
   
-  private static fillUpWidget(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
-      pdvs: PDV[], addConditions:[string, number[]][]): void{
-    let newPdvs = PDV.reSlice(pdvs, addConditions);
+  private fillUpWidget(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
+      addConditions:[string, number[]][]): void{
+    let newPdvs = PDV.reSlice(this.currentSlice, addConditions);
     if (axis1 == 'histo&curve'){
-      SliceDice.fillHisto(dataWidget, pdvs);
+      SliceDice.fillHisto(dataWidget, this.currentSlice);
       dataWidget.completeWithCurve(newPdvs.length);
     }
     else {
@@ -110,7 +119,7 @@ export class SliceDice{
     }
   }
 
-  private static ComputeAxisName(node:Node, axis:string){
+  private ComputeAxisName(node:Node, axis:string){
     if (axis == 'lgp-1') return PDV.geoTree.attributes['natures'][1];
     if (['lg-1', 'lt-1'].includes(axis)){
       let childNature = node.children[0] instanceof PDV ? 'site': (node.children[0] as Node).nature;
@@ -119,7 +128,7 @@ export class SliceDice{
     return axis
   }
 
-  private static computeAxis(node:Node, axis:string){
+  private computeAxis(node:Node, axis:string){
     axis = this.ComputeAxisName(node, axis);
     let dataAxis = DEH.get(axis, true), titles = Object.values(dataAxis),
       idToX:any = {};
@@ -127,13 +136,12 @@ export class SliceDice{
     return [axis, titles, idToX];
   }
 
-  private static getDataFromPdvs(node: Node, axis1: string, axis2: string, indicator: string,
+  private getDataFromPdvs(node: Node, axis1: string, axis2: string, indicator: string,
       addConditions:[string, number[]][]): DataWidget{
     let [newAxis1, rowsTitles, idToI] = this.computeAxis(node, axis1),
         [newAxis2, columnsTitles, idToJ] = this.computeAxis(node, axis2);
-    let pdvs = PDV.slice(node);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
-    this.fillUpWidget(dataWidget, newAxis1, newAxis2, indicator, pdvs, addConditions);
+    this.fillUpWidget(dataWidget, newAxis1, newAxis2, indicator, addConditions);
     return dataWidget;
   }
   
@@ -144,7 +152,7 @@ export class SliceDice{
 
   rubiksCubeCheck(node:any, indicator: string, percent:string){
     let sortLines = percent !== 'classic';
-    let dataWidget = SliceDice.getDataFromPdvs(node, 'enseigne', 'segmentMarketing', indicator.toLowerCase(), []);
+    let dataWidget = this.getDataFromPdvs(node, 'enseigne', 'segmentMarketing', indicator.toLowerCase(), []);
     dataWidget.widgetTreatement(false, sortLines, true);
     return dataWidget.numberToBool()
   }
