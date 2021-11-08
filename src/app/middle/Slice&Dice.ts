@@ -31,18 +31,19 @@ export class SliceDice{
     let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
     let dataWidget = this.getDataFromPdvs(node, axis1, axis2, indicator.toLowerCase(), addConditions);
     let km2 = !['dn', 'visits'].includes(indicator) ? true : false, sortLines = percentIndicator !== 'classic' && axis1 != 'suiviAD';
-    dataWidget.widgetTreatement(km2, sortLines, (axis1 !== 'histoCurve') ? 'all': 'no', percentIndicator, groupsAxis1 as string[], groupsAxis2 as string[]);
+    dataWidget.widgetTreatement(km2, sortLines, (axis1 !== 'histoCurve') ? 'all': 'no', groupsAxis1 as string[], groupsAxis2 as string[]);
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1);
+    if (percentIndicator == 'classic') dataWidget.percent(); else if (percentIndicator == 'cols') dataWidget.percent(true);
     let rodPosition = undefined, rodPositionForCiblage = undefined,
-      targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = 
-        {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
+    targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = 
+    {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let dn = indicator == 'dn';   
-      if(typeof(sum) == 'number'){
-        let targetValue = DEH.getTarget(node.nature, node.id, dn, finition);      
-        rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / sum, 1);
+      if(dataWidget.getDim() == 1){
+        let targetValue = DEH.getTarget(node.nature, node.id, dn, finition);
+        rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / +sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
@@ -51,7 +52,7 @@ export class SliceDice{
         let targetValues = 
           DEH.getListTarget(finition ? 'agentFinitions': (node.children[0] as Node).nature, elemIds, dn, finition);;
         for (let i = 0; i < targetValues.length; i++) 
-          rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+          rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / (sum as number[])[i], 1);
         if (node.nature == 'root' && !finition){ // This is to calculate the position of the ciblage rods
           let drvNodes: Node[] = node.children as Node[];
           let agentNodesMatrix: Node[][] = drvNodes.map((drvNode:Node) => drvNode.children as Node[]);
@@ -60,7 +61,7 @@ export class SliceDice{
               .reduce((acc:number, value:number) => acc + value, 0));
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
           for (let i = 0; i < targetValues.length; i++) 
-            rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / sum[i], 1);
+            rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / (sum as number[])[i], 1);
         }
       }
       targetLevel['volumeIdentifier'] = dn ? 'dn': 'vol';
