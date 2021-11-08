@@ -5,7 +5,7 @@ import {Tree, Node} from './Node';
 
 
 const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'];
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'];
 
 class SimplePdv { // Theses attributes are directly those received from the back
     private static indexMapping: Map<string, number>;
@@ -148,6 +148,8 @@ class SimplePdv { // Theses attributes are directly those received from the back
     get info(): boolean {return true}
     get checkboxP2cd(): boolean {return this.ciblage() === 2}
     get clientProspect(){return this.clientProspect2(true)}
+
+    get histoCurve(){return 1} // harcodé moche
   
     get realTargetP2cd(){
       if (this.targetP2cd > 0 && this.lightTarget !== 'r') return this.targetP2cd;
@@ -179,6 +181,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
     }
     
     public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
+      if (axisName == 'weeks') return this.computeWeeksRepartitionAD();
       if (axisName && nonRegularAxis.includes(axisName!)){
         let salesRepartition = this.computeSalesRepartition();
         if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator, salesRepartition);

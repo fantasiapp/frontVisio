@@ -10,7 +10,7 @@ import {DataWidget} from './DataWidget';
 const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
   gaugesAxis = ['visits', 'targetedVisits', 'avancementAD'],
   nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD'],
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
   visitAxis = ['segmentDnEnduitTargetVisits'];
   
 @Injectable({providedIn: 'root'})
@@ -30,7 +30,7 @@ export class SliceDice{
     let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
     let dataWidget = this.getDataFromPdvs(node, axis1, axis2, indicator.toLowerCase(), addConditions);
     let km2 = !['dn', 'visits'].includes(indicator) ? true : false, sortLines = percentIndicator !== 'classic' && axis1 != 'suiviAD';
-    dataWidget.widgetTreatement(km2, sortLines, false, percentIndicator, groupsAxis1 as string[], groupsAxis2 as string[]);
+    dataWidget.widgetTreatement(km2, sortLines, (axis1 !== 'histoCurve') ? 'all': 'no', percentIndicator, groupsAxis1 as string[], groupsAxis2 as string[]);
     let sum = dataWidget.getSum();
     let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1);
     let rodPosition = undefined, rodPositionForCiblage = undefined,
@@ -70,7 +70,7 @@ export class SliceDice{
       targetLevel['structure'] = 'structureTargetlevel';
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose), sum: sum, target: rodPosition, 
+    return {data: dataWidget.formatWidget(transpose, axis1 == 'histoCurve', this.currentSlice.length), sum: sum, target: rodPosition, 
       colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage}    
   }
 
@@ -120,27 +120,21 @@ export class SliceDice{
   
   private fillUpWidget(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
       addConditions:[string, number[]][]): void{
-    let newPdvs = PDV.reSlice(this.currentSlice, addConditions);
-    if (axis1 == 'histoCurve'){
-      this.fillHisto(dataWidget, this.currentSlice);
-      dataWidget.completeWithCurve(newPdvs.length);
-    }
-    else {
-      let irregular: string = 'no';
-      if (nonRegularAxis.includes(axis1)) irregular = 'line';
-      else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-      let visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
-      for (let pdv of newPdvs){
-        if (irregular == 'no') 
-          dataWidget.addOnCase(
-            pdv[axis1 as keyof PDV], pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number);
-        else if (irregular == 'line') 
-          dataWidget.addOnColumn(
-            pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number[]);
-        else if (irregular == 'col') 
-          dataWidget.addOnRow(
-            pdv[axis1 as keyof PDV], pdv.getValue(indicator, axis2, visit) as number[]);
-      }
+    let newPdvs = (addConditions.length == 0) ? this.currentSlice: PDV.reSlice(this.currentSlice, addConditions);
+    let irregular: string = 'no';
+    if (nonRegularAxis.includes(axis1)) irregular = 'line';
+    else if (nonRegularAxis.includes(axis2)) irregular = 'col';
+    let visit = visitAxis.includes(axis1) || visitAxis.includes(axis2);
+    for (let pdv of newPdvs){
+      if (irregular == 'no') 
+        dataWidget.addOnCase(
+          pdv[axis1 as keyof PDV], pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number);
+      else if (irregular == 'line') 
+        dataWidget.addOnColumn(
+          pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number[]);
+      else if (irregular == 'col') 
+        dataWidget.addOnRow(
+          pdv[axis1 as keyof PDV], pdv.getValue(indicator, axis2, visit) as number[]);
     }
   }
 
@@ -169,16 +163,11 @@ export class SliceDice{
     this.fillUpWidget(dataWidget, newAxis1, newAxis2, indicator, addConditions);
     return dataWidget;
   }
-  
-  private fillHisto(widget: DataWidget, pdvs:PDV[]){
-    for (let pdv of pdvs)
-      widget.addOnRow(1, pdv.computeWeeksRepartitionAD())// Le 1 est harcodé car c'est l'id de "Nombre de PdV complétés", il faudra changer ça
-  }
 
   rubiksCubeCheck(node:any, indicator: string, percent:string){
     let sortLines = percent !== 'classic';
     let dataWidget = this.getDataFromPdvs(node, 'enseigne', 'segmentMarketing', indicator.toLowerCase(), []);
-    dataWidget.widgetTreatement(false, sortLines, true);
+    dataWidget.widgetTreatement(false, sortLines, 'justLines');
     return dataWidget.numberToBool()
   }
 
