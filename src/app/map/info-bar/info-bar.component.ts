@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChildren } from '@angular/core';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DEH from 'src/app/middle/DataExtractionHelper';
-import { PDV, Sale } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
+import { Sale } from 'src/app/middle/Sale';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/behaviour/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
@@ -154,7 +155,7 @@ export class InfoBarComponent {
   }
 
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
-    console.log('[InfobarComponent]: On')
+    //console.log('[InfobarComponent]: On')
     let structure = DEH.get("structureSales") as string[];
     this.SALES_INDUSTRY_ID = structure.indexOf('industry')
     this.SALES_PRODUCT_ID = structure.indexOf('product')
@@ -245,10 +246,10 @@ export class InfoBarComponent {
 }
 
   onKey(event: any) {
-    if(event.keyCode === 37) console.log("Left")
-    if(event.keyCode === 38) console.log("Up")
-    if(event.keyCode === 39) console.log("Right")
-    if(event.keyCode === 40) console.log("Down")
+    //if(event.keyCode === 37) console.log("Left")
+    //if(event.keyCode === 38) console.log("Up")
+    //if(event.keyCode === 39) console.log("Right")
+    //if(event.keyCode === 40) console.log("Down")
   }
 
   updateSum(i: number, j: number, oldVolume: number, newVolume: number) {

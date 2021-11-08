@@ -1,4 +1,4 @@
-import {PDV} from "./Slice&Dice";
+import {PDV} from "./Pdv";
 import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";

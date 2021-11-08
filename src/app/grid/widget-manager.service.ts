@@ -42,7 +42,7 @@ export class WidgetManagerService {
   };
 
   constructor() {
-    console.debug('[WidgetManager]: On.');
+    //console.debug('[WidgetManager]: On.');
   }
 
   findComponent(name: string): any {

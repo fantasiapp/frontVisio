@@ -42,7 +42,6 @@ export class HistocurveComponent extends HistoColumnComponent {
 
     this.maxValue = this.computeMax(data);
     let ticks = this.getTickValues();
-    console.log(ticks);
 
     super.createGraph(d, {
       data: {

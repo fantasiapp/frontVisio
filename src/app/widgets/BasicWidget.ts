@@ -6,12 +6,13 @@ import { debounceTime } from "rxjs/operators";
 import { FiltersStatesService } from "../filters/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
 import { Updatable } from "../interfaces/Common";
+import { Node } from "../middle/Node";
 import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements Updatable {
-  protected path: any;
+  protected node: any;
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
@@ -27,11 +28,11 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   }
 
   onReady() {
-    this.onPathChanged(this.filtersService.currentPath);
+    this.onPathChanged(this.filtersService.getState().node);
     this.start();
   }
 
-  protected onPathChanged(path: any) { this.path = path; }
+  protected onPathChanged(node: Node) { this.node = node; }
   
   ngOnInit() {
     if ( this.properties.description == '@sum' )
@@ -63,7 +64,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   
   getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
     let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, false];
+    return [this.node, args[0], args[1], args[2], args[3], args[4], args[5], false, false];
   }
   
   updateData(): {} {

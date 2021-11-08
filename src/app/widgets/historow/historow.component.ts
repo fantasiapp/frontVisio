@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
-import { PDV, SliceDice } from 'src/app/middle/Slice&Dice';
+import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { PDV } from 'src/app/middle/Pdv';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import bb, {bar} from 'billboard.js';
 import { RubixCube } from './RubixCube';
@@ -36,7 +37,7 @@ export class HistoRowComponent extends BasicWidget {
   protected onPathChanged(path: any) {
     super.onPathChanged(path);
     this.cube = new RubixCube(this);
-    this.cube.rules = this.sliceDice.rubiksCubeCheck(this.path, this.properties.arguments[2], this.properties.arguments[5]);
+    this.cube.rules = this.sliceDice.rubiksCubeCheck(this.node, this.properties.arguments[2], this.properties.arguments[5]);
     this.description.nativeElement.selectedIndex = "0";
     this.cd.markForCheck();
   }
@@ -199,13 +200,13 @@ export class HistoRowComponent extends BasicWidget {
   }
 
   refresh() {
-    this.onPathChanged(this.path);
+    this.onPathChanged(this.node);
     super.refresh();
   }
 
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube?.conditions || []];
+    return [this.node, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube?.conditions || []];
   }
 
   setSegment(e: Event) {

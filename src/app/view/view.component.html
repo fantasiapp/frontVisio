@@ -7,6 +7,6 @@
             <description-widget class="aligned description"></description-widget>
         </ng-template>
     </app-upperbar>
-    <grid-manager [layout]="layout" [path]="path" (layoutChanged)="onLayoutChange($event)" #gridManager>
+    <grid-manager [layout]="layout" [node]="node" (layoutChanged)="onLayoutChange($event)" #gridManager>
     </grid-manager>
 </div>

@@ -5,14 +5,14 @@ import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
 import { BehaviorSubject } from 'rxjs';
 import { Interactive } from 'src/app/interfaces/Common';
+import { Node } from '../../middle/Node';
 
-type WidgetParams = [string, string, string, string[], string[], boolean];
-export type WidgetPrototype = [string, string, string, string, WidgetParams];
+type BasicWidgetParams = [string, string, string, string[], string[], boolean];
 export interface Layout {
-  grid: [string, string];
-  description: string;
+  grid: [number, number];
+  description: string | any[];
   template: string;
-  areas: {[key:string]: WidgetPrototype | null}
+  areas: {[key:string]: any}
 };
 
 export type GridState = {
@@ -56,7 +56,7 @@ export class GridManager implements Interactive {
   }
 
   @Input()
-  path: any = {};
+  node?: Node;
 
   @Output()
   layoutChanged: EventEmitter<Layout> = new EventEmitter;
@@ -71,7 +71,7 @@ export class GridManager implements Interactive {
   get paused() { return this._paused; }
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
-    console.debug('[GridManager]: On.')
+    //console.debug('[GridManager]: On.')
   }
   
   ngAfterViewInit() {
@@ -83,10 +83,14 @@ export class GridManager implements Interactive {
     if ( layoutChanges && !layoutChanges.isFirstChange() ) {
       this.createComponents();
       this.layoutChanged.emit(this.layout);
-    }    
-    let pathChanges = changes['path'];
-    if ( !pathChanges || layoutChanges ) return;
-    if ( !BasicWidget.shallowObjectEquality(pathChanges.currentValue, pathChanges.previousValue) )
+      return;
+    }
+
+    let nodeChanges = changes['node'];
+    if ( !nodeChanges ) return;
+    let current = nodeChanges.currentValue as Node,
+      previous = nodeChanges.previousValue as Node;
+    if ( previous && !(current.height == previous.height && current.id == previous.id) )
       this.onPathChanged();
   }
 
@@ -105,7 +109,7 @@ export class GridManager implements Interactive {
       component.instance.properties.title = desc[0];
       component.instance.properties.description = desc[1];
       component.instance.properties.unit = desc[2];
-      component.instance.properties.arguments = <WidgetParams>desc[4];
+      component.instance.properties.arguments = <BasicWidgetParams>desc[4];
       /***************************/
       
       this.instances.push(component.instance);
@@ -121,7 +125,7 @@ export class GridManager implements Interactive {
   protected onPathChanged() {
     if ( this._paused ) return;
     for ( let component of this.instances ) {
-      component.onPathChanged(this.path);
+      component.onPathChanged(this.node);
       component.update();
     }
   }
@@ -132,9 +136,7 @@ export class GridManager implements Interactive {
     this.onPathChanged();
   }
 
-  pause() {
-    this._paused = true;
-  }
+  pause() { this._paused = true; }
 
   clear() {
     while ( this.ref.length )
@@ -149,9 +151,11 @@ export class GridManager implements Interactive {
       component.update();
   }
 
-  refresh() { //mainly a transition without animation
-    for ( let component of this.instances )
+  refresh() {
+    for ( let component of this.instances ) {
+      component.node = this.node;
       component.refresh();
+    }
   }
 
   /* = delete */
@@ -176,7 +180,7 @@ export class GridManager implements Interactive {
 /******** DEFAULTS *********/
 
 const defaultLayout: Layout = {
-  grid: ['1', '1'],
+  grid: [1, 1],
   description: 'default dashboard',
   template: `x`,
   areas: {'x': ['<title>', '<description>', 'm','default', [

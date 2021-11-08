@@ -20,7 +20,7 @@ export class AuthInterceptor implements HttpInterceptor{ //set default headers o
         }
 
         if(this.auth.checkToken(authToken, req.body)) {
-            console.log("Authentification request bypassed !")
+            //console.log("Authentification request bypassed !")
             return of({'token': authToken}) as Observable<any>;
         }
 

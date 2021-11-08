@@ -215,7 +215,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
     let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
+    return [this.node, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private getNeedleGroup() {
