@@ -91,7 +91,7 @@ export class SliceDice{
       addConditions:[string, number[]][]): void{
     let newPdvs = PDV.reSlice(this.currentSlice, addConditions);
     if (axis1 == 'histo&curve'){
-      SliceDice.fillHisto(dataWidget, this.currentSlice);
+      this.fillHisto(dataWidget, this.currentSlice);
       dataWidget.completeWithCurve(newPdvs.length);
     }
     else {
@@ -139,7 +139,7 @@ export class SliceDice{
     return dataWidget;
   }
   
-  private static fillHisto(widget: DataWidget, pdvs:PDV[]){
+  private fillHisto(widget: DataWidget, pdvs:PDV[]){
     for (let pdv of pdvs)
       widget.addOnRow(1, pdv.computeWeeksRepartitionAD())// Le 1 est harcodé car c'est l'id de "Nombre de PdV complétés", il faudra changer ça
   }
