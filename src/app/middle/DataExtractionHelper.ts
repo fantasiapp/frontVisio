@@ -483,15 +483,6 @@ class DEH{  // for DataExtractionHelper
     return finitionAgentsOfDrv;
   }
 
-  static followSlice(slice: any, tree: Tree = PDV.geoTree): Node {
-    let keys = Object.keys(slice).sort((u, v) => PDV.heightOf(tree, u) - PDV.heightOf(tree, v));
-    let values = keys.map(key => slice[key]),
-      node = tree.root;
-    for ( let id of values )
-      node = node.goChild(id);
-    return node;
-  }
-
   static getOtherYearDashboards(tree: Tree, height: number = 0) {
     let name = tree.hasTypeOf(GeoExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);

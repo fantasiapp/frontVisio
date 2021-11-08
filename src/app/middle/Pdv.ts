@@ -359,10 +359,6 @@ class SimplePdv { // Theses attributes are directly those received from the back
       return pdvs.reduce((acc, pdv) => acc + pdv.getCiblage(enduit, dn), 0);
     }
   
-    static heightOf(tree: Tree, label: string){
-      return tree.attributes['labels'].indexOf(label);
-    }
-  
     static childrenOfNode(node: Node | PDV):PDV[]{
       if ( node instanceof PDV ) return [node];
       return node.children.map(

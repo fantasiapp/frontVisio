@@ -3,13 +3,12 @@ import DEH from "./DataExtractionHelper";
 import {PDV} from "./Pdv";
 
 export class CD{ //For ComputeDescription
-  static computeDescription(slice:any, description:string[]){
-    let descriptionCopy = description.slice();    
-    let relevantNode: Node = DEH.followSlice(slice);
+  static computeDescription(node:Node, description:string[]){
+    let descriptionCopy = description.slice();
     if (descriptionCopy.length == 1) return descriptionCopy[0];
     for (let i = 0; i < descriptionCopy.length; i++){
       if (descriptionCopy[i] == '') continue;
-      if (descriptionCopy[i][0] == '@') descriptionCopy[i] = this.treatDescIndicator(relevantNode, descriptionCopy[i]) as string;
+      if (descriptionCopy[i][0] == '@') descriptionCopy[i] = this.treatDescIndicator(node, descriptionCopy[i]) as string;
     }
     return descriptionCopy.reduce((str:string, acc: string) => str + acc, "");
   }
@@ -70,17 +69,16 @@ export class CD{ //For ComputeDescription
     return (dn) ? "Objectif Siège: ".concat(targetSiege.toString(), " PdV, "): "Objectif Siège: ".concat((Math.round(targetSiege)).toString(), " km², ");
   }
 
-  static computeDescriptionWidget(slice:any): [number, number, number][]{
-    let relevantNode: Node = DEH.followSlice(slice),
-      ciblage = PDV.computeCiblage(relevantNode);
+  static computeDescriptionWidget(node:Node): [number, number, number][]{
+    let ciblage = PDV.computeCiblage(node);
     let objectiveWidget: [number, number, number] = [
-      (relevantNode.children as Node[]).map(subLevelNode => DEH.getTarget(subLevelNode.nature, subLevelNode.id)).reduce((acc, value) => acc + value, 0),
-      (relevantNode.children as Node[]).map(subLevelNode => DEH.getTarget(subLevelNode.nature, subLevelNode.id, true)).reduce((acc, value) => acc + value, 0),
+      (node.children as Node[]).map(subLevelNode => DEH.getTarget(subLevelNode.nature, subLevelNode.id)).reduce((acc, value) => acc + value, 0),
+      (node.children as Node[]).map(subLevelNode => DEH.getTarget(subLevelNode.nature, subLevelNode.id, true)).reduce((acc, value) => acc + value, 0),
       0],
       ciblageWidget: [number, number, number] = [0, 0, 0];
     objectiveWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / objectiveWidget[0]; // on divise par 10 car on fait *100 pour mettre en % et /1000 pour tout mettre en km2
-    if (relevantNode.nature == 'root'){
-      let agentNodes = (relevantNode.children as Node[]).map(drvNode => drvNode.children as Node[]).reduce((acc: Node[], list: Node[]) => acc.concat(list), []);
+    if (node.nature == 'root'){
+      let agentNodes = (node.children as Node[]).map(drvNode => drvNode.children as Node[]).reduce((acc: Node[], list: Node[]) => acc.concat(list), []);
       ciblageWidget = [
       agentNodes.map(agentNode => DEH.getTarget('agent', agentNode.id)).reduce((acc, value) => acc + value, 0),
       agentNodes.map(agentNode => DEH.getTarget('agent', agentNode.id, true)).reduce((acc, value) => acc + value, 0),
@@ -88,7 +86,7 @@ export class CD{ //For ComputeDescription
       ciblageWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / ciblageWidget[0]; 
     } else ciblageWidget = [
       ciblage / 1000,
-      PDV.computeCiblage(relevantNode, false, true),
+      PDV.computeCiblage(node, false, true),
       100];
     return [objectiveWidget, ciblageWidget];
   }

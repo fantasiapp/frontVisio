@@ -16,7 +16,7 @@ const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget'
 @Injectable()
 export class SliceDice{
   geoTree: boolean = true; // on peut le supprimer maintenant je pense
-  currentSlice: PDV[] = [];
+  static currentSlice: PDV[] = [];
   constructor(private dataService: DataService){
     //console.log('[SliceDice]: on');
   }
@@ -24,7 +24,6 @@ export class SliceDice{
   getWidgetData(node:Node, axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
  
-    this.updateCurrentSlice(node); // à enlever par la suite bien sûr
     if (gaugesAxis.includes(axis1)){
       let jauge = this.computeJauge(node, axis1);
       return {data: jauge[0], sum: 0, target: undefined, colors: undefined, targetLevel: {}, threshold: jauge[1]};
@@ -72,7 +71,7 @@ export class SliceDice{
       targetLevel['structure'] = 'structureTargetlevel';
     }
     if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidget(transpose, axis1 == 'histoCurve', this.currentSlice.length), sum: sum, target: rodPosition, 
+    return {data: dataWidget.formatWidget(transpose, axis1 == 'histoCurve', SliceDice.currentSlice.length), sum: sum, target: rodPosition, 
       colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage}    
   }
 
@@ -87,7 +86,7 @@ export class SliceDice{
   }
 
   updateCurrentSlice(node:Node){
-    this.currentSlice = PDV.slice(node);
+    SliceDice.currentSlice = PDV.slice(node);
   }
 
   private computeJauge(node:Node, indicator:string): [[string, number][], number[]]{
@@ -96,14 +95,14 @@ export class SliceDice{
         let totalVisits: number= 0,
           cibleVisits:number = PDV.computeTargetVisits(node) as number,
           threshold = [50, 99.99, 100];
-        for (let pdv of this.currentSlice) totalVisits += pdv.nbVisits;
+        for (let pdv of SliceDice.currentSlice) totalVisits += pdv.nbVisits;
         let adaptedVersion = (totalVisits >= 2) ? ' visites': ' visite';
         return [[[totalVisits.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(totalVisits / cibleVisits, 1)]], threshold];
       };
       case 'targetedVisits': {
         let totalVisits = 0, totalCibleVisits = 0, thresholdForGreen = 100 * PDV.computeTargetVisits(node, true),
           threshold = [thresholdForGreen / 2, thresholdForGreen, 100];
-        for (let pdv of this.currentSlice){
+        for (let pdv of SliceDice.currentSlice){
           totalVisits += pdv.nbVisits;
           if (pdv.targetFinition) totalCibleVisits += pdv.nbVisits;
         }
@@ -111,10 +110,10 @@ export class SliceDice{
         return [[[totalCibleVisits.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * totalCibleVisits / totalVisits]], threshold];
       };
       case 'avancementAD': {
-        let nbCompletedPdv = this.currentSlice.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
-          ratio = nbCompletedPdv / this.currentSlice.length,
+        let nbCompletedPdv = SliceDice.currentSlice.reduce((acc: number, pdv:PDV) => pdv.adCompleted() ? acc + 1: acc, 0),
+          ratio = nbCompletedPdv / SliceDice.currentSlice.length,
           adaptedVersion = (nbCompletedPdv >= 2) ? ' PdV complétés':  'PdV complété';
-        return [[[nbCompletedPdv.toString().concat(adaptedVersion, ' sur un total de ', this.currentSlice.length.toString()), 100 * ratio]], [33, 66, 100]];
+        return [[[nbCompletedPdv.toString().concat(adaptedVersion, ' sur un total de ', SliceDice.currentSlice.length.toString()), 100 * ratio]], [33, 66, 100]];
        }
       default: return [[['  ', 100 * Math.random()]], [33, 66, 100]];
     }
@@ -122,7 +121,7 @@ export class SliceDice{
   
   private fillUpWidget(dataWidget: DataWidget, axis1:string, axis2:string, indicator:string, 
       addConditions:[string, number[]][]): void{
-    let newPdvs = (addConditions.length == 0) ? this.currentSlice: PDV.reSlice(this.currentSlice, addConditions);
+    let newPdvs = (addConditions.length == 0) ? SliceDice.currentSlice: PDV.reSlice(SliceDice.currentSlice, addConditions);
     let irregular: string = 'no';
     if (nonRegularAxis.includes(axis1)) irregular = 'line';
     else if (nonRegularAxis.includes(axis2)) irregular = 'col';
