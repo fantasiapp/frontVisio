@@ -182,15 +182,6 @@ class DEH{  // for DataExtractionHelper
   private static industriesReverseDict: any;
   private static structuresDict: {[key:string]:{[key:string]:number}}
 
-  // static getPositionOfAttr('structureLevel',  'levelName'): number;
-  static PRETTY_INDEX: number;
-  static DASHBOARD_INDEX: number;
-  static SUBLEVEL_INDEX: number;
-  static LAYOUT_TEMPLATE_INDEX: number;
-  static DASHBOARD_LAYOUT_INDEX: number;
-  static DASHBOARD_WIDGET_INDEX: number;
-  static DASHBOARD_NAME_INDEX: number;
-  static DASHBOARD_COMMENT_INDEX: number;
   static WIDGETPARAMS_WIDGET_INDEX: number;
   static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
   static AXISFORGRAHP_LABELS_ID: number;
@@ -248,15 +239,6 @@ class DEH{  // for DataExtractionHelper
       }
     
     let structure = this.get('structureLevel');
-    // this.getPositionOfAttr('structureLevel',  'levelName') = structure.indexOf('levelName');
-    this.PRETTY_INDEX = structure.indexOf('prettyPrint');
-    this.DASHBOARD_INDEX = structure.indexOf('listDashboards');
-    this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
-    this.LAYOUT_TEMPLATE_INDEX = this.get('structureLayout').indexOf('template');
-    this.DASHBOARD_LAYOUT_INDEX = this.get('structureDashboards').indexOf('layout');
-    this.DASHBOARD_WIDGET_INDEX = this.get('structureDashboards').indexOf('widgetParams');
-    this.DASHBOARD_NAME_INDEX = this.get('structureDashboards').indexOf('name');
-    this.DASHBOARD_COMMENT_INDEX = this.get('structureDashboards').indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.get('structureWidgetparams').indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.get('structureWidgetparams').indexOf('widgetCompute');
     this.AXISFORGRAHP_LABELS_ID = this.get('structureAxisforgraph').indexOf('labels');
@@ -290,13 +272,13 @@ class DEH{  // for DataExtractionHelper
     let geolevel = this.get('levelGeo');
     while (true){
       this.geoLevels.push(geolevel.slice(0, structure.length-1));
-      if (!(geolevel = geolevel[this.SUBLEVEL_INDEX])) break;
+      if (!(geolevel = geolevel[this.getPositionOfAttr('structureLevel',  'subLevel')])) break;
     }
 
     let tradeLevel = this.get('levelTrade');
     while (true){
       this.tradeLevels.push(tradeLevel.slice(0, structure.length-1));
-      if (!(tradeLevel = tradeLevel[this.SUBLEVEL_INDEX])) break;
+      if (!(tradeLevel = tradeLevel[this.getPositionOfAttr('structureLevel',  'subLevel')])) break;
     }
 
     this.geoHeight = this.geoLevels.length;
@@ -336,7 +318,7 @@ class DEH{  // for DataExtractionHelper
   }
 
   static getGeoLevelLabel(height: number): string{
-    return this.getGeoLevel(height)[this.PRETTY_INDEX];
+    return this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'prettyPrint')];
   }
 
   
@@ -355,7 +337,7 @@ class DEH{  // for DataExtractionHelper
   }
   
   static getTradeLevelLabel(height: number): string{
-    return this.getTradeLevel(height)[this.PRETTY_INDEX];
+    return this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel',  'prettyPrint')];
   }
   
   static getTradeLevelName(height: number, id: number): string {
@@ -380,13 +362,13 @@ class DEH{  // for DataExtractionHelper
   static getGeoDashboardsAt(height: number): number[]{
     if (height >= this.geoLevels.length || height < 0)
     throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
-    return this.getGeoLevel(height)[this.DASHBOARD_INDEX];
+    return this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'listDashboards')];
   }
   
   static getTradeDashboardsAt(height: number): number[]{
     if (height >= this.tradeLevels.length || height < 0)
     throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
-    return this.getTradeLevel(height)[this.DASHBOARD_INDEX];
+    return this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel',  'listDashboards')];
   }
   
   static getNameOfRegularObject(field:string, id:number){
@@ -499,8 +481,8 @@ class DEH{  // for DataExtractionHelper
     let name = tree.hasTypeOf(GeoExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.get(name + '_ly', false, false);
     while ( height-- > 0 )
-      level = level[this.SUBLEVEL_INDEX];
-      return level[this.DASHBOARD_INDEX] || [];
+      level = level[this.getPositionOfAttr('structureLevel',  'subLevel')];
+      return level[this.getPositionOfAttr('structureLevel',  'listDashboards')] || [];
   }
 };
 
@@ -517,7 +499,7 @@ export abstract class TreeExtractionHelper {
     this.levels.length = 0;
     while (true){
       this.levels.push(level.slice(0, structure.length-1));
-      if (!(level = level[DEH.SUBLEVEL_INDEX])) break;
+      if (!(level = level[DEH.getPositionOfAttr('structureLevel',  'subLevel')])) break;
     }
 
     this.height = this.levels.length;
@@ -533,7 +515,7 @@ export abstract class TreeExtractionHelper {
   }
 
   getLevelLabel(height: number) {
-    return this.levels[height][DEH.PRETTY_INDEX];
+    return this.levels[height][DEH.getPositionOfAttr('structureLevel',  'prettyPrint')];
   }
 
   getLevelNature(height: number) {
@@ -541,7 +523,7 @@ export abstract class TreeExtractionHelper {
   } 
 
   getDashboardsAtHeight(height: number) {
-    return this.levels[height][DEH.DASHBOARD_INDEX];
+    return this.levels[height][DEH.getPositionOfAttr('structureLevel',  'listDashboards')];
   }
 }
 export const GeoExtractionHelper = new class extends TreeExtractionHelper {

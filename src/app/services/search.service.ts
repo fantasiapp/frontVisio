@@ -235,11 +235,11 @@ export class SearchService {
   static findFieldName(pretty: string): [string, boolean] {
     //try in geo tree and then in trade tree, true is for geotree
     for ( let level of DEH.geoLevels )
-      if ( level[DEH.PRETTY_INDEX] == pretty )
+      if ( level[DEH.getPositionOfAttr('structureLevel',  'prettyPrint')] == pretty )
         return [level[DEH.getPositionOfAttr('structureLevel',  'levelName')], true];
     
     for ( let level of DEH.tradeLevels )
-      if ( level[DEH.PRETTY_INDEX] == pretty )
+      if ( level[DEH.getPositionOfAttr('structureLevel',  'prettyPrint')] == pretty )
         return [level[DEH.getPositionOfAttr('structureLevel',  'levelName')], false];
     
     throw `[Searchbar: no field called ${pretty}]`;
@@ -249,12 +249,12 @@ export class SearchService {
     //try in geo tree and then in trade tree
     let levels = DEH.geoLevels;
     for ( let i = 0; i < DEH.geoHeight; i++ )
-      if ( levels[i][DEH.PRETTY_INDEX] == pretty )
+      if ( levels[i][DEH.getPositionOfAttr('structureLevel',  'prettyPrint')] == pretty )
         return [i, true];
     
     levels = DEH.tradeLevels;
     for ( let i = 0; i < DEH.geoHeight; i++ )
-      if ( levels[i][DEH.PRETTY_INDEX] == pretty )
+      if ( levels[i][DEH.getPositionOfAttr('structureLevel',  'prettyPrint')] == pretty )
         return [i, false];
     
     throw `[Searchbar: no field called ${pretty}]`;
