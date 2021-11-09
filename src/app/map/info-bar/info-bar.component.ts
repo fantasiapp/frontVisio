@@ -55,13 +55,13 @@ export class InfoBarComponent {
       this._pdv = new PDV(value.id, JSON.parse(JSON.stringify(value.getValues())));
       if(!this._pdv.target) this._pdv.initializeTarget()
       this.target = this._pdv.target as any[];
-      this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.TARGET_REDISTRIBUTED_ID] && this.pdv!.redistributed;
+      this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.getPositionOfAttr('structureTarget', 'redistributed')] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] && this.pdv!.redistributedFinitions;
-      this.target[this.TARGET_SALE_ID] = this.target[DEH.TARGET_SALE_ID] && this.pdv!.sale
+      this.target[this.TARGET_SALE_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'sale')] && this.pdv!.sale
       this.target[DEH.TARGET_BASSIN_ID] = this._pdv.bassin;
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
-      this.targetP2cdFormatted = this.format(this.target[DEH.TARGET_VOLUME_ID]);
+      this.targetP2cdFormatted = this.format(this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')]);
       this.showNavigation = this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
       this.isOnlySiniat = this.pdv!.onlySiniat
 
@@ -156,15 +156,14 @@ export class InfoBarComponent {
 
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
     //console.log('[InfobarComponent]: On')
-    let structure = DEH.get("structureSales") as string[];
-    this.SALES_INDUSTRY_ID = structure.indexOf('industry')
-    this.SALES_PRODUCT_ID = structure.indexOf('product')
-    this.SALES_VOLUME_ID = structure.indexOf('volume')
-    this.SALES_DATE_ID = structure.indexOf('date')
-    this.TARGET_VOLUME_ID = DEH.TARGET_VOLUME_ID;
+    this.SALES_INDUSTRY_ID = DEH.getPositionOfAttr('structureSales', 'industry')
+    this.SALES_PRODUCT_ID = DEH.getPositionOfAttr('structureSales', 'product')
+    this.SALES_VOLUME_ID = DEH.getPositionOfAttr('structureSales', 'volume')
+    this.SALES_DATE_ID = DEH.getPositionOfAttr('structureSales', 'date')
+    this.TARGET_VOLUME_ID = DEH.getPositionOfAttr('structureTarget',  'targetP2CD');
     this.TARGET_LIGHT_ID = DEH.TARGET_LIGHT_ID;
-    this.TARGET_REDISTRIBUTED_ID = DEH.TARGET_REDISTRIBUTED_ID;
-    this.TARGET_SALE_ID = DEH.TARGET_SALE_ID;
+    this.TARGET_REDISTRIBUTED_ID = DEH.getPositionOfAttr('structureTarget', 'redistributed');
+    this.TARGET_SALE_ID = DEH.getPositionOfAttr('structureTarget',  'sale');
     this.TARGET_COMMENT_ID = DEH.TARGET_COMMENT_ID;
     this.TARGET_REDISTRIBUTED_FINITIONS_ID = DEH.TARGET_REDISTRIBUTED_FINITIONS_ID;
 
@@ -277,12 +276,12 @@ export class InfoBarComponent {
   changeTargetP2CD() {
     this.targetP2cdFormatted = this.convert(this.targetP2cdFormatted).toString();
     if(Number.isNaN(+this.targetP2cdFormatted)) {
-      this.targetP2cdFormatted = this.format((this.pdv!.target as any[])[DEH.TARGET_VOLUME_ID]);
+      this.targetP2cdFormatted = this.format((this.pdv!.target as any[])[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')]);
       this.errorInput = true;
       setTimeout(() => this.errorInput = false, 1000);
       return;
     }
-    this.target[DEH.TARGET_VOLUME_ID] = this.convert(this.targetP2cdFormatted);
+    this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] = this.convert(this.targetP2cdFormatted);
     this.targetP2cdFormatted = this.format(+this.targetP2cdFormatted)
     this.hasChanged = true;
   }

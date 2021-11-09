@@ -124,9 +124,9 @@ export class PDV extends SimplePdv{
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
   get typology(): number {return this.property('typology')}
 
-  get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
+  get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
-  get volumeTarget(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
+  get volumeTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
   get lightTarget(){ return this.target ? this.target[DEH.TARGET_LIGHT_ID] : false;}
   get commentTarget(){ return this.target ? this.target[DEH.TARGET_COMMENT_ID] : false;}
 

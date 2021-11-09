@@ -241,7 +241,7 @@ export class SliceTable {
 
     getRowColor(pdv: PDV): string {
         let isAdOpen = DEH.get('params')['isAdOpen']
-        if(pdv.onlySiniat === true || pdv.sale === false || pdv.redistributed === false || (pdv.target && (!pdv.target[DEH.TARGET_SALE_ID] || !pdv.target[DEH.TARGET_REDISTRIBUTED_ID])) || isAdOpen === false)
+        if(pdv.onlySiniat === true || pdv.sale === false || pdv.redistributed === false || (pdv.target && (!pdv.target[DEH.getPositionOfAttr('structureTarget',  'sale')] || !pdv.target[DEH.getPositionOfAttr('structureTarget',  'redistributed')])) || isAdOpen === false)
             return 'black'
 
         for(let sale of pdv.salesObject) {
