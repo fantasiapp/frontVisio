@@ -1,7 +1,3 @@
-## Logger
-
-?
-
 ## Directives
 
 > Directives are classes that add additional behavior to elements in your Angular applications. Use Angular's built-in directives to manage forms, lists, styles, and what users see.
@@ -28,3 +24,7 @@ Checks in DEH class [Params](../middle/DataExtractionHelper.ts) if the `rootNatu
 - [CurrentYearOnly](./current-year-only.directive.ts)
 
 Checks the [DataExtractionHelper](../middle/DataExtractionHelper.ts) static boolean property `currentYear`
+
+- [RootLevelOnly]()
+
+?

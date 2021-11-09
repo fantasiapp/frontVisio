@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef, HostBinding, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { LoggerService } from '../behaviour/logger.service';
+import { LoggerService } from '../services/logger.service';
 import { SubscriptionManager } from '../interfaces/Common';
 import { PDV } from '../middle/Pdv';
 import { DataService } from '../services/data.service';

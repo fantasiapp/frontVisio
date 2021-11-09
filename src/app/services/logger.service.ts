@@ -1,8 +1,8 @@
-import { Injectable, Injector } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { AuthService } from "../connection/auth.service";
 import { Navigation } from "../middle/Navigation";
 import { PDV } from "../middle/Pdv";
-import { DataService } from "../services/data.service";
+import { DataService } from "./data.service";
 
 export type Snapshot = {
   view: boolean;

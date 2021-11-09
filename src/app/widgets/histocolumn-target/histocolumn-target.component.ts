@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { Logger } from 'ag-grid-community';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
-import { LoggerService } from 'src/app/behaviour/logger.service';
+import { LoggerService } from 'src/app/services/logger.service';
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';

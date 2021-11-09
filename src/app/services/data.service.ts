@@ -7,7 +7,7 @@ import { map, } from 'rxjs/internal/operators/map';
 import { environment } from 'src/environments/environment';
 import DEH from '../middle/DataExtractionHelper';
 import { LocalStorageService } from './local-storage.service';
-import { Snapshot, structureSnapshot } from '../behaviour/logger.service';
+import { Snapshot, structureSnapshot } from './logger.service';
 
 export const enum UpdateFields {
   pdvs = "pdvs",

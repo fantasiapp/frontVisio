@@ -1,18 +1,17 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, SimpleChanges, ViewChild } from '@angular/core';
-import { LoggerService } from '../behaviour/logger.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, ViewChild } from '@angular/core';
+import { LoggerService } from '../services/logger.service';
 import { FiltersStatesService } from '../filters/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';
 import { LocalStorageService } from '../services/local-storage.service';
 import { TableComponent } from '../widgets/table/table.component';
-import { SubscriptionManager, Updatable } from '../interfaces/Common';
+import { SubscriptionManager } from '../interfaces/Common';
 import { CD } from '../middle/Descriptions';
 import { TargetService } from '../widgets/description-widget/description-service.service';
 import { Node } from '../middle/Node'
 import { SliceDice } from '../middle/Slice&Dice';
 import { SliceTable } from '../middle/SliceTable';
-import { PDV } from '../middle/Pdv';
 
 @Component({
   selector: 'app-view',

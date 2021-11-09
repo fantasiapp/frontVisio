@@ -4,7 +4,7 @@ import DEH from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { Sale } from 'src/app/middle/Sale';
 import { DataService } from 'src/app/services/data.service';
-import { LoggerService } from 'src/app/behaviour/logger.service';
+import { LoggerService } from 'src/app/services/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
 import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import {
