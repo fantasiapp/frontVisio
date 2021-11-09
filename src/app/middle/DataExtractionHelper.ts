@@ -430,6 +430,7 @@ class DEH{  // for DataExtractionHelper
       case 'enduitIndustryTarget': 
         return Object.assign({}, enduitIndustry, enduitIndustryTarget);
       case 'industryTarget': return industryTarget; 
+      case 'avancementAD': case 'visits': case 'targetedVisits': return {0:""};
       default: {
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;

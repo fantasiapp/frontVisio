@@ -149,7 +149,11 @@ export class PDV extends SimplePdv{
   get checkboxP2cd(): boolean {return this.ciblage() === 2}
   get clientProspect(){return this.clientProspect2(true)}
 
-  get histoCurve(){return 1} // harcodé moche
+  // to avoid specific cases for some axis
+  get histoCurve(){return 1}
+  get avancementAD(){return 0}
+  get visits(){return 0}
+  get targetedVisits(){return 0}
 
   get realTargetP2cd(){
     if (this.targetP2cd > 0 && this.lightTarget !== 'r') return this.targetP2cd;
@@ -181,12 +185,18 @@ export class PDV extends SimplePdv{
   }
   
   public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
+    let salesRepartition = this.computeSalesRepartition();
     if (axisName && nonRegularAxis.includes(axisName!)){
-      let salesRepartition = this.computeSalesRepartition();
       if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator, salesRepartition);
       else return this.computIndustriesAxis(axisName, salesRepartition);
-    } else return (indicator == 'dn') ? 1: 
-    this.salesObject.filter(sale => sale.type == 'p2cd').reduce((acc, sale) => acc + sale.volume, 0);
+    }
+    switch(indicator){
+      case 'dn': return 1;
+      case 'visits': return this.nbVisits as number;
+      case 'targetedvisits': return this.targetFinition ? this.nbVisits: 0;
+      case 'avancementad': return salesRepartition['completed'] ? 1: 0;
+      default: return salesRepartition['totalP2cd'];
+    }
   }
   
   private computeSalesRepartition():{[key:string]:any}{
@@ -301,7 +311,7 @@ export class PDV extends SimplePdv{
     return newPdvs;
   }
 
-  //Juste pour le reSlice
+  //Juste pour le reSlice de la map --> donner un meilleur nom
   property(propertyName:string){
     switch(propertyName){
       case 'clientProspect': return this.clientProspect2(true);
@@ -332,7 +342,7 @@ export class PDV extends SimplePdv{
         return parseInt(typologyIds[i]);
   }
 
-  static countForFilter(pdvs:PDV[], attributesToCount:string[]){
+  static countForFilter(pdvs:PDV[], attributesToCount:string[]){ // Pas grand chose à faire là ?
     let dictCounter: {[key:string]: {[key:string]:number}} = {};
     for (let attribute of attributesToCount)
       dictCounter[attribute] = {};
@@ -398,7 +408,7 @@ export class PDV extends SimplePdv{
     return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
   }
 
-  static computeTargetVisits(node:Node, threshold=false){ // ca n'a rien à faire là
+  static computeTargetVisits(node:Node, threshold=false){ // ca n'a rien à faire là, peut-être à fusionner avec getTarget de DEH
     let finitionAgents:any[] = (node.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
       ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): 
       [DEH.get('agentFinitions')[node.id]]);
