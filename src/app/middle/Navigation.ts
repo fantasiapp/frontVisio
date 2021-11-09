@@ -32,13 +32,15 @@ export class Navigation {
   setCurrentDashboard(tree: Tree, dashboard: Dashboard) {
     //same type, rename is
     if ( this.tree?.hasTypeOf(tree) ) {
-      this.tree = tree;
-      this.currentLevel = this.tree.root;
+      this.currentLevel = tree.root;
+      //closest ancestor with this dashboard
+      while ( this.currentLevel && this.currentLevel.parent && !this.currentLevel.dashboards.find(d => d.id == dashboard.id) )
+        this.currentLevel = this.currentLevel.parent!;
+    } else {
+      this.currentLevel = tree.root;
     }
-
-    this.currentDashboard = dashboard;
-    while ( this.currentLevel && this.currentLevel.parent && !this.currentLevel.dashboards.find(d => d.id == dashboard.id) )
-      this.currentLevel = this.currentLevel.parent!;
+    this.tree = tree;
+    this.currentDashboard = dashboard; 
   }
 
   followTree(t: Tree) {

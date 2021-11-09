@@ -37,10 +37,10 @@ export class ViewComponent extends SubscriptionManager  {
       let current = node as Node,
         previous = this.node as Node;
 
-      if ( !previous || !previous.equals(current) ) {
-        this.sliceDice.updateCurrentNode(current);
-        this.node = node;
-      }
+        if ( !previous || !previous.equals(current) ) {
+          this.sliceDice.updateCurrentNode(current);
+          this.node = node;
+        }
 
       if ( this.layout?.id !== dashboard.id )
         this.layout = dashboard;
