@@ -1,4 +1,7 @@
 import DEH from './DataExtractionHelper';
+import {PDV} from './Pdv';
+import {Node} from './Node';
+import {SliceDice} from "./Slice&Dice";
 
 
 const rodAfterFirstCategAxis = ['industryTarget', 'clientProspectTarget'],
@@ -41,15 +44,33 @@ export class DataWidget{
       if (groupsAxis1 && groupsAxis2) this.groupData(groupsAxis1, groupsAxis2, true);
     }
     
-    formatWidget(transpose:boolean, histoCurve:Boolean, nbPdvs:number){
-      if (histoCurve) this.completeWithCurve(nbPdvs);
-      if (this.dim == 0) return [[this.rowsTitles[0], this.data]];
-      if (this.dim == 1){
+    formatWidgetForGraph(node:Node, transpose:boolean, axis:string, nbPdvs:number){
+      if (axis == 'histoCurve') this.completeWithCurve(nbPdvs);
+      if (this.dim == 0){//case gauge
+        switch(axis){
+          case 'visits': {
+            let cibleVisits:number = PDV.computeTargetVisits(node) as number;
+            let adaptedVersion = (this.data >= 2) ? ' visites': ' visite';
+            return [[this.data.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(this.data / cibleVisits, 1)]];
+          };
+          case 'targetedVisits': {
+            let totalVisits = SliceDice.currentSlice.reduce((acc: number, pdv:PDV) =>  acc + pdv.nbVisits, 0),
+              adaptedVersion = (this.data >= 2) ? ' visites ciblées': ' visite ciblée';
+            return [[this.data.toString().concat(adaptedVersion, ' sur un total de ', totalVisits.toString()), 100 * this.data / totalVisits]];
+          };
+          case 'avancementAD': {
+            let ratio = this.data / SliceDice.currentSlice.length,
+              adaptedVersion = (this.data >= 2) ? ' PdV complétés':  'PdV complété';
+            return [[this.data.toString().concat(adaptedVersion, ' sur un total de ', SliceDice.currentSlice.length.toString()), 100 * ratio]];
+           }
+        }
+      }
+      if (this.dim == 1){ //case pie/donut
         let widgetParts: [string, number][] = [];    
         for (let i = 0; i < this.rowsTitles.length; i++)
         widgetParts.push([this.rowsTitles[i], this.data[i]]);
         return widgetParts
-      }
+      } //case histo
       if (transpose){
         let widgetParts: (number | string)[][] = [['x'].concat(this.rowsTitles)];
         for (let j = 0; j < this.columnsTitles.length; j++){

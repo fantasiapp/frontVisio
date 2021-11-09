@@ -16,9 +16,9 @@ export class CD{ //For ComputeDescription
   private static treatDescIndicator(node: Node, str:string):string{
     if (!DEH.currentYear) return "";
     switch (str){
-      case '@ciblageP2CD': return this.getCiblage(node);
-      case '@ciblageP2CDdn': return this.getCiblage(node, false, true);
-      case '@ciblageEnduit': return this.getCiblage(node, true);
+      case '@ciblageP2CD': return this.getCiblage();
+      case '@ciblageP2CDdn': return this.getCiblage(false, true);
+      case '@ciblageEnduit': return this.getCiblage(true);
       case '@ciblageEnduitComplet': return this.getCompleteCiblageFinitions(node);
       case '@DRV': return this.getObjectifDrv(node);
       case '@DRVdn': return this.getObjectifDrv(node, true);
@@ -41,7 +41,7 @@ export class CD{ //For ComputeDescription
     return "Ciblage: ".concat(ciblageDn.toString(), " PdV, pour un total de ", Math.round(ciblageFinitions/1000).toString(), " T (soit ", appropriatePresentation, " de l'objectif).");
   }
 
-  private static getCiblage(node: Node, enduit=false, dn=false){
+  private static getCiblage(enduit=false, dn=false){
     let ciblage:number = +this.computeCiblage(enduit, dn);
     if (enduit) return "Ciblage: ".concat(Math.round(ciblage/1000).toString(), " T.");
     else if (dn) return "Ciblage: ".concat(ciblage.toString(), " PdV.");
