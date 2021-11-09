@@ -1,14 +1,10 @@
-import { Component, ComponentFactoryResolver, OnInit, AfterViewInit, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, Output } from '@angular/core';
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
+import { Component, ComponentFactoryResolver, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
 import { WidgetManagerService } from '../widget-manager.service';
-import { BehaviorSubject } from 'rxjs';
-import { Interactive } from 'src/app/interfaces/Common';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { Interactive, SubscriptionManager } from 'src/app/interfaces/Common';
 import { Node } from '../../middle/Node';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
-import { PDV } from 'src/app/middle/Pdv';
-import Dashboard from 'src/app/middle/Dashboard';
 
 type BasicWidgetParams = [string, string, string, string[], string[], boolean];
 export interface Layout {
@@ -24,7 +20,6 @@ export type GridState = {
   instances?: GridArea[];
 };
 
-
 @Component({
   selector: 'grid-manager',
   templateUrl: './grid-manager.component.html',
@@ -32,7 +27,7 @@ export type GridState = {
   providers: [WidgetManagerService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GridManager implements Interactive {
+export class GridManager extends SubscriptionManager implements Interactive {
   //default layout
 
   //grid structure
@@ -43,85 +38,85 @@ export class GridManager implements Interactive {
   @HostBinding('style.grid-template-areas')
   private gridAreaTemplate: string = '';
 
-  get loaded() {
-    return this.state.getValue().loaded;
-  }
+  state: Subject<GridState> = new Subject<GridState>();
 
-  
-  private _layout?: Layout;
-  get layout() { return this._layout; }
-  @Input()
-  set layout(layout: Layout | undefined) {
-    this._layout = layout;
-    this.computeLayout();
-    this.layoutChanged.emit(this.layout);
-    this.createComponents();
-    this.skipOneUpdate = true; //already made the items, no need to update
-  }
+  protected _paused: boolean = false;
+  get paused() { return this._paused; }
 
-  private skipOneUpdate: boolean = false;
-  
-  //means nothing, use view to change node
-  private _node?: Node;
-  get node() { return this._node }
-  @Input()
-  set node(node: Node | undefined) {
-    this._node = node;
-    if ( this.skipOneUpdate )
-      this.skipOneUpdate = false;
-    else this.onPathChanged();
-  }
-
-  ngOnChanges(changes: SimpleChanges) { this.skipOneUpdate = false; }
-
-  @Output()
-  layoutChanged: EventEmitter<Layout> = new EventEmitter;
-
-  instances: any[] = [];
+  @Input() layout?: Layout;
+  @Input() node?: Node;
+  @Output() layoutChanged: EventEmitter<Layout> = new EventEmitter;
 
   @ViewChild('target', {read: ViewContainerRef})
   ref!: ViewContainerRef;
 
-  state: BehaviorSubject<GridState> = new BehaviorSubject<GridState>({loaded: false});
-  protected _paused: boolean = false;
-  get paused() { return this._paused; }
+  instances: any[] = [];
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {}
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
+    super();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    let layoutChanges = changes.layout,
+      nodeChanges = changes.node;
+    
+    if ( layoutChanges ) {
+      this.computeLayout();
+      this.layoutChanged.emit(this.layout);
+      this.createComponents();
+    }
+
+    if ( nodeChanges ) {
+      if ( layoutChanges ) return; //items already displayed, no need to update right now
+      this.onPathChanged();
+    }
+  }
   
-  ngAfterViewInit() {
-    this.createComponents();
+  ngAfterViewInit() { this.createComponents(); }
+
+  private computeLayout() {
+    if ( !this.layout ) return;
+    this.gridColumns = 'repeat(' + this.layout.grid[1] + ', minmax(0, 1fr))';
+    this.gridRows = 'repeat(' + this.layout.grid[0] + ', minmax(0, 1fr))';
+    this.gridAreaTemplate = this.layout.template;
   }
 
   private createComponents() {
     if ( !this.ref || !this.layout ) return;
+    
     this.clear();
-    for ( let name of Object.keys(this.layout.areas) ) {
+    let keys = Object.keys(this.layout.areas),
+      n = keys.length;
+    
+    for ( let name of keys ) {
       let desc = this.layout.areas[name];
       if ( !desc ) throw '[GridManager -- createComponents]: Unknown component.';
       let cls = this.widgetManager.findComponent(desc[3]);
       let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
-      let component = this.ref.createComponent(factory);
-      component.instance.gridArea = name;
+      let component = this.ref.createComponent(factory),
+        instance = component.instance;
       
+      instance.gridArea = name;
       /**** object properties *****/
-      //component.instance.properties.grid = this;
-      component.instance.properties.title = desc[0];
-      component.instance.properties.description = desc[1];
-      component.instance.properties.unit = desc[2];
-      component.instance.properties.arguments = <BasicWidgetParams>desc[4];
+      instance.properties.title = desc[0];
+      instance.properties.description = desc[1];
+      instance.properties.unit = desc[2];
+      instance.properties.arguments = <BasicWidgetParams>desc[4];
       /***************************/
       
-      this.instances.push(component.instance);
+      let self = this;
+      this.instances.push(instance);
       this.ref.insert(component.hostView);
+      this.once(instance.ready, function(this: GridArea) {
+        n--;
+        if ( !n )
+          self.state.next({loaded: true, instances: self.instances})
+      });
     }
     this.cd.detectChanges();
-    this.state.next({
-      loaded: true,
-      instances: this.instances
-    });
   }
 
-  onPathChanged() {
+  protected onPathChanged() {
     if ( this._paused ) return;
     for ( let component of this.instances ) {
       component.onPathChanged(this.node);
@@ -129,13 +124,12 @@ export class GridManager implements Interactive {
     }
   }
 
+  pause() { this._paused = true; }
   interactiveMode() {
     if ( !this._paused ) return;
     this._paused = false;
     this.onPathChanged();
   }
-
-  pause() { this._paused = true; }
 
   clear() {
     while ( this.ref.length )
@@ -150,21 +144,9 @@ export class GridManager implements Interactive {
       component.update();
   }
 
-  /* = delete */
-  reload() {
-    this.clear();
-    this.createComponents();
-  }
-
   ngOnDestroy() {
+    super.ngOnDestroy();
     this.clear();
     this.state.complete();
-  }
-
-  private computeLayout() {
-    if ( !this.layout ) return;
-    this.gridColumns = 'repeat(' + this.layout.grid[1] + ', minmax(0, 1fr))';
-    this.gridRows = 'repeat(' + this.layout.grid[0] + ', minmax(0, 1fr))';
-    this.gridAreaTemplate = this.layout.template;
-  }
+  } 
 }

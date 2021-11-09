@@ -483,9 +483,9 @@ class DEH{  // for DataExtractionHelper
     return finitionAgentsOfDrv;
   }
 
-  static getOtherYearDashboards(tree: Tree, height: number = 0) {
+  static getLastYearDashboards(tree: Tree, height: number = 0) {
     let name = tree.hasTypeOf(GeoExtractionHelper) ? 'levelGeo' : 'levelTrade';
-    let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
+    let level = this.get(name + '_ly', false, false);
     while ( height-- > 0 )
       level = level[this.SUBLEVEL_INDEX];
       return level[this.DASHBOARD_INDEX] || [];

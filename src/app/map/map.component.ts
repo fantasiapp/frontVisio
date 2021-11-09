@@ -6,15 +6,17 @@ import { DataService } from '../services/data.service';
 import { MapFiltersComponent } from './map-filters/map-filters.component';
 import { MapLegendComponent } from './map-legend/map-legend.component';
 import { MapIconBuilder } from './MapIconBuilder';
+import { shuffle, round } from '../interfaces/Common';
 
+//a more general type to manipulate everything markers more easily
 type MarkerType = {
   pdv: PDV;
   position: google.maps.LatLng;
   icon?: google.maps.ReadonlyIcon;
-  map?: google.maps.Map;
   title?: string;
-  ref?: google.maps.Marker;
+  ref?: google.maps.Marker; //a reference to the true marker if we have any
 };
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -22,8 +24,26 @@ type MarkerType = {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends SubscriptionManager {
+  private hidden: boolean = true;
+  get shown() { return !this.hidden; }
+
   @HostBinding('style.display')
   private get display() { return this.hidden ? 'none' : 'flex'; }
+
+  hide() {
+    if ( this.hidden ) return;
+    this.hidden = true;
+    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
+    this.logger.actionComplete();
+  }
+
+  show() {
+    if ( this.shown ) return;
+    if ( this.shouldUpdateIcons )  this.onDataUpdate();
+    this.hidden = false;
+    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, true);
+    this.logger.actionComplete();
+  }
 
   @ViewChild(MapFiltersComponent)
   filters?: MapFiltersComponent;
@@ -35,9 +55,7 @@ export class MapComponent extends SubscriptionManager {
   mapContainer?: ElementRef;
   
   selectedPDV?: PDV;
-  private hidden: boolean = true;
   private markers: MarkerType[] = [];
-  get shown() { return !this.hidden; }
 
   private map?: google.maps.Map;
   private infowindow: any = {};
@@ -45,29 +63,10 @@ export class MapComponent extends SubscriptionManager {
   private shouldUpdateIcons: boolean = false;
   private pdvs: PDV[] = [];
   
-  hide() {
-    if ( this.hidden ) return;
-    this.hidden = true;
-    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, false);
-    this.logger.actionComplete();
-  }
-
-  show() {
-    if ( this.shown ) return;
-    if ( this.shouldUpdateIcons )
-      this.onDataUpdate();
-
-    this.hidden = false;
-    this.logger.handleEvent(LoggerService.events.MAP_STATE_CHANGED, true);
-    this.logger.actionComplete();
-  }
-  
   constructor(private dataservice: DataService, private logger: LoggerService, private cd: ChangeDetectorRef) {
     super();
-    //console.log('[MapComponent]: On');
     MapIconBuilder.initialize();
-    this.initializeInfowindow();
-    
+    this.initializeInfowindow();    
     this.subscribe(this.dataservice.update, _ => {
       this.shouldUpdateIcons = true;
 
@@ -76,9 +75,7 @@ export class MapComponent extends SubscriptionManager {
     });
   }
 
-  ngAfterViewInit() {
-    this.createMap();
-  }
+  ngAfterViewInit() { this.createMap(); }
 
   protected onDataUpdate() {
     MapIconBuilder.initialize();
@@ -102,13 +99,6 @@ export class MapComponent extends SubscriptionManager {
     this.infowindow.element = new google.maps.InfoWindow();
   }
 
-  focusPDV(pdv: PDV) {
-    let marker = this.createMarker(pdv);
-    this.adjustMap([marker]);
-    this.selectedPDV = pdv;
-    this.cd.markForCheck();
-  }
-
   onPDVsChange(pdvs: PDV[]) {
     this.pdvs = pdvs;
     //this.update();
@@ -120,6 +110,13 @@ export class MapComponent extends SubscriptionManager {
     if ( !this.map )
       this.createMap();
     this.addMarkersFromPDVs();
+  }
+
+  focusPDV(pdv: PDV) {
+    let marker = this.createMarker(pdv);
+    this.adjustMap([marker]);
+    this.selectedPDV = pdv;
+    this.cd.markForCheck();
   }
 
   private createMap() {
@@ -212,6 +209,86 @@ export class MapComponent extends SubscriptionManager {
     });
   }
 
+  private watch(property: string, pred: (value: any) => boolean, t: number = 0) {
+    return new Promise((res, rej) => {
+      if ( this[property as keyof MapComponent] === void 0 ) rej();
+      let id = setInterval(() => {
+        if ( pred(this[property as keyof MapComponent]) ) { clearTimeout(id); res(true); }
+      }, t);
+    });
+  }
+
+  private async incrementalUpdate() {
+    //wait until all is rendered
+    await this.watch('markerRenderingTimeout', (timeout) => !timeout);
+
+    let existingPDVs = new Set(this.markers.map(marker => marker.pdv)),
+      allPDVS = new Set(this.pdvs),
+      keptMarkers = this.markers.filter(marker => allPDVS.has(marker.pdv)),
+      newPdvs = this.pdvs.filter(pdv => !existingPDVs.has(pdv)),
+      deletedMarkers = this.markers.filter(marker => !allPDVS.has(marker.pdv));
+  
+    for ( let deletedMarker of deletedMarkers )
+      deletedMarker.ref?.setMap(null);
+    
+    this.markers = keptMarkers;
+    this.addMarkersFromPDVs(newPdvs);
+  }
+
+  private adjustMap(markers: MarkerType[] = this.markers) {
+    let center = [0, 0],
+    //calculate deviation, the bigger it is, the less the zoom
+      variance = [0, 0];
+    
+    markers.forEach((marker: MarkerType) => {
+      let latlng = marker.position;
+      center[0] += latlng.lat();
+      center[1] += latlng.lng();
+    });
+
+    center[0] /= markers.length;
+    center[1] /= markers.length;
+
+    markers.forEach((marker: MarkerType) => {
+      let latlng = marker.position;
+      variance[0] += Math.pow(latlng.lat() - center[0], 2);
+      variance[1] += Math.pow(latlng.lng() - center[1], 2);
+    });
+
+    variance[0] /= (markers.length - 1);
+    variance[1] /= (markers.length - 1);
+    let std = Math.sqrt(variance[0] + variance[1]);
+    let zoom = round(10.3 - 2.64*std + 0.42*std*std);
+
+    this.map!.setZoom(zoom || 13);
+    this.map!.panTo(
+      new google.maps.LatLng(
+        center[0] || 48.52,
+        center[1] || 2.19
+      )
+    );
+  }
+
+  private handleClick(pdv: PDV) {
+    this.selectedPDV = pdv;
+    this.cd.markForCheck();
+  }
+
+  private createMarker(pdv: PDV): MarkerType {
+    let lat = pdv.latitude,
+      lng = pdv.longitude,
+      icon = pdv.icon || MapIconBuilder.getIcon(pdv);
+
+    if ( !icon ) throw 'Cannot find icon, maybe ids change';
+    if ( !pdv.icon ) pdv.icon = icon;
+    return {
+      position: new google.maps.LatLng(lat, lng),
+      icon,
+      title: pdv.name,
+      pdv
+    }
+  }
+
   private addMarker(markerData: MarkerType): google.maps.Marker {
     let marker = new google.maps.Marker({
       ...markerData,
@@ -236,130 +313,6 @@ export class MapComponent extends SubscriptionManager {
     return marker;
   }
 
-  handleClick(pdv: PDV) {
-    this.selectedPDV = pdv;
-    this.cd.markForCheck();
-  }
-
-  private shuffle<T>(array: T[]) {
-    for ( let i = array.length - 1; i > 0; i-- ) {
-      let j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  displayMarkers(step = 1250, time = 400, shuffle = true) {
-    let n = this.markers.length,
-      q = (n / step) | 0,
-      a = 3 * (n - (q+1)/2*step)*q/time;
-
-    let markersToAdd = this.markers.filter(marker => !marker.ref!.getMap());
-    
-    if ( shuffle )
-      markersToAdd = this.shuffle(markersToAdd);
-    
-    let idx = 0;
-    let f = () => {
-      for ( let i = idx, l = Math.min(markersToAdd.length, idx+step); i < l; i++ )
-        if ( markersToAdd[i].ref && !(markersToAdd[i].ref!.getMap()) )
-          markersToAdd[i].ref!.setMap(this.map!);
-        
-      idx += step;
-      if ( idx < markersToAdd.length )
-        this.markerRenderingTimeout = setTimeout(f, (markersToAdd.length - idx) / a);
-      else
-        this.markerRenderingTimeout = 0;
-    }
-    f();
-    //if number is too big, wait for the animation
-  }
-
-  removeMarkers() {
-    for ( let marker of this.markers )
-      marker.ref?.setMap(null); 
-    this.markers.length = 0;
-    if ( this.markerRenderingTimeout ) {
-      clearTimeout(this.markerRenderingTimeout);
-      this.markerRenderingTimeout = 0;
-    }
-  }
-
-  private async incrementalUpdate() {
-    //wait until all is rendered
-    await this.watch('markerRenderingTimeout', (timeout) => !timeout);
-
-    let existingPDVs = new Set(this.markers.map(marker => marker.pdv)),
-      allPDVS = new Set(this.pdvs),
-      keptMarkers = this.markers.filter(marker => allPDVS.has(marker.pdv)),
-      newPdvs = this.pdvs.filter(pdv => !existingPDVs.has(pdv)),
-      deletedMarkers = this.markers.filter(marker => !allPDVS.has(marker.pdv));
-  
-    for ( let deletedMarker of deletedMarkers )
-      deletedMarker.ref?.setMap(null);
-    
-    this.markers = keptMarkers;
-    this.addMarkersFromPDVs(newPdvs);
-  }
-
-  private watch(property: string, pred: (value: any) => boolean, t: number = 0) {
-    return new Promise((res, rej) => {
-      if ( this[property as keyof MapComponent] === void 0 ) rej();
-      let id = setInterval(() => {
-        if ( pred(this[property as keyof MapComponent]) ) { clearTimeout(id); res(true); }
-      }, t);
-    });
-  }
-
-  private adjustMap(markers: MarkerType[] = this.markers) {
-    let center = [0, 0];
-    markers.forEach((marker: MarkerType) => {
-      let latlng = marker.position;
-      center[0] += latlng.lat();
-      center[1] += latlng.lng();
-    });
-
-    center[0] /= markers.length;
-    center[1] /= markers.length;
-
-    //calculate deviation, the bigger it is, the less the zoom
-    let variance = [0, 0];
-
-    markers.forEach((marker: MarkerType) => {
-      let latlng = marker.position;
-      variance[0] += Math.pow(latlng.lat() - center[0], 2);
-      variance[1] += Math.pow(latlng.lng() - center[1], 2);
-    });
-
-    variance[0] /= (markers.length - 1);
-    variance[1] /= (markers.length - 1);
-    let std = Math.sqrt(variance[0] + variance[1]);
-    let zoom = MapComponent.round(10.3 - 2.64*std + 0.42*std*std);
-
-    this.map!.setZoom(zoom || 13);
-    this.map!.panTo(
-      new google.maps.LatLng(
-        center[0] || 48.52,
-        center[1] || 2.19
-      )
-    );
-  }
-
-  private createMarker(pdv: PDV): MarkerType {
-    let lat = pdv.latitude,
-      lng = pdv.longitude,
-      icon = pdv.icon || MapIconBuilder.getIcon(pdv);
-
-    if ( !icon ) throw 'Cannot find icon, maybe ids change';
-    if ( !pdv.icon ) pdv.icon = icon;
-    return {
-      position: new google.maps.LatLng(lat, lng),
-      icon,
-      title: pdv.name,
-      pdv
-    }
-  }
-
   private addMarkersFromPDVs(pdvs: PDV[] = this.pdvs) {
     if ( pdvs.length ) {
       let markers: MarkerType[] = pdvs.map((pdv: PDV) => {
@@ -374,11 +327,34 @@ export class MapComponent extends SubscriptionManager {
     this.adjustMap();
   };
 
-  static round(x: number, threshold: number = 0.5): number {
-    let int = Math.floor(x),
-      frac = x - int;
-    if ( frac > threshold )
-      return int + 1;
-    return int;
-  };
+  displayMarkers(step = 1250, time = 400, shouldShuffle = true) {
+    let n = this.markers.length,
+      q = (n / step) | 0,
+      a = 3 * (n - (q+1)/2*step)*q/time,
+      idx = 0,
+      self = this;
+
+    let markersToAdd = this.markers.filter(marker => !marker.ref!.getMap());
+    if ( shouldShuffle ) markersToAdd = shuffle(markersToAdd);    
+    (function f() {
+      for ( let i = idx, l = Math.min(markersToAdd.length, idx+step); i < l; i++ )
+        if ( markersToAdd[i].ref && !(markersToAdd[i].ref!.getMap()) )
+          markersToAdd[i].ref!.setMap(self.map!);
+        
+      idx += step;
+      if ( idx < markersToAdd.length )
+        self.markerRenderingTimeout = setTimeout(f, (markersToAdd.length - idx) / a);
+      else self.markerRenderingTimeout = 0;
+    })();
+  }
+
+  removeMarkers() {
+    for ( let marker of this.markers )
+      marker.ref?.setMap(null); 
+    this.markers.length = 0;
+    if ( this.markerRenderingTimeout ) {
+      clearTimeout(this.markerRenderingTimeout);
+      this.markerRenderingTimeout = 0;
+    }
+  }
 };

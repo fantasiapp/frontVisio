@@ -3,10 +3,14 @@ import { Component, EventEmitter, Output, ViewChild, OnInit } from '@angular/cor
 import { PDV } from '../middle/Pdv';
 import { MapComponent } from '../map/map.component';
 import { DataService } from '../services/data.service';
-import DEH, { Params } from '../middle/DataExtractionHelper';
 import { SubscriptionManager } from '../interfaces/Common';
-import { SearchbarComponent } from '../logged-page/searchbar/searchbar.component';
+import { SearchbarComponent } from '../general/searchbar/searchbar.component';
+import DEH from '../middle/DataExtractionHelper';
 
+export type DisplayPDV = {
+  id: number;
+  wait: boolean;
+}
 
 @Component({
   selector: 'app-upperbar',
@@ -54,12 +58,6 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
     );
   }
 
-  onAnimationEnd() { this.updating = false; }
-
-  get name() {
-    return Params.rootName || 'national';
-  }
-
   get mapIsVisible() {
     return this.mapComponent?.shown ? true : false;
   }
@@ -70,10 +68,7 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
 
   toggleMap() {
     if ( !this.mapComponent?.shown ) {
-      this.mapComponent!.show();
-      // //Transition to PDV.geoTree
-      // if ( this.filtersState.treeIs(PDV.tradeTree) )
-      //   this.filtersState.reset(PDV.geoTree, false);      
+      this.mapComponent!.show();   
       this.mapVisible.emit(true);
       this.searchbar.freezeOnPattern('Points de vente');
     } else {
@@ -84,19 +79,18 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
   }
 
   updateData() {
-    if(DEH.currentYear)
-      this.dataService.requestData(true);
+    if(DEH.currentYear) this.dataService.requestData(true);
   }
 
   @Output()
-  displayPDV = new EventEmitter<number>();
+  displayPDV = new EventEmitter<DisplayPDV>();
 
   displayPDVOnMap(pdv: PDV) {
     this.mapComponent?.show();
     this.mapComponent?.focusPDV(pdv);
   }
   
-  displayPDVOnTable(pdv: PDV) {
+  tryDisplayPDVOnTable(pdv: PDV) {
     if ( this.mapComponent?.shown )
       return this.displayPDVOnMap(pdv);
     
@@ -104,6 +98,6 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
     if ( !transition )
       this.displayPDVOnMap(pdv);
     else
-      this.displayPDV.emit(pdv.id);
+      this.displayPDV.emit({id: pdv.id, wait: transition == 2 ? false : true});
   }
 }

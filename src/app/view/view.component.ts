@@ -12,6 +12,7 @@ import { TargetService } from '../widgets/description-widget/description-service
 import { Node } from '../middle/Node'
 import { SliceDice } from '../middle/Slice&Dice';
 import { SliceTable } from '../middle/SliceTable';
+import { DisplayPDV } from '../upperbar/upperbar.component';
 
 @Component({
   selector: 'app-view',
@@ -71,16 +72,24 @@ export class ViewComponent extends SubscriptionManager  {
 
   onLayoutChange(layout: Layout) { }
 
-  displayPDV(id: number) {
+  //doesnt display if already present
+  displayPDV({id, wait}: DisplayPDV) {
     let gridManager = this.gridManager!;
-    if ( gridManager.loaded )
-      (gridManager.instances[0] as TableComponent).displayInfobar(id);
-    else this.subscribe(gridManager.state, state => {
-      if ( !state.loaded ) return;
-      let table = state.instances![0] as TableComponent;
-      this.unsubscribe(gridManager.state);
+    if ( wait ) {
+      let oldState = true, toggled = false
+      this.subscribe(gridManager.state, state => {
+        toggled = state.loaded && !oldState;
+        oldState = state.loaded;
+        if ( !toggled ) return;
+        let table = state.instances![0] as TableComponent;
+        this.unsubscribe(gridManager.state);
+        this.once(table.gridLoaded!, () => table.displayInfobar(id));
+      });
+    } else {
+      let table = gridManager.instances![0] as TableComponent;
       this.once(table.gridLoaded!, () => table.displayInfobar(id));
-    });
+    }
+    
   }
 
   private computeDescription(description: string | string[]): string {
