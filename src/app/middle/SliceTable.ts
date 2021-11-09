@@ -245,12 +245,12 @@ export class SliceTable {
             return 'black'
 
         for(let sale of pdv.salesObject) {
-            if(Math.floor(Date.now()/1000) - 15778476 <= sale.date && sale.industryId !== DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0)
+            if(Math.floor(Date.now()/1000) - 15778476 <= sale.date && sale.industryId !== DEH.getIndustryId('Siniat') && sale.volume > 0)
                 return 'black';
         }
 
         for(let sale of pdv.salesObject) {
-            if(sale.industryId != DEH.INDUSTRIE_SINIAT_ID && sale.volume > 0) return 'orange'
+            if(sale.industryId != DEH.getIndustryId('Siniat') && sale.volume > 0) return 'orange'
         }
 
         return 'red'

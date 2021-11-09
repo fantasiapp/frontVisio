@@ -180,6 +180,9 @@ export class Params {
 class DEH{  // for DataExtractionHelper
   // plus tard il faudra créer des objects à la volée, par exemple avec Object.defineProperty(...)
   private static data: any;
+  private static industriesReverseDict: any;
+  private static structuresDict: {[key:string]:{[key:string]:number}}
+
   static ID_INDEX: number;
   static LABEL_INDEX: number;
   static PRETTY_INDEX: number;
@@ -192,11 +195,6 @@ class DEH{  // for DataExtractionHelper
   static DASHBOARD_COMMENT_INDEX: number;
   static WIDGETPARAMS_WIDGET_INDEX: number;
   static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
-  static INDUSTRIE_SALSI_ID: any;
-  static INDUSTRIE_PREGY_ID: any;
-  static INDUSTRIE_SINIAT_ID: any;
-  static INDUSTRIE_KNAUF_ID: any;
-  static INDUSTRIE_PLACO_ID: any;
   static AXISFORGRAHP_LABELS_ID: number;
   static LABELFORGRAPH_LABEL_ID: number;
   static LABELFORGRAPH_COLOR_ID: number;
@@ -238,6 +236,19 @@ class DEH{  // for DataExtractionHelper
     let singleFields = ['dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
     for (let field of Object.keys(this.data)) if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) this.fieldsToSwitchWithyear.push(field);
     console.log("[DataExtractionHelper] this.data updated")
+    this.industriesReverseDict = {};
+    for (let [industrieId, industrieName] of Object.entries(DEH.get('industry')))
+      this.industriesReverseDict[industrieName as string] = industrieId;
+    this.structuresDict = {};
+    for (let field of Object.keys(this.data))
+      if (field.startsWith('structure')){
+        let structure = this.get(field),
+          structureDict:{[key:string]:number} = {};
+        for (let i = 0; i < structure.length; i++)
+          structureDict[structure[i]] = i;
+        this.structuresDict[field.slice(9).toLowerCase()] = structureDict;
+      }
+    
     let structure = this.get('structureLevel');
     this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
@@ -251,11 +262,6 @@ class DEH{  // for DataExtractionHelper
     this.DASHBOARD_COMMENT_INDEX = this.get('structureDashboards').indexOf('comment');
     this.WIDGETPARAMS_WIDGET_INDEX = this.get('structureWidgetparams').indexOf('widget');
     this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.get('structureWidgetparams').indexOf('widgetCompute');
-    this.INDUSTRIE_SALSI_ID = this.getKeyByValue(this.get('industry'), 'Salsi');
-    this.INDUSTRIE_PREGY_ID = this.getKeyByValue(this.get('industry'), 'Prégy');
-    this.INDUSTRIE_SINIAT_ID = this.getKeyByValue(this.get('industry'), 'Siniat');
-    this.INDUSTRIE_KNAUF_ID = this.getKeyByValue(this.get('industry'), 'Knauf');
-    this.INDUSTRIE_PLACO_ID = this.getKeyByValue(this.get('industry'), 'Placo');
     this.AXISFORGRAHP_LABELS_ID = this.get('structureAxisforgraph').indexOf('labels');
     this.LABELFORGRAPH_LABEL_ID = this.get('structureLabelforgraph').indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.get('structureLabelforgraph').indexOf('color');
@@ -389,8 +395,16 @@ class DEH{  // for DataExtractionHelper
   static getNameOfRegularObject(field:string, id:number){
     return this.get(field)[id];
   }
+
+  static getPositionOfAttr(field:string, argName:string){
+    return this.structuresDict[field.toLowerCase()][argName];
+  }
+
+  static getIndustryId(industryName:string){
+    return this.industriesReverseDict[industryName];
+  }
   
-  // Ca ne marche pas encore pour les exceptions
+  // It works only on regular cases
   static getStructure(field:string){
     return this.get("structure" + field[0].toUpperCase() + field.slice(1).toLowerCase());
   }
