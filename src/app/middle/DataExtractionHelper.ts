@@ -196,13 +196,10 @@ class DEH{  // for DataExtractionHelper
   static TARGET_REDISTRIBUTED_FINITIONS_ID: number;
   static TARGET_COMMENT_ID: number;
   static TARGET_BASSIN_ID: number;
-  static TARGET_ID: any;
-  static SALES_ID: any;
   static SALES_DATE_ID: any;
   static SALES_INDUSTRY_ID: any;
   static SALES_PRODUCT_ID: any;
   static SALES_VOLUME_ID: any;
-  static SALE_ID: any;
   static AGENTFINITION_TARGETVISITS_ID: number;
   static AGENTFINITION_DRV_ID: number;
   static AGENTFINITION_RATIO_ID: number;
@@ -244,7 +241,6 @@ class DEH{  // for DataExtractionHelper
     this.AXISFORGRAHP_LABELS_ID = this.get('structureAxisforgraph').indexOf('labels');
     this.LABELFORGRAPH_LABEL_ID = this.get('structureLabelforgraph').indexOf('label');
     this.LABELFORGRAPH_COLOR_ID = this.get('structureLabelforgraph').indexOf('color');
-    this.TARGET_ID = this.getKeyByValue(this.get('structurePdvs'), 'target');
     this.TARGET_DATE_ID = this.get('structureTarget').indexOf('date');
     this.TARGET_REDISTRIBUTED_ID = this.get('structureTarget').indexOf('redistributed');
     this.TARGET_SALE_ID = this.get('structureTarget').indexOf('sale');
@@ -254,12 +250,10 @@ class DEH{  // for DataExtractionHelper
     this.TARGET_COMMENT_ID = this.get('structureTarget').indexOf('commentTargetP2CD');
     this.TARGET_REDISTRIBUTED_FINITIONS_ID = this.get('structureTarget').indexOf('redistributedFinitions');
     this.TARGET_BASSIN_ID = this.get('structureTarget').indexOf('bassin');
-    this.SALES_ID = this.getKeyByValue(this.get('structurePdvs'), 'sales');
     this.SALES_DATE_ID = this.get('structureSales').indexOf('date');
     this.SALES_INDUSTRY_ID = this.get('structureSales').indexOf('industry');
     this.SALES_PRODUCT_ID = this.get('structureSales').indexOf('product');
     this.SALES_VOLUME_ID = this.get('structureSales').indexOf('volume');
-    this.SALE_ID = this.getKeyByValue(this.get('structurePdvs'), 'sale');
     this.AGENTFINITION_TARGETVISITS_ID = this.get('structureAgentfinitions').indexOf('TargetedNbVisit');
     this.AGENTFINITION_DRV_ID = this.get('structureAgentfinitions').indexOf('drv');
     this.AGENTFINITION_RATIO_ID = this.get('structureAgentfinitions').indexOf('ratioTargetedVisit');
