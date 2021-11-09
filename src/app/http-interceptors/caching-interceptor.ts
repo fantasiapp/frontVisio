@@ -5,30 +5,27 @@ import { tap } from "rxjs/operators";
 import { LocalStorageService } from "../services/local-storage.service";
 import { DataService } from "../services/data.service";
 
-
+/**
+ * On login, and stayConnected, provides locally stored data
+ */
 @Injectable()
-export class CachingInterceptor implements HttpInterceptor{ // Checks if it is necessary to ask for the data 
+export class CachingInterceptor implements HttpInterceptor{
 
     constructor(private localStorageService: LocalStorageService, private dataService: DataService) {}
     
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>{
 
-        if (!this.isCacheable(req)) {
-            return next.handle(req);
-        }
-
+        if (!this.isCacheable(req)) {return next.handle(req);}
         if(this.localStorageService.getStayConnected()) {
             if(!this.dataService.forceRequestData)
             return of(new HttpResponse<any>({'body': this.localStorageService.getData()}));
         }
         return next.handle(req).pipe(
                 tap(stateEvent => {
-                    if(stateEvent instanceof HttpResponse) {
-                        this.localStorageService.saveData(stateEvent.body)
-                    }
+                    if(stateEvent instanceof HttpResponse) {this.localStorageService.saveData(stateEvent.body)}
                 })
         )
-    }    
+    }
 
     isCacheable(req: HttpRequest<any>) {
         if (req.method === 'GET' && req.urlWithParams.includes("action=dashboard")) {
@@ -36,8 +33,6 @@ export class CachingInterceptor implements HttpInterceptor{ // Checks if it is n
         }
         return false;
     }
-    
-
 }
 
 

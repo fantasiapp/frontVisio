@@ -1,11 +1,13 @@
 import { Injectable } from "@angular/core";
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { Observable, of, throwError } from "rxjs";
-import { catchError, tap } from "rxjs/operators";
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse } from "@angular/common/http";
+import { Observable, throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
 import { AuthService } from "../connection/auth.service";
 import { DataService } from "../services/data.service";
 
-
+/**
+ * Handle http-errors, and define specific behaviours
+ */
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor{
 
@@ -13,12 +15,6 @@ export class ErrorInterceptor implements HttpInterceptor{
 
     intercept(req: HttpRequest<any>, next: HttpHandler):
         Observable<HttpEvent<any>> {
-            
-            // if(req.urlWithParams.includes("action=update")) {
-            //   console.log("Update intercepted in Error Interceptor : ", req)
-            //   return of(new HttpResponse<any>());
-            // }
-
             return next.handle(req).pipe(
                 catchError((error: HttpErrorResponse) => {
                   let errorMsg = '';
@@ -31,11 +27,9 @@ export class ErrorInterceptor implements HttpInterceptor{
                     //console.log('Server-side error');
                     errorMsg = `Error Code: ${error.status},  Message: ${error.message}`;
                   }
-                  //console.debug(errorMsg);
                   if(req.method === "POST" && req.urlWithParams.includes("action=update")) //not so clean
                       this.dataService.queueUpdate(req.body);
-                  if(error.status === 401) {
-                    //console.log("Unauthorized token")
+                  if(error.status === 401) { //Unauthorized
                     this.auth.logoutFromServer()
                   }
                   return throwError(errorMsg);

@@ -32,7 +32,7 @@ export class TableComponent extends BasicWidget {
   gridOptions: any;
   columnDefs: any;
   rowData: PDV[] = [];
-  /** Side menus **/
+  /** Side-bar input **/
   pdv?: PDV;
   /** Graph description **/
   showDescription: boolean = false;

@@ -13,7 +13,7 @@ import {Node} from './Node';
 
                       /**************/
                       /*  Strucures */
-                      /**************/   // Used to type the variables, and make use of TypeScript
+                      /**************/
 
 
 /** Built to behave like a PDV type for the AgGrid **/
