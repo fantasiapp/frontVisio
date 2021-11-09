@@ -88,11 +88,9 @@ export class AuthService {
 
   logoutFromServer() {
     setTimeout(() => {
-      this.dataService.endUpdateThread(); 
       this.dataService.sendQueuedDataToUpdate();
       this.localStorageService.handleDisconnect();
       this.isLoggedIn.next(false);
-      this.dataService.response.next(null);
       DEH.resetData();
       this.router.navigate(['login']);
     }, 1000);

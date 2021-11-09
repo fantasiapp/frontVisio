@@ -94,6 +94,7 @@ export class ViewComponent extends SubscriptionManager  {
 
   @HostListener('window:beforeunload')
   ngOnDestroy(): void {
+    console.log('Destroyed')
     super.ngOnDestroy();
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();
