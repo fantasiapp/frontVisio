@@ -22,16 +22,14 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
   isFilterVisible = false;
   searchModel: string = '';
   updating: boolean = false;
-  @Output() onChange: EventEmitter<any> = new EventEmitter<{ value: string }>();
-  @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
 
-  @ViewChild(SearchbarComponent)
-  private searchbar!: SearchbarComponent;
+  @Output() mapVisible: EventEmitter<boolean> = new EventEmitter();
   
+  @ViewChild(SearchbarComponent)
+  private searchbar?: SearchbarComponent;
   @ViewChild('map', {read: MapComponent, static: false})
   mapComponent?: MapComponent;
 
-  private change = DEH.currentYear;
   constructor(private filtersState: FiltersStatesService, private dataService: DataService) {
     super();
   }
@@ -74,11 +72,11 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
     if ( !this.mapComponent?.shown ) {
       this.mapComponent!.show();   
       this.mapVisible.emit(true);
-      this.searchbar.freezeOnPattern('Points de vente');
+      this.searchbar!.freezeOnPattern('Points de vente');
     } else {
       this.mapComponent?.hide();
       this.mapVisible.emit(false);
-      this.searchbar.cancelPatternFreeze();
+      this.searchbar!.cancelPatternFreeze();
     }
   }
 
@@ -86,9 +84,7 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
     if(DEH.currentYear) this.dataService.requestData(true);
   }
 
-  @Output()
-  displayPDV = new EventEmitter<DisplayPDV>();
-
+  @Output() displayPDV = new EventEmitter<DisplayPDV>();
   displayPDVOnMap(pdv: PDV) {
     this.mapComponent?.show();
     this.mapComponent?.focusPDV(pdv);

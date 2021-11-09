@@ -48,7 +48,7 @@ export class ViewComponent extends SubscriptionManager  {
 
     this.subscribe(this.dataservice.update, () => {
       //just update
-      this.sliceDice.updateCurrentNode(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
+      this.sliceDice.updateCurrentNode(this.node = this.filtersService.tree!.follow(this.node!.path));
       this.cd.markForCheck();
     });
 

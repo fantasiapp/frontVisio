@@ -133,10 +133,17 @@ export class Tree {
     return this.attributes['labels'].length;
   }
 
-  follow(path: number[]) {
+  follow(path: number[] | Node[]) {
     let node = this.root;
-    for ( let id of path.slice(1) )
-      node = node.goChild(id);
+    if ( typeof path[0] == 'number' ) {
+      path = path as Node[];
+      for ( let id of (path as unknown as number[]).slice(1) )
+        node = node.goChild(id);
+    } else {
+      path = path as Node[];
+      for ( let level of (path as unknown as Node[]).slice(1) )
+        node = node.goChild(level.id);
+    }
     return node;
   }
 
