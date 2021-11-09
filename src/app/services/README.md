@@ -41,3 +41,20 @@ The service is responsible the communication with the server through requests. S
     - `updateTargetLevel(targetLevel: number[], targetLevelName: UpdateFields, id: number)` to modify a targetLevel (`'targetLevelAgentP2CD'`, `'targetLevelAgentFinitions'` or `'targetLevelDrv'`) *(update sent synchronously)*
     - `queueSnapshot(snapshot: Snapshot)` to send a log *(logs sent asynchronously)*
   
+### [LocalStorageService](./local-storage.service.ts)
+
+The service manages the data stored directly in the navigator. As long as it's not requested, it is never deleted, to allow data persistence offline.
+
+| Key | Expected value type | Description |
+| :- | :- | :- |
+| data | Object | Stores the last full data object received from the server. Removed at disconnection, or when the tab is closed if stayConnected is false.  |
+| stayConnected | boolean | Checked to handle the disconnection behaviour |
+| lastUpdateTimestamp | number | Used in update requests for the server. Updated on data or update requests responses. |
+| token | string | Stores the token of the active session |
+| lastToken | string | Stores the token of the last active session : if the user worked offline, and disconnected offline, used to send the queued updates at the next connection (online). Supposedly never left null |
+| queuedDataToUpdate | UpdateDataWithLogs | Stores the queued updates between POST update requests. |
+| alreadyConnected | string | Specifies if the app use already opened with the same navigator |
+
+This service also provied the public function `handleDisconnect(forceClear: boolean = false)`. It cleans the local storage according to the different app closing scenarii :<br>
+`-` **normal behaviour** : called by [ViewComponent](../view/view.component.ts) in `ngOnDestroy()`, it checks if the token stored in the session storage and in the local storage are the same, then if the user chose to stay connected. If not, it clears `lastUpdateTimestamp`, `data`, `token`, and `stayConnected` <br>
+`-` **anormal behaviour** : called by [LoginPageComponent](../login-page/login-page.component.ts) in `enableForceLogin()`, it should delete everything except `lastToken` and `queuedDataToUpdate`
