@@ -1,5 +1,5 @@
 import { Directive, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { FiltersStatesService } from '../filters/filters-states.service';
+import { FiltersStatesService } from '../services/filters-states.service';
 import { SubscriptionManager } from '../interfaces/Common';
 import { PDV } from '../middle/Pdv';
 
