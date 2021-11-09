@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, ChangeDetectorRef, Input } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { DataService } from 'src/app/services/data.service';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, Input } from '@angular/core';
 import { TargetService } from './description-service.service';
 import { BasicWidget } from '../BasicWidget';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
@@ -28,9 +26,11 @@ export class DescriptionWidgetComponent extends SubscriptionManager {
     this.values = CD.computeDescriptionWidget(value!);
   };
 
-  constructor(private targetService: TargetService) {
+  constructor(public targetService: TargetService) {
     super();
   }
+
+  ngOnInit() { this.targetService.reset(); }
 
   get volume() {
     return BasicWidget.format(this.values[1 - this.currentSelection][0]);

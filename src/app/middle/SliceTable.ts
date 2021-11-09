@@ -5,7 +5,19 @@ import { SliceDice } from "./Slice&Dice";
 import { PDV } from "./Pdv";
 import {Node} from './Node';
 
-type GroupRow = { //Built to behave like a PDV type for the agGrid
+/**
+ * The tableComponent is the only Widget using the AgGrid library
+ * TableSlice implements the specific function this library needs, and relies as much as possible on existing methods in SliceDice
+ */
+
+
+                      /**************/
+                      /*  Strucures */
+                      /**************/   // Used to type the variables, and make use of TypeScript
+
+
+/** Built to behave like a PDV type for the AgGrid **/
+type GroupRow = {
     name: {
         name: string;
         number: number;
@@ -16,6 +28,17 @@ type GroupRow = { //Built to behave like a PDV type for the agGrid
     groupRow: boolean;
 }
 
+/** Used by AgGrid to define a column **/
+interface ColumnConfig {
+    field: string;
+    hide: boolean;
+    flex?: number;
+    valueGetter?: (params: any) => any;
+    colSpan?: (params: any) => number;
+    cellStyle?: (params: any) => any;
+}
+
+/** Structure passed to TableComponent to initiate its variables **/
 export type TableData = {
     columnDefs: {[k: string]: any}[];
     navOpts: {id: any, name: any}[];
@@ -23,120 +46,149 @@ export type TableData = {
     colInfos: {field: string, values: string[]};
 }
 
+/** All hard-coded variables are built for theses 2 possible table types **/
+export enum TableTypes {
+    p2cd = 'p2cd',
+    enduit = 'enduit'
+  }
+
+/** Properties I chose to define a TableComponent (using AgGrid) **/
+enum TableProperties {
+    computeTitle = 'computeTitle',
+    navIds = 'navIds',
+    navNames = 'navNames',
+    visibleColumns = 'visibleColumns',
+    customSort = 'customSort',
+    customGroupSort = 'customGroupSort',
+    groupRowConfig = 'groupRowConfig'
+}
+
+@Injectable({
+    providedIn: 'root'
+  })
 @Injectable()
 export class SliceTable {
-    private sortedPdvsList: PDV[] = [];
-    private pdvsWithGroupslist: PDV[] = [];
+
+                      /**************/
+                      /*  Variables */
+                      /**************/
+
+    private sortedPdvsList: PDV[] = []; //List of all pdvs during the building of a Table
+    private pdvsWithGroupslist: PDV[] = []; //Sorted list of all pdvs + GroupRow instances to provide the agGrid component
     groupInfos: {field: string, values: string[]} = {field : '', values: []};
-    private columnDefs: {[k: string]: any}[] = [];
 
     static currentGroupField: string = "enseigne";
 
-    //type : 'p2cd' or 'enduit'
-    private tableConfig : {[type: string]: {[property: string]: any}} = {
+    private tableConfig : {[type in TableTypes]: {[property in TableProperties]: any}} = {
         'p2cd': {
-            'computeTitle': () =>[
-                this.sortedPdvsList.length,
-                this.sortedPdvsList.reduce((totalSiniat: number, pdv: PDV) => totalSiniat + pdv.siniatSales,0),
-                this.sortedPdvsList.reduce((totalSales: number, pdv: PDV) => totalSales + pdv.totalSales,0)
-                ],
-            'navIds': () => this.sliceDice.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
-            'navNames': () => this.sliceDice.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
-            'visibleColumns': [
-                {field: 'name', flex: 1},
-                {field: 'siniatSales', flex: 1},
-                {field: 'totalSales', flex: 1},
-                {field: 'edit', flex: 0.35},
-                {field: 'checkboxP2cd', flex: 0.35, valueGetter: 
-                    (params : any) => {
-                        if (params.data.groupRow) return false;
-                        else {
-                            if (!params.data.target) return false;
-                            else return params.data.target[5] !== 'r'
-                        }
-                    }
-                },
-                {field: 'pointFeu', flex: 0.35}],
-            'customSort': (a: PDV, b: PDV) => {return b.totalSales - a.totalSales},
-            'customGroupSort': (a: PDV[], b: PDV[]) => { return b[0].totalSales - a[0].totalSales },
-            'groupRowConfig': (group: {groupKey: string, pdvs: PDV[]}) => {
-                let groupAsList: (PDV|GroupRow)[] = [];
-                let groupRow: GroupRow = {
-                    'name': {'name': group.groupKey, 'number': group.pdvs.length},
-                    'siniatSales' : group.pdvs.reduce((totalSiniatSales: number, pdv: PDV) => totalSiniatSales + pdv.siniatSales, 0),
-                    'totalSales' : group.pdvs.reduce((totalTotalSales: number, pdv: PDV) => totalTotalSales + pdv.totalSales, 0),
-                    'groupRow' : true
-                    }
-                    groupAsList = groupAsList.concat(groupRow)
-                    groupAsList = groupAsList.concat(group.pdvs);
-                return groupAsList;
-            }
+                'computeTitle':     () => [
+                                        this.sortedPdvsList.length,
+                                        this.sortedPdvsList.reduce((totalSiniat: number, pdv: PDV) => totalSiniat + pdv.siniatSales,0),
+                                        this.sortedPdvsList.reduce((totalSales: number, pdv: PDV) => totalSales + pdv.totalSales,0)
+                                     ],
+                'navIds':           () => this.sliceDice.geoTree ? ['enseigne', 'clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'] : ['clientProspect', 'segmentMarketing', 'segmentCommercial', 'ensemble'],
+                'navNames':         () => this.sliceDice.geoTree ? ['Enseigne', 'Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'] : ['Client prosp.', 'Seg. Mark', 'Seg. Port.', 'Ensemble'],
+                'visibleColumns':   [
+                                        {field: 'name', flex: 1},
+                                        {field: 'siniatSales', flex: 1},
+                                        {field: 'totalSales', flex: 1},
+                                        {field: 'edit', flex: 0.35},
+                                        {field: 'checkboxP2cd', flex: 0.35, valueGetter: 
+                                            (params : any) => {
+                                                if (params.data.groupRow) return false;
+                                                else {
+                                                    if (!params.data.target) return false;
+                                                    else return params.data.target[5] !== 'r'
+                                                }
+                                            }
+                                        },
+                                        {field: 'pointFeu', flex: 0.35}
+                                    ],
+                'customSort':       (a: PDV, b: PDV) => {return b.totalSales - a.totalSales},
+                'customGroupSort':  (a: PDV[], b: PDV[]) => { return b[0].totalSales - a[0].totalSales },
+                'groupRowConfig':   (group: {groupKey: string, pdvs: PDV[]}) => {
+                                        let groupAsList: (PDV|GroupRow)[] = [];
+                                        let groupRow: GroupRow = {
+                                            'name': {'name': group.groupKey, 'number': group.pdvs.length},
+                                            'siniatSales' : group.pdvs.reduce((totalSiniatSales: number, pdv: PDV) => totalSiniatSales + pdv.siniatSales, 0),
+                                            'totalSales' : group.pdvs.reduce((totalTotalSales: number, pdv: PDV) => totalTotalSales + pdv.totalSales, 0),
+                                            'groupRow' : true
+                                            }
+                                            groupAsList = groupAsList.concat(groupRow)
+                                            groupAsList = groupAsList.concat(group.pdvs);
+                                        return groupAsList;
+                                    }
         },
 
         'enduit': {
-            'computeTitle': () =>[
-                this.sortedPdvsList.length,
-                this.sortedPdvsList.reduce((totalTarget: number, pdv: PDV) => totalTarget + (pdv.potential > 0  && pdv.targetFinition === true ? pdv.potential : 0),0),
-                this.sortedPdvsList.reduce((totalPotential: number, pdv: PDV) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)
-                ],
-            'navIds': () => this.sliceDice.geoTree ? ['enseigne', 'typology', 'segmentMarketing', 'ensemble'] : ['typology', 'segmentMarketing', 'ensemble'],
-            'navNames': () => this.sliceDice.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
-            'visibleColumns': [
-                {field: 'name', flex: 1},
-                {field: 'nbVisits', flex: 0.4},
-                {field: 'graph', flex: 1, valueGetter: 
-                    (params: any) => {
-                        if (params.data.groupRow) {
-                            let value = 0; params.api.forEachNode(function(node: any)
-                            {
-                                if (node.data.targetFinition && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential
-                            });
-                            return value; 
-                        }
-                        else return params.data.graph
-                    }
-                },
-                {field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},
-                {field: 'targetFinition', flex: 0.3}],
-            'customSort': (a: PDV, b: PDV) => {return b.potential - a.potential},
-            'customGroupSort': (a: PDV[], b: PDV[]) => { return b[0].potential - a[0].potential },
-            'groupRowConfig': (group: {groupKey: string, pdvs: PDV[]}) => {
-                let groupAsList: (PDV|GroupRow)[] = [];
-                let groupRow: GroupRow = {
-                    'name': {'name': group.groupKey, 'number': group.pdvs.length},
-                    'potential': group.pdvs.reduce((totalPotential: number, pdv:PDV) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0), 0),
-                    'groupRow': true
-                }
-                groupAsList = groupAsList.concat(groupRow)
-                groupAsList = groupAsList.concat(group.pdvs);
-                return groupAsList;
-            }
+                'computeTitle':     () => [
+                                        this.sortedPdvsList.length,
+                                        this.sortedPdvsList.reduce((totalTarget: number, pdv: PDV) => totalTarget + (pdv.potential > 0  && pdv.targetFinition === true ? pdv.potential : 0),0),
+                                        this.sortedPdvsList.reduce((totalPotential: number, pdv: PDV) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0),0)
+                                    ],
+                'navIds':           () => this.sliceDice.geoTree ? ['enseigne', 'typology', 'segmentMarketing', 'ensemble'] : ['typology', 'segmentMarketing', 'ensemble'],
+                'navNames':         () => this.sliceDice.geoTree ? ['Enseigne', 'Typologie PdV', 'Seg. Mark.', 'Ensemble'] : ['Typologie PdV', 'Seg. Mark.', 'Ensemble'],
+                'visibleColumns':   [
+                                        {field: 'name', flex: 1},
+                                        {field: 'nbVisits', flex: 0.4},
+                                        {field: 'graph', flex: 1, valueGetter: 
+                                            (params: any) => {
+                                                if (params.data.groupRow) {
+                                                    let value = 0; params.api.forEachNode(function(node: any)
+                                                    {
+                                                        if (node.data.targetFinition && node.data[SliceTable.currentGroupField] === params.data.name.name && node.data.potential > 0) value+=node.data.potential
+                                                    });
+                                                    return value; 
+                                                }
+                                                else return params.data.graph
+                                            }
+                                        },
+                                        {field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},
+                                        {field: 'targetFinition', flex: 0.3}
+                                    ],
+                'customSort':       (a: PDV, b: PDV) => {return b.potential - a.potential},
+                'customGroupSort':  (a: PDV[], b: PDV[]) => { return b[0].potential - a[0].potential },
+                'groupRowConfig':   (group: {groupKey: string, pdvs: PDV[]}) => {
+                                        let groupAsList: (PDV|GroupRow)[] = [];
+                                        let groupRow: GroupRow = {
+                                            'name': {'name': group.groupKey, 'number': group.pdvs.length},
+                                            'potential': group.pdvs.reduce((totalPotential: number, pdv:PDV) => totalPotential + (pdv.potential > 0 ? pdv.potential : 0), 0),
+                                            'groupRow': true
+                                        }
+                                        groupAsList = groupAsList.concat(groupRow)
+                                        groupAsList = groupAsList.concat(group.pdvs);
+                                        return groupAsList;
+                                    }
         }
     }
 
+                      /********************************************/
+                      /*  Private methods used for data computing */
+                      /********************************************/
+
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){}
 
-    getPdvs(type: string): PDV[] { // Transforms pdv from lists to objects, and counts title informations
+    getPdvs(type: TableTypes): PDV[] { // Transforms pdv from lists to objects, and counts title informations
         this.sortedPdvsList = SliceDice.currentSlice;
         this.sortedPdvsList.sort(this.tableConfig[type]['customSort'])
         this.pdvsWithGroupslist = this.buildGroups(type);
         return this.pdvsWithGroupslist;
     }
 
-    getAllHiddenColumns(type: string) {
+    private getAllHiddenColumns(type: TableTypes) {
         let visibleFields = this.tableConfig[type]['visibleColumns'].map((val: {'field': string}) => val.field);
-        return DEH.get('structurePdvs').concat(this.tableConfig[type]['specificColumns']).filter((field: string) => !visibleFields.includes(field));;
+        return DEH.get('structurePdvs').filter((field: string) => !visibleFields.includes(field));;
     }
 
-    getColumnDefs(type: string): {}[]{
-        let columnDefs: {[key:string]: any}[] = [];
+    private getColumnDefs(type: TableTypes): ColumnConfig[]{
+        let columnDefs: ColumnConfig[] = [];
 
         for(let field of this.getAllHiddenColumns(type)) { //first all hidden fields
-            let column = {'field': field, 'hide': true}
+            let column: ColumnConfig = {'field': field, 'hide': true}
             columnDefs.push(column);
         }
         for(let visibleColumn of this.tableConfig[type]['visibleColumns']) { //then visible, to ensure order
-            let column : any = {
+            let column : ColumnConfig = {
                 'field': visibleColumn.field,
                 'flex': visibleColumn.flex,
                 'hide': false,
@@ -146,15 +198,18 @@ export class SliceTable {
             columnDefs.push(column);
         }
 
-        this.columnDefs = columnDefs; 
-        return this.columnDefs;
+        return columnDefs;
     }
 
-    getNavIds(type: string): string[] {
+                      /**************************************/
+                      /*  Public methods for TableComponent */
+                      /**************************************/
+
+    public getNavIds(type: TableTypes): string[] {
         return this.tableConfig[type]['navIds']();
     }
 
-    getNavOpts(type: string): {id: any, name: any}[] {
+    getNavOpts(type: TableTypes): {id: any, name: any}[] {
         let array: {id: any, name: any}[] = []
         let navIds = this.tableConfig[type]['navIds']();
         let navNames = this.tableConfig[type]['navNames']();
@@ -162,15 +217,15 @@ export class SliceTable {
         return array;
     }
 
-    computeTitle(type: string){
+    computeTitle(type: TableTypes){
         return this.tableConfig[type]['computeTitle']();;
     }
 
-    getData(type: string): TableData{
+    getData(type: TableTypes): TableData{
         return {columnDefs: this.getColumnDefs(type), navOpts: this.getNavOpts(type), pdvs: this.getPdvs(type), colInfos: this.groupInfos};
     }
 
-    buildGroups(type: string) {
+    buildGroups(type: TableTypes) {
         let pdvsByGroup = new Map<string, PDV[]>();
         for(let pdv of this.sortedPdvsList){
             if(pdvsByGroup.get(pdv[SliceTable.currentGroupField as keyof PDV]) === undefined) pdvsByGroup.set(pdv[SliceTable.currentGroupField as keyof PDV], [pdv]);
@@ -217,6 +272,10 @@ export class SliceTable {
         }
         return hardCodedColors[axis][enseigne];
     }
+
+                      /**************************/
+                      /*  Methods updating Data */
+                      /**************************/
 
     /*** From the table component, only way to modify the data ***/
     changeTargetTargetFinitions(pdv: PDV) {

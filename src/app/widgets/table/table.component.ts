@@ -2,10 +2,10 @@ import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/co
 import { FiltersStatesService } from 'src/app/filters/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { PDV } from 'src/app/middle/Pdv';
-import { SliceTable, TableData } from 'src/app/middle/SliceTable';
+import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
-import { AsyncSubject, Observable } from 'rxjs';
+import { AsyncSubject } from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 
@@ -19,90 +19,95 @@ export class TableComponent extends BasicWidget {
   @ViewChild('title', {static: false, read: ElementRef})
   private titleContainer?: ElementRef;
   
-  //p2cd or enduit
-  type: string = 'p2cd';
+                      /**************/
+                      /*  Variables */
+                      /**************/
 
-  //Navigation menu
+  /** Can be 'p2cd' or 'enduit' **/
+  type: TableTypes = TableTypes.p2cd;
+  /** Navigation menu **/
   navOpts: any;
   currentOpt: any;
-
-  //Columns
-  defaultColDef: any;
+  /** Dynamic grid properties **/
+  gridOptions: any;
   columnDefs: any;
-
-  //Rows
   rowData: PDV[] = [];
-  rowHeight?: number;
-
-  //Side menus
+  /** Side menus **/
   pdv?: PDV;
-  redistributed: boolean = false;
-  selectedPdv?: any;
-  hasChanged: boolean = false;
-  quiting: boolean = false;
-
-  //Graph description
+  /** Graph description **/
   showDescription: boolean = false;
   description: any[] = []
   mouseX: number = 0; mouseY: number = 0;
-
-  //Apis
-  gridApi: any;
-  columnApi: any;
-  onGridReady = (params: any) => {
-    this.gridApi = params.api;
-    this.columnApi = params.columnApi;
-    this.gridObservable.subscribe(() => {
-      this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
-      this.createGraph(this.createData());
-      this.gridLoaded.next(null);
-      this.gridLoaded.complete();
-    });
-  }
-  gridObservable = new Observable();
+  /** Observables **/
   gridLoaded = new AsyncSubject<null>();
 
-  // Render
-  rowClassRules = {
-    'group-row': 'data.groupRow === true',
-    'pdv-displayed-orange': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false;if(this.sliceTable.getRowColor(params.data) == 'orange') return true; return false;},
-    'pdv-displayed-red': (params: any) =>  {if(params.data['groupRow'] || this.type == 'enduit') return false; if(this.sliceTable.getRowColor(params.data) == 'red') return true; return false;}
-  }
-  frameworkComponents = {
-    editCellRenderer: EditCellRenderer,
-    checkboxP2cdCellRenderer: CheckboxP2cdCellRenderer,
-    checkboxEnduitCellRenderer: CheckboxEnduitCellRenderer,
-    pointFeuCellRenderer: PointFeuCellRenderer,
-    noCellRenderer: NoCellRenderer,
-    targetCellRenderer: TargetCellRenderer,
-    infoCellRenderer: InfoCellRenderer,
-    addArrowCellRenderer: AddArrowCellRenderer,
-  };
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable, private cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
-    this.defaultColDef = {
-      flex: 1,
-      editable: false,
-      resizable: false,
-      suppressMovable: true,
-    };
-    this.rowHeight = 45;
+    
+    /** Static properties of the ag-grid component **/
+    this.gridOptions = {
+      rowHeight:                    45
+      ,
+      headerHeight:                 0
+      ,
+      animateRows:                  true
+      ,
+      defaultColDef: {          //Mostly used here to restrict the ag-grid behaviours
+                                    flex: 1,
+                                    editable: false,
+                                    resizable: false,
+                                    suppressMovable: true,
+      },
+      rowClassRules: {          //Allow to define dynamically classes to grid rows
+                                    'group-row': 'data.groupRow === true',
+                                    'pdv-displayed-orange': (params: any) =>  {
+                                      if(params.data['groupRow'] || this.type == 'enduit') return false;
+                                      if(this.sliceTable.getRowColor(params.data) == 'orange') return true;
+                                      return false;
+                                    },
+                                    'pdv-displayed-red': (params: any) =>  {
+                                      if(params.data['groupRow'] || this.type == 'enduit') return false;
+                                      if(this.sliceTable.getRowColor(params.data) == 'red') return true;
+                                      return false;
+                                    }
+      },
+      frameworkComponents: {    //Here are listed the renderers defined in renderer.ts used for custom cell render
+                                    editCellRenderer: EditCellRenderer,
+                                    checkboxP2cdCellRenderer: CheckboxP2cdCellRenderer,
+                                    checkboxEnduitCellRenderer: CheckboxEnduitCellRenderer,
+                                    pointFeuCellRenderer: PointFeuCellRenderer,
+                                    noCellRenderer: NoCellRenderer,
+                                    targetCellRenderer: TargetCellRenderer,
+                                    infoCellRenderer: InfoCellRenderer,
+                                    addArrowCellRenderer: AddArrowCellRenderer,
+      },
+      isExternalFilterPresent:   
+                                    () => Object.keys(hiddenGroups).length > 0
+      ,
+      doesExternalFilterPass:   //Called by the grid api on every row when the filter are changed   
+                                    (node: any) => {
+                                      if(node.data.groupRow == true) return true;
+                                      return !hiddenGroups[node.data[groupInfos.field]] === true;
+                                    }
+    }
   }
 
+                      /*****************************************/
+                      /*  Inherited Methods (from BasicWidget) */
+                      /*****************************************/
   
-  start(): void {
-    this.gridObservable = new Observable((observer) => {
-      observer.next()
-    });
-  }
+  /** Useless in this Widget **/
+  start(): void {}
 
+  /** Called when next is called on the DataService update Subject **/
   refresh() {
-    this.gridApi.redrawRows()
-    this.computeTitle()
+    this.gridOptions.api.redrawRows()
+    this.renderTitle()
   }
 
-  update() { //could be smoother ?
+  /** Called when browsing the navigation **/
+  update() {
     this.createGraph(this.createData())
   }
 
@@ -112,7 +117,7 @@ export class TableComponent extends BasicWidget {
     groupInfos = data.colInfos;
     hiddenGroups = {}
     this.rowData = data.pdvs
-    this.computeTitle()
+    this.renderTitle()
   }
 
   createData(): TableData {
@@ -121,22 +126,28 @@ export class TableComponent extends BasicWidget {
     return this.sliceTable.getData(this.type);
   }
 
+                      /******************/
+                      /*  Local methods */
+                      /******************/
 
+  /** Called by the navigation radio buttons **/
   updateGroups(id: string) {
     this.currentOpt = id;
     SliceTable.currentGroupField = this.currentOpt;
-    this.gridApi.setRowData(this.sliceTable.buildGroups(this.type))
+    this.gridOptions.api.setRowData(this.sliceTable.buildGroups(this.type))
     groupInfos = this.sliceTable.groupInfos;
     hiddenGroups = {}
   }
 
-  computeTitle() {
+  /** Called whenever the title should be updated */ 
+  private renderTitle() {
     let titleData = this.sliceTable.computeTitle(this.type);
     if(this.type === 'p2cd') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, Siniat : ${BasicWidget.format(titleData[1]/1000)}, sur un total identifié de ${BasicWidget.format(titleData[2]/1000)} en Km²`;
     if(this.type === 'enduit') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, ciblé : ${BasicWidget.format(titleData[1]/1000, 3, true)} Tonnes, sur un potentiel de ${BasicWidget.format(titleData[2]/1000)} en Tonnes`
   }
 
-  setupCellRenderers(columnDefs: any[]): any[] { //If necessary, sets the cellRenderer, or the valueFormatter of the column
+  /** Sets the necessary cellRenderer / valueFormatter for the grid columns */
+  private setupCellRenderers(columnDefs: any[]): any[] {
         for(let cd of columnDefs){
           switch (cd.field) {
             case 'name':
@@ -226,24 +237,68 @@ export class TableComponent extends BasicWidget {
     return columnDefs;
   }
 
-  onCellClicked(event: any) {
-    if(event['data'].groupRow === true) {
+  computeDescription(graphValue: {[type in TableTypes]: any[]}) {
+    return [
+      Object.entries(graphValue[TableTypes.p2cd]).map(
+        (entry: any) => [
+          entry[0],
+          {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}
+        ]
+      ),
+      Object.entries(graphValue[TableTypes.enduit]).map(
+        (entry: any) => [
+          entry[0],
+          {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}
+        ]
+      )
+    ]
+  }
+
+  displayInfobar(pdv: PDV | number) {
+    if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
+    this.pdv = PDV.findById(pdv.id) // => displays infoBar
+    this.cd.markForCheck();
+  }
+
+  /** Bound with (mousemove) on the whol agGrid component **/
+  getMousePosition() { 
+    let e = window.event as any;
+    this.mouseX = e.pageX;
+    this.mouseY = e.pageY;
+  }
+
+  /** Manages custom group feature **/
+  externalFilterChanged(value: any) {
+    if (hiddenGroups[value] === true) delete hiddenGroups[value];
+    else hiddenGroups[value] = true;
+    this.gridOptions.api.onFilterChanged();
+  }
+
+                      /*******************************/
+                      /*  Ag-Grid data bound methods */
+                      /*******************************/
+
+  onGridReady(params: any) { //Grid initializations
+    this.currentOpt = this.sliceTable.getNavIds(this.type)[0];
+    this.createGraph(this.createData());
+    this.gridLoaded.next(null);
+    this.gridLoaded.complete();
+  }
+  onCellClicked(event: any) { //
+    console.log("Data : ", event['data'], event)
+    if(event['data'].groupRow === true) { //Defines custom group feature
       this.externalFilterChanged(event['data'].name.name)
       let arrowImg = document.getElementById(event['node'].data.name.name);
       if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
       else arrowImg!.style.transform = "rotate(-0.5turn)"
     } else {
-      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') {
-        this.displayInfobar(event['data'])
-      }
+      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') this.displayInfobar(event['data'])
     }
   }
   onCellMouseOver(event: any) {
     if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
       this.showDescription = true;
-      let objectCopy = JSON.parse(JSON.stringify(event.value))
-      this.description = [(Object.entries(objectCopy['p2cd']).map((entry: any) => [entry[0], {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}])),
-              Object.entries(objectCopy['enduit']).map((entry: any) => [entry[0], {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}])]
+      this.description = this.computeDescription(JSON.parse(JSON.stringify(event.value))) // JSON.parse(JSON.stringify(object)) performs a deepcopy
     }
   }
   onCellMouseOut(event: any) {
@@ -252,34 +307,6 @@ export class TableComponent extends BasicWidget {
     }
   }
 
-  getMousePosition() {
-    let e = window.event as any;
-    this.mouseX = e.pageX;
-    this.mouseY = e.pageY;
-  }
-
-
-  displayInfobar(pdv: PDV | number) {
-    if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
-    this.selectedPdv = pdv;
-    this.pdv = PDV.findById(pdv.id) // => displays infoBar
-    this.cd.markForCheck();
-  }
-
-  externalFilterChanged(value: any) {
-    if (hiddenGroups[value] === true) delete hiddenGroups[value];
-    else hiddenGroups[value] = true;
-    this.gridApi.onFilterChanged();
-  }
-
-  isExternalFilterPresent() {
-    return Object.keys(hiddenGroups).length > 0
-  }
-
-  doesExternalFilterPass(node: any) {
-    if(node.data.groupRow == true) return true;
-    return !hiddenGroups[node.data[groupInfos.field]] === true;
-  }
 }
 
 //for an unknown reason, only works if this variables are outside the class (next time, try them as public)
