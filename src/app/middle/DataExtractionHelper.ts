@@ -244,7 +244,7 @@ class DEH{  // for DataExtractionHelper
           structureDict:{[key:string]:number} = {};
         for (let i = 0; i < structure.length; i++)
           structureDict[structure[i]] = i;
-        this.structuresDict[field.slice(9).toLowerCase()] = structureDict;
+        this.structuresDict[field] = structureDict;
       }
     
     let structure = this.get('structureLevel');
@@ -393,8 +393,8 @@ class DEH{  // for DataExtractionHelper
     return this.get(field)[id];
   }
 
-  static getPositionOfAttr(field:string, argName:string){
-    return this.structuresDict[field.toLowerCase()][argName];
+  static getPositionOfAttr(structureName:string, argName:string){
+    return this.structuresDict[structureName][argName];
   }
 
   static getIndustryId(industryName:string){
