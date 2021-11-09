@@ -182,7 +182,7 @@ class DEH{  // for DataExtractionHelper
   private static industriesReverseDict: any;
   private static structuresDict: {[key:string]:{[key:string]:number}}
 
-  static LABEL_INDEX: number;
+  // static getPositionOfAttr('structureLevel',  'levelName'): number;
   static PRETTY_INDEX: number;
   static DASHBOARD_INDEX: number;
   static SUBLEVEL_INDEX: number;
@@ -248,7 +248,7 @@ class DEH{  // for DataExtractionHelper
       }
     
     let structure = this.get('structureLevel');
-    this.LABEL_INDEX = structure.indexOf('levelName');
+    // this.getPositionOfAttr('structureLevel',  'levelName') = structure.indexOf('levelName');
     this.PRETTY_INDEX = structure.indexOf('prettyPrint');
     this.DASHBOARD_INDEX = structure.indexOf('listDashboards');
     this.SUBLEVEL_INDEX = structure.indexOf('subLevel');
@@ -341,7 +341,7 @@ class DEH{  // for DataExtractionHelper
 
   
   static getGeoLevelName(height: number, id: number): string{
-    let name = this.get(this.getGeoLevel(height)[this.LABEL_INDEX])[id];
+    let name = this.get(this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'levelName')])[id];
     if (name == undefined) throw `No geo level with id=${id} at height ${height}`;
     if (Array.isArray(name))
     return name[this.get('structureAgentfinitions').indexOf('name')];
@@ -361,7 +361,7 @@ class DEH{  // for DataExtractionHelper
   static getTradeLevelName(height: number, id: number): string {
     // HARDCODE
     if (height == 0) return '';
-    let name = this.get(this.getTradeLevel(height)[this.LABEL_INDEX])[id];
+    let name = this.get(this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel',  'levelName')])[id];
     if (name == undefined) throw `No trade level with id=${id} at height=${height}`;
     return name;
   }
@@ -525,7 +525,7 @@ export abstract class TreeExtractionHelper {
   }
 
   getName(height: number, id: number) {
-    let name = DEH.get(this.levels[height][DEH.LABEL_INDEX])[id];
+    let name = DEH.get(this.levels[height][DEH.getPositionOfAttr('structureLevel',  'levelName')])[id];
     if (name == undefined) throw `No ${this.data.levels} with id=${id} at height ${height}`;
     if (Array.isArray(name))
       return name[DEH.get('structureAgentfinitions').indexOf('name')];
@@ -537,7 +537,7 @@ export abstract class TreeExtractionHelper {
   }
 
   getLevelNature(height: number) {
-    return this.levels[height][DEH.LABEL_INDEX];
+    return this.levels[height][DEH.getPositionOfAttr('structureLevel',  'levelName')];
   } 
 
   getDashboardsAtHeight(height: number) {

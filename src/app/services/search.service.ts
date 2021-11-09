@@ -236,11 +236,11 @@ export class SearchService {
     //try in geo tree and then in trade tree, true is for geotree
     for ( let level of DEH.geoLevels )
       if ( level[DEH.PRETTY_INDEX] == pretty )
-        return [level[DEH.LABEL_INDEX], true];
+        return [level[DEH.getPositionOfAttr('structureLevel',  'levelName')], true];
     
     for ( let level of DEH.tradeLevels )
       if ( level[DEH.PRETTY_INDEX] == pretty )
-        return [level[DEH.LABEL_INDEX], false];
+        return [level[DEH.getPositionOfAttr('structureLevel',  'levelName')], false];
     
     throw `[Searchbar: no field called ${pretty}]`;
   }
