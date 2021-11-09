@@ -178,12 +178,10 @@ export class Params {
 
 //Will have to make this non static one day
 class DEH{  // for DataExtractionHelper
-  // plus tard il faudra créer des objects à la volée, par exemple avec Object.defineProperty(...)
   private static data: any;
   private static industriesReverseDict: any;
   private static structuresDict: {[key:string]:{[key:string]:number}}
 
-  static ID_INDEX: number;
   static LABEL_INDEX: number;
   static PRETTY_INDEX: number;
   static DASHBOARD_INDEX: number;
@@ -250,7 +248,6 @@ class DEH{  // for DataExtractionHelper
       }
     
     let structure = this.get('structureLevel');
-    this.ID_INDEX = structure.indexOf('id');
     this.LABEL_INDEX = structure.indexOf('levelName');
     this.PRETTY_INDEX = structure.indexOf('prettyPrint');
     this.DASHBOARD_INDEX = structure.indexOf('listDashboards');
