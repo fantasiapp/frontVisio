@@ -1,4 +1,4 @@
-import { FiltersStatesService } from './filters-states.service';
+import { FiltersStatesService } from '../services/filters-states.service';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { SubscriptionManager } from '../interfaces/Common';
 import { Node } from '../middle/Node'

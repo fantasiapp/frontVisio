@@ -1,4 +1,4 @@
-import { DataService } from './../services/data.service';
+import { DataService } from './data.service';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Injectable } from '@angular/core';
 import DEH, { Params } from '../middle/DataExtractionHelper';
@@ -7,7 +7,7 @@ import { SliceDice } from '../middle/Slice&Dice';
 import { PDV } from '../middle/Pdv';
 import { Node, Tree } from '../middle/Node';
 import { Subject } from 'rxjs';
-import { LoggerService } from '../services/logger.service';
+import { LoggerService } from './logger.service';
 import { debounceTime } from 'rxjs/operators';
 import Dashboard from '../middle/Dashboard';
 import { SubscriptionManager } from '../interfaces/Common';

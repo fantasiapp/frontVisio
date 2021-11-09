@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, HostListener, Output, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SubscriptionManager } from 'src/app/interfaces/Common';
 import { Navigation } from 'src/app/middle/Navigation';
 import { PDV } from 'src/app/middle/Pdv';

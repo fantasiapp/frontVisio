@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChildren } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { Sale } from 'src/app/middle/Sale';

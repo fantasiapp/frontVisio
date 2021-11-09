@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection, pie } from 'billboard.js';
 import * as d3 from 'd3';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import { SimplePieComponent } from '../simple-pie/simple-pie.component';

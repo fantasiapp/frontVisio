@@ -1,4 +1,4 @@
-import { FiltersStatesService } from './../filters/filters-states.service';
+import { FiltersStatesService } from '../services/filters-states.service';
 import { Component, EventEmitter, Output, ViewChild, OnInit } from '@angular/core';
 import { PDV } from '../middle/Pdv';
 import { MapComponent } from '../map/map.component';

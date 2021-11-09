@@ -1,6 +1,6 @@
 import { Component, HostBinding, Output, EventEmitter, ViewChildren, QueryList, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { LoggerService } from 'src/app/services/logger.service';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import DEH, { Params } from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { MapSelectComponent } from '../map-select/map-select.component';

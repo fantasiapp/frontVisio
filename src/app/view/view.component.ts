@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, ViewChild } from '@angular/core';
 import { LoggerService } from '../services/logger.service';
-import { FiltersStatesService } from '../filters/filters-states.service';
+import { FiltersStatesService } from '../services/filters-states.service';
 import { GridManager, Layout } from '../grid/grid-manager/grid-manager.component';
 import { Navigation } from '../middle/Navigation';
 import { DataService } from '../services/data.service';

@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { PDV } from 'src/app/middle/Pdv';
 import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';

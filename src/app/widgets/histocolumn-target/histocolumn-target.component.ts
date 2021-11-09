@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, View
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { LoggerService } from 'src/app/services/logger.service';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';

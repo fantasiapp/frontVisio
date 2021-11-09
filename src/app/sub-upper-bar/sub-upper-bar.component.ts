@@ -1,4 +1,4 @@
-import { FiltersStatesService } from './../filters/filters-states.service';
+import { FiltersStatesService } from '../services/filters-states.service';
 import { Component, OnInit } from '@angular/core';
 import DEH, { Params } from '../middle/DataExtractionHelper';
 import { SubscriptionManager } from '../interfaces/Common';

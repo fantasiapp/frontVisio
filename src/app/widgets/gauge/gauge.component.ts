@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import bb, {gauge} from 'billboard.js';

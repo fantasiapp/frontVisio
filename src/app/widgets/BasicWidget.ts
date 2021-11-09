@@ -3,7 +3,7 @@ import { Chart } from "billboard.js";
 import * as d3 from "d3";
 import { Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
-import { FiltersStatesService } from "../filters/filters-states.service";
+import { FiltersStatesService } from "../services/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
 import { Updatable } from "../interfaces/Common";
 import { Node } from "../middle/Node";
