@@ -168,8 +168,8 @@ export class SliceTable {
 
     constructor(private dataService: DataService, private sliceDice: SliceDice, @Inject(LOCALE_ID) public locale: string){}
 
-    private getPdvs(node:Node, type: TableTypes): PDV[] { // Transforms pdv from lists to objects, and counts title informations
-        this.sortedPdvsList = PDV.slice(node);
+    getPdvs(type: TableTypes): PDV[] { // Transforms pdv from lists to objects, and counts title informations
+        this.sortedPdvsList = SliceDice.currentSlice;
         this.sortedPdvsList.sort(this.tableConfig[type]['customSort'])
         this.pdvsWithGroupslist = this.buildGroups(type);
         return this.pdvsWithGroupslist;
@@ -221,8 +221,8 @@ export class SliceTable {
         return this.tableConfig[type]['computeTitle']();;
     }
 
-    getData(node: Node, type: TableTypes): TableData{
-        return {columnDefs: this.getColumnDefs(type), navOpts: this.getNavOpts(type), pdvs: this.getPdvs(node, type), colInfos: this.groupInfos};
+    getData(type: TableTypes): TableData{
+        return {columnDefs: this.getColumnDefs(type), navOpts: this.getNavOpts(type), pdvs: this.getPdvs(type), colInfos: this.groupInfos};
     }
 
     buildGroups(type: TableTypes) {

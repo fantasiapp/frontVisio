@@ -34,8 +34,6 @@ export class AccountInfoComponent extends SubscriptionManager {
   @ViewChild('dropdown', {static: true, read: ElementRef})
   private dropdown?: ElementRef;
 
-  @Input()
-  name: string = '';
   dropped: boolean = false;
   private mouseEvent: Subject<boolean> = new Subject();
 

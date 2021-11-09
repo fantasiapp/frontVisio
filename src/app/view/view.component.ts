@@ -12,6 +12,7 @@ import { TargetService } from '../widgets/description-widget/description-service
 import { Node } from '../middle/Node'
 import { SliceDice } from '../middle/Slice&Dice';
 import { SliceTable } from '../middle/SliceTable';
+import { DisplayPDV } from '../upperbar/upperbar.component';
 
 @Component({
   selector: 'app-view',
@@ -35,11 +36,11 @@ export class ViewComponent extends SubscriptionManager  {
     this.subscribe(this.filtersService.state, ({node, dashboard}) => {
       let current = node as Node,
         previous = this.node as Node;
-            
-      if ( !previous || !previous.equals(current) ) {
-        this.sliceDice.updateCurrentSlice(current);
-        this.node = node;
-      }
+
+        if ( !previous || !previous.equals(current) ) {
+          this.sliceDice.updateCurrentNode(current);
+          this.node = node;
+        }
 
       if ( this.layout?.id !== dashboard.id )
         this.layout = dashboard;
@@ -47,7 +48,7 @@ export class ViewComponent extends SubscriptionManager  {
 
     this.subscribe(this.dataservice.update, () => {
       //just update
-      this.sliceDice.updateCurrentSlice(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
+      this.sliceDice.updateCurrentNode(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
       this.cd.markForCheck();
     });
 
@@ -71,23 +72,31 @@ export class ViewComponent extends SubscriptionManager  {
 
   onLayoutChange(layout: Layout) { }
 
-  displayPDV(id: number) {
+  //doesnt display if already present
+  displayPDV({id, wait}: DisplayPDV) {
     let gridManager = this.gridManager!;
-    if ( gridManager.loaded )
-      (gridManager.instances[0] as TableComponent).displayInfobar(id);
-    else this.subscribe(gridManager.state, state => {
-      if ( !state.loaded ) return;
-      let table = state.instances![0] as TableComponent;
-      this.unsubscribe(gridManager.state);
+    if ( wait ) {
+      let oldState = true, toggled = false
+      this.subscribe(gridManager.state, state => {
+        toggled = state.loaded && !oldState;
+        oldState = state.loaded;
+        if ( !toggled ) return;
+        let table = state.instances![0] as TableComponent;
+        this.unsubscribe(gridManager.state);
+        this.once(table.gridLoaded!, () => table.displayInfobar(id));
+      });
+    } else {
+      let table = gridManager.instances![0] as TableComponent;
       this.once(table.gridLoaded!, () => table.displayInfobar(id));
-    });
+    }
+    
   }
 
   private computeDescription(description: string | string[]): string {
     let isArray = Array.isArray(description),
       compute = isArray && description.length >= 1;
     if ( compute )
-      return CD.computeDescription(this.filtersService.getState().node, description as string[]);
+      return CD.computeDescription(description as string[]);
 
     return isArray ? description[0] : (description as string);
   }

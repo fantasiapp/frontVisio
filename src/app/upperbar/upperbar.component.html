@@ -27,11 +27,11 @@
 
   <div class="right-block">
     <div class="search-div">
-     <searchbar (PDVfound)="displayPDVOnTable($event)"></searchbar>
+     <searchbar (PDVfound)="tryDisplayPDVOnTable($event)"></searchbar>
     </div>
     <div class="search-div">
       <button class="button" (click)="updateData()">
-        <img class="button-img updatable" (click)="updating = true" (animationend)="onAnimationEnd()" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour"/>
+        <img class="button-img" [class.updatable]="canUpdate" (click)="canUpdate ? updating = true : null" (animationend)="updating = false" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
       </button>
     </div>
     <div class="search-div">
@@ -40,7 +40,7 @@
       </button>
     </div>
     <div class="search-div">
-      <account-info [name]="name || '...'"></account-info>
+      <account-info></account-info>
     </div>
   </div>
 </div>

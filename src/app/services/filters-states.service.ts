@@ -128,16 +128,17 @@ export class FiltersStatesService extends SubscriptionManager {
     this.emitEvents();
   }
 
+  //event emitted before grid Manager creates the new grid
   gotoPDVsDashboard() {
     if ( this.navigation.currentDashboard!.name.indexOf('Points de Vente') >= 0 )
-      return true;
+      return 2;
     
     let change = this.navigation.gotoPDVsDashboard();
-    if ( !change ) return false;
+    if ( !change ) return 0;
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
     this.emitEvents();
-    return true;
+    return 1;
   }
 
   canSub() {

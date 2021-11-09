@@ -1,12 +1,12 @@
 <div class="container aligned">
   <div>
-    <div class="dash">{{ currentDashboard }}</div>
+    <div class="dash">{{ currentDashboard?.name || "" }}</div>
     <div class="level">Résultat {{ path }} {{ currentYear ? '(Mise à jour ' + (currentMonth ? currentMonth + ' ' : '') + currentYear + ')' : '' }}</div>
   </div>
   <div class="select-year" style="width: 134px">
     <select (change)="onYearChange($event)">
       <option [value]="1">Année {{ years[0] }}</option>
-      <option [value]="0" [disabled]="!otherYearDashboards.includes(currentDashboardId)"> Année {{ years[1] }}</option>
+      <option [value]="0" [disabled]="notAvailableLastYear"> Année {{ years[1] }}</option>
     </select>
   </div>
 </div>

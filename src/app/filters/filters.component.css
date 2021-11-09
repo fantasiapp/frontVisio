@@ -67,6 +67,7 @@
     overflow-x: hidden;
     text-overflow: ellipsis;
     display: block;
+    cursor: pointer;
 }
 .list-elmt:active{
     background: #F06D0C 0% 0% no-repeat padding-box;

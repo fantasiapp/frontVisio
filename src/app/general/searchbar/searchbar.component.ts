@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, HostListener, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FiltersStatesService } from 'src/app/services/filters-states.service';
@@ -7,7 +7,7 @@ import { Navigation } from 'src/app/middle/Navigation';
 import { PDV } from 'src/app/middle/Pdv';
 import {  Result, SearchService, Suggestion } from 'src/app/services/search.service';
 import { PatternPipe } from './pattern.pipe';
-import { SuggestionBox } from './suggestionbox/suggestionbox.component';
+import { SuggestionBox } from '../suggestionbox/suggestionbox.component';
 
 @Component({
   selector: 'searchbar',

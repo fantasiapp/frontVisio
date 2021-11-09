@@ -1,5 +1,5 @@
 import {PDV} from "./Pdv";
-import {Node, Tree} from "./Node"
+import {Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
@@ -430,6 +430,7 @@ class DEH{  // for DataExtractionHelper
       case 'enduitIndustryTarget': 
         return Object.assign({}, enduitIndustry, enduitIndustryTarget);
       case 'industryTarget': return industryTarget; 
+      case 'avancementAD': case 'visits': case 'targetedVisits': return {0:""};
       default: {
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
@@ -483,9 +484,9 @@ class DEH{  // for DataExtractionHelper
     return finitionAgentsOfDrv;
   }
 
-  static getOtherYearDashboards(tree: Tree, height: number = 0) {
+  static getLastYearDashboards(tree: Tree, height: number = 0) {
     let name = tree.hasTypeOf(GeoExtractionHelper) ? 'levelGeo' : 'levelTrade';
-    let level = this.currentYear ? this.get(name + '_ly', false, false) : this.get(name, false, false);
+    let level = this.get(name + '_ly', false, false);
     while ( height-- > 0 )
       level = level[this.SUBLEVEL_INDEX];
       return level[this.DASHBOARD_INDEX] || [];

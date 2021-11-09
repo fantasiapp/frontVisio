@@ -13,6 +13,7 @@ export interface Node {
   dashboards: Dashboard[];
   label: string;
   nature: string;
+  tree: Tree;
 
   isLeaf: () => boolean;
   goChild: (id: number) => Node;
@@ -50,11 +51,14 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
     get dashboards(): Dashboard[]{ return tree.attributes['dashboards'][this.height];}
     get label(): string { return tree.attributes['labels'][this.height]; }
     get nature(): string { return tree.attributes['natures'][this.height]; }
+    get tree(): Tree { return tree; }
     
     isLeaf(): boolean { return this.children.length == 0;}
+    
     equals(node: Node) {
-      return (this.height == node.height && this.id == node.id);
+      return this.tree.hasTypeOf(node.tree) && (this.height == node.height && this.id == node.id);
     }
+
     goChild(id: number): TreeNode {
       //dont navigate to PDV
       if ( this.height == extractor.height )

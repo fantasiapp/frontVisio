@@ -12,41 +12,37 @@ import { MapSelectComponent } from '../map-select/map-select.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapFiltersComponent {
-  @HostBinding('class.opened')
-  opened: boolean = false;
-
   criteriaNames = CRITERIA[Params.rootLabel] || CRITERIA['default'];
   criteriaPrettyNames = CRITERIA_NAMES[Params.rootLabel] || CRITERIA_NAMES['default'];
+  //actualy selected criteria
   criteria: [string, number[]][] = [];
 
-  private _pdvs: PDV[] = [];
-  private currentDict: any = PDV.countForFilter(this._pdvs, this.criteriaNames);
-  private liveDict: any = this.currentDict;
-
-  @Output()
-  pdvsChange = new EventEmitter<PDV[]>();
-
+  @HostBinding('class.opened') opened: boolean = false;
+  @Output() pdvsChange = new EventEmitter<PDV[]>();
   @ViewChildren(MapSelectComponent)
   selects!: QueryList<MapSelectComponent>;
 
-  constructor(private ref: ElementRef, private filtersService: FiltersStatesService, private logger: LoggerService) {
-    //console.log('[MapFiltersComponent]: On.');
-  }
+  private pdvs: PDV[] = [];
+  //dictionary that counts current pdvs by criteria
+  private currentDict: any = PDV.countForFilter(this.pdvs, this.criteriaNames);
+  //dictionary that counts pdvs by criteria in the order that the filter was applied
+  private liveDict: any = this.currentDict;
+
+  constructor(private ref: ElementRef, private logger: LoggerService) {}
 
   ngAfterViewInit() { this.update(); }
 
   update() {
-    this._pdvs = [...PDV.getInstances().values()];
+    this.pdvs = [...PDV.getInstances().values()];
     this.selects.forEach(select => select.reset());
-    this.currentDict = this.liveDict = PDV.countForFilter(this._pdvs, this.criteriaNames);
+    this.currentDict = this.liveDict = PDV.countForFilter(this.pdvs, this.criteriaNames);
     this.stack.length = 0;
-    this.pdvsChange.emit(this._pdvs);
+    this.pdvsChange.emit(this.pdvs);
   }
 
   loadCriterion(index: number): [number, any, number][] {
-    //use pretty prints on path slice
-    let criterion = this.criteriaNames[index];
-    let result = this.liveDict[criterion];
+    let criterion = this.criteriaNames[index],
+      result = this.liveDict[criterion];
     
     if ( !result ) return [];
 
@@ -89,7 +85,7 @@ export class MapFiltersComponent {
   }
 
   getPreviousPDVs(index: number) {
-    return this.stack[index-1] ? this.stack[index-1][1] : this._pdvs
+    return this.stack[index-1] ? this.stack[index-1][1] : this.pdvs
   }
 
   getLastPDVs() {
@@ -122,41 +118,40 @@ export class MapFiltersComponent {
     return true;
   }
 
-  private fixStack(index: number, skipFirst: boolean = false) {
-    let names = new Set(this.stack.slice(0, index).map(pair => pair[0].criterion)),
-      conditions: [string, number[]][] = [],
+  private fixStack(index: number, firstDeleted: boolean = false) {
+    let filterNames = new Set(this.stack.slice(0, index).map(pair => pair[0].criterion)),
+      currentCondition: [string, number[]] | undefined = undefined,
       pdvs = this.getPreviousPDVs(index);
     
     this.stack.slice(index).forEach(([select, _], dx) => {
       let criterion = select.criterion,
-        target = this.stack[index+dx+1],
-        targetCriterion = target ? this.stack[index+dx+1][0].criterion : undefined;
+        next = this.stack[index+dx+1],
+        nextCriterion = next ? this.stack[index+dx+1][0].criterion : undefined;
       
-      if ( !dx && skipFirst )
+      if ( firstDeleted && !dx )
         this.liveDict[criterion] = PDV.countForFilter(pdvs, [criterion])[criterion];
       
-      names.add(criterion);
+      filterNames.add(criterion);
       if ( select.selection.length )
-        conditions.push([criterion, select.selection]);
+        currentCondition = [criterion, select.selection]
       
       let savedPdvs = pdvs;
-      pdvs = PDV.reSlice(pdvs, conditions);
+      pdvs = PDV.reSlice(pdvs, currentCondition ? [currentCondition] : []);
       this.stack[index+dx][1] = pdvs;
       if ( !pdvs.length ) { //incompatible filter, cancel it
-        conditions.pop();
-        pdvs = PDV.reSlice(savedPdvs, conditions);
-        names.delete(criterion);
+        pdvs = savedPdvs;
+        filterNames.delete(criterion);
         this.stack.splice(index+dx, 1); index--;
       }
 
-      if ( target ) {
-        names.add(targetCriterion!);
-        this.liveDict[targetCriterion!] = PDV.countForFilter(pdvs, [targetCriterion!])[targetCriterion!];
+      if ( next ) {
+        filterNames.add(nextCriterion!);
+        this.liveDict[nextCriterion!] = PDV.countForFilter(pdvs, [nextCriterion!])[nextCriterion!];
       }
     });
     
     this.currentDict = PDV.countForFilter(pdvs, this.criteriaNames);
-    let consequent = this.criteriaNames.filter(name => !names.has(name));
+    let consequent = this.criteriaNames.filter(name => !filterNames.has(name));
     for ( let criterion of consequent )
       this.liveDict[criterion] = this.currentDict[criterion];
   }

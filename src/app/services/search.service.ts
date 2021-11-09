@@ -3,6 +3,8 @@ import Dashboard from '../middle/Dashboard';
 import DEH from '../middle/DataExtractionHelper';
 import { Node } from '../middle/Node';
 import { PDV } from '../middle/Pdv';
+import { filterMap, SubscriptionManager } from '../interfaces/Common';
+import { DataService } from './data.service';
 
 type MatchFunction = (term: string) => string | null;
 type SearchFunction = (term: string, ...args: any[]) => Suggestion[];
@@ -11,12 +13,6 @@ export type Result = {info?: string; node?: Node; dashboard?: Dashboard; pdv?: P
 export type LevelSuggestion = [string, string, number];
 export type PatternSuggestion = [string, string, Result];
 export type Suggestion = LevelSuggestion | PatternSuggestion;
-
-type FilterMapFunction<U, V> = (t: U) => V | null;
-
-function filterMap<U, V = U>(array: U[], filterMap: FilterMapFunction<U, V>): V[] {
-  return array.map(filterMap).filter(x => x) as unknown as V[];
-}
 
 function searchPDV(): SearchFunction {
   let pdvs = [...PDV.getInstances().values()];
@@ -35,7 +31,59 @@ function searchPDV(): SearchFunction {
     });
     return result;
   };
-}
+};
+
+function searchDashboard(): SearchFunction {
+  let dashboards = Object.entries<any>(DEH.get('dashboards')),
+    geoDashboards = PDV.geoTree.getAllDashboards(),
+    ids = geoDashboards.map(d => d.id);
+  
+    return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    if ( !term && showAll ) return [];
+    let result: Suggestion[] = [];
+    for ( let [_id, name] of dashboards ) {
+      let id = +_id, index, isGeo, dashboard, data;
+      name = name[0];
+      index = name.toLowerCase().indexOf(term.toLowerCase());
+      if ( index < 0 ) continue;
+      isGeo = ids.includes(id);
+      dashboard = isGeo ? geoDashboards.find(d => d.id == id) : PDV.tradeTree.getAllDashboards().find(d => d.id == id);
+      data = {info: isGeo ? 'Org. commercial' : 'Enseigne', geoTree: isGeo, dashboard};
+      result.push(!index ?
+        [term, name.slice(term.length), data] :
+        ['', name, data])
+    }
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
+  }
+};
+
+function searchField(field: string): SearchFunction {
+  if ( field == 'Département' )
+    return searchDépartement();
+  if ( field == 'Bassin' )
+    return searchBassin();
+  if ( field == 'Points de Vente' )
+    return searchPDV();
+  
+  let [_, isGeo] = SearchService.findFieldName(field),
+    [height,] = SearchService.findFieldHeight(field);
+    
+  return (term: string, showAll: boolean = true, sort: boolean = true) => {
+    if ( !term && showAll || height < 0 ) return [];
+    term = term.toLowerCase();
+    let relevantNodes = (isGeo ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
+    let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
+      let index = node.name.toLowerCase().indexOf(term);
+      if ( index < 0 ) return null;
+      let data = {info: '', geoTree: isGeo, node: node};
+      return !index ?
+        [term, node.name.slice(term.length), data] :
+        ['', node.name, data]
+    });
+
+    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
+  }
+};
 
 //Département names can be duplicates
 function searchDépartement(): SearchFunction {
@@ -80,65 +128,13 @@ function searchBassin(): SearchFunction {
   }
 };
 
-function searchField(field: string): SearchFunction {
-  if ( field == 'Département' )
-    return searchDépartement();
-  if ( field == 'Bassin' )
-    return searchBassin();
-  if ( field == 'Points de Vente' )
-    return searchPDV();
-  
-  let [_, isGeo] = SearchService.findFieldName(field),
-    [height,] = SearchService.findFieldHeight(field);
-    
-  return (term: string, showAll: boolean = true, sort: boolean = true) => {
-    if ( !term && showAll || height < 0 ) return [];
-    term = term.toLowerCase();
-    let relevantNodes = (isGeo ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
-    let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
-      let index = node.name.toLowerCase().indexOf(term);
-      if ( index < 0 ) return null;
-      let data = {info: '', geoTree: isGeo, node: node};
-      return !index ?
-        [term, node.name.slice(term.length), data] :
-        ['', node.name, data]
-    });
-
-    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
-  }
-};
-
-function searchDashboard(): SearchFunction {
-  let dashboards = Object.entries<any>(DEH.get('dashboards')),
-    geoDashboards = PDV.geoTree.getAllDashboards(),
-    ids = geoDashboards.map(d => d.id);
-  
-    return (term: string, showAll: boolean = true, sort: boolean = true) => {
-    if ( !term && showAll ) return [];
-    let result: Suggestion[] = [];
-    for ( let [_id, name] of dashboards ) {
-      let id = +_id, index, isGeo, dashboard, data;
-      name = name[0];
-      index = name.toLowerCase().indexOf(term.toLowerCase());
-      if ( index < 0 ) continue;
-      isGeo = ids.includes(id);
-      dashboard = isGeo ? geoDashboards.find(d => d.id == id) : PDV.tradeTree.getAllDashboards().find(d => d.id == id);
-      data = {info: isGeo ? 'Org. commercial' : 'Enseigne', geoTree: isGeo, dashboard};
-      result.push(!index ?
-        [term, name.slice(term.length), data] :
-        ['', name, data])
-    }
-    return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result;
-  }
-};
-
 function searchAll(...fields: string[]): SearchFunction {
   let functions: SearchFunction[] = fields.map(field => searchField(field));
   return (term: string, showAll: boolean = true, sort: boolean = true) => {
     let result: Suggestion[] = [];
     for ( let i = 0; i < fields.length; i++ ) {
       let field = fields[i],
-        partial = functions[i](term, showAll) as PatternSuggestion[];
+        partial = functions[i](term, showAll, false) as PatternSuggestion[];
       partial.forEach((suggestion) => { if ( !suggestion[2].info ) suggestion[2].info = field });
       Array.prototype.push.apply(result, partial);
     }
@@ -148,18 +144,20 @@ function searchAll(...fields: string[]): SearchFunction {
 
 function combineResults(functions: SearchFunction[]) {
   return (term: string, showAll: boolean = true, sort: boolean = true) => {
-    let result = functions.map(f => f(term, showAll)).flat();
+    let result = functions.map(f => f(term, showAll, false)).flat();
     return sort ? result.sort((a, b) =>  b[0].length - a[0].length) : result
   }
 };
 
 @Injectable()
-export class SearchService {
+export class SearchService extends SubscriptionManager {
   private levels: [MatchFunction, string, number, any?][] = [];
   private mode: number = SearchService.FIND_PATTERN;
+  private pattern: string = '';
   private customSearch: SearchFunction | null = null;
 
-  constructor() {
+  constructor(private dataservice: DataService) {
+    super();
     let searchableFields = SearchService.getSearchableFields(),
       treeLevels = [...searchableFields.geoTree, ...searchableFields.tradeTree];
     
@@ -171,7 +169,13 @@ export class SearchService {
       treeLevels.map(field =>
         [SearchService.ruleFromSubstring(field, 3), field, SearchService.IS_PATTERN]
       )
-    )
+    );
+    
+    this.subscribe(dataservice.update, _ => {
+      //if we are searching from data, update the search function
+      if ( this.mode == SearchService.FIND_INSTANCE )
+        this.switchMode(SearchService.FIND_INSTANCE, this.pattern);
+    });
   }
   
   addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {
@@ -179,12 +183,12 @@ export class SearchService {
   }
 
   switchMode(mode: number, pattern: string = '') {
-    if ( pattern == '' || mode == SearchService.FIND_PATTERN ) { this.mode = SearchService.FIND_PATTERN; return true; }
-    
+    if ( pattern == '' || mode == SearchService.FIND_PATTERN ) { this.mode = SearchService.FIND_PATTERN; this.pattern = ''; return true; }    
     let level = this.levels.find(level => level[1] == pattern);
     if ( !level ) return false;
     this.customSearch = SearchService.interpretMatch(level);
     this.mode = mode;
+    this.pattern = pattern;
     return true;
   }
 
@@ -203,22 +207,6 @@ export class SearchService {
     return this.customSearch!(term, ...args);
   }
 
-  findAll() {
-    let result = this.mode == SearchService.FIND_PATTERN ?
-      this.findAllPatterns() : this.findAllInstances();
-    return result;
-  }
-
-  findAllPatterns(): Suggestion[] {
-    return this.levels.map(level => 
-      [level[1], '', level[2]]
-    )
-  }
-
-  findAllInstances(): Suggestion[] {
-    return this.customSearch!('', false);
-  }
-
   levelSearch(term: string): Suggestion[] {
     let results: Suggestion[] = [];
     for ( let i = 0; i < this.levels.length; i++ ) {
@@ -235,6 +223,22 @@ export class SearchService {
       results.push([typed, completed, level[2]]);
     }
     return results.sort((a, b) =>  b[0].length - a[0].length);
+  }
+
+  findAll() {
+    let result = this.mode == SearchService.FIND_PATTERN ?
+      this.findAllPatterns() : this.findAllInstances();
+    return result;
+  }
+
+  findAllPatterns(): Suggestion[] {
+    return this.levels.map(level => 
+      [level[1], '', level[2]]
+    )
+  }
+
+  findAllInstances(): Suggestion[] {
+    return this.customSearch!('', false);
   }
 
   static findFieldName(pretty: string): [string, boolean] {
@@ -288,18 +292,7 @@ export class SearchService {
 
   static interpretMatch(level: any): SearchFunction {
     let match = level[3];
-    if ( !match ) {
-      return searchField(level[1]);
-    } else {
-      return match();
-    }
-  }
-
-  static canvas = document.createElement('canvas');
-  static ctx = SearchService.canvas.getContext('2d')!;
-  static measureText(text: string, font: string) {
-    this.ctx.font = font;
-    return this.ctx.measureText(text).width;
+    return match ? match() : searchField(level[1]);
   }
 
   static getSearchableFields() {
@@ -312,9 +305,24 @@ export class SearchService {
     };
   }
 
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    console.log('destrouyyyying');
+  }
+
+  // Modes
   static FIND_PATTERN = 0;
   static FIND_INSTANCE = 1;
 
+  // Type of category
   static IS_PATTERN = 1;
   static IS_REDIRECTION = 2;
+
+  // Text measurements
+  static canvas = document.createElement('canvas');
+  static ctx = SearchService.canvas.getContext('2d')!;
+  static measureText(text: string, font: string) {
+    this.ctx.font = font;
+    return this.ctx.measureText(text).width;
+  }
 }
