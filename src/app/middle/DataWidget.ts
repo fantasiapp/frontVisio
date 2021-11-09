@@ -281,8 +281,4 @@ export class DataWidget{
         data.push(new Array(m).fill(0));
       return data;
     }
-    
-    getData(){
-      return this.data;
-    }
   }

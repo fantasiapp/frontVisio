@@ -130,8 +130,8 @@ export class PDV extends SimplePdv{
   get lightTarget(){ return this.target ? this.target[DEH.TARGET_LIGHT_ID] : false;}
   get commentTarget(){ return this.target ? this.target[DEH.TARGET_COMMENT_ID] : false;}
 
-  get siniatSales() {return this.displayIndustrieSaleVolumes()['Siniat']}
-  get totalSales() {return Object.entries(this.displayIndustrieSaleVolumes()).reduce((totalSales: number, entry: any) => totalSales + entry[1], 0)}
+  get siniatSales() {return this.computeSalesRepartition()['Siniat']}
+  get totalSales() {return this.computeSalesRepartition()['totalP2cd']}
   get graph() {
     let p2cdSales: any =  {}; let p2cdRaw:any = this.displayIndustrieSaleVolumes()
     let enduitSales: any =  {}; let enduitRaw: any = this.displayIndustrieSaleVolumes(true)
@@ -166,7 +166,6 @@ export class PDV extends SimplePdv{
     return this.instances;
   }
 
-  // Il faudra penser à delete la requête de la ram après l'avoir utilisée
   static load(loadTrees = true){
     SimplePdv._initialize();
     this.instances.clear(); //<- clear before
@@ -378,14 +377,6 @@ export class PDV extends SimplePdv{
     if (node instanceof PDV) return [node];
     return node.children.map(
       (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
-  }
-
-  static getLeaves(tree: Tree, node: Node | PDV, height: number, dictChildren: {[key:string]:any[]}): PDV[]{
-    if (node instanceof PDV) return [node];
-    let structure = tree.attributes['labels'];
-    dictChildren[structure[height]].push([node.id, node.name]);
-    return node.children.map(
-      (child: any) => this.getLeaves(tree, child, height+1, dictChildren)).reduce((a: PDV[], b: PDV[]) => a.concat(b), []);
   }
 
   clientProspect2(index=false){
