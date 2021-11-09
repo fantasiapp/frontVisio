@@ -226,10 +226,6 @@ export class PDV extends SimplePdv{
     salesRepartition['beginingOfTheWeek'] = currentDate.getTime() / 1000 - (currentDate.getSeconds() + 60 * (currentDate.getMinutes() + 60 * (currentDate.getHours() + 24 * day)))
     return salesRepartition;
   }
-
-  adCompleted(){ // à supprimer avec computeGauges
-    return this.onlySiniat || !this.redistributed || this.salesObject.reduce((acc:boolean, sale:Sale) => acc || sale.date !== null, false);
-  }
   
   private computeIrregularAxis(axisName:string, indicator:string, params: {[key:string]:any}){
     let axis: string[] = Object.values(DEH.get(axisName, true)),
