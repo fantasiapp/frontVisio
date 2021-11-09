@@ -5,7 +5,7 @@ import { MapComponent } from '../map/map.component';
 import { DataService } from '../services/data.service';
 import { SubscriptionManager } from '../interfaces/Common';
 import { SearchbarComponent } from '../general/searchbar/searchbar.component';
-import DEH from '../middle/DataExtractionHelper';
+import DEH, { Params } from '../middle/DataExtractionHelper';
 
 export type DisplayPDV = {
   id: number;
@@ -64,6 +64,10 @@ export class UpperbarComponent extends SubscriptionManager implements OnInit {
 
   get hideIfMapIsVisible() {
     return this.mapIsVisible ? 'hidden' : 'visible';
+  }
+
+  get canUpdate() {
+    return this.filtersState.getYear() == Params.currentYear;
   }
 
   toggleMap() {

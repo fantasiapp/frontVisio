@@ -3,7 +3,8 @@ import Dashboard from '../middle/Dashboard';
 import DEH from '../middle/DataExtractionHelper';
 import { Node } from '../middle/Node';
 import { PDV } from '../middle/Pdv';
-import { filterMap } from '../interfaces/Common';
+import { filterMap, SubscriptionManager } from '../interfaces/Common';
+import { DataService } from './data.service';
 
 type MatchFunction = (term: string) => string | null;
 type SearchFunction = (term: string, ...args: any[]) => Suggestion[];
@@ -149,12 +150,14 @@ function combineResults(functions: SearchFunction[]) {
 };
 
 @Injectable()
-export class SearchService {
+export class SearchService extends SubscriptionManager {
   private levels: [MatchFunction, string, number, any?][] = [];
   private mode: number = SearchService.FIND_PATTERN;
+  private pattern: string = '';
   private customSearch: SearchFunction | null = null;
 
-  constructor() {
+  constructor(private dataservice: DataService) {
+    super();
     let searchableFields = SearchService.getSearchableFields(),
       treeLevels = [...searchableFields.geoTree, ...searchableFields.tradeTree];
     
@@ -166,7 +169,13 @@ export class SearchService {
       treeLevels.map(field =>
         [SearchService.ruleFromSubstring(field, 3), field, SearchService.IS_PATTERN]
       )
-    )
+    );
+    
+    this.subscribe(dataservice.update, _ => {
+      //if we are searching from data, update the search function
+      if ( this.mode == SearchService.FIND_INSTANCE )
+        this.switchMode(SearchService.FIND_INSTANCE, this.pattern);
+    });
   }
   
   addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {
@@ -174,12 +183,12 @@ export class SearchService {
   }
 
   switchMode(mode: number, pattern: string = '') {
-    if ( pattern == '' || mode == SearchService.FIND_PATTERN ) { this.mode = SearchService.FIND_PATTERN; return true; }
-    
+    if ( pattern == '' || mode == SearchService.FIND_PATTERN ) { this.mode = SearchService.FIND_PATTERN; this.pattern = ''; return true; }    
     let level = this.levels.find(level => level[1] == pattern);
     if ( !level ) return false;
     this.customSearch = SearchService.interpretMatch(level);
     this.mode = mode;
+    this.pattern = pattern;
     return true;
   }
 
@@ -294,6 +303,11 @@ export class SearchService {
       PDVs: 'Points de vente',
       dashboards: 'Tableaux de bords'
     };
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
+    console.log('destrouyyyying');
   }
 
   // Modes

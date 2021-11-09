@@ -36,7 +36,7 @@ export class ViewComponent extends SubscriptionManager  {
     this.subscribe(this.filtersService.state, ({node, dashboard}) => {
       let current = node as Node,
         previous = this.node as Node;
-            
+
       if ( !previous || !previous.equals(current) ) {
         this.sliceDice.updateCurrentNode(current);
         this.node = node;
