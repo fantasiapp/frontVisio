@@ -17,9 +17,7 @@ export class SliceDice{
   geoTree: boolean = true; // on peut le supprimer maintenant je pense
   static currentSlice: PDV[] = [];
   static currentNode: Node;
-  constructor(private dataService: DataService){
-    //console.log('[SliceDice]: on');
-  }
+  constructor(private dataService: DataService){}
 
   getWidgetData(axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, target=false, addConditions:[string, number[]][] = []){
