@@ -83,10 +83,10 @@ export class SliceDice{
   private computeColorsWidget(groupsAxis1: number|string[], groupsAxis2: number|string[]){
     if (![typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')) return [undefined, groupsAxis1, groupsAxis2];
     let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
-    let labelsIds = DEH.get('axisForGraph')[+groupsAxis][DEH.AXISFORGRAHP_LABELS_ID];
+    let labelsIds = DEH.get('axisForGraph')[+groupsAxis][DEH.getPositionOfAttr('structureAxisforgraph',  'labels')];
     groupsAxis = labelsIds.map(
-      (labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_LABEL_ID]);
-    let colors = labelsIds.map((labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_COLOR_ID]);
+      (labelId:number) => DEH.get('labelForGraph')[labelId][DEH.getPositionOfAttr('structureLabelforgraph',  'label')]);
+    let colors = labelsIds.map((labelId:number) => DEH.get('labelForGraph')[labelId][DEH.getPositionOfAttr('structureLabelforgraph',  'color')]);
     if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     return [colors, groupsAxis1, groupsAxis2];
   }

@@ -182,11 +182,6 @@ class DEH{  // for DataExtractionHelper
   private static industriesReverseDict: any;
   private static structuresDict: {[key:string]:{[key:string]:number}}
 
-  static WIDGETPARAMS_WIDGET_INDEX: number;
-  static WIDGETPARAMS_WIDGETCOMPUTE_INDEX: number;
-  static AXISFORGRAHP_LABELS_ID: number;
-  static LABELFORGRAPH_LABEL_ID: number;
-  static LABELFORGRAPH_COLOR_ID: number;
   static TARGET_DATE_ID: number;
   static TARGET_REDISTRIBUTED_ID: number;
   static TARGET_SALE_ID: number;
@@ -233,14 +228,10 @@ class DEH{  // for DataExtractionHelper
         for (let i = 0; i < structure.length; i++)
           structureDict[structure[i]] = i;
         this.structuresDict[field] = structureDict;
-      }
-    
+      }    
     let structure = this.get('structureLevel');
-    this.WIDGETPARAMS_WIDGET_INDEX = this.get('structureWidgetparams').indexOf('widget');
-    this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX = this.get('structureWidgetparams').indexOf('widgetCompute');
-    this.AXISFORGRAHP_LABELS_ID = this.get('structureAxisforgraph').indexOf('labels');
-    this.LABELFORGRAPH_LABEL_ID = this.get('structureLabelforgraph').indexOf('label');
-    this.LABELFORGRAPH_COLOR_ID = this.get('structureLabelforgraph').indexOf('color');
+
+
     this.TARGET_DATE_ID = this.get('structureTarget').indexOf('date');
     this.TARGET_REDISTRIBUTED_ID = this.get('structureTarget').indexOf('redistributed');
     this.TARGET_SALE_ID = this.get('structureTarget').indexOf('sale');
@@ -344,12 +335,12 @@ class DEH{  // for DataExtractionHelper
   
   static getCompleteWidgetParams(id: number){
     let widgetParams = this.get('widgetParams')[id].slice();  
-    let widgetId = widgetParams[this.WIDGETPARAMS_WIDGET_INDEX];
+    let widgetId = widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widget')];
     let widget = this.get('widget')[widgetId];
-    widgetParams[this.WIDGETPARAMS_WIDGET_INDEX] = widget;
-    let widgetComputeId = widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX]; //might not always be an index
+    widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widget')] = widget;
+    let widgetComputeId = widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widgetCompute')]; //might not always be an index
     let widgetCompute = this.get('widgetCompute')[widgetComputeId];
-    widgetParams[this.WIDGETPARAMS_WIDGETCOMPUTE_INDEX] = widgetCompute;
+    widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widgetCompute')] = widgetCompute;
     return widgetParams;
   }
   
