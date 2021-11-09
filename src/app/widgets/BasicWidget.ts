@@ -62,9 +62,9 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     });
   }
   
-  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+  getDataArguments(): [string, string, string, string[], string[], string, boolean, boolean] {
     let args: any[] = this.properties.arguments;
-    return [this.node, args[0], args[1], args[2], args[3], args[4], args[5], false, false];
+    return [args[0], args[1], args[2], args[3], args[4], args[5], false, false];
   }
   
   updateData(): {} {

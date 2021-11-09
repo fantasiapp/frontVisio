@@ -38,7 +38,7 @@ export class ViewComponent extends SubscriptionManager  {
         previous = this.node as Node;
             
       if ( !previous || !previous.equals(current) ) {
-        this.sliceDice.updateCurrentSlice(current);
+        this.sliceDice.updateCurrentNode(current);
         this.node = node;
       }
 
@@ -48,7 +48,7 @@ export class ViewComponent extends SubscriptionManager  {
 
     this.subscribe(this.dataservice.update, () => {
       //just update
-      this.sliceDice.updateCurrentSlice(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
+      this.sliceDice.updateCurrentNode(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
       this.cd.markForCheck();
     });
 
@@ -96,7 +96,7 @@ export class ViewComponent extends SubscriptionManager  {
     let isArray = Array.isArray(description),
       compute = isArray && description.length >= 1;
     if ( compute )
-      return CD.computeDescription(this.filtersService.getState().node, description as string[]);
+      return CD.computeDescription(description as string[]);
 
     return isArray ? description[0] : (description as string);
   }

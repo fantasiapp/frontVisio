@@ -3,7 +3,8 @@ import DEH from "./DataExtractionHelper";
 import { SliceDice } from "./Slice&Dice";
 
 export class CD{ //For ComputeDescription
-  static computeDescription(node:Node, description:string[]){
+  static computeDescription(description:string[]){
+    let node = SliceDice.currentNode;
     let descriptionCopy = description.slice();
     if (descriptionCopy.length == 1) return descriptionCopy[0];
     for (let i = 0; i < descriptionCopy.length; i++){
