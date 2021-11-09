@@ -149,13 +149,6 @@ export class SliceDice{
     return dataWidget.numberToBool()
   }
 
-  getIndustriesReverseDict(){
-    let industriesReverseDict:{[key:string]:string} = {};
-    for (let [industrieId, industrieName] of Object.entries(DEH.get('industry')))
-      industriesReverseDict[industrieName as string] = industrieId;
-    return industriesReverseDict;
-  }
-
   updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, 
       volumeid: number, targetLevelStructure: string) {
     let newTargetLevel: number[] = DEH.get(targetLevelName)[targetLevelId]

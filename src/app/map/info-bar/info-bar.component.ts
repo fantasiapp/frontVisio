@@ -114,7 +114,7 @@ export class InfoBarComponent {
   conditionsParams = disabledParams;
   noEmptySales(pdv: PDV, sales: any[]) {
     for(let sale of sales!) {
-      if(sale[DEH.SALES_INDUSTRY_ID] != DEH.INDUSTRIE_SINIAT_ID && sale[DEH.SALES_VOLUME_ID] > 0) {
+      if(sale[DEH.SALES_INDUSTRY_ID] != DEH.getIndustryId('Siniat') && sale[DEH.SALES_VOLUME_ID] > 0) {
         return true;
       }
       }
@@ -240,7 +240,7 @@ export class InfoBarComponent {
   }
 
   getSaleColor(sale: Sale): string {
-    if(this.pdv!.sale === false || this.pdv!.onlySiniat === true || sale.industryId == DEH.INDUSTRIE_SINIAT_ID) return 'black'
+    if(this.pdv!.sale === false || this.pdv!.onlySiniat === true || sale.industryId == DEH.getIndustryId('Siniat')) return 'black'
     if(Math.floor(Date.now()/1000) - 15778476 > sale.date) return 'orange'
     else return 'black'
 }
