@@ -123,7 +123,7 @@ export class PDV extends SimplePdv{
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.getPositionOfAttr('structureSales',  'product')]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
-  get typology(): number {return this.property('typology')}
+  get typology(): number {return this.filterProperty('typology')}
 
   get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetFinitions')] : false;}
@@ -302,13 +302,13 @@ export class PDV extends SimplePdv{
     if (conditions.length == 0) return pdvs;
     let newPdvs: PDV[] = [];
     for (let pdv of pdvs)
-      if (conditions.map(condition => condition[1].includes(pdv.property(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
+      if (conditions.map(condition => condition[1].includes(pdv.filterProperty(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
         newPdvs.push(pdv);
     return newPdvs;
   }
 
-  //Juste pour le reSlice de la map --> donner un meilleur nom
-  property(propertyName:string){
+  //Juste pour le reSlice
+  filterProperty(propertyName:string){
     switch(propertyName){
       case 'clientProspect': return this.clientProspect2(true);
       case 'industriel': return this.industriel();
@@ -344,9 +344,9 @@ export class PDV extends SimplePdv{
       dictCounter[attribute] = {};
     for (let pdv of pdvs)
       for (let attribute of Object.keys(dictCounter)){
-        if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
-          dictCounter[attribute][pdv.property(attribute)] += 1;
-        else dictCounter[attribute][pdv.property(attribute)] = 1;
+        if (dictCounter[attribute].hasOwnProperty(pdv.filterProperty(attribute))) 
+          dictCounter[attribute][pdv.filterProperty(attribute)] += 1;
+        else dictCounter[attribute][pdv.filterProperty(attribute)] = 1;
       }
     return dictCounter
   }
