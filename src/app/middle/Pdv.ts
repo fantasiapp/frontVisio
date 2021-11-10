@@ -374,7 +374,7 @@ export class PDV extends SimplePdv{
     return PDV.filterPdvs(PDV.childrenOfNode(node));
   }
 
-  static childrenOfNode(node: Node | PDV):PDV[]{
+  private static childrenOfNode(node: Node | PDV):PDV[]{
     if (node instanceof PDV) return [node];
     return node.children.map(
       (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
@@ -395,14 +395,4 @@ export class PDV extends SimplePdv{
     if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['potentialFinition']};
     return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
   }
-
-  static computeTargetVisits(node:Node, threshold=false){ // ca n'a rien à faire là, peut-être à fusionner avec getTarget de DEH
-    let finitionAgents:any[] = (node.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
-      ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): 
-      [DEH.get('agentFinitions')[node.id]]);
-    if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'ratioTargetedVisit')], 0);
-    return finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'TargetedNbVisit')], 0);
-  }
-};
+}

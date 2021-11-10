@@ -121,7 +121,7 @@ export class SliceDice{
     switch(indicator){
       case 'visits': return [50, 99.99, 100];
       case 'targetedVisits': {
-        let thresholdForGreen = 100 * PDV.computeTargetVisits(SliceDice.currentNode, true);
+        let thresholdForGreen = 100 * DEH.computeTargetVisits(SliceDice.currentNode, true);
         return [thresholdForGreen / 2, thresholdForGreen, 100];
       };
       case 'avancementAD': return [33, 66, 100];

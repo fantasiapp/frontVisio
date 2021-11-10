@@ -1,5 +1,5 @@
 import {PDV} from "./Pdv";
-import {Tree} from "./Node"
+import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
@@ -410,6 +410,14 @@ class DEH{  // for DataExtractionHelper
     }
     let drvTargets: number[][] = Object.values(this.get('targetLevelDrv'));
     return drvTargets.reduce((acc, drvTarget) => acc + drvTarget[targetTypeId], 0);
+  }
+
+  static computeTargetVisits(node:Node, threshold=false){
+    let finitionAgents:any[] = (node.nature == 'root') ? Object.values(DEH.get('agentFinitions')): 
+      ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): [DEH.get('agentFinitions')[node.id]]);
+    let sumOfTargets = finitionAgents.reduce((acc, agent) => acc + agent[DEH.getPositionOfAttr(
+      'structureAgentfinitions', threshold ?'ratioTargetedVisit': 'TargetedNbVisit')], 0);
+    return threshold ? (1 / finitionAgents.length) * sumOfTargets: sumOfTargets;
   }
 
   static getListTarget(level:string, ids: number[], dn: boolean, finition: boolean){
