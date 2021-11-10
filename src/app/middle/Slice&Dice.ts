@@ -181,7 +181,7 @@ export class SliceDice{
     }
   }
 
-  private computeAxis(axis:string){
+  private computeElementFromAxis(axis:string){
     axis = this.ComputeAxisName(axis);
     let dataAxis = DEH.get(axis, true), titles = Object.values(dataAxis),
       idToX:any = {};
@@ -191,8 +191,8 @@ export class SliceDice{
 
   private getDataFromPdvs(axis1: string, axis2: string, indicator: string,
       addConditions:[string, number[]][]): DataWidget{
-    let [newAxis1, rowsTitles, idToI] = this.computeAxis(axis1),
-        [newAxis2, columnsTitles, idToJ] = this.computeAxis(axis2);
+    let [newAxis1, rowsTitles, idToI] = this.computeElementFromAxis(axis1),
+        [newAxis2, columnsTitles, idToJ] = this.computeElementFromAxis(axis2);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
     this.fillUpWidget(dataWidget, newAxis1, newAxis2, indicator, addConditions);
     return dataWidget;
