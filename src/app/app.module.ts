@@ -52,6 +52,7 @@ import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.di
 import { AdOpenOnlyDirective } from './behaviour/ad-open-only.directive';
 import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directive';
 import { MapLegendComponent } from './map/map-legend/map-legend.component';
+import { ConditionnalDirective } from './behaviour/conditionnal.directive';
 
 @NgModule({
   declarations: [
@@ -93,7 +94,8 @@ import { MapLegendComponent } from './map/map-legend/map-legend.component';
     AgentFinitionsOnlyDirective,
     AdOpenOnlyDirective,
     CurrentYearOnlyDirective,
-    MapLegendComponent
+    MapLegendComponent,
+    ConditionnalDirective
   ],
   imports: [
     BrowserModule,

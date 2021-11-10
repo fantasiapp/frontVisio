@@ -62,7 +62,7 @@ export class InfoBarComponent {
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
       this.targetP2cdFormatted = this.format(this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')]);
-      this.showNavigation = this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
+      this.showNavigation = this.shouldShowNavigation()
       this.isOnlySiniat = this.pdv!.onlySiniat
 
       this.loadGrid();
@@ -154,6 +154,10 @@ export class InfoBarComponent {
     }
   }
 
+  shouldShowNavigation() {
+    return this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
+  }
+
   constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
     //console.log('[InfobarComponent]: On')
     this.SALES_INDUSTRY_ID = DEH.getPositionOfAttr('structureSales', 'industry')
@@ -184,7 +188,7 @@ export class InfoBarComponent {
 
   format(entry: number) {
     if(!entry) return ''
-    return BasicWidget.format(entry);
+    return BasicWidget.format(entry, 3, true);
   }
 
   convert(entry: string) {
@@ -230,7 +234,7 @@ export class InfoBarComponent {
     for(let sale of this._pdv!.p2cdSalesObject) {
       let i = this.industryIdToIndex[sale.industryId], j = this.productIdToIndex[sale.productId];
       this.grid[i][j] = sale;
-      this.gridFormatted[i][j] = BasicWidget.format(sale.volume);
+      this.gridFormatted[i][j] = this.format(sale.volume);
       this.updateSum(i,j, 0, this.grid[i][j].volume)
       this.salesColors[i][j] = this.getSaleColor(sale);
     }
@@ -265,12 +269,12 @@ export class InfoBarComponent {
   /*** Functions used to change the target field (and onlySiniat field) in the local pdv ***/
   changeRedistributed() {
       this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
-      this.showNavigation = !this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_ID]!=true
+      this.showNavigation = this.shouldShowNavigation()
       this.hasChanged = true;
   }
   changeRedistributedFinitions() {
     this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
-    this.showNavigation = this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]!=true
+    this.showNavigation = this.shouldShowNavigation()
     this.hasChanged = true;
   }
   changeTargetP2CD() {
@@ -327,7 +331,7 @@ export class InfoBarComponent {
   }
   changeTargetSale(){
       this.target[this.TARGET_SALE_ID] = !this.target[this.TARGET_SALE_ID];
-      this.showNavigation = this.target[this.TARGET_SALE_ID] != true && this.target[this.TARGET_REDISTRIBUTED_ID]!=true
+      this.showNavigation = this.shouldShowNavigation()
       this.hasChanged = true;
   }
   changeOnlySiniat() {
