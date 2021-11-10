@@ -108,7 +108,9 @@ export class TableComponent extends BasicWidget {
 
   /** Called when browsing the navigation **/
   update() {
-    this.createGraph(this.createData())
+    this.rowData = this.sliceTable.getPdvs(this.type)
+    this.renderTitle()
+    // this.createGraph(this.createData())
   }
 
   createGraph(data: TableData): void {
