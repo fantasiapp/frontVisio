@@ -1,8 +1,9 @@
 import {PDV} from "./Pdv";
-import {Tree} from "./Node"
+import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
+// à démocker
 const mainIndustries = {
   1: "Siniat",
   2: "Placo",
@@ -120,7 +121,6 @@ const segmentDnEnduitTargetVisits = {
   7: "Pur prospect",
 }
 
-//Proxy Class
 export class Params {
   static get coeffGreenLight() {
     return DEH.get('params')['coeffGreenLight'];
@@ -176,14 +176,12 @@ export class Params {
 }
 
 
-//Will have to make this non static one day
 class DEH{  // for DataExtractionHelper
   private static data: any;
   private static industriesReverseDict: any;
   private static structuresDict: {[key:string]:{[key:string]:number}}
   static delayBetweenUpdates: number;
   
-  //Represent levels as a vertical array rather than a recursive structure
   static geoLevels: any[] = [];
   static tradeLevels: any[] = [];
 
@@ -214,12 +212,9 @@ class DEH{  // for DataExtractionHelper
       }    
     let structure = this.get('structureLevel');
     this.delayBetweenUpdates = this.getParam('delayBetweenUpdates');
-
-    //trades have less info that geo
     
     this.geoLevels = [];
     this.tradeLevels = [];
-    //compute geoLevels
     let geolevel = this.get('levelGeo');
     while (true){
       this.geoLevels.push(geolevel.slice(0, structure.length-1));
@@ -240,21 +235,17 @@ class DEH{  // for DataExtractionHelper
     this.currentYear = true;
   }
 
-  static updateData(data: UpdateData) {
-    // data format : {'targetLevelAgentP2CD': [], 'targetLevelAgentFinitions': [], 'targetLevelDrv': [], 'pdvs': []}
-    
+  static updateData(data: UpdateData) {    
     // Check how deletions are managed 
     for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
           this.data.pdvs[newPdvId] = newPdv;
     }
-  //update this.targetLevelAgentP2CD, this.targetLevelAgentFinitions, this.targetLevelDrv,
     for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinitions', 'targetLevelDrv']) {
       for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
             this.get(targetType)[newTargetId] = newTarget;
       }
     }
 
-    //Build trees !!! CUSTOM THIS
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
 
@@ -269,11 +260,11 @@ class DEH{  // for DataExtractionHelper
   }
 
   static getGeoLevelLabel(height: number): string{
-    return this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'prettyPrint')];
+    return this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel', 'prettyPrint')];
   }
   
   static getGeoLevelName(height: number, id: number): string{
-    let name = this.get(this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'levelName')])[id];
+    let name = this.get(this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel', 'levelName')])[id];
     if (name == undefined) throw `No geo level with id=${id} at height ${height}`;
     if (Array.isArray(name))
     return name[this.get('structureAgentfinitions').indexOf('name')];
@@ -287,38 +278,37 @@ class DEH{  // for DataExtractionHelper
   }
   
   static getTradeLevelLabel(height: number): string{
-    return this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel',  'prettyPrint')];
+    return this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel', 'prettyPrint')];
   }
   
   static getTradeLevelName(height: number, id: number): string {
-    // HARDCODE
     if (height == 0) return '';
-    let name = this.get(this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel',  'levelName')])[id];
+    let name = this.get(this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel', 'levelName')])[id];
     if (name == undefined) throw `No trade level with id=${id} at height=${height}`;
     return name;
   }
   
   static getCompleteWidgetParams(id: number){
     let widgetParams = this.get('widgetParams')[id].slice();  
-    let widgetId = widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widget')];
+    let widgetId = widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widget')];
     let widget = this.get('widget')[widgetId];
-    widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widget')] = widget;
-    let widgetComputeId = widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widgetCompute')]; //might not always be an index
+    widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widget')] = widget;
+    let widgetComputeId = widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widgetCompute')];
     let widgetCompute = this.get('widgetCompute')[widgetComputeId];
-    widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widgetCompute')] = widgetCompute;
+    widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widgetCompute')] = widgetCompute;
     return widgetParams;
   }
   
   static getGeoDashboardsAt(height: number): number[]{
     if (height >= this.geoLevels.length || height < 0)
     throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.geoLevels.length}`;
-    return this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'listDashboards')];
+    return this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel', 'listDashboards')];
   }
   
   static getTradeDashboardsAt(height: number): number[]{
     if (height >= this.tradeLevels.length || height < 0)
     throw `Incorrect height=${height}. Constraint: 0 <= height <= ${this.tradeLevels.length}`;
-    return this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel',  'listDashboards')];
+    return this.getTradeLevel(height)[this.getPositionOfAttr('structureLevel', 'listDashboards')];
   }
   
   static getNameOfRegularObject(field:string, id:number){
@@ -412,6 +402,14 @@ class DEH{  // for DataExtractionHelper
     return drvTargets.reduce((acc, drvTarget) => acc + drvTarget[targetTypeId], 0);
   }
 
+  static computeTargetVisits(node:Node, threshold=false){
+    let finitionAgents:any[] = (node.nature == 'root') ? Object.values(DEH.get('agentFinitions')): 
+      ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): [DEH.get('agentFinitions')[node.id]]);
+    let sumOfTargets = finitionAgents.reduce((acc, agent) => acc + agent[DEH.getPositionOfAttr(
+      'structureAgentfinitions', threshold ?'ratioTargetedVisit': 'TargetedNbVisit')], 0);
+    return threshold ? (1 / finitionAgents.length) * sumOfTargets: sumOfTargets;
+  }
+
   static getListTarget(level:string, ids: number[], dn: boolean, finition: boolean){
     return ids.map((id:number) => this.getTarget(level, id, dn, finition));
   }
@@ -431,8 +429,8 @@ class DEH{  // for DataExtractionHelper
     let name = tree.hasTypeOf(GeoExtractionHelper) ? 'levelGeo' : 'levelTrade';
     let level = this.get(name + '_ly', false, false);
     while ( height-- > 0 )
-      level = level[this.getPositionOfAttr('structureLevel',  'subLevel')];
-      return level[this.getPositionOfAttr('structureLevel',  'listDashboards')] || [];
+      level = level[this.getPositionOfAttr('structureLevel', 'subLevel')];
+      return level[this.getPositionOfAttr('structureLevel', 'listDashboards')] || [];
   }
 };
 

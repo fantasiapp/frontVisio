@@ -157,10 +157,10 @@ export class MapIconBuilder {
     
     for ( let arg of args ) {
       if ( typeof arg === 'string' ) {
-        result.push(+pdv.property(arg));
+        result.push(+pdv.filterProperty(arg));
       } else {
         let [prop, transform] = arg;
-        result.push(transform(pdv.property(prop)));
+        result.push(transform(pdv.filterProperty(prop)));
       }
     }
 

@@ -3,7 +3,6 @@ import { DataService } from "../services/data.service";
 import DEH from "./DataExtractionHelper";
 import { SliceDice } from "./Slice&Dice";
 import { PDV } from "./Pdv";
-import {Node} from './Node';
 
 /**
  * The tableComponent is the only Widget using the AgGrid library

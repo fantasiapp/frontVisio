@@ -41,7 +41,7 @@ export class DataWidget{
       if (km2) this.m2ToKm2();
       if (removeZeros == 'justLines') this.removeNullLine(); else if (removeZeros == 'all') this.removeZeros();
       if (sortLines) this.sortLines();
-      if (groupsAxis1 && groupsAxis2) this.groupData(groupsAxis1, groupsAxis2, true);
+      if (groupsAxis1 && groupsAxis2) this.groupData(groupsAxis1, groupsAxis2);
     }
     
     formatWidgetForGraph(node:Node, transpose:boolean, axis:string, nbPdvs:number){
@@ -49,7 +49,7 @@ export class DataWidget{
       if (this.dim == 0){//case gauge
         switch(axis){
           case 'visits': {
-            let cibleVisits:number = PDV.computeTargetVisits(node) as number;
+            let cibleVisits:number = DEH.computeTargetVisits(node) as number;
             let adaptedVersion = (this.data >= 2) ? ' visites': ' visite';
             return [[this.data.toString().concat(adaptedVersion, ' sur un objectif de ', cibleVisits.toString()), 100 * Math.min(this.data / cibleVisits, 1)]];
           };
@@ -121,6 +121,13 @@ export class DataWidget{
         return startingPoints
       }       
     }
+
+    getColumnIds(){
+      let ids = new Array(this.columnsTitles.length).fill(0);
+      for (let [id, j] of Object.entries(this.idToJ))
+        if (j !== undefined) ids[j] = id;
+      return ids;
+    }
     
     numberToBool(){
       let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
@@ -142,9 +149,9 @@ export class DataWidget{
       }
     }
     
-    private groupData(groupsAxis1: string[], groupsAxis2: string[], simpleFormat=false){
-      let isOne1 = groupsAxis1.length == 1,
-        isOne2 = groupsAxis2.length == 1;
+    private groupData(groupsAxis1: string[], groupsAxis2: string[]){
+      let axis1IsSingleton = groupsAxis1.length == 1,
+        axis2IsSingleton = groupsAxis2.length == 1;
       groupsAxis1 = (groupsAxis1.length == 0) ? this.rowsTitles : groupsAxis1;
       groupsAxis2 = (groupsAxis2.length == 0) ? this.columnsTitles : groupsAxis2;
       let newData: number[][] = DataWidget.zeros(groupsAxis1.length, groupsAxis2.length),
@@ -156,8 +163,7 @@ export class DataWidget{
           let titleColumn = this.columnsTitles[j];
           let newI = groupsAxis1.indexOf(titleRow),
               newJ = groupsAxis2.indexOf(titleColumn);
-          newIdToI[i] = newI;
-          newIdToJ[j] = newJ;
+          newIdToI[i] = newI; newIdToJ[j] = newJ;
           if (newI < 0) newI = groupsAxis1.length - 1;
           if (newJ < 0) newJ = groupsAxis2.length - 1;
           newData[newI][newJ] += this.data[i][j];
@@ -165,13 +171,13 @@ export class DataWidget{
       }
       for (let [id, i] of Object.entries(this.idToI)) this.idToI[+id] = newIdToI[i as number];
       for (let [id, j] of Object.entries(this.idToJ)) this.idToJ[+id] = newIdToJ[j as number];
-      if (simpleFormat && isOne1 && isOne2){
+      if (axis1IsSingleton && axis2IsSingleton){
         this.dim = 0;
         this.data = newData[0][0];
-      } else if (simpleFormat && isOne1){
+      } else if (axis1IsSingleton){
         this.dim = 1;
         this.data = newData[0]; 
-      } else if (simpleFormat && isOne2){
+      } else if (axis2IsSingleton){
         this.dim = 1;
         this.data = newData.map(x => x[0]);
       } else this.data = newData;
@@ -185,21 +191,21 @@ export class DataWidget{
       else if (this.dim == 1){
         let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
         for (let i=0; i < this.data.length; i++)
-        this.data[i] = almost100 * this.data[i] / sum;
+          this.data[i] = almost100 * this.data[i] / sum;
       }
       else{
         if (!onCols){
           for (let i = 0; i < this.rowsTitles.length; i++){
             let sumRow = this.data[i].reduce((acc: number, value: number) => acc + value, 0);
             for (let j = 0; j < this.columnsTitles.length; j++)
-            this.data[i][j] = almost100 * this.data[i][j] / sumRow;
+              this.data[i][j] = almost100 * this.data[i][j] / sumRow;
           }
         }
         else{
           for (let j = 0; j < this.columnsTitles.length; j++){
             let sumCol = this.data.reduce((acc: number, line: number[]) => acc + line[j], 0);
             for (let i = 0; i < this.rowsTitles.length; i++)
-            this.data[i][j] = almost100 * this.data[i][j] / sumCol;
+              this.data[i][j] = almost100 * this.data[i][j] / sumCol;
           }
         }
       }
@@ -211,7 +217,7 @@ export class DataWidget{
       this.data[i][j] = this.data[i][j]/1000;
     }
   
-    // ça ne change pas le idToJ (pour le moment on s'en fout mais l'info peut être utile plus tard)
+    // this function does not update idToJ
     private sortLines(sortFunct = ((line: number[]) => line.reduce((acc: number, value: number) => acc + value, 0))){
       let coupleList: [string, number[]][] = [];
       for (let i = 0; i < this.rowsTitles.length; i ++)
@@ -224,11 +230,8 @@ export class DataWidget{
     }
   
     private removeNullLine(){
-      let n = this.rowsTitles.length,
-        m = this.columnsTitles.length,
-        newData: number[][] = [],
-        realLinesIndexes: number[] = [];
-      for (let i = 0; i < n; i++){
+      let newData: number[][] = [], realLinesIndexes: number[] = [];
+      for (let i = 0; i < this.rowsTitles.length; i++){
         let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value == 0), true);
         if (lineNull) this.idToI[DataWidget.findKeyByValue(this.idToI, i) as number] = undefined;
         if (!lineNull) {
@@ -247,18 +250,16 @@ export class DataWidget{
     }
     
     private removeZeros(){
-      let n = this.rowsTitles.length,
-        m = this.columnsTitles.length,
-        newData: number[][] = [],
+      let newData: number[][] = [],
         realLinesIndexes: number[] = [],
         realColumnsIndexes: number[] = [];
-      for (let i = 0; i < n; i++){
+      for (let i = 0; i < this.rowsTitles.length; i++){
         let lineNull = this.data[i].reduce((acc: boolean, value: number) => acc && (value == 0), true);
         if (lineNull) this.idToI[DataWidget.findKeyByValue(this.idToI, i) as number] = undefined;
         if (!lineNull) realLinesIndexes.push(i);        
       }
       for (let _ in realLinesIndexes) newData.push([]);
-      for (let j = 0; j < m; j++){
+      for (let j = 0; j < this.columnsTitles.length; j++){
         let colNull = this.data.reduce((acc: boolean, line: number[]) => acc && (line[j] == 0), true);
         if (colNull) this.idToJ[DataWidget.findKeyByValue(this.idToJ, j) as number] = undefined;
         if (!colNull){
