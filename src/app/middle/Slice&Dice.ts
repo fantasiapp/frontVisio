@@ -83,10 +83,10 @@ export class SliceDice{
   private computeColorsWidget(groupsAxis1: number|string[], groupsAxis2: number|string[]){
     if (![typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')) return [undefined, groupsAxis1, groupsAxis2];
     let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
-    let labelsIds = DEH.get('axisForGraph')[+groupsAxis][DEH.AXISFORGRAHP_LABELS_ID];
+    let labelsIds = DEH.get('axisForGraph')[+groupsAxis][DEH.getPositionOfAttr('structureAxisforgraph',  'labels')];
     groupsAxis = labelsIds.map(
-      (labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_LABEL_ID]);
-    let colors = labelsIds.map((labelId:number) => DEH.get('labelForGraph')[labelId][DEH.LABELFORGRAPH_COLOR_ID]);
+      (labelId:number) => DEH.get('labelForGraph')[labelId][DEH.getPositionOfAttr('structureLabelforgraph',  'label')]);
+    let colors = labelsIds.map((labelId:number) => DEH.get('labelForGraph')[labelId][DEH.getPositionOfAttr('structureLabelforgraph',  'color')]);
     if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; else groupsAxis2 = groupsAxis;
     return [colors, groupsAxis1, groupsAxis2];
   }
@@ -147,13 +147,6 @@ export class SliceDice{
     let dataWidget = this.getDataFromPdvs('enseigne', 'segmentMarketing', indicator.toLowerCase(), []);
     dataWidget.widgetTreatement(false, sortLines, 'justLines');
     return dataWidget.numberToBool()
-  }
-
-  getIndustriesReverseDict(){
-    let industriesReverseDict:{[key:string]:string} = {};
-    for (let [industrieId, industrieName] of Object.entries(DEH.get('industry')))
-      industriesReverseDict[industrieName as string] = industrieId;
-    return industriesReverseDict;
   }
 
   updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, 

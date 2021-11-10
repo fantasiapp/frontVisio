@@ -102,7 +102,7 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
             (id: number) => new Dashboard(
               id, 
               dashboards[id], 
-              layouts[dashboards[id][DEH.DASHBOARD_LAYOUT_INDEX]][DEH.LAYOUT_TEMPLATE_INDEX]
+              layouts[dashboards[id][DEH.getPositionOfAttr('structureDashboards',  'layout')]][DEH.getPositionOfAttr('structureLayout',  'template')]
             )
           )
         );
