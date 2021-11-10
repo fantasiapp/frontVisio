@@ -17,7 +17,7 @@ export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, v
   'noEmptySales' : (pdv: PDV ) => {
     let val = false;
     for(let sale of pdv.sales!) {
-      if(sale[DEH.SALES_INDUSTRY_ID] != DEH.getIndustryId('Siniat') && sale[DEH.SALES_VOLUME_ID] > 0) {
+      if(sale[DEH.getPositionOfAttr('structureSales',  'industry')] != DEH.getIndustryId('Siniat') && sale[DEH.getPositionOfAttr('structureSales',  'volume')] > 0) {
         val = true;
       }
     }

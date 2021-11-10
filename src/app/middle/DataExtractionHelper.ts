@@ -181,14 +181,6 @@ class DEH{  // for DataExtractionHelper
   private static data: any;
   private static industriesReverseDict: any;
   private static structuresDict: {[key:string]:{[key:string]:number}}
-
-  static SALES_DATE_ID: any;
-  static SALES_INDUSTRY_ID: any;
-  static SALES_PRODUCT_ID: any;
-  static SALES_VOLUME_ID: any;
-  static AGENTFINITION_TARGETVISITS_ID: number;
-  static AGENTFINITION_DRV_ID: number;
-  static AGENTFINITION_RATIO_ID: number;
   static delayBetweenUpdates: number;
   
   //Represent levels as a vertical array rather than a recursive structure
@@ -221,15 +213,8 @@ class DEH{  // for DataExtractionHelper
         this.structuresDict[field] = structureDict;
       }    
     let structure = this.get('structureLevel');
-
-    this.SALES_DATE_ID = this.get('structureSales').indexOf('date');
-    this.SALES_INDUSTRY_ID = this.get('structureSales').indexOf('industry');
-    this.SALES_PRODUCT_ID = this.get('structureSales').indexOf('product');
-    this.SALES_VOLUME_ID = this.get('structureSales').indexOf('volume');
-    this.AGENTFINITION_TARGETVISITS_ID = this.get('structureAgentfinitions').indexOf('TargetedNbVisit');
-    this.AGENTFINITION_DRV_ID = this.get('structureAgentfinitions').indexOf('drv');
-    this.AGENTFINITION_RATIO_ID = this.get('structureAgentfinitions').indexOf('ratioTargetedVisit');
     this.delayBetweenUpdates = this.getParam('delayBetweenUpdates');
+    
     //trades have less info that geo
     
     this.geoLevels = [];
@@ -435,7 +420,7 @@ class DEH{  // for DataExtractionHelper
     let finitionAgents: {[key:number]: (number|string)[]} = this.get('agentFinitions'),
       finitionAgentsOfDrv:any[] = [];
     for (let [id, agent] of Object.entries(finitionAgents))
-      if (agent[this.AGENTFINITION_DRV_ID] == drvId){
+      if (agent[this.getPositionOfAttr('structureAgentfinitions', 'drv')] == drvId){
         if (ids) finitionAgentsOfDrv.push(id);
         else finitionAgentsOfDrv.push(agent);
       }

@@ -120,7 +120,7 @@ export class PDV extends SimplePdv{
 
   //Getters for custom properties; used mostly in the table
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
-  get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
+  get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.getPositionOfAttr('structureSales',  'product')]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
   get typology(): number {return this.property('typology')}
 
@@ -400,8 +400,8 @@ export class PDV extends SimplePdv{
       ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): 
       [DEH.get('agentFinitions')[node.id]]);
     if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.AGENTFINITION_RATIO_ID], 0);
+      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'ratioTargetedVisit')], 0);
     return finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.AGENTFINITION_TARGETVISITS_ID], 0);
+      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'TargetedNbVisit')], 0);
   }
 };

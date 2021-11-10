@@ -114,7 +114,7 @@ export class InfoBarComponent {
   conditionsParams = disabledParams;
   noEmptySales(pdv: PDV, sales: any[]) {
     for(let sale of sales!) {
-      if(sale[DEH.SALES_INDUSTRY_ID] != DEH.getIndustryId('Siniat') && sale[DEH.SALES_VOLUME_ID] > 0) {
+      if(sale[DEH.getPositionOfAttr('structureSales',  'industry')] != DEH.getIndustryId('Siniat') && sale[DEH.getPositionOfAttr('structureSales',  'volume')] > 0) {
         return true;
       }
       }
