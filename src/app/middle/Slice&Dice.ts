@@ -77,28 +77,35 @@ export class SliceDice{
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let dn = indicator == 'dn';   
       if(dataWidget.getDim() == 1){
-        let targetValue = DEH.getTarget(SliceDice.currentNode.nature, SliceDice.currentNode.id, dn, finition);
+        let targetValue = DEH.getTarget(
+          SliceDice.currentNode.nature, SliceDice.currentNode.id, dn, finition);
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / +sum, 1);
       } else{
-        rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
         let elemIds = dataWidget.getColumnIds();
         targetLevel['ids'] = elemIds;
-        let targetValues = DEH.getListTarget(
-          finition ? 'agentFinitions': (SliceDice.currentNode.children[0] as Node).nature, elemIds, dn, finition);;
-        for (let i = 0; i < targetValues.length; i++) 
-          rodPosition[i] = Math.min((targetValues[i] + (targetsStartingPoint as number[])[i]) / (sum as number[])[i], 1);
-        if (SliceDice.currentNode.nature == 'root' && !finition){ // This is to calculate the position of ciblage rods
+        let targetValues = DEH.getListTarget(finition ? 'agentFinitions': 
+          (SliceDice.currentNode.children[0] as Node).nature, elemIds, dn, finition);
+        rodPosition = this.rodValuesToRodPositions(
+          targetValues, targetsStartingPoint as number[], sum as number[]);
+        if (SliceDice.currentNode.nature == 'root' && !finition){ //if we need ciblage rods
           let ciblageValues = (SliceDice.currentNode.children as Node[]).map(
             (drvNode:Node) => (drvNode.children as Node[]).reduce(
-              (acc:number, agentNode:Node) => acc + DEH.getTarget(agentNode.nature, agentNode.id, dn), 0));
-          rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
-          for (let i = 0; i < targetValues.length; i++)
-            rodPositionForCiblage[i] = Math.min((ciblageValues[i] + (targetsStartingPoint as number[])[i]) / (sum as number[])[i], 1);
+              (acc:number, agentNode:Node) => acc + DEH.getTarget(
+                agentNode.nature, agentNode.id, dn), 0));
+          rodPositionForCiblage = this.rodValuesToRodPositions(
+            ciblageValues, targetsStartingPoint as number[], sum as number[]);
         }
       }
       this.completeTargetLevel(targetLevel, dn, finition);
     }
     return [rodPosition, rodPositionForCiblage, targetLevel];
+    }
+
+  private rodValuesToRodPositions(rodValues: number[], targetsStartingPoint:number[], sum: number[]){
+    let rodPositions = new Array(rodValues.length).fill(0);
+    for (let i = 0; i < rodValues.length; i++)
+      rodPositions[i] = Math.min((rodValues[i] + (targetsStartingPoint as number[])[i]) / sum[i], 1);
+    return rodPositions;
   }
       
   private completeTargetLevel(targetLevel:{[key:string]:any}, dn:boolean, finition:boolean): void{
