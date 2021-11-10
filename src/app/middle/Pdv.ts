@@ -155,12 +155,25 @@ export class PDV extends SimplePdv{
   get avancementAD(){return 0}
   get visits(){return 0}
   get targetedVisits(){return 0}
-
+  
   get realTargetP2cd(){
     if (this.targetP2cd > 0 && this.lightTarget !== 'r') return this.targetP2cd;
     return 0;
   }
   
+  getCiblage(enduit:boolean, dn:boolean){
+    if (dn && enduit) return this.targetFinition ? 1: 0;
+    if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
+    if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
+    return this.realTargetP2cd;
+  }
+  
+  displayIndustrieSaleVolumes(enduit=false): {[key:string]:number}{
+    let dictSales = this.computeSalesRepartition();
+    if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['potentialFinition']};
+    return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
+  }
+
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
     this.load(false);
@@ -182,6 +195,46 @@ export class PDV extends SimplePdv{
   private static loadTrees(){
     this.geoTree = new Tree(GeoExtractionHelper);
     this.tradeTree = new Tree(TradeExtrationHelper);
+  }
+
+  static findById(id: number): PDV | undefined {
+    return this.instances.get(id);
+  }
+
+  static slice(node:Node){
+    return PDV.filterPdvs(PDV.childrenOfNode(node));
+  }
+
+  static countForFilter(pdvs:PDV[], attributesToCount:string[]){ // Pas grand chose à faire là ?
+    let dictCounter: {[key:string]: {[key:string]:number}} = {};
+    for (let attribute of attributesToCount)
+      dictCounter[attribute] = {};
+    for (let pdv of pdvs)
+      for (let attribute of Object.keys(dictCounter)){
+        if (dictCounter[attribute].hasOwnProperty(pdv.filterProperty(attribute))) 
+          dictCounter[attribute][pdv.filterProperty(attribute)] += 1;
+        else dictCounter[attribute][pdv.filterProperty(attribute)] = 1;
+      }
+    return dictCounter
+  }
+
+  static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
+    if (conditions.length == 0) return pdvs;
+    let newPdvs: PDV[] = [];
+    for (let pdv of pdvs)
+      if (conditions.map(condition => condition[1].includes(pdv.filterProperty(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
+        newPdvs.push(pdv);
+    return newPdvs;
+  }
+
+  private static filterPdvs(pdvs:PDV[]){
+    return pdvs.filter(pdv => pdv.available && pdv.sale);
+  }
+
+  private static childrenOfNode(node: Node | PDV):PDV[]{
+    if (node instanceof PDV) return [node];
+    return node.children.map(
+      (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
   }
   
   public getValue(indicator: string, axisName:string): (number | number[]){
@@ -290,23 +343,6 @@ export class PDV extends SimplePdv{
     }
   }
 
-  static findById(id: number): PDV | undefined {
-    return this.instances.get(id);
-  }
-
-  private static filterPdvs(pdvs:PDV[]){
-    return pdvs.filter(pdv => pdv.available && pdv.sale);
-  }
-
-  static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
-    if (conditions.length == 0) return pdvs;
-    let newPdvs: PDV[] = [];
-    for (let pdv of pdvs)
-      if (conditions.map(condition => condition[1].includes(pdv.filterProperty(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
-        newPdvs.push(pdv);
-    return newPdvs;
-  }
-
   filterProperty(propertyName:string){
     switch(propertyName){
       case 'clientProspect': return this.clientProspectFilter(true);
@@ -337,19 +373,6 @@ export class PDV extends SimplePdv{
         return parseInt(typologyIds[i]);
   }
 
-  static countForFilter(pdvs:PDV[], attributesToCount:string[]){ // Pas grand chose à faire là ?
-    let dictCounter: {[key:string]: {[key:string]:number}} = {};
-    for (let attribute of attributesToCount)
-      dictCounter[attribute] = {};
-    for (let pdv of pdvs)
-      for (let attribute of Object.keys(dictCounter)){
-        if (dictCounter[attribute].hasOwnProperty(pdv.filterProperty(attribute))) 
-          dictCounter[attribute][pdv.filterProperty(attribute)] += 1;
-        else dictCounter[attribute][pdv.filterProperty(attribute)] = 1;
-      }
-    return dictCounter
-  }
-
   industrielFilter(){
     let salesRepartition = this.displayIndustrieSaleVolumes(),
       industrieMax = 'Autres';
@@ -361,37 +384,14 @@ export class PDV extends SimplePdv{
   ciblageFilter(){
     return (this.realTargetP2cd > 0) ? 2: 1; //Hardcode
   }
-
-  getCiblage(enduit:boolean, dn:boolean){
-    if (dn && enduit) return this.targetFinition ? 1: 0;
-    if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
-    if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
-    return this.realTargetP2cd;
-  }
-
-  static slice(node:Node){
-    return PDV.filterPdvs(PDV.childrenOfNode(node));
-  }
-
-  private static childrenOfNode(node: Node | PDV):PDV[]{
-    if (node instanceof PDV) return [node];
-    return node.children.map(
-      (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
-  }
-
+  
   clientProspectFilter(index=false){
     let dnResult = this.getValue('dn', 'clientProspect') as number[],
-      clientProspectDict = DEH.get('clientProspect');
+    clientProspectDict = DEH.get('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),
-      clientProspectIds = Object.keys(clientProspectDict);
+    clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
-      if (dnResult[i] == 1)
-        return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
-  }
-
-  displayIndustrieSaleVolumes(enduit=false): {[key:string]:number}{
-    let dictSales = this.computeSalesRepartition();
-    if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['potentialFinition']};
-    return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
+    if (dnResult[i] == 1)
+    return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
 }
