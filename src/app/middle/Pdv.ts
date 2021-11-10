@@ -100,7 +100,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   }
   public changeTargetTargetFinitions(val: boolean) {
     if(this.target) this.initializeTarget();
-    (this.target as any[])[DEH.TARGET_FINITIONS_ID] = val;
+    (this.target as any[])[DEH.getPositionOfAttr('structureTarget',  'targetFinitions')] = val;
   }
   
   public initializeTarget() {
@@ -120,15 +120,15 @@ export class PDV extends SimplePdv{
 
   //Getters for custom properties; used mostly in the table
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
-  get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.SALES_PRODUCT_ID]])) values.push(new Sale(s));} return values;}
+  get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.getPositionOfAttr('structureSales',  'product')]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
   get typology(): number {return this.property('typology')}
 
-  get targetP2cd(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
-  get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
-  get volumeTarget(){ return this.target ? this.target[DEH.TARGET_VOLUME_ID] : false;}
-  get lightTarget(){ return this.target ? this.target[DEH.TARGET_LIGHT_ID] : false;}
-  get commentTarget(){ return this.target ? this.target[DEH.TARGET_COMMENT_ID] : false;}
+  get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
+  get targetFinition(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetFinitions')] : false;}
+  get volumeTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
+  get lightTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'greenLight')] : false;}
+  get commentTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'commentTargetP2CD')] : false;}
 
   get siniatSales() {return this.computeSalesRepartition()['Siniat']}
   get totalSales() {return this.computeSalesRepartition()['totalP2cd']}
@@ -400,8 +400,8 @@ export class PDV extends SimplePdv{
       ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): 
       [DEH.get('agentFinitions')[node.id]]);
     if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.AGENTFINITION_RATIO_ID], 0);
+      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'ratioTargetedVisit')], 0);
     return finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.AGENTFINITION_TARGETVISITS_ID], 0);
+      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'TargetedNbVisit')], 0);
   }
 };
