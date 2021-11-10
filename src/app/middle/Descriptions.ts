@@ -46,7 +46,7 @@ export class CD{ //For ComputeDescription
     let ciblage:number = +this.computeCiblage(enduit, dn);
     if (enduit) return "Ciblage: ".concat(Math.round(ciblage/1000).toString(), " T.");
     else if (dn) return "Ciblage: ".concat(ciblage.toString(), " PdV.");
-    else return "Ciblage: ".concat(Math.round(ciblage/1000).toString(), " km²."); // les ciblages c'est les seuls à être en m² et pas en km²
+    else return "Ciblage: ".concat(Math.round(ciblage/1000).toString(), " km²."); // the "/1000" is due to the fact that ciblage are in m², not in km²
   }
 
   private static getObjectif(node: Node, finition=false, dn=false){    
@@ -57,15 +57,14 @@ export class CD{ //For ComputeDescription
   }
 
   private static getObjectifDrv(node:Node, dn=false){
-    if (!(node.nature == 'root' || node.nature == 'drv')) return "";
-    let targetDrv:number;
-    if (node.nature == 'root') targetDrv = DEH.getTarget('nationalByAgent', 0, dn);
-    if (node.nature == 'drv') targetDrv = (node.children as Node[]).reduce((acc:number, agentNode:Node) => acc + DEH.getTarget('agent', agentNode.id, dn), 0);
+    if (!['root', 'drv'].includes(node.nature)) return "";
+    let targetDrv = (node.nature == 'root') ? DEH.getTarget('nationalByAgent', 0, dn):
+      (node.children as Node[]).reduce((acc:number, agentNode:Node) => acc + DEH.getTarget('agent', agentNode.id, dn), 0);
     return (dn) ? "DRV: ".concat(targetDrv!.toString(), " PdV, "): "DRV: ".concat((Math.round(targetDrv!)).toString(), " km², ");
   }
 
   private static getObjectifSiege(node: Node, dn=false):string{
-    if (!(node.nature == 'root' || node.nature == 'drv')) return "";
+    if (!['root', 'drv'].includes(node.nature)) return "";
     let targetSiege =  DEH.getTarget(node.nature, node.id, dn);
     return (dn) ? "Objectif Siège: ".concat(targetSiege.toString(), " PdV, "): "Objectif Siège: ".concat((Math.round(targetSiege)).toString(), " km², ");
   }
@@ -77,14 +76,14 @@ export class CD{ //For ComputeDescription
       (node.children as Node[]).map(subLevelNode => DEH.getTarget(subLevelNode.nature, subLevelNode.id, true)).reduce((acc, value) => acc + value, 0),
       0],
       ciblageWidget: [number, number, number] = [0, 0, 0];
-    objectiveWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / objectiveWidget[0]; // on divise par 10 car on fait *100 pour mettre en % et /1000 pour tout mettre en km2
+    objectiveWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / objectiveWidget[0]; // divided by 10 because *100 to be in % and /1000 to be in km2
     if (node.nature == 'root'){
       let agentNodes = (node.children as Node[]).map(drvNode => drvNode.children as Node[]).reduce((acc: Node[], list: Node[]) => acc.concat(list), []);
       ciblageWidget = [
       agentNodes.map(agentNode => DEH.getTarget('agent', agentNode.id)).reduce((acc, value) => acc + value, 0),
       agentNodes.map(agentNode => DEH.getTarget('agent', agentNode.id, true)).reduce((acc, value) => acc + value, 0),
       0]
-      ciblageWidget[2] = (objectiveWidget[0] == 0) ? 100 : 0.1 * ciblage / ciblageWidget[0]; 
+      ciblageWidget[2] = (ciblageWidget[0] == 0) ? 100 : 0.1 * ciblage / ciblageWidget[0]; 
     } else ciblageWidget = [
       ciblage / 1000,
       this.computeCiblage(false, true),

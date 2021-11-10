@@ -3,6 +3,7 @@ import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
+// à démocker
 const mainIndustries = {
   1: "Siniat",
   2: "Placo",
@@ -300,12 +301,12 @@ class DEH{  // for DataExtractionHelper
   
   static getCompleteWidgetParams(id: number){
     let widgetParams = this.get('widgetParams')[id].slice();  
-    let widgetId = widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widget')];
+    let widgetId = widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widget')];
     let widget = this.get('widget')[widgetId];
-    widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widget')] = widget;
-    let widgetComputeId = widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widgetCompute')]; //might not always be an index
+    widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widget')] = widget;
+    let widgetComputeId = widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widgetCompute')]; //might not always be an index
     let widgetCompute = this.get('widgetCompute')[widgetComputeId];
-    widgetParams[this.getPositionOfAttr('structureWidgetparams',  'widgetCompute')] = widgetCompute;
+    widgetParams[this.getPositionOfAttr('structureWidgetparams', 'widgetCompute')] = widgetCompute;
     return widgetParams;
   }
   
