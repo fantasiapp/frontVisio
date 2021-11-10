@@ -147,8 +147,8 @@ export class PDV extends SimplePdv{
   }
   get edit(): boolean {return true}
   get info(): boolean {return true}
-  get checkboxP2cd(): boolean {return this.ciblage() === 2}
-  get clientProspect(){return this.clientProspect2(true)}
+  get checkboxP2cd(): boolean {return this.ciblageFilter() === 2}
+  get clientProspect(){return this.clientProspectFilter(true)}
 
   // to avoid specific cases for some axis
   get histoCurve(){return 1}
@@ -307,12 +307,11 @@ export class PDV extends SimplePdv{
     return newPdvs;
   }
 
-  //Juste pour le reSlice
   filterProperty(propertyName:string){
     switch(propertyName){
-      case 'clientProspect': return this.clientProspect2(true);
-      case 'industriel': return this.industriel();
-      case 'ciblage': return this.ciblage();
+      case 'clientProspect': return this.clientProspectFilter(true);
+      case 'industriel': return this.industrielFilter();
+      case 'ciblage': return this.ciblageFilter();
       case 'pointFeuFilter': return this.pointFeu? 2: 1;
       case 'visited': return (this.nbVisits > 0)? 1: 2;
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
@@ -351,7 +350,7 @@ export class PDV extends SimplePdv{
     return dictCounter
   }
 
-  industriel(){
+  industrielFilter(){
     let salesRepartition = this.displayIndustrieSaleVolumes(),
       industrieMax = 'Autres';
     for (let [industrie, sales] of Object.entries(salesRepartition))
@@ -359,8 +358,8 @@ export class PDV extends SimplePdv{
     return parseInt(DEH.getKeyByValue(DEH.get('industriel'), industrieMax)!);
   }
 
-  ciblage(){
-    return (this.realTargetP2cd > 0) ? 2: 1; //Ca c'est hardcodé
+  ciblageFilter(){
+    return (this.realTargetP2cd > 0) ? 2: 1; //Hardcode
   }
 
   getCiblage(enduit:boolean, dn:boolean){
@@ -380,7 +379,7 @@ export class PDV extends SimplePdv{
       (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
   }
 
-  clientProspect2(index=false){
+  clientProspectFilter(index=false){
     let dnResult = this.getValue('dn', 'clientProspect') as number[],
       clientProspectDict = DEH.get('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),
