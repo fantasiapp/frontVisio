@@ -81,8 +81,7 @@ export class SliceDice{
         rodPosition = 360 * Math.min((targetValue + targetsStartingPoint) / +sum, 1);
       } else{
         rodPosition = new Array(dataWidget.columnsTitles.length).fill(0);
-        let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
-        for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
+        let elemIds = dataWidget.getColumnIds();
         targetLevel['ids'] = elemIds;
         let targetValues = DEH.getListTarget(
           finition ? 'agentFinitions': (SliceDice.currentNode.children[0] as Node).nature, elemIds, dn, finition);;

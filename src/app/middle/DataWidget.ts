@@ -121,6 +121,13 @@ export class DataWidget{
         return startingPoints
       }       
     }
+
+    getColumnIds(){
+      let ids = new Array(this.columnsTitles.length).fill(0);
+      for (let [id, j] of Object.entries(this.idToJ))
+        if (j !== undefined) ids[j] = id;
+      return ids;
+    }
     
     numberToBool(){
       let boolMatrix = this.data.map((line:number[]) => line.map(value => value > 0).slice(0, line.length - 1));
