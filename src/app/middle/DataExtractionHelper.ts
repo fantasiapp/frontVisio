@@ -214,7 +214,7 @@ class DEH{  // for DataExtractionHelper
       }    
     let structure = this.get('structureLevel');
     this.delayBetweenUpdates = this.getParam('delayBetweenUpdates');
-    
+
     //trades have less info that geo
     
     this.geoLevels = [];
@@ -223,13 +223,13 @@ class DEH{  // for DataExtractionHelper
     let geolevel = this.get('levelGeo');
     while (true){
       this.geoLevels.push(geolevel.slice(0, structure.length-1));
-      if (!(geolevel = geolevel[this.getPositionOfAttr('structureLevel',  'subLevel')])) break;
+      if (!(geolevel = geolevel[this.getPositionOfAttr('structureLevel', 'subLevel')])) break;
     }
 
     let tradeLevel = this.get('levelTrade');
     while (true){
       this.tradeLevels.push(tradeLevel.slice(0, structure.length-1));
-      if (!(tradeLevel = tradeLevel[this.getPositionOfAttr('structureLevel',  'subLevel')])) break;
+      if (!(tradeLevel = tradeLevel[this.getPositionOfAttr('structureLevel', 'subLevel')])) break;
     }
 
     this.geoHeight = this.geoLevels.length;
