@@ -5,7 +5,8 @@ import {Tree, Node} from './Node';
 
 
 const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'];
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
+    dnLikeAxis = ['segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'suiviAD', 'weeks'];
 
 class SimplePdv { // Theses attributes are directly those received from the back
   private static indexMapping: Map<string, number>;
@@ -122,7 +123,7 @@ export class PDV extends SimplePdv{
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.getPositionOfAttr('structureSales',  'product')]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
-  get typology(): number {return this.property('typology')}
+  get typology(): number {return this.filterProperty('typology')}
 
   get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetFinitions')] : false;}
@@ -146,20 +147,33 @@ export class PDV extends SimplePdv{
   }
   get edit(): boolean {return true}
   get info(): boolean {return true}
-  get checkboxP2cd(): boolean {return this.ciblage() === 2}
-  get clientProspect(){return this.clientProspect2(true)}
+  get checkboxP2cd(): boolean {return this.ciblageFilter() === 2}
+  get clientProspect(){return this.clientProspectFilter(true)}
 
   // to avoid specific cases for some axis
   get histoCurve(){return 1}
   get avancementAD(){return 0}
   get visits(){return 0}
   get targetedVisits(){return 0}
-
+  
   get realTargetP2cd(){
     if (this.targetP2cd > 0 && this.lightTarget !== 'r') return this.targetP2cd;
     return 0;
   }
   
+  getCiblage(enduit:boolean, dn:boolean){
+    if (dn && enduit) return this.targetFinition ? 1: 0;
+    if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
+    if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
+    return this.realTargetP2cd;
+  }
+  
+  displayIndustrieSaleVolumes(enduit=false): {[key:string]:number}{
+    let dictSales = this.computeSalesRepartition();
+    if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['potentialFinition']};
+    return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
+  }
+
   static getInstances(): Map<number, PDV> {
     if (!this.instances)
     this.load(false);
@@ -182,12 +196,52 @@ export class PDV extends SimplePdv{
     this.geoTree = new Tree(GeoExtractionHelper);
     this.tradeTree = new Tree(TradeExtrationHelper);
   }
+
+  static findById(id: number): PDV | undefined {
+    return this.instances.get(id);
+  }
+
+  static slice(node:Node){
+    return PDV.filterPdvs(PDV.childrenOfNode(node));
+  }
+
+  static countForFilter(pdvs:PDV[], attributesToCount:string[]){ // Pas grand chose à faire là ?
+    let dictCounter: {[key:string]: {[key:string]:number}} = {};
+    for (let attribute of attributesToCount)
+      dictCounter[attribute] = {};
+    for (let pdv of pdvs)
+      for (let attribute of Object.keys(dictCounter)){
+        if (dictCounter[attribute].hasOwnProperty(pdv.filterProperty(attribute))) 
+          dictCounter[attribute][pdv.filterProperty(attribute)] += 1;
+        else dictCounter[attribute][pdv.filterProperty(attribute)] = 1;
+      }
+    return dictCounter
+  }
+
+  static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
+    if (conditions.length == 0) return pdvs;
+    let newPdvs: PDV[] = [];
+    for (let pdv of pdvs)
+      if (conditions.map(condition => condition[1].includes(pdv.filterProperty(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
+        newPdvs.push(pdv);
+    return newPdvs;
+  }
+
+  private static filterPdvs(pdvs:PDV[]){
+    return pdvs.filter(pdv => pdv.available && pdv.sale);
+  }
+
+  private static childrenOfNode(node: Node | PDV):PDV[]{
+    if (node instanceof PDV) return [node];
+    return node.children.map(
+      (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
+  }
   
-  public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
+  public getValue(indicator: string, axisName:string): (number | number[]){
     let salesRepartition = this.computeSalesRepartition();
-    if (axisName && nonRegularAxis.includes(axisName!)){
-      if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator, salesRepartition);
-      else return this.computIndustriesAxis(axisName, salesRepartition);
+    if (nonRegularAxis.includes(axisName)){
+      if (dnLikeAxis.includes(axisName)) return this.computeDnLikeAxis(axisName!, indicator, salesRepartition);
+      else return this.computeIrregularAxis(axisName, salesRepartition);
     }
     switch(indicator){
       case 'dn': return 1;
@@ -226,14 +280,15 @@ export class PDV extends SimplePdv{
     return salesRepartition;
   }
   
-  private computeIrregularAxis(axisName:string, indicator:string, params: {[key:string]:any}){
+  // a DN like axis is an axis for which a pdv is represented in a single categorie
+  private computeDnLikeAxis(axisName:string, indicator:string, params: {[key:string]:any}){
     let axis: string[] = Object.values(DEH.get(axisName, true)),
       repartition= new Array(axis.length).fill(0),
       found = false, i = 0;
     let value = (indicator == 'dn') ? 1: ((indicator == 'visits') ? this.nbVisits : 
       this.nbVisits * Math.max(params['totalP2cd'] * DEH.get("params")["ratioPlaqueFinition"], params['totalEnduit']))
     while (!found && i < repartition.length){
-      if (this.conditionAxis(axisName, axis[i], params)){
+      if (this.conditionForAxis(axisName, axis[i], params)){
         found = true;
         repartition[i] = value;
       }
@@ -242,8 +297,7 @@ export class PDV extends SimplePdv{
     return repartition;
   }
 
-  // peut-être qu'il faudrait le merge avec computeElement à terme...
-  private conditionAxis(axisName:string, item:string, params:{[key:string]:any}){
+  private conditionForAxis(axisName:string, item:string, params:{[key:string]:any}){
     switch(item){
       // suiviAD axis
       case 'Terminées': return params['completed'];
@@ -268,7 +322,7 @@ export class PDV extends SimplePdv{
     }
   }
 
-  private computIndustriesAxis(axisName:string, salesIndustries: {[key:string]:any}){
+  private computeIrregularAxis(axisName:string, salesIndustries: {[key:string]:any}){
     let axis: string[] = Object.values(DEH.get(axisName, true)),
       computedAxis = new Array(axis.length).fill(0);
     for (let i = 0; i < axis.length; i++)
@@ -289,29 +343,11 @@ export class PDV extends SimplePdv{
     }
   }
 
-  static findById(id: number): PDV | undefined {
-    return this.instances.get(id);
-  }
-
-  static filterPdvs(pdvs:PDV[]){
-    return pdvs.filter(pdv => pdv.available && pdv.sale);
-  }
-
-  static reSlice(pdvs:PDV[], conditions: [string, number[]][]): PDV[]{
-    if (conditions.length == 0) return pdvs;
-    let newPdvs: PDV[] = [];
-    for (let pdv of pdvs)
-      if (conditions.map(condition => condition[1].includes(pdv.property(condition[0]))).reduce((acc, bool) => acc && bool, true)) 
-        newPdvs.push(pdv);
-    return newPdvs;
-  }
-
-  //Juste pour le reSlice de la map --> donner un meilleur nom
-  property(propertyName:string){
+  filterProperty(propertyName:string){
     switch(propertyName){
-      case 'clientProspect': return this.clientProspect2(true);
-      case 'industriel': return this.industriel();
-      case 'ciblage': return this.ciblage();
+      case 'clientProspect': return this.clientProspectFilter(true);
+      case 'industriel': return this.industrielFilter();
+      case 'ciblage': return this.ciblageFilter();
       case 'pointFeuFilter': return this.pointFeu? 2: 1;
       case 'visited': return (this.nbVisits > 0)? 1: 2;
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
@@ -337,20 +373,7 @@ export class PDV extends SimplePdv{
         return parseInt(typologyIds[i]);
   }
 
-  static countForFilter(pdvs:PDV[], attributesToCount:string[]){ // Pas grand chose à faire là ?
-    let dictCounter: {[key:string]: {[key:string]:number}} = {};
-    for (let attribute of attributesToCount)
-      dictCounter[attribute] = {};
-    for (let pdv of pdvs)
-      for (let attribute of Object.keys(dictCounter)){
-        if (dictCounter[attribute].hasOwnProperty(pdv.property(attribute))) 
-          dictCounter[attribute][pdv.property(attribute)] += 1;
-        else dictCounter[attribute][pdv.property(attribute)] = 1;
-      }
-    return dictCounter
-  }
-
-  industriel(){
+  industrielFilter(){
     let salesRepartition = this.displayIndustrieSaleVolumes(),
       industrieMax = 'Autres';
     for (let [industrie, sales] of Object.entries(salesRepartition))
@@ -358,50 +381,17 @@ export class PDV extends SimplePdv{
     return parseInt(DEH.getKeyByValue(DEH.get('industriel'), industrieMax)!);
   }
 
-  ciblage(){
-    return (this.realTargetP2cd > 0) ? 2: 1; //Ca c'est hardcodé
+  ciblageFilter(){
+    return (this.realTargetP2cd > 0) ? 2: 1; //Hardcode
   }
-
-  getCiblage(enduit:boolean, dn:boolean){
-    if (dn && enduit) return this.targetFinition ? 1: 0;
-    if (dn) return (isNaN(this.targetP2cd) || this.targetP2cd <= 0 || this.lightTarget == 'r') ? 0: 1;
-    if (enduit) return this.targetFinition ? Math.max(this.potential, 0): 0;
-    return this.realTargetP2cd;
-  }
-
-  static slice(node:Node){
-    return PDV.filterPdvs(PDV.childrenOfNode(node));
-  }
-
-  static childrenOfNode(node: Node | PDV):PDV[]{
-    if (node instanceof PDV) return [node];
-    return node.children.map(
-      (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
-  }
-
-  clientProspect2(index=false){
+  
+  clientProspectFilter(index=false){
     let dnResult = this.getValue('dn', 'clientProspect') as number[],
-      clientProspectDict = DEH.get('clientProspect');
+    clientProspectDict = DEH.get('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),
-      clientProspectIds = Object.keys(clientProspectDict);
+    clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
-      if (dnResult[i] == 1)
-        return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
+    if (dnResult[i] == 1)
+    return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];
   }
-
-  displayIndustrieSaleVolumes(enduit=false): {[key:string]:number}{
-    let dictSales = this.computeSalesRepartition();
-    if (enduit) return {Salsi: dictSales['Salsi'], Prégy: dictSales['Prégy'], Autres: dictSales['potentialFinition']};
-    return {Siniat: dictSales['Siniat'], Placo: dictSales['Placo'], Knauf: dictSales['Knauf'], Autres: dictSales['Challengers']};
-  }
-
-  static computeTargetVisits(node:Node, threshold=false){ // ca n'a rien à faire là, peut-être à fusionner avec getTarget de DEH
-    let finitionAgents:any[] = (node.nature == ('root')) ? Object.values(DEH.get('agentFinitions')): 
-      ((node.nature == 'drv') ? DEH.findFinitionAgentsOfDrv(node.id): 
-      [DEH.get('agentFinitions')[node.id]]);
-    if (threshold) return (1 / finitionAgents.length) * finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'ratioTargetedVisit')], 0);
-    return finitionAgents.reduce(
-      (acc, agent) => acc + agent[DEH.getPositionOfAttr('structureAgentfinitions',  'TargetedNbVisit')], 0);
-  }
-};
+}

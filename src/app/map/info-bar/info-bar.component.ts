@@ -139,7 +139,7 @@ export class InfoBarComponent {
       dep: DEH.getNameOfRegularObject('dep', pdv.dep),
       ville: DEH.getNameOfRegularObject('ville', pdv.ville),
       bassin: this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')],
-      clientProspect: pdv.clientProspect2(),
+      clientProspect: pdv.clientProspectFilter(),
       nbVisits: pdv.nbVisits,
       siniatP2cdSales: pdv.displayIndustrieSaleVolumes()['Siniat'],
       placoP2cdSales: pdv.displayIndustrieSaleVolumes()['Placo'],
