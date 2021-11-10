@@ -182,11 +182,6 @@ class DEH{  // for DataExtractionHelper
   private static industriesReverseDict: any;
   private static structuresDict: {[key:string]:{[key:string]:number}}
 
-  static TARGET_FINITIONS_ID: number;
-  static TARGET_LIGHT_ID: number;
-  static TARGET_REDISTRIBUTED_FINITIONS_ID: number;
-  static TARGET_COMMENT_ID: number;
-  static TARGET_BASSIN_ID: number;
   static SALES_DATE_ID: any;
   static SALES_INDUSTRY_ID: any;
   static SALES_PRODUCT_ID: any;
@@ -227,11 +222,6 @@ class DEH{  // for DataExtractionHelper
       }    
     let structure = this.get('structureLevel');
 
-    this.TARGET_FINITIONS_ID = this.get('structureTarget').indexOf('targetFinitions');
-    this.TARGET_LIGHT_ID = this.get('structureTarget').indexOf('greenLight');
-    this.TARGET_COMMENT_ID = this.get('structureTarget').indexOf('commentTargetP2CD');
-    this.TARGET_REDISTRIBUTED_FINITIONS_ID = this.get('structureTarget').indexOf('redistributedFinitions');
-    this.TARGET_BASSIN_ID = this.get('structureTarget').indexOf('bassin');
     this.SALES_DATE_ID = this.get('structureSales').indexOf('date');
     this.SALES_INDUSTRY_ID = this.get('structureSales').indexOf('industry');
     this.SALES_PRODUCT_ID = this.get('structureSales').indexOf('product');

@@ -56,9 +56,9 @@ export class InfoBarComponent {
       if(!this._pdv.target) this._pdv.initializeTarget()
       this.target = this._pdv.target as any[];
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.getPositionOfAttr('structureTarget', 'redistributed')] && this.pdv!.redistributed;
-      this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.TARGET_REDISTRIBUTED_FINITIONS_ID] && this.pdv!.redistributedFinitions;
+      this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'redistributedFinitions')] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'sale')] && this.pdv!.sale
-      this.target[DEH.TARGET_BASSIN_ID] = this._pdv.bassin;
+      this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] = this._pdv.bassin;
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
       this.targetP2cdFormatted = this.format(this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')]);
@@ -138,7 +138,7 @@ export class InfoBarComponent {
       enseigne: DEH.getNameOfRegularObject('enseigne', pdv.enseigne),
       dep: DEH.getNameOfRegularObject('dep', pdv.dep),
       ville: DEH.getNameOfRegularObject('ville', pdv.ville),
-      bassin: this.target[DEH.TARGET_BASSIN_ID],
+      bassin: this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')],
       clientProspect: pdv.clientProspect2(),
       nbVisits: pdv.nbVisits,
       siniatP2cdSales: pdv.displayIndustrieSaleVolumes()['Siniat'],
@@ -161,11 +161,11 @@ export class InfoBarComponent {
     this.SALES_VOLUME_ID = DEH.getPositionOfAttr('structureSales', 'volume')
     this.SALES_DATE_ID = DEH.getPositionOfAttr('structureSales', 'date')
     this.TARGET_VOLUME_ID = DEH.getPositionOfAttr('structureTarget',  'targetP2CD');
-    this.TARGET_LIGHT_ID = DEH.TARGET_LIGHT_ID;
+    this.TARGET_LIGHT_ID = DEH.getPositionOfAttr('structureTarget',  'greenLight');
     this.TARGET_REDISTRIBUTED_ID = DEH.getPositionOfAttr('structureTarget', 'redistributed');
     this.TARGET_SALE_ID = DEH.getPositionOfAttr('structureTarget',  'sale');
-    this.TARGET_COMMENT_ID = DEH.TARGET_COMMENT_ID;
-    this.TARGET_REDISTRIBUTED_FINITIONS_ID = DEH.TARGET_REDISTRIBUTED_FINITIONS_ID;
+    this.TARGET_COMMENT_ID = DEH.getPositionOfAttr('structureTarget',  'commentTargetP2CD');
+    this.TARGET_REDISTRIBUTED_FINITIONS_ID = DEH.getPositionOfAttr('structureTarget',  'redistributedFinitions');
 
     
     this.industries = Object.values(DEH.get('labelForGraph') as []).filter((entry) => entry[0] == 'industryP2CD').map((entry) => entry = entry[1]) as string[];
@@ -292,14 +292,14 @@ export class InfoBarComponent {
   }
   changeTargetBassin() {
     if(!this.displayedInfos.bassin) {
-      this.displayedInfos.bassin = this.target[DEH.TARGET_BASSIN_ID];
+      this.displayedInfos.bassin = this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')];
       return;
     }
-    this.target[DEH.TARGET_BASSIN_ID] = this.displayedInfos.bassin;
+    this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] = this.displayedInfos.bassin;
     this.hasChanged = true;
   } 
   changeTargetLight(newLightValue: string) {
-    this.target[DEH.TARGET_LIGHT_ID] = newLightValue;
+    this.target[DEH.getPositionOfAttr('structureTarget',  'greenLight')] = newLightValue;
     this.hasChanged = true;
   }
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html

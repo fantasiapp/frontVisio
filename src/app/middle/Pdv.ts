@@ -100,7 +100,7 @@ class SimplePdv { // Theses attributes are directly those received from the back
   }
   public changeTargetTargetFinitions(val: boolean) {
     if(this.target) this.initializeTarget();
-    (this.target as any[])[DEH.TARGET_FINITIONS_ID] = val;
+    (this.target as any[])[DEH.getPositionOfAttr('structureTarget',  'targetFinitions')] = val;
   }
   
   public initializeTarget() {
@@ -125,10 +125,10 @@ export class PDV extends SimplePdv{
   get typology(): number {return this.property('typology')}
 
   get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
-  get targetFinition(){ return this.target ? this.target[DEH.TARGET_FINITIONS_ID] : false;}
+  get targetFinition(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetFinitions')] : false;}
   get volumeTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
-  get lightTarget(){ return this.target ? this.target[DEH.TARGET_LIGHT_ID] : false;}
-  get commentTarget(){ return this.target ? this.target[DEH.TARGET_COMMENT_ID] : false;}
+  get lightTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'greenLight')] : false;}
+  get commentTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'commentTargetP2CD')] : false;}
 
   get siniatSales() {return this.computeSalesRepartition()['Siniat']}
   get totalSales() {return this.computeSalesRepartition()['totalP2cd']}
