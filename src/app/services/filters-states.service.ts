@@ -14,7 +14,6 @@ import { SubscriptionManager } from '../interfaces/Common';
 
 @Injectable()
 export class FiltersStatesService extends SubscriptionManager {
-  currentlevelName: string = '';
   filtersVisible = new BehaviorSubject<boolean>(false);
   started: boolean = false;
 
@@ -43,6 +42,7 @@ export class FiltersStatesService extends SubscriptionManager {
     });
   }
 
+  get tree() { return this.navigation.tree; }
   private _state?: {node: Node; dashboard: Dashboard};
   state = new Subject<{node: Node; dashboard: Dashboard}>();
 
@@ -75,7 +75,7 @@ export class FiltersStatesService extends SubscriptionManager {
     this.state.next(this._state);
   }
 
-  getState() { return this.navigation.getState(); }
+  getState() { return this._state!; }
 
   logPathChanged: Subject<{}> = new Subject;
 
@@ -107,8 +107,6 @@ export class FiltersStatesService extends SubscriptionManager {
     if ( emit )
       this.emitEvents();
   }
-
-  get tree() { return this.navigation.tree; }
 
   public setTree(tree: Tree, follow: boolean = true) {
     if ( follow )

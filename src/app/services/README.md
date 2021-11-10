@@ -58,3 +58,82 @@ The service manages the data stored directly in the navigator. As long as it's n
 This service also provied the public function `handleDisconnect(forceClear: boolean = false)`. It cleans the local storage according to the different app closing scenarii :<br>
 `-` **normal behaviour** : called by [ViewComponent](../view/view.component.ts) in `ngOnDestroy()`, it checks if the token stored in the session storage and in the local storage are the same, then if the user chose to stay connected. If not, it clears `lastUpdateTimestamp`, `data`, `token`, and `stayConnected` <br>
 `-` **anormal behaviour** : called by [LoginPageComponent](../login-page/login-page.component.ts) in `enableForceLogin()`, it should delete everything except `lastToken` and `queuedDataToUpdate`
+
+### [LoggerService](./logger.service.ts)
+
+The service regularily sends data about user activity to the server.
+The data sent includes:
+
+| Field | Description |
+| :- | :- |
+| view | The navigation tree currently used: *GeoTree* (`false`) or *TradeTree* (`true`)
+| dashboard | The current dashboard (`Dashboard.id`)
+| year | Year of the data: *last* (`false`) or *current* (`true`)
+| pdv | The selected PDV (i.e. shown on an infobar), if any (`PDV.id`)
+| mapVisible | (`false`) if the map is hidden, (`true`) otherwise.
+| mapFilters | The applied filters on the map, if any. (`[criterion, id[]][]`)
+| widgetParams | The id of the widget the user is interacting with, if any (`Widget.id`). (only available for histoColumnTarget)
+| stayConnected | (`false`) if the user didnt check **Rester connecté**, otherwise (`true`)
+| path | The path in the tree where the user action happened, this is autocomputed when a change is found.
+
+The service relies mostly on two functions:
+- `handleEvent(event: number, data: any = undefined)`<br>
+    Where event corresponds to one of the fields mentionned above and data is the new data to be inserted.<br>
+    this methods also checks changes in the field and sets the new value.
+
+- `actionComplete()`<br>
+    When this method is called, the service checks changes in its fields.<br/>
+    If found, queues a snapshot on [DataService](./data.service.ts) to be sent to the server.
+
+### [FiltersStatesService](./filters-states.service.ts)
+
+This service allows the user/programmer to navigate the application. It is used by components that depend on navigation to render and components that effectively can change the navigation state.
+
+- **Dependencies**
+    - **`public navigation: Navigation`** (Contains the actual navigation functionality)
+    - **`private dataservice: DataService`**
+    - **`private sliceDice: SliceDice`**
+    - **`private logger: LoggerService`**
+
+- **Observables (or similar)**
+
+    - **`state: Subject<{node: Node, dashboard: Dashboard}>`**<br/>
+    This subject is reflects the most recent `Node` and `Dashboard`.
+    `private _state?` holds the most recent value of this subject.
+    
+    - **`filters: Subject<{...}>`**<br/>
+    The subject contains information computed from state and to be supplied to FiltersComponents.<br/>
+    The informations include the current navigation node, its children and parent, the path etc...
+
+    - **`logPathChanged: Subject<{}>`**
+    Used along with `LoggerService` for logging the path every now and then.
+
+- **Important Methods**
+
+    - **`emitState(): void`** (Output -> `state`) <br/>
+    Retrieves the most recent state and emits it through the `state` subject.
+
+    - **`emitFilters(): void`** (Output -> `filters`) <br/>
+    Computes filters from the most recent `state` and emits through the `filters` subject.
+
+    - **`emitEvents(): void`** (Output -> `state`, `filters`) <br/>
+    Call `emitState()` followed by `emitFilters()`.
+
+    - **`getYear(): number`** (uses `Params`) <br/>
+    Returns the data year (so the current year or the last one), computed from the back and user input.
+
+    - **`getMonth(): string`** (uses `Params`) <br/>
+    Returns the name of the current month, computed from the back.
+
+    - **`setYear(current: boolean): number`** (Output -> `state`, `filters`) <br/>
+    Sets the data year, (`true`) for the current year and (`false`) otherwise.
+
+    - **`setTree(tree: Tree, follow: boolean = true): void`** (Output -> `state`, `filters`) <br/>
+    Replaces the current navigation tree.
+    If `follow`, then we'll try to navigate to the same level we were before tree changes.
+
+    - **`gotoPDVsDashboard(): number`** (Output -> `state`, `filters`) <br/>
+    Moves to closest PDV table, returns:
+        - 2 if we are already on one
+        - 1 if we moved to the table succesfully
+        - 0 if we can't
