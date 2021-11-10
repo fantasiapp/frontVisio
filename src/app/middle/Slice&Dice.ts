@@ -9,8 +9,7 @@ import {DataWidget} from './DataWidget';
 // à mettre dans le back
 const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
   nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
-  visitAxis = ['segmentDnEnduitTargetVisits'];
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'];
   
 @Injectable()
 export class SliceDice{
@@ -102,17 +101,16 @@ export class SliceDice{
     let irregular: string = 'no';
     if (nonRegularAxis.includes(axis1)) irregular = 'line';
     else if (nonRegularAxis.includes(axis2)) irregular = 'col';
-    let visit = visitAxis.includes(axis1) || visitAxis.includes(axis2); // passer cette cond dans le getValue
     for (let pdv of newPdvs){
       if (irregular == 'no') 
         dataWidget.addOnCase(
-          pdv[axis1 as keyof PDV], pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number);
+          pdv[axis1 as keyof PDV], pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1) as number);
       else if (irregular == 'line') 
         dataWidget.addOnColumn(
-          pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1, visit) as number[]);
+          pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1) as number[]);
       else if (irregular == 'col') 
         dataWidget.addOnRow(
-          pdv[axis1 as keyof PDV], pdv.getValue(indicator, axis2, visit) as number[]);
+          pdv[axis1 as keyof PDV], pdv.getValue(indicator, axis2) as number[]);
     }
   }
 

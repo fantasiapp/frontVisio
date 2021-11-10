@@ -5,7 +5,8 @@ import {Tree, Node} from './Node';
 
 
 const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'];
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
+    dnLikeAxis = ['segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'suiviAD', 'weeks'];
 
 class SimplePdv { // Theses attributes are directly those received from the back
   private static indexMapping: Map<string, number>;
@@ -183,11 +184,11 @@ export class PDV extends SimplePdv{
     this.tradeTree = new Tree(TradeExtrationHelper);
   }
   
-  public getValue(indicator: string, axisName?:string, visit=false): (number | number[]){
+  public getValue(indicator: string, axisName:string): (number | number[]){
     let salesRepartition = this.computeSalesRepartition();
-    if (axisName && nonRegularAxis.includes(axisName!)){
-      if (indicator == 'dn' || visit) return this.computeIrregularAxis(axisName!, indicator, salesRepartition);
-      else return this.computIndustriesAxis(axisName, salesRepartition);
+    if (nonRegularAxis.includes(axisName)){
+      if (dnLikeAxis.includes(axisName)) return this.computeDnLikeAxis(axisName!, indicator, salesRepartition);
+      else return this.computeIrregularAxis(axisName, salesRepartition);
     }
     switch(indicator){
       case 'dn': return 1;
@@ -226,14 +227,15 @@ export class PDV extends SimplePdv{
     return salesRepartition;
   }
   
-  private computeIrregularAxis(axisName:string, indicator:string, params: {[key:string]:any}){
+  // a DN like axis is an axis for which a pdv is represented in a single categorie
+  private computeDnLikeAxis(axisName:string, indicator:string, params: {[key:string]:any}){
     let axis: string[] = Object.values(DEH.get(axisName, true)),
       repartition= new Array(axis.length).fill(0),
       found = false, i = 0;
     let value = (indicator == 'dn') ? 1: ((indicator == 'visits') ? this.nbVisits : 
       this.nbVisits * Math.max(params['totalP2cd'] * DEH.get("params")["ratioPlaqueFinition"], params['totalEnduit']))
     while (!found && i < repartition.length){
-      if (this.conditionAxis(axisName, axis[i], params)){
+      if (this.conditionForAxis(axisName, axis[i], params)){
         found = true;
         repartition[i] = value;
       }
@@ -242,8 +244,7 @@ export class PDV extends SimplePdv{
     return repartition;
   }
 
-  // peut-être qu'il faudrait le merge avec computeElement à terme...
-  private conditionAxis(axisName:string, item:string, params:{[key:string]:any}){
+  private conditionForAxis(axisName:string, item:string, params:{[key:string]:any}){
     switch(item){
       // suiviAD axis
       case 'Terminées': return params['completed'];
@@ -268,7 +269,7 @@ export class PDV extends SimplePdv{
     }
   }
 
-  private computIndustriesAxis(axisName:string, salesIndustries: {[key:string]:any}){
+  private computeIrregularAxis(axisName:string, salesIndustries: {[key:string]:any}){
     let axis: string[] = Object.values(DEH.get(axisName, true)),
       computedAxis = new Array(axis.length).fill(0);
     for (let i = 0; i < axis.length; i++)
@@ -293,7 +294,7 @@ export class PDV extends SimplePdv{
     return this.instances.get(id);
   }
 
-  static filterPdvs(pdvs:PDV[]){
+  private static filterPdvs(pdvs:PDV[]){
     return pdvs.filter(pdv => pdv.available && pdv.sale);
   }
 
