@@ -1,6 +1,6 @@
-import { Node } from "./Node";
+import {Node} from "./Node";
 import DEH from "./DataExtractionHelper";
-import { SliceDice } from "./Slice&Dice";
+import {SliceDice} from "./Slice&Dice";
 
 export class CD{ //For ComputeDescription
   static computeDescription(description:string[]){

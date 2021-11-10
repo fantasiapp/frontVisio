@@ -9,11 +9,12 @@ import {DataWidget} from './DataWidget';
 // à mettre dans le back
 const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
   nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'];
+    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
+  dnIndicators = ['dn', 'visits', 'targetedVisits', 'avancementAD'];
   
 @Injectable()
 export class SliceDice{
-  geoTree: boolean = true; // on peut le supprimer maintenant je pense
+  geoTree: boolean = true;
   static currentSlice: PDV[] = [];
   static currentNode: Node;
   constructor(private dataService: DataService){}
@@ -23,14 +24,21 @@ export class SliceDice{
  
     let colors; [colors, groupsAxis1, groupsAxis2] = this.computeColorsWidget(groupsAxis1, groupsAxis2);
     let dataWidget = this.getDataFromPdvs(axis1, axis2, indicator.toLowerCase(), addConditions);
-    let km2 = !['dn', 'visits', 'targetedVisits', 'avancementAD'].includes(indicator) ? true : false, sortLines = percentIndicator !== 'classic' && axis1 != 'suiviAD';
+    let km2 = !dnIndicators.includes(indicator) ? true : false, 
+      sortLines = percentIndicator !== 'classic' && axis1 != 'suiviAD';
     dataWidget.widgetTreatement(km2, sortLines, (axis1 !== 'histoCurve') ? 'all': 'no', groupsAxis1 as string[], groupsAxis2 as string[]);
     let sum = dataWidget.getSum();
-    let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1);
+    let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1); // it is important to collect this piece of information before changing dataWidget in percent
     if (percentIndicator == 'classic') dataWidget.percent(); else if (percentIndicator == 'cols') dataWidget.percent(true);
-    let rodPosition = undefined, rodPositionForCiblage = undefined,
-    targetLevel: {'name' : string, 'ids': any[], 'volumeIdentifier' : string, 'structure': string} = 
-    {'name' : "", 'ids': [], 'volumeIdentifier' : "", 'structure': ''};
+    let [rodPosition, rodPositionForCiblage, targetLevel] = this.computeTargetElements(axis1, axis2, dataWidget, sum, targetsStartingPoint, target, indicator);    
+    if (typeof(sum) !== 'number') sum = 0;
+    return {data: dataWidget.formatWidgetForGraph(SliceDice.currentNode, transpose, axis1, SliceDice.currentSlice.length), sum: sum, target: rodPosition, 
+      colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage, threshold: this.getThresholdsForGauge(indicator)}    
+  }
+  
+  private computeTargetElements(axis1:string, axis2:string, dataWidget:DataWidget, sum:number|number[], targetsStartingPoint:number|number[], target:boolean, indicator:string){
+    let rodPosition = undefined, rodPositionForCiblage = undefined, 
+    targetLevel: {[key:string]:any} = {'name' : '', 'ids': [], 'volumeIdentifier' : '', 'structure': ''};
     if (target){
       let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
       let dn = indicator == 'dn';   
@@ -42,32 +50,34 @@ export class SliceDice{
         let elemIds = new Array(dataWidget.columnsTitles.length).fill(0);
         for (let [id, j] of Object.entries(dataWidget.idToJ)) if (j !== undefined) elemIds[j] = id; // pour récupérer les ids des tous les éléments de l'axe
         targetLevel['ids'] = elemIds;
-        let targetValues = 
-          DEH.getListTarget(finition ? 'agentFinitions': (SliceDice.currentNode.children[0] as Node).nature, elemIds, dn, finition);;
+        let targetValues = DEH.getListTarget(
+          finition ? 'agentFinitions': (SliceDice.currentNode.children[0] as Node).nature, elemIds, dn, finition);;
         for (let i = 0; i < targetValues.length; i++) 
-          rodPosition[i] = Math.min((targetValues[i] + targetsStartingPoint[i]) / (sum as number[])[i], 1);
-        if (SliceDice.currentNode.nature == 'root' && !finition){ // This is to calculate the position of the ciblage rods
+          rodPosition[i] = Math.min((targetValues[i] + (targetsStartingPoint as number[])[i]) / (sum as number[])[i], 1);
+        if (SliceDice.currentNode.nature == 'root' && !finition){ // This is to calculate the position of ciblage rods
           let ciblageValues = (SliceDice.currentNode.children as Node[]).map(
             (drvNode:Node) => (drvNode.children as Node[]).reduce(
               (acc:number, agentNode:Node) => acc + DEH.getTarget(agentNode.nature, agentNode.id, dn), 0));
           rodPositionForCiblage = new Array(dataWidget.columnsTitles.length).fill(0);
           for (let i = 0; i < targetValues.length; i++)
-            rodPositionForCiblage[i] = Math.min((ciblageValues[i] + targetsStartingPoint[i]) / (sum as number[])[i], 1);
+            rodPositionForCiblage[i] = Math.min((ciblageValues[i] + (targetsStartingPoint as number[])[i]) / (sum as number[])[i], 1);
         }
       }
-      targetLevel['volumeIdentifier'] = dn ? 'dn': 'vol';
-      if(finition) targetLevel['name'] = 'targetLevelAgentFinitions';
-      else if(SliceDice.currentNode.nature == 'root') targetLevel['name'] = 'targetLevelDrv';
-      else if(SliceDice.currentNode.nature == 'drv') targetLevel['name'] = 'targetLevelAgentP2CD';
-      else targetLevel['name'] = 'targetLevel'
-      targetLevel['structure'] = 'structureTargetlevel';
+      this.completeTargetLevel(targetLevel, dn, finition);
     }
-    if (typeof(sum) !== 'number') sum = 0;
-    return {data: dataWidget.formatWidgetForGraph(SliceDice.currentNode, transpose, axis1, SliceDice.currentSlice.length), sum: sum, target: rodPosition, 
-      colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage, threshold: this.getThreshold(indicator)}    
+    return [rodPosition, rodPositionForCiblage, targetLevel];
+  }
+      
+  private completeTargetLevel(targetLevel:{[key:string]:any}, dn:boolean, finition:boolean): void{
+    targetLevel['volumeIdentifier'] = dn ? 'dn': 'vol';
+    if(finition) targetLevel['name'] = 'targetLevelAgentFinitions';
+    else if(SliceDice.currentNode.nature == 'root') targetLevel['name'] = 'targetLevelDrv';
+    else if(SliceDice.currentNode.nature == 'drv') targetLevel['name'] = 'targetLevelAgentP2CD';
+    else targetLevel['name'] = 'targetLevel';
+    targetLevel['structure'] = 'structureTargetlevel';
   }
 
-  private getThreshold(indicator:string){ // peut-être à mettre dans le DEH
+  private getThresholdsForGauge(indicator:string){ // peut-être à mettre dans le DEH
     switch(indicator){
       case 'visits': return [50, 99.99, 100];
       case 'targetedVisits': {
@@ -148,7 +158,7 @@ export class SliceDice{
   }
 
   updateTargetLevel(newValue: number, targetLevelName: string, targetLevelId: string, 
-      volumeid: number, targetLevelStructure: string) {
+      volumeid: number, targetLevelStructure: string){
     let newTargetLevel: number[] = DEH.get(targetLevelName)[targetLevelId]
     newTargetLevel[+DEH.get(targetLevelStructure).indexOf(volumeid)] = +newValue;
     this.dataService.updateTargetLevel(newTargetLevel, targetLevelName as UpdateFields, +targetLevelId);
