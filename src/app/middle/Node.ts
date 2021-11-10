@@ -13,6 +13,7 @@ export interface Node {
   dashboards: Dashboard[];
   label: string;
   nature: string;
+  tree: Tree;
 
   isLeaf: () => boolean;
   goChild: (id: number) => Node;
@@ -50,11 +51,14 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
     get dashboards(): Dashboard[]{ return tree.attributes['dashboards'][this.height];}
     get label(): string { return tree.attributes['labels'][this.height]; }
     get nature(): string { return tree.attributes['natures'][this.height]; }
+    get tree(): Tree { return tree; }
     
     isLeaf(): boolean { return this.children.length == 0;}
+    
     equals(node: Node) {
-      return (this.height == node.height && this.id == node.id);
+      return this.tree.hasTypeOf(node.tree) && (this.height == node.height && this.id == node.id);
     }
+
     goChild(id: number): TreeNode {
       //dont navigate to PDV
       if ( this.height == extractor.height )
@@ -129,10 +133,17 @@ export class Tree {
     return this.attributes['labels'].length;
   }
 
-  follow(path: number[]) {
+  follow(path: number[] | Node[]) {
     let node = this.root;
-    for ( let id of path.slice(1) )
-      node = node.goChild(id);
+    if ( typeof path[0] == 'number' ) {
+      path = path as Node[];
+      for ( let id of (path as unknown as number[]).slice(1) )
+        node = node.goChild(id);
+    } else {
+      path = path as Node[];
+      for ( let level of (path as unknown as Node[]).slice(1) )
+        node = node.goChild(level.id);
+    }
     return node;
   }
 

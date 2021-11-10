@@ -32,29 +32,29 @@ export class Navigation {
   setCurrentDashboard(tree: Tree, dashboard: Dashboard) {
     //same type, rename is
     if ( this.tree?.hasTypeOf(tree) ) {
-      this.tree = tree;
-      this.currentLevel = this.tree.root;
+      this.currentLevel = tree.root;
+      //closest ancestor with this dashboard
+      while ( this.currentLevel && this.currentLevel.parent && !this.currentLevel.dashboards.find(d => d.id == dashboard.id) )
+        this.currentLevel = this.currentLevel.parent!;
+    } else {
+      this.currentLevel = tree.root;
     }
-
-    this.currentDashboard = dashboard;
-    while ( this.currentLevel && this.currentLevel.parent && !this.currentLevel.dashboards.find(d => d.id == dashboard.id) )
-      this.currentLevel = this.currentLevel.parent!;
+    this.tree = tree;
+    this.currentDashboard = dashboard; 
   }
 
   followTree(t: Tree) {
-    let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null,
-      dashboard: Dashboard | undefined,
-      sameType = this.tree?.hasTypeOf(t);
+    let dashboard: Dashboard | undefined,
+      sameType = this.tree?.hasTypeOf(t),
+      oldLevel = this.currentLevel;
     
-    if ( path )
-      dashboard = this.currentLevel!.dashboards.find(dashboard => dashboard.id === this.currentDashboard?.id);
+    if ( oldLevel && this.currentDashboard )
+      dashboard = oldLevel.dashboards.find(dashboard => dashboard.id === this.currentDashboard!.id);
       
     this.setTree(t);
-    if ( sameType && path  ) {
-      for ( let id of path )
-        this.currentLevel = this.currentLevel!.goChild(id);
-      
-      this.currentDashboard = dashboard || this.currentLevel?.dashboards[0];
+    if ( sameType && oldLevel  ) {
+      this.currentLevel = t.follow(oldLevel.path);
+      this.currentDashboard = dashboard || this.currentLevel!.dashboards[0];
     }
   }
 

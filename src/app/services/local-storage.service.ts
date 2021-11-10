@@ -3,7 +3,7 @@ import { UpdateDataWithLogs } from './data.service';
 
 /**
  * This Service manages the data stored directly in the navigator. 
- * As long as it's not requested, it is never deleted.
+ * As long as it's not requested, it is never deleted, to allow data persistence offline.
  * 
  *  [ key               ]  [      VALUE        ]
  *  |data               |  |Object             |  Stores the last full data object received from the server. Removed at disconnection, or when the tab is closed if stayConnected is false. 
@@ -12,7 +12,7 @@ import { UpdateDataWithLogs } from './data.service';
  *  |token              |  |string             |  Stores the token of the active session
  *  |lastToken          |  |string             |  Stores the token of the last active session : if the user worked offline, and disconnected offline, used to send the queued updates at the next connection (online)
  *  |queuedDataToUpdate |  |UpdateDataWithLogs |  Stores the queued updates between POST update requests.
- *  |alreadyConnected   |  |string             |  Specify whether the 
+ *  |alreadyConnected   |  |string             |  Specifies if the app use already opened with the same navigator
  */
 
 const enum StorageKeys {
@@ -127,7 +127,7 @@ export class LocalStorageService {
     }
   }
   
-  clear(): void {
+  clear(): void { // should actually never be used
     this.localStorage.clear();
   }
 }

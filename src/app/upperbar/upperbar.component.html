@@ -31,7 +31,7 @@
     </div>
     <div class="search-div">
       <button class="button" (click)="updateData()">
-        <img class="button-img updatable" (click)="updating = true" (animationend)="updating = false" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
+        <img class="button-img" [class.updatable]="canUpdate" (click)="canUpdate ? updating = true : null" (animationend)="updating = false" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
       </button>
     </div>
     <div class="search-div">

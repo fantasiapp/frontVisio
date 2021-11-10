@@ -12,7 +12,6 @@ import { SequentialSchedule } from "./Schedule";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements Updatable {
-  protected node?: Node; //apparently node is needed along with the slice
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
@@ -32,7 +31,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     this.start();
   }
 
-  protected onPathChanged(node: Node) { this.node = node; }
+  protected onPathChanged(node: Node) {  }
   
   ngOnInit() {
     if ( this.properties.description == '@sum' )

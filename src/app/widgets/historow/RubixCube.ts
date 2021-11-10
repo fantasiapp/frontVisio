@@ -43,7 +43,6 @@ export class RubixCube {
     return this._segmentAxis;
   }
 
-  //perhaps this is an overkill and we only need last one
   private segmentStack: boolean[] = [];
 
   set enseigneCondition(index: number) { //defines segmentAxis
@@ -60,7 +59,7 @@ export class RubixCube {
   }
 
   set segmentCondition(index: number) {
-    index = this.transformIndex(index);
+    index = this.transformSegmentIndex(index);
     this._conditions[0] =  RubixCube.DESCRIPTION_MOCK[index][1][0];
   }
 
@@ -77,7 +76,7 @@ export class RubixCube {
     this.segmentCondition = 0; //add condition to the displayer
   }
 
-  transformIndex(index: number) {
+  transformSegmentIndex(index: number) {
     let pos = 0;
     while ( pos < this.segmentAxis!.length ) {
       if ( this.segmentAxis![pos++] ) index--;

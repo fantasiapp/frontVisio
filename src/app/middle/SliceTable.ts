@@ -63,9 +63,6 @@ enum TableProperties {
     groupRowConfig = 'groupRowConfig'
 }
 
-@Injectable({
-    providedIn: 'root'
-  })
 @Injectable()
 export class SliceTable {
 

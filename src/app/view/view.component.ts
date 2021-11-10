@@ -36,11 +36,11 @@ export class ViewComponent extends SubscriptionManager  {
     this.subscribe(this.filtersService.state, ({node, dashboard}) => {
       let current = node as Node,
         previous = this.node as Node;
-            
-      if ( !previous || !previous.equals(current) ) {
-        this.sliceDice.updateCurrentNode(current);
-        this.node = node;
-      }
+
+        if ( !previous || !previous.equals(current) ) {
+          this.sliceDice.updateCurrentNode(current);
+          this.node = node;
+        }
 
       if ( this.layout?.id !== dashboard.id )
         this.layout = dashboard;
@@ -48,7 +48,7 @@ export class ViewComponent extends SubscriptionManager  {
 
     this.subscribe(this.dataservice.update, () => {
       //just update
-      this.sliceDice.updateCurrentNode(this.node = this.filtersService.tree!.follow(this.node!.path.map(level => level.id)));
+      this.sliceDice.updateCurrentNode(this.node = this.filtersService.tree!.follow(this.node!.path));
       this.cd.markForCheck();
     });
 
@@ -103,6 +103,7 @@ export class ViewComponent extends SubscriptionManager  {
 
   @HostListener('window:beforeunload')
   ngOnDestroy(): void {
+    console.log('Destroyed')
     super.ngOnDestroy();
     this.dataservice.endUpdateThread();
     this.dataservice.sendQueuedDataToUpdate();

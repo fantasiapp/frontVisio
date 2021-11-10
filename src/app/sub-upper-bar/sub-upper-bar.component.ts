@@ -15,14 +15,16 @@ export class SubUpperBarComponent extends SubscriptionManager implements OnInit 
     super();
   }
 
+  currentDashboard?: Dashboard;
   currentMonth: string = '';
   currentYear: string = '';
-  path:  string = ''
+  path: string = ''
   years: [number, number] = [Params.currentYear, Params.currentYear-1]
-  lastYearDashboards: number[] = []; //-> whether we can transition to another year on this dashboard
+  
+  //used to determine whether we can transition to another year on this dashboard
+  lastYearDashboards: number[] = [];
 
-  currentDashboard?: Dashboard;
-  currentLevel?: Node;
+  
   
 
   ngOnInit(): void {
@@ -31,7 +33,6 @@ export class SubUpperBarComponent extends SubscriptionManager implements OnInit 
     this.subscribe(this.filtersStates.state, ({node, dashboard}) => {
       let height = node.path.length;
       this.currentDashboard = dashboard;
-      this.currentLevel = node;
       this.path = node.label + (node.name ? ' : ' + node.name : '');
       this.lastYearDashboards = DEH.getLastYearDashboards(this.filtersStates.tree!, height-1);  
     });
