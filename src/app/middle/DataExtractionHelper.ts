@@ -296,7 +296,6 @@ class DEH{  // for DataExtractionHelper
   static getGeoLevelLabel(height: number): string{
     return this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'prettyPrint')];
   }
-
   
   static getGeoLevelName(height: number, id: number): string{
     let name = this.get(this.getGeoLevel(height)[this.getPositionOfAttr('structureLevel',  'levelName')])[id];
