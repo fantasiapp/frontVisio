@@ -3,7 +3,7 @@ import {SliceTable} from './SliceTable';
 import {Sale} from './Sale';
 import {Tree, Node} from './Node';
 
-
+// à mettre dans le back
 const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
     'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
     dnLikeAxis = ['segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'suiviAD', 'weeks'];
@@ -205,7 +205,7 @@ export class PDV extends SimplePdv{
     return PDV.filterPdvs(PDV.childrenOfNode(node));
   }
 
-  static countForFilter(pdvs:PDV[], attributesToCount:string[]){ // Pas grand chose à faire là ?
+  static countForFilter(pdvs:PDV[], attributesToCount:string[]){
     let dictCounter: {[key:string]: {[key:string]:number}} = {};
     for (let attribute of attributesToCount)
       dictCounter[attribute] = {};
@@ -323,11 +323,7 @@ export class PDV extends SimplePdv{
   }
 
   private computeIrregularAxis(axisName:string, salesIndustries: {[key:string]:any}){
-    let axis: string[] = Object.values(DEH.get(axisName, true)),
-      computedAxis = new Array(axis.length).fill(0);
-    for (let i = 0; i < axis.length; i++)
-      computedAxis[i] = this.computeElement(axis[i], salesIndustries, axisName);
-    return computedAxis
+    return (Object.values(DEH.get(axisName, true)) as string[]).map((element:string) => this.computeElement(element, salesIndustries, axisName));
   }
 
   private computeElement(element:string, salesRepartition:{[key:string]: number}, axisName:string){

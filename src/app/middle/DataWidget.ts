@@ -3,7 +3,7 @@ import {PDV} from './Pdv';
 import {Node} from './Node';
 import {SliceDice} from "./Slice&Dice";
 
-
+// à mettre dans le back
 const rodAfterFirstCategAxis = ['industryTarget', 'clientProspectTarget'],
     rodAfterSecondCategAxis = ['enduitIndustryTarget'];
 
@@ -31,10 +31,6 @@ export class DataWidget{
       let n = this.rowsTitles.length;
       for (let i = 0; i < n; i++)
         this.data[i][this.idToJ[y] as number] += vect[i];
-    }
-  
-    get(fieldId1: number, fieldId2: number){
-      return this.data[this.idToI[fieldId1] as number][this.idToJ[fieldId2] as number];
     }
     
     widgetTreatement(km2 = false, sortLines=true, removeZeros:string, groupsAxis1?: string[], groupsAxis2?:string[]){
@@ -95,7 +91,7 @@ export class DataWidget{
       return this.dim;
     }
     
-    getSum(){
+    getSum(){ // get sum of each lines
       if (this.dim == 0) return Math.round(this.data);
       if (this.dim == 1) return Math.round(this.data.reduce((acc:number, value:number) => acc + value, 0));
       let sumCols = new Array(this.columnsTitles.length).fill(0);
@@ -186,7 +182,7 @@ export class DataWidget{
     }  
     
     percent(onCols=false){
-      let almost100 = 99.999;
+      let almost100 = 99.999; //To avoid cases in which total is a little bit >100
       if (this.dim == 0) this.data = almost100;
       else if (this.dim == 1){
         let sum = this.data.reduce((acc: number, value: number) => acc + value, 0);
@@ -213,8 +209,8 @@ export class DataWidget{
   
     private m2ToKm2(){
       for (let i = 0; i < this.rowsTitles.length; i++)
-      for (let j = 0; j < this.columnsTitles.length; j++)
-      this.data[i][j] = this.data[i][j]/1000;
+        for (let j = 0; j < this.columnsTitles.length; j++)
+          this.data[i][j] = this.data[i][j]/1000;
     }
   
     // this function does not update idToJ
