@@ -307,7 +307,6 @@ export class SearchService extends SubscriptionManager {
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    console.log('destrouyyyying');
   }
 
   // Modes
