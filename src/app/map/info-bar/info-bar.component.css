@@ -345,6 +345,9 @@ p {
     transform: rotate(45deg);
 }
 
+.container-checkbox input:disabled {
+    cursor: not-allowed;
+}
 .circle {
     width: var(--eval-circle-size);
     height: var(--eval-circle-size);
@@ -470,7 +473,12 @@ p {
     opacity: 0;
 }
 
-
+.first.row .cell.only-siniat input:disabled ~ span {
+    opacity: 0.6 !important;
+    cursor: not-allowed;
+}
+.first.row .cell.only-siniat input:not(disabled) ~ span {
+}
 .first.row .cell.only-siniat .text-checkbox {
     position: relative;
     display: inline-block;
@@ -483,9 +491,10 @@ p {
 .first.row .cell.only-siniat .text-checkbox span{
     font: 500 14px Roboto;
     color: black;
-    text-decoration: none;
+    text-decoration: line-through;
     position: relative;
     top: 25%;
+    cursor: pointer;
 }
 .first.row .cell.only-siniat input[checked="true"]  ~ span{
     color: orange !important;
@@ -640,11 +649,13 @@ input[type=number] {
     pointer-events: none;
     display: none;
     position: fixed;
-    font: 300 13px Roboto; 
+    font-size: 0.8em;
     background-color: #333;
     color: white;
     height: fit-content;
-    z-index: 10
+    z-index: 99999999;
+    padding: 0.5em;
+    border-radius: 0.5em;
 }
 .disabled-input:hover + .disabled-description{
     display: block;

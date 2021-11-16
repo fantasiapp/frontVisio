@@ -1,6 +1,6 @@
 import Dashboard from "./Dashboard";
-import DataExtractionHelper, { DataTree, TreeExtractionHelper, NavigationExtractionHelper, TradeExtrationHelper } from "./DataExtractionHelper";
-import { PDV } from "./Slice&Dice";
+import DEH, { DataTree, TreeExtractionHelper } from "./DataExtractionHelper";
+import { PDV } from "./Pdv";
 
 export interface Node {
   id: number;
@@ -12,10 +12,13 @@ export interface Node {
   siblings: Node[];
   dashboards: Dashboard[];
   label: string;
+  nature: string;
+  tree: Tree;
 
   isLeaf: () => boolean;
   goChild: (id: number) => Node;
   goBack: () => Node;
+  equals(node: Node): boolean;
 }
 
 function createNode(tree: Tree, extractor: TreeExtractionHelper) {
@@ -47,46 +50,59 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
     get siblings(): TreeNode[] { return this.parent ? (this.parent.children as TreeNode[]) : [this]; }
     get dashboards(): Dashboard[]{ return tree.attributes['dashboards'][this.height];}
     get label(): string { return tree.attributes['labels'][this.height]; }
+    get nature(): string { return tree.attributes['natures'][this.height]; }
+    get tree(): Tree { return tree; }
     
-      
     isLeaf(): boolean { return this.children.length == 0;}
-  
+    
+    equals(node: Node) {
+      return this.tree.hasTypeOf(node.tree) && (this.height == node.height && this.id == node.id);
+    }
+
     goChild(id: number): TreeNode {
-      //dont navigation to PDV
+      //dont navigate to PDV
       if ( this.height == extractor.height )
         return this;
       
-      return (this.children as Node[]).find((child: Node) => child.id == id) || this;
+      return (this.children as TreeNode[]).find((child: Node) => child.id == id) || this;
     }
   
     goBack(): TreeNode  {
       return this.parent || this;
     }
 
-    static computeAttributes(){
+    static computeAttributes() {
       this.computeDashboards();
       this.computeLabels();
+      this.computeNatures()
     }
 
     private static computeLabels(){
       tree.attributes['labels'] = [];
       for ( let height = 0; height < extractor.height; height++ )
-        tree.attributes['labels'].push(extractor.getLevelLabel(height));      
-      tree.attributes['labels'].push('PDV');
+        tree.attributes['labels'].push(extractor.getLevelLabel(height));
+      tree.attributes['labels'].push('PDV');      
+    }
+
+    private static computeNatures() {
+      tree.attributes['natures'] = [];
+      for ( let height = 0; height < extractor.height; height++ )
+        tree.attributes['natures'].push(extractor.getLevelNature(height));
+      tree.attributes['natures'].push('pdv');
     }
 
     private static computeDashboards(){
       tree.attributes['dashboards'] = [];
 
-      let dashboards = DataExtractionHelper.get('dashboards');
-      let layouts = DataExtractionHelper.get('layout');
+      let dashboards = DEH.get('dashboards');
+      let layouts = DEH.get('layout');
       for (let height = 0; height < extractor.height; height++)
         tree.attributes['dashboards'].push(
-          extractor.getDashboardsAt(height).map(
+          extractor.getDashboardsAtHeight(height).map(
             (id: number) => new Dashboard(
               id, 
               dashboards[id], 
-              layouts[dashboards[id][DataExtractionHelper.DASHBOARD_LAYOUT_INDEX]][DataExtractionHelper.LAYOUT_TEMPLATE_INDEX]
+              layouts[dashboards[id][DEH.getPositionOfAttr('structureDashboards',  'layout')]][DEH.getPositionOfAttr('structureLayout',  'template')]
             )
           )
         );
@@ -98,9 +114,9 @@ function createNode(tree: Tree, extractor: TreeExtractionHelper) {
 };
 
 export class Tree {
-  attributes: {[key:string]: any[]}     //height -> attribute dictionnary
+  readonly attributes: {[key:string]: any[]}     //height -> attribute dictionnary
   root: Node;
-  type: TreeExtractionHelper;
+  private type: TreeExtractionHelper;
 
   constructor(extractor: TreeExtractionHelper){
     this.type = extractor;
@@ -117,6 +133,27 @@ export class Tree {
     return this.attributes['labels'].length;
   }
 
+  follow(path: number[] | Node[]) {
+    let node = this.root;
+    if ( typeof path[0] == 'number' ) {
+      path = path as Node[];
+      for ( let id of (path as unknown as number[]).slice(1) )
+        node = node.goChild(id);
+    } else {
+      path = path as Node[];
+      for ( let level of (path as unknown as Node[]).slice(1) )
+        node = node.goChild(level.id);
+    }
+    return node;
+  }
+
+  hasTypeOf(t: Tree | TreeExtractionHelper) {
+    if ( t instanceof Tree )
+      return this.type == t.type;
+    else
+      return this.type == t;
+  }
+
   getAllDashboards() {
     let dict: any = {};
     this.attributes['dashboards'].flat().forEach(dashboard =>
@@ -126,11 +163,15 @@ export class Tree {
   }
   
   getNodesAtHeight(height: number): any[] {
-    if ( height < 0 ) {  throw 'No height < 0.'; };
+    if ( height < 0 ) { throw 'No height < 0.'; };
     let depthCallback = (currentHeight: number, height: number, result: any): any[] => {
       if (currentHeight == height) return [result];
       return result.children.map((node: any) => depthCallback(currentHeight+1, height, node)).flat();
     };
     return depthCallback(0, height, this.root);
   }
+
+  get natures() { return this.attributes['natures']; }
+  get labels() { return this.attributes['labels']; }
+  get dashboards() { return this.attributes['dashboards']; }
 };

@@ -1,11 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { Logger } from 'ag-grid-community';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
-import { LoggerService } from 'src/app/behaviour/logger.service';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { formatNumberToString, formatStringToNumber } from 'src/app/general/valueFormatter';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import { LoggerService } from 'src/app/services/logger.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
+import DEH from 'src/app/middle/DataExtractionHelper';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import { TargetService } from '../description-widget/description-service.service';
@@ -40,7 +38,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   get inputIsOpen() { return this._inputIsOpen; }
   set inputIsOpen(val: boolean) {
     let event: number = val ? LoggerService.events.WIDGET_PARAMS_ADDED : LoggerService.events.WIDGET_PARAMS_REMOVED,
-      id: number = parseInt(DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('widget'), 'histoColumnTarget')!);
+      id: number = parseInt(DEH.getKeyByValue(DEH.get('widget'), 'histoColumnTarget')!);
     
     this.logger.handleEvent(event, id);
     this.logger.actionComplete();
@@ -49,14 +47,13 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService, protected cd: ChangeDetectorRef) {
     super(ref, filtersService, sliceDice);
-    this.targetService.targetChange.subscribe(value => {
+    this.subscribe(this.targetService.targetChange, value => {
       if ( this.inputIsOpen ) this.toggleTargetControl();
       this.canSetTargets = !this.canSetTargets;
       let data = this.updateData() as any;
       if ( this.needles )
         this.createNeedles(data);
-      
-      this.cd.detectChanges();
+      this.cd.markForCheck();
     });
   }
 
@@ -79,7 +76,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   private getTargetValue(d: number): string {
-    return formatNumberToString(DataExtractionHelper.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DataExtractionHelper.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
+    return BasicWidget.format(DEH.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DEH.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
   }
 
   private renderTargetControl() {
@@ -98,8 +95,12 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         .attr('type', 'text')
         .style('width', ((this.barWidth*(1 + coeff)).toFixed(1)) + 'px')
         .style('margin', '0 ' + ((this.offsetX - this.barWidth*coeff/2).toFixed(1)) + 'px')
+        .on('input', (e: Event) => {
+          let input = e.target as any,
+            target = +input.value.replace(/\s+/g, '');
+          input.value = BasicWidget.format(target);
+        })
         .on('change', (e: Event) => {
-          console.log('change');
           let input = e.target as any,
             target = +input.value.replace(/\s+/g, '');
 
@@ -107,7 +108,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
             input.classList.add('incorrect-input');
           } else {
             input.classList.remove('incorrect-input');
-            input.value = BasicWidget.format(target).trim();
+            input.value = BasicWidget.format(target);
             this.changeValue(target, input.__data__, e);
           }
         })
@@ -139,7 +140,6 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   updateGraph(data: any) {
     //wait for animation
-    if ( this.inputIsOpen ) { this.toggleTargetControl(); this.cd.detectChanges(); }
     super.updateGraph(data); //queue first
     this.getNeedleGroup()?.remove();
     this.schedule.queue(() => {
@@ -147,18 +147,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       setTimeout(() => {
         this.createNeedles(data);
         this.schedule.next();
+        if ( this.inputIsOpen ) { this.cd.markForCheck(); }
       }, this.transitionDuration);
     });
-  }
-
-  //override the update method, the make target move immediately
-  refresh() {
-    let data = this.data = this.updateData(), oldDuration = this.transitionDuration;
-    this.getNeedleGroup()?.remove();
-    this.transitionDuration = 0;
-    super.updateGraph(data); //immediate update
-    this.createNeedles(data); //maybe setTimeout
-    this.transitionDuration = oldDuration;
   }
 
   private createNeedles(allData: any) {
@@ -210,9 +201,9 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
       });
   }
 
-  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
+  getDataArguments(): [string, string, string, string[], string[], string, boolean, boolean] {
     let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
+    return [args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private getNeedleGroup() {
@@ -222,8 +213,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   toggleTargetControl() {
     this.inputIsOpen = !this.inputIsOpen;
     
-    let self = this;
-    let container = d3.select(this.content.nativeElement)
+    d3.select(this.content.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);
     
     //make target control just in case

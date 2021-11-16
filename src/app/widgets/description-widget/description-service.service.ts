@@ -1,21 +1,23 @@
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Subject } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+
+//Used for 2 way communication between histocolumn target and description widget
+@Injectable()
 export class TargetService {
 
-  targetChange: EventEmitter<string> = new EventEmitter;
   private _target: string = 'Objectif';
+  targetChange: Subject<string> = new Subject();
   constructor() { }
 
-  setTarget(value: string) {
+  reset() { this._target = 'Objectif'; }
+
+  set target(value: string) {
     if ( this._target === value)
-      return false;
+      return;
     this._target = value;
-    this.targetChange.emit(this._target);
-    return false;
+    this.targetChange.next(this._target);
   }
 
-  getTarget() { return this._target; }
+  get target() { return this._target; }
 }

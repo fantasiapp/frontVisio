@@ -1,7 +1,5 @@
-import { FiltersStatesService } from './../filters/filters-states.service';
 import {
   Component,
-  HostListener,
   OnInit,
 } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
@@ -52,7 +50,7 @@ export class LoginPageComponent implements OnInit {
         this.localStorageService.setAlreadyConnected(true)
         if(lastToken) { //quick manip to fool the auth interceptor
           this.authService.token = lastToken;
-          this.dataservice.BEFOREsendQueuedDataToUpdate();
+          this.dataservice.sendQueuedDataToUpdate();
           this.authService.token = newToken;
         }
         this.localStorageService.saveLastToken(newToken)
@@ -125,7 +123,7 @@ export class LoginPageComponent implements OnInit {
 
   onLoading(username: string, password: string, stayConnected: boolean) {
     if(this.isAlreadyConnected()) return;
-    console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
+    //console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
     this.authService
       .loginToServer(username, password)

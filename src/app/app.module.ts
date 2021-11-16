@@ -11,14 +11,12 @@ import { LoginFormComponent } from './login-page/login-form/login-form.component
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UpperbarComponent } from './upperbar/upperbar.component';
 import { FiltersComponent } from './filters/filters.component';
-import { SearchFieldComponent } from './general/search-field/search-field.component';
 import { SubUpperBarComponent } from './sub-upper-bar/sub-upper-bar.component';
 import { MapComponent } from './map/map.component';
 import { ViewComponent } from './view/view.component';
 // import { AgmCoreModule } from '@agm/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { SelectComponent } from './general/select/select.component';
 import { MatIconModule } from '@angular/material/icon'
 import { SimplePieComponent } from './widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from './widgets/simple-donuts/simple-donuts.component';
@@ -43,17 +41,18 @@ import { MapFiltersComponent } from './map/map-filters/map-filters.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
 import { AgentOnlyDirective } from './behaviour/agent-only.directive';
 import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
-import { AccountInfoComponent } from './logged-page/account-info/account-info.component';
+import { AccountInfoComponent } from './general/account-info/account-info.component';
 import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
-import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
-import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionbox.component';
-import { PatternPipe } from './logged-page/searchbar/pattern.pipe';
+import { SearchbarComponent } from './general/searchbar/searchbar.component';
+import { SuggestionBox } from './general/suggestionbox/suggestionbox.component';
+import { PatternPipe } from './general/searchbar/pattern.pipe';
 import { DataService } from './services/data.service';
 import { AuthService } from './connection/auth.service';
 import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.directive';
 import { AdOpenOnlyDirective } from './behaviour/ad-open-only.directive';
 import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directive';
 import { MapLegendComponent } from './map/map-legend/map-legend.component';
+import { ConditionnalDirective } from './behaviour/conditionnal.directive';
 
 @NgModule({
   declarations: [
@@ -63,11 +62,9 @@ import { MapLegendComponent } from './map/map-legend/map-legend.component';
     LoginFormComponent,
     UpperbarComponent,
     FiltersComponent,
-    SearchFieldComponent,
     SubUpperBarComponent,
     MapComponent,
     ViewComponent,
-    SelectComponent,
     SimplePieComponent,
     SimpleDonutComponent,
     //------------------------
@@ -97,7 +94,8 @@ import { MapLegendComponent } from './map/map-legend/map-legend.component';
     AgentFinitionsOnlyDirective,
     AdOpenOnlyDirective,
     CurrentYearOnlyDirective,
-    MapLegendComponent
+    MapLegendComponent,
+    ConditionnalDirective
   ],
   imports: [
     BrowserModule,
@@ -115,7 +113,7 @@ import { MapLegendComponent } from './map/map-legend/map-legend.component';
     // })
     AgGridModule.withComponents([])
   ],
-  providers: [SliceDice, httpInterceptorProviders, SliceTable, DataService, AuthService],
+  providers: [httpInterceptorProviders, DataService, AuthService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

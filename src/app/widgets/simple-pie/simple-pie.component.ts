@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angu
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 
 import bb, {pie} from 'billboard.js';
 
@@ -14,20 +14,11 @@ import bb, {pie} from 'billboard.js';
 })
 
 export class SimplePieComponent extends BasicWidget {
-  @ViewChild('content', {read: ElementRef})
-  protected content!: ElementRef;
-
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
 
   createGraph({data, colors}: {data: any[], colors?: string[]}, opt: {} = {}) {
-    let sum = data.reduce((acc: number, d: any[]) => acc + d[1], 0);
-      //temporary code to print no data⚠️
-      if ( !data.length || !sum )
-      return this.noData(this.content);
-    /****************⚠️ ***************/
-    
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,
@@ -68,8 +59,8 @@ export class SimplePieComponent extends BasicWidget {
         position: 'inset',
         inset: {
           anchor: 'bottom-left',
-          y: 15 + (data.length - 0.5) * BasicWidget.legendItemHeight,
-          x: 20
+          y: 20 + (data.length - 0.5) * BasicWidget.legendItemHeight,
+          x: 10
         }
       },
       transition: {
@@ -79,13 +70,11 @@ export class SimplePieComponent extends BasicWidget {
         //initial rendering bug
         this.chart!.config('onrendered', null);
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 15 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
-        //this.chart!.flush();
+        this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 15 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
-        //this.chart!.flush();
+        this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
       },
       // add opt
       ...opt

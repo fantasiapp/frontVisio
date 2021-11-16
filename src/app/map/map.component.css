@@ -12,10 +12,21 @@
   top: 50px;
 }
 
-.map-container {
+.container {
   width: 100%;
   flex: 1;
   border-radius: 5px;
+  overflow: hidden;
+}
+
+.container::ng-deep map-legend {
+  position: static;
+  z-index: 1;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
 }
 
 .map-container::ng-deep .infowindow {

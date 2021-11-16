@@ -8,99 +8,24 @@ import * as d3 from 'd3';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapSelectComponent implements OnChanges {
-
-  @Input()
-  criterion = '';
-  @Input()
-  prettyCriterion = '';
+  @Input() criterion = '';
+  @Input() prettyCriterion = '';
+  
   @Input()
   criteria: [number, any, number][] | null = null;
-  
-  all: boolean = true;
-
   @Output()
   criteriaChange: EventEmitter<[string, any[]]|[]> = new EventEmitter();
-  
+
+  get droppable() { return this.criteria && this.criteria.length > 1; }
+  get deletable() { return this.selection.length > 0; }
+
+  allSelected: boolean = true;
   selection: number[] = [];
-
-  @ViewChild('total', {static: false, read: ElementRef})
-  private total?: ElementRef;
-
-  constructor(private ref: ElementRef) { }
-
-  trackById(index: number, couple: any) {
-    return couple[0];
-  }
-
-  totalClicked(e: any) {
-    d3.select(e.target).property('checked', true);
-    if ( !this.all ) {
-      this.all = true;
-      this.selection = [];
-      d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
-      this.emitSelection();
-    }
-  }
-
-  reset() {
-    d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
-    d3.select(this.ref.nativeElement).select('input').property('checked', this.all = true);
-    this.selection.length = 0;
-  }
-
-  private emitSelection() {
-    if ( this.selection.length )
-      this.criteriaChange.emit([
-        this.criterion, this.selection
-      ])
-    else
-      this.criteriaChange.emit([]);
-  }
-
-  get filtering() {
-    return this.selection.length > 0;
-  }
-
-  criterionClicked(e: any, idx: number) {
-    let id = (this.criteria![idx][0] as any);
-    
-    if ( this.all  ) {
-      this.all = false;
-      this.selection = [id];
-    } else {
-      let index = this.selection.indexOf(id);
-      if ( index < 0 )
-        this.selection.push(id);
-      else {
-        this.selection.splice(index, 1);
-        if ( !this.selection.length )
-          this.all = true;
-      }
-    };
-    
-    if ( this.selection.length == this.criteria?.length ) {
-      d3.selectAll(
-        d3.select(this.ref.nativeElement).selectAll('input').nodes().slice(1)
-      ).property('checked', false);
-      this.all = true;
-      this.selection.length = 0;
-    }
-    
-    this.emitSelection();
-  }
+  dropped = false;
 
   protected minHeight = 40; //height for title only
   protected contentPadding = 30;
   protected lineHeight = 30;
-  dropped = false;
-
-  get droppable() {
-    return this.criteria && this.criteria.length > 1;
-  }
-
-  get deletable() {
-    return this.selection.length > 0;
-  }
 
   @HostBinding('style.height')
   get height() {
@@ -109,26 +34,51 @@ export class MapSelectComponent implements OnChanges {
     return this.minHeight + 'px';
   }
 
-  toggleDropdown(e: any) {
-    if ( this.dropped )
-      this.close();
-    else
-      this.open();
+  constructor(private ref: ElementRef) { }
+
+  totalClicked(e: any) {
+    d3.select(e.target).property('checked', true);
+    if ( !this.allSelected ) {
+      this.allSelected = true;
+      this.selection = [];
+      d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
+      this.emitSelection();
+    }
   }
 
-  open() {
-    this.dropped = true;
-  }
-
-  close() {
-    this.dropped = false;
-  }
-
-  tryDelete() {
-    if ( !this.deletable ) return;
-    this.selection.length = 0;
+  criterionClicked(e: any, idx: number) {
+    let id = (this.criteria![idx][0] as any);
+    
+    if ( this.allSelected  ) {
+      this.allSelected = false;
+      this.selection = [id];
+    } else {
+      let index = this.selection.indexOf(id);
+      if ( index < 0 )
+        this.selection.push(id);
+      else {
+        this.selection.splice(index, 1);
+        if ( !this.selection.length )
+          this.allSelected = true;
+      }
+    };
+    
+    if ( this.selection.length == this.criteria?.length ) {
+      d3.selectAll(
+        d3.select(this.ref.nativeElement).selectAll('input').nodes().slice(1)
+      ).property('checked', false);
+      this.allSelected = true;
+      this.selection.length = 0;
+    }
+    
     this.emitSelection();
   }
+
+  reset() {
+    d3.select(this.ref.nativeElement).selectAll('input:checked').property('checked', false);
+    d3.select(this.ref.nativeElement).select('input').property('checked', this.allSelected = true);
+    this.selection.length = 0;
+  }  
 
   ngOnChanges(changes: SimpleChanges) {
     let criteriaChange = changes['criteria'];
@@ -140,9 +90,38 @@ export class MapSelectComponent implements OnChanges {
 
     
     if ( !this.selection.length )
-      this.all = true;
+      this.allSelected = true;
     
     if ( this.selection.length != oldLength )
       this.emitSelection();
+  }
+
+  private emitSelection() {
+    if ( this.selection.length )
+      this.criteriaChange.emit([
+        this.criterion, this.selection
+      ])
+    else
+      this.criteriaChange.emit([]);
+  }
+
+  toggleDropdown(e: any) {
+    if ( this.dropped )
+      this.close();
+    else
+      this.open();
+  }
+
+  open() { this.dropped = true; }
+  close() { this.dropped = false; }
+
+  tryDelete() {
+    if ( !this.deletable ) return;
+    this.selection.length = 0;
+    this.emitSelection();
+  }
+  
+  trackById(index: number, couple: any) {
+    return couple[0];
   }
 }

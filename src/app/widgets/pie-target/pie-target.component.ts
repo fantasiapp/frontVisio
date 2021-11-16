@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { Chart, d3Selection, pie } from 'billboard.js';
 import * as d3 from 'd3';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import { SimplePieComponent } from '../simple-pie/simple-pie.component';
@@ -31,7 +31,6 @@ export class PieTargetComponent extends SimplePieComponent {
         columns: data.data, //extract the actual data
         type: pie(),
         onover: () => {
-          //check if needle is over the slice 
           this.getNeedleGroup()
             .style('transform', `translate(${this.needleTranslate[0]}px, ${this.needleTranslate[1]}px) scale(1.05)`);
         },
@@ -41,20 +40,31 @@ export class PieTargetComponent extends SimplePieComponent {
         },
         order: null
       },
-      onresized: () => {
-        this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 10 + this.chart!.data().length * BasicWidget.legendItemHeight);
-        this.chart!.flush();
-        requestAnimationFrame(_ => this.createNeedle({data: null, target: this.needleRotate - 90}))
+      onresized(this: Chart) {
+        if ( !this ) return;
+        //apparently this is sometimes an instance of ChartInternal (maybe a bug in billboard), so we'll use self.chart
+        self.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        self.chart!.config('legend_inset_y', 20 + self.chart!.data().length * BasicWidget.legendItemHeight);
+        self.createNeedle({data: null, target: self.needleRotate - 90});
       },
       onrendered(this: Chart) {
-        self.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        self.chart!.config('legend_inset_y', 10 + self.chart!.data().length * BasicWidget.legendItemHeight);
-        self.createNeedle(data);
-        self.chart!.flush();
+        if ( !this ) return;
         this.config('onrendered', null);
+        this.config('legend_item_tile_height', BasicWidget.legendItemHeight);
+        this.config('legend_inset_y', 20 + this.data().length * BasicWidget.legendItemHeight);
+        self.createNeedle(data);
       }
     });
+  }
+
+  updateGraph(data: any[]) {
+    super.updateGraph(data);
+    this.updateNeedle(data);
+  }
+
+  getDataArguments(): [string, string, string, string[], string[], string, boolean, boolean] {
+    let args: any[] = this.properties.arguments;
+    return [args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private updateNeedle(data: any) {
@@ -90,18 +100,8 @@ export class PieTargetComponent extends SimplePieComponent {
       .attr('y2', 0);
   }
 
-  computeNeedlePosition(data: any): number {
+  private computeNeedlePosition(data: any): number {
     return data.target + 90;
-  }
-
-  updateGraph(data: any[]) {
-    super.updateGraph(data);
-    this.updateNeedle(data);
-  }
-
-  getDataArguments(): [any, string, string, string, string[], string[], string, boolean, boolean] {
-    let args: any[] = this.properties.arguments;
-    return [this.path, args[0], args[1], args[2], args[3], args[4], args[5], false, true];
   }
 
   private getNeedleGroup() {
