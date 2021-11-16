@@ -163,7 +163,6 @@ export class MapIconBuilder {
         result.push(transform(pdv.filterProperty(prop)));
       }
     }
-    console.log(result, this.instance.icons)
     return this.instance!.get(result);
   }
 
