@@ -125,11 +125,11 @@ export class PDV extends SimplePdv{
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
   get typology(): number {return this.filterProperty('typology')}
 
-  get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
-  get targetFinition(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetFinitions')] : false;}
-  get volumeTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] : false;}
-  get lightTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'greenLight')] : false;}
-  get commentTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget',  'commentTargetP2CD')] : false;}
+  get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget', 'targetP2CD')] : false;}
+  get targetFinition(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget', 'targetFinitions')] : false;}
+  get volumeTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget', 'targetP2CD')] : false;}
+  get lightTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget', 'greenLight')] : false;}
+  get commentTarget(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget', 'commentTargetP2CD')] : false;}
 
   get siniatSales() {return this.computeSalesRepartition()['Siniat']}
   get totalSales() {return this.computeSalesRepartition()['totalP2cd']}
@@ -147,7 +147,7 @@ export class PDV extends SimplePdv{
   }
   get edit(): boolean {return true}
   get info(): boolean {return true}
-  get checkboxP2cd(): boolean {return this.ciblageFilter() === 2}
+  get checkboxP2cd(): boolean {return this.ciblageFilter() == 2}
   get clientProspect(){return this.clientProspectFilter(true)}
 
   // to avoid specific cases for some axis
@@ -344,15 +344,15 @@ export class PDV extends SimplePdv{
       case 'clientProspect': return this.clientProspectFilter(true);
       case 'industriel': return this.industrielFilter();
       case 'ciblage': return this.ciblageFilter();
-      case 'pointFeuFilter': return this.pointFeu? 2: 1;
-      case 'visited': return (this.nbVisits > 0)? 1: 2;
+      case 'pointFeuFilter': return this.pointFeuFilter();
+      case 'visited': return this.visitedFilter();
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
       case 'typology': return this.typologyFilter();
       default: return this[propertyName as keyof SimplePdv];
     }
   }
 
-  private segmentMarketingFilter(){
+  private segmentMarketingFilter(): number{
     let dictSegment = DEH.get('segmentMarketingFilter'),
       dictAllSegments = DEH.get('segmentMarketing');
     let pdvSegment = this.segmentMarketing;
@@ -369,7 +369,7 @@ export class PDV extends SimplePdv{
         return parseInt(typologyIds[i]);
   }
 
-  industrielFilter(){
+  private industrielFilter(): number{
     let salesRepartition = this.displayIndustrieSaleVolumes(),
       industrieMax = 'Autres';
     for (let [industrie, sales] of Object.entries(salesRepartition))
@@ -377,8 +377,19 @@ export class PDV extends SimplePdv{
     return parseInt(DEH.getKeyByValue(DEH.get('industriel'), industrieMax)!);
   }
 
-  ciblageFilter(){
-    return (this.realTargetP2cd > 0) ? 2: 1; //Hardcode
+  private ciblageFilter(): number{
+    return (this.realTargetP2cd > 0) ? +DEH.getKeyByValue(DEH.get('ciblage'), 'Ciblé')!: 
+      +DEH.getKeyByValue(DEH.get('ciblage'), 'Non ciblé')!;
+  }
+
+  private pointFeuFilter(): number{
+    return this.pointFeu ? +DEH.getKeyByValue(DEH.get('pointFeuFilter'), 'Point feu')!: 
+      +DEH.getKeyByValue(DEH.get('pointFeuFilter'), 'Non point Feu')!;
+  }
+
+  private visitedFilter(): number{
+    return (this.nbVisits > 0) ? +DEH.getKeyByValue(DEH.get('visited'), 'Visité')!: 
+      +DEH.getKeyByValue(DEH.get('visited'), 'Non visité')!;
   }
   
   clientProspectFilter(index=false){
