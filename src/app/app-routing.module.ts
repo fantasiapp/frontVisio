@@ -2,17 +2,12 @@ import { AuthGuard } from './connection/auth.guard';
 import { ViewComponent } from './view/view.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FiltersComponent } from './filters/filters.component';
 import { LoginPageComponent } from './login-page/login-page.component';
-import { SearchbarComponent } from './logged-page/searchbar/searchbar.component';
-import { SuggestionBox } from './logged-page/searchbar/suggestionbox/suggestionbox.component';
 //import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', redirectTo: 'login', pathMatch: 'full' },
-
   {
     path: 'login',
     component: LoginPageComponent,
@@ -21,24 +16,14 @@ const routes: Routes = [
     path: 'logged',
     component: ViewComponent, 
     canActivate:[AuthGuard],
-  },
-  {
-    path: 'filters',
-    component: FiltersComponent,
-    canActivate:[AuthGuard],
-  },
-  {
-    path: 'search',
-    component: SearchbarComponent
-  },
-  {
-    path: 'box',
-    component: SuggestionBox
+  }, {
+    path: '**',
+    redirectTo: 'login'
   }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {onSameUrlNavigation: 'reload'})],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
   providers: [AuthGuard]
 })

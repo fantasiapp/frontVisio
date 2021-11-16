@@ -1,15 +1,12 @@
 import { Component } from "@angular/core";
 import { AgRendererComponent } from "ag-grid-angular";
 import { ICellRendererParams } from "ag-grid-community";
+import { PDV } from "src/app/middle/Pdv";
 import { SliceTable } from "src/app/middle/SliceTable";
 
 abstract class DefaultCellRenderer implements AgRendererComponent {
-  refresh(params: ICellRendererParams): boolean {
-    return true;
-  }
-  agInit(params: ICellRendererParams): void {
-  }
-
+  refresh(params: ICellRendererParams): boolean {return true;}
+  agInit(params: ICellRendererParams): void {  }
 }
    
   @Component({
@@ -26,11 +23,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class EditCellRenderer extends DefaultCellRenderer {
-    agInit(params: ICellRendererParams): void {}
   }
   
   @Component({
-    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="params.data.checkboxEnduit" [hidden]="!params.data.redistributedFinitions || params.data.potential < 0 || params.data.sale === false || params.data.onlySiniat === true || params.data.typologie === 'Non documenté'" agentFinitionsOnly currentYearOnly></div>`,
+    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typology === 4" agentFinitionsOnly currentYearOnly></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -46,24 +42,19 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class CheckboxEnduitCellRenderer extends DefaultCellRenderer {
-    params: any;
+    pdv!: PDV;
     constructor(private sliceTable: SliceTable) {
       super();
     }
     agInit(params: ICellRendererParams): void {
-      this.params = params;
+      this.pdv = params.data;
     }
-    checkedHandler(event: any) {
-      let checked = event.target.checked;
-      let colId = this.params.column.colId;
-      this.params.node.setDataValue(colId, checked);
-      
-      this.sliceTable.changeTargetTargetFinitions(this.params.data)
-    }
+
+    checkedHandler(event: any) {this.sliceTable.changeTargetTargetFinitions(this.pdv)}
   }
   
   @Component({
-    template: `<div><input type="checkbox" [(checked)]="params.value" [hidden]="params.data.clientProspect === 'Client'" disabled></div>`,
+    template: `<div><input type="checkbox" [checked]="pdv.checkboxP2cd" [hidden]="pdv.clientProspect === 1" disabled></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -79,13 +70,8 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class CheckboxP2cdCellRenderer extends DefaultCellRenderer {
-    params: any;
-    constructor(private sliceTable: SliceTable) {
-      super();
-    }
-    agInit(params: ICellRendererParams): void {
-      this.params = params;
-    }
+    pdv!: PDV;
+    agInit(params: ICellRendererParams): void {this.pdv = params.data;}
   }
 
   @Component({
@@ -104,9 +90,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   })
   export class PointFeuCellRenderer extends DefaultCellRenderer {
     show: boolean = false;
-    agInit(params: ICellRendererParams): void {
-      this.show = params.value;
-    }
+    agInit(params: ICellRendererParams): void {this.show = params.value;}
   }
 
   @Component({
@@ -119,7 +103,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
             </div>
 
             <div [ngStyle]="{'background-color': defaultColor, 'display': 'flex', 'flex-direction': 'row', 'flex-grow': '1', 'width': 100+overflow+'%'}">
-                <div *ngFor="let sale of enduit" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
+                <div *ngFor="let sale of enduit; let i = index" [ngStyle]="{'background-color': sale.color, 'color': sale.color, 'flex-grow': sale.value, 'flex-shrink': '0' }">
                 <span *ngIf="sale.value"></span>
                 </div>
             </div>
@@ -128,6 +112,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
         display: flex;
         flex-direction: column;
         height: 100%;
+      }`,
+      `.description {
+        position: absolute;
+        z-index: 999999;
       }`]
   })
   export class TargetCellRenderer extends DefaultCellRenderer {
@@ -135,6 +123,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     enduit?: {[name: string]: number}[];
     overflow: number = 0;
     defaultColor = '#F0F0F0';
+    id = "";
     agInit(params: ICellRendererParams): void {
         this.p2cd = Object.values(params.value['p2cd']);
         this.enduit = Object.values(params.value['enduit']);
@@ -162,9 +151,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   })
   export class AddArrowCellRenderer extends DefaultCellRenderer {
     rowId: string = "";
-    agInit(params: ICellRendererParams): void {
-      this.rowId = params.node.data.name.name
-    }
+    agInit(params: ICellRendererParams): void {this.rowId = params.node.data.name.name}
   }
 
   @Component({
@@ -180,14 +167,10 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
       align-items: center;
     }`]
   })
-  export class InfoCellRenderer extends DefaultCellRenderer {
-    agInit(params: ICellRendererParams): void {}
-  }
+  export class InfoCellRenderer extends DefaultCellRenderer {}
+
   @Component({
     template: ``,
   })
-  export class NoCellRenderer extends DefaultCellRenderer {
-    agInit(params: ICellRendererParams): void {
-    }
-  }
+  export class NoCellRenderer extends DefaultCellRenderer {}
   

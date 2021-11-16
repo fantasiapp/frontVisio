@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, View
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import bb, {bar, Chart} from 'billboard.js';
+import { PDV } from 'src/app/middle/Pdv';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
+import bb, {bar} from 'billboard.js';
 import { RubixCube } from './RubixCube';
-import DataExtractionHelper, { TradeExtrationHelper } from 'src/app/middle/DataExtractionHelper';
+import DEH from 'src/app/middle/DataExtractionHelper';
 
 
 @Component({
@@ -33,9 +34,14 @@ export class HistoRowComponent extends BasicWidget {
   private rectWidth: number = 0;
   private maxValue: number = 0;
 
-  protected onPathChanged() {
+  protected onPathChanged(path: any) {
+    super.onPathChanged(path);
+    this.updateCube();
+  }
+
+  private updateCube() {
     this.cube = new RubixCube(this);
-    this.cube.rules = this.sliceDice.rubiksCubeCheck(this.path, this.properties.arguments[2], this.properties.arguments[5]);
+    this.cube.rules = this.sliceDice.rubiksCubeCheck(this.properties.arguments[2], this.properties.arguments[5]);
     this.description.nativeElement.selectedIndex = "0";
     this.cd.markForCheck();
   }
@@ -157,12 +163,12 @@ export class HistoRowComponent extends BasicWidget {
       },
       onrendered() {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
-        if ( self.filtersService.navigation.tree?.type ===TradeExtrationHelper )
+        if ( self.filtersService.tree?.hasTypeOf(PDV.tradeTree) )
           return;
         
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
           let index = e.target.__data__.index, label = this.categories()[index];
-          let realIndex = +DataExtractionHelper.getKeyByValue(DataExtractionHelper.get('enseigne'), label)!;
+          let realIndex = +DEH.getKeyByValue(DEH.get('enseigne'), label)!;
           self.cube!.enseigneCondition = self.cube!.getIndexById(realIndex)!;
           self.update();
         });
@@ -173,13 +179,12 @@ export class HistoRowComponent extends BasicWidget {
 
   //wait on delays
   updateGraph({data}: any) {
-    // this.applyRubixConditions(data);
     if ( data[0][0] != 'x' ) {
       console.log('[HistoRow]: Rendering inaccurate format because `x` axis is unspecified.')
       data = [['x', ...data.map((d: any[]) => d[0])], ...data];
     };
 
-    let currentItems = Object.keys(this.chart!.xs()),
+    let currentItems = Object.keys(this.chart?.xs() || {}),
         newItems = data.slice(1).map((d: any[]) => d[0]),
         newCategories = data[0].slice(1);
     
@@ -196,21 +201,9 @@ export class HistoRowComponent extends BasicWidget {
       });
     });
   }
-
-  refresh() {
-    this.onPathChanged();
-    super.refresh();
-  }
-
   getDataArguments(): any {
     let args: any[] = this.properties.arguments;
-    return [this.path, this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube?.conditions || []];
-  }
-
-  updateData() {
-    this.chart?.tooltip.hide();
-    let data = this.sliceDice.getWidgetData.apply(this.sliceDice, this.getDataArguments());  
-    return data;
+    return [this.cube!.mainAxis, args[1], args[2], args[3], args[4], args[5], true, false, this.cube?.conditions || []];
   }
 
   setSegment(e: Event) {

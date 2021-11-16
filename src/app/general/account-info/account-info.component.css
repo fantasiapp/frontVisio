@@ -1,0 +1,136 @@
+:host {
+    box-sizing: content-box;
+    display: block;  
+    height: var(--initial-height);
+    user-select: none !important;
+    cursor: pointer !important;
+    display: flex;
+    flex-flow: row-reverse nowrap;
+    align-items: center;
+    position: relative;
+    font-family: 'Roboto';
+
+    --initial-height: 50px;
+    --profile-resume-height: 50px;
+    --list-element-height: 30px; 
+    --login-footer-height: 20px;
+}
+
+:host::ng-deep {
+    font-size: inherit;
+}
+
+.resume {
+    padding-left: 15px;
+    border-left: 1px solid #333;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+.toggle-dropdown {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+
+:host:hover .toggle-dropdown {
+    background: #333;
+}
+
+.toggle-dropdown img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+:host:hover .toggle-dropdown img {
+    filter: invert(1);
+}
+
+.dropdown {
+    transition: opacity 200ms ease-out 0s;
+    position: absolute;
+    top: var(--initial-height);
+    right: 0;
+
+    cursor: default !important;
+    background: white;
+    box-shadow: 0 0 5px 0 #aaa;
+    border: 5px;
+    z-index: 999999999;
+    width: 300px;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.dropdown > * {
+    padding: 15px 15px;
+}
+
+.profile {
+    padding: 15px 30px;
+    font-weight: 400;
+    font-size: 1em;
+}
+
+.profile .profile-description {
+    display: block;
+    font-size: 0.9em;
+    font-weight: 300;
+}
+
+.details {
+    background: #eee;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.details li {
+    padding: 8px 0;
+    font-weight: 300;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+.details li > * {
+    vertical-align: middle;
+}
+
+.details li img {
+    width: 25px;
+    height: 25px;
+    margin-right: 10px ;
+}
+
+.details li .value {
+    font-weight: 400;
+}
+
+.logout {
+    padding: 5px inherit;
+    display: flex;
+    flex-flow: row-reverse;
+}
+
+.logout .button {
+    box-sizing: border-box;
+    margin: 0 !important;
+    outline: none !important;
+    background: white;
+    padding: 4px;
+    border: 1px solid #333;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 100ms ease-out 0s;
+}
+
+.logout .button:hover {
+    color: white;
+    background: #333;
+}

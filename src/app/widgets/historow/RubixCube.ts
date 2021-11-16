@@ -1,4 +1,4 @@
-import DataExtractionHelper from "src/app/middle/DataExtractionHelper";
+import DEH from "src/app/middle/DataExtractionHelper";
 import { HistoRowComponent } from "./historow.component";
 
 type CubeData = {
@@ -29,7 +29,13 @@ export class RubixCube {
 
   set segmentAxis(value: any) {
     this._segmentAxis = value;
-    this.historow.properties.description = RubixCube.DESCRIPTION_MOCK.filter((_, idx) => this.segmentAxis![idx]);
+    let description = this.historow.properties.description =
+      RubixCube.DESCRIPTION_MOCK.filter((_, idx) => this._segmentAxis![idx]);
+
+    if ( description.length == 2 ) {
+      this.historow.properties.description.shift();
+      this.segmentCondition = 1;
+    }
     this.historow.makeSelect();
   }
 
@@ -37,24 +43,23 @@ export class RubixCube {
     return this._segmentAxis;
   }
 
-  //perhaps this is an overkill and we only need last one
-  private segmentStack: boolean[][] = [];
+  private segmentStack: boolean[] = [];
 
   set enseigneCondition(index: number) { //defines segmentAxis
     if ( this._conditions[1] && this._conditions[1].length ) {
       this.mainAxis = this.historow.properties.arguments[0][0];
       this._conditions[1] = null;
-      this.segmentAxis = this.segmentStack.pop();
+      this.segmentAxis = this.segmentStack;
     } else {
       this._conditions[1] = [this.mainAxis, [ +this.cube!.enseigneIndexes[index] ]];
       this.mainAxis = this.historow.properties.arguments[0][1];
-      this.segmentStack.push(this.segmentAxis);
+      this.segmentStack = this.segmentAxis;
       this.segmentAxis = this.cube!.boolMatrix[index+1];
     }
   }
 
   set segmentCondition(index: number) {
-    index = this.transformIndex(index);
+    index = this.transformSegmentIndex(index);
     this._conditions[0] =  RubixCube.DESCRIPTION_MOCK[index][1][0];
   }
 
@@ -68,10 +73,10 @@ export class RubixCube {
     this._conditions[1] = null;
     this.segmentStack = [];
     this.segmentAxis = this.cube!.boolMatrix[0]; //render Axis
-    this.segmentCondition = 0; //add condition to the displayer
+    if ( this.segmentAxis[0] ) this.segmentCondition = 0;
   }
 
-  transformIndex(index: number) {
+  transformSegmentIndex(index: number) {
     let pos = 0;
     while ( pos < this.segmentAxis!.length ) {
       if ( this.segmentAxis![pos++] ) index--;
@@ -87,18 +92,16 @@ export class RubixCube {
   }
 
   static initializeDescriptionMock() {
-    let segmentMarketing = DataExtractionHelper.get('segmentMarketing');
+    let segmentMarketing = DEH.get('segmentMarketing');
     return this.DESCRIPTION_MOCK = [
       ['Tous segments', []],
-      ['Purs Spécialistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!]]]],
-      ['Multi Spécialistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!]]]],
-      ['Généralistes', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Généralistes')!]]]],
-      ['Autres', [['segmentMarketing', [+DataExtractionHelper.getKeyByValue(segmentMarketing, 'Autres')!]]]]
+      ['Purs Spécialistes', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Purs Spécialistes')!]]]],
+      ['Multi Spécialistes', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Multi Spécialistes')!]]]],
+      ['Généralistes', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Généralistes')!]]]],
+      ['Autres', [['segmentMarketing', [+DEH.getKeyByValue(segmentMarketing, 'Autres')!]]]]
     ]
   }
 
 
-  static DESCRIPTION_MOCK: [string, Condition[]][] = [
-    ['Tous segments', []], ['Purs Spécialistes', [['segmentMarketing', [6]]]], ['Multi Spécialistes', [['segmentMarketing', [7]]]], ['Généralistes', [['segmentMarketing', [8]]]], ['Autres', [['segmentMarketing', [9]]]]
-  ];
+  static DESCRIPTION_MOCK: [string, Condition[]][] = [];
 }

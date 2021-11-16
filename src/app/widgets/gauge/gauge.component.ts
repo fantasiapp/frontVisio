@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import bb, {gauge} from 'billboard.js';
@@ -24,7 +24,6 @@ export class GaugeComponent extends BasicWidget {
   }
 
   createGraph({data, threshold}: any, opt: {} = {}) {
-    console.log(threshold);
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,

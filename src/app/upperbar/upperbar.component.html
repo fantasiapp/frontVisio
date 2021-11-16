@@ -1,11 +1,11 @@
 <div class="container-bar aligned">
-  <div class="button-container">
+  <div class="button-container" [style.visibility]="hideIfMapIsVisible">
     <div (click)="showFilters()" class="open-filters">
       Options
         <mat-icon class="expand-icon">expand_more</mat-icon></div>
   </div>
 
-  <div class="ens-org" [style.visibility]="switchIsVisible ? 'visible' : 'hidden'">
+  <div class="ens-org" [style.visibility]="hideIfMapIsVisible">
     <span
       ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
     >
@@ -16,7 +16,7 @@
       step="1"
       class="input-range"
       [value]="sldValue"
-      (click)="toggle();"
+      (click)="toggle()"
     />
     <span
       ><div id="org" [ngClass]="{ light: sldValue == 0 }">
@@ -27,11 +27,11 @@
 
   <div class="right-block">
     <div class="search-div">
-     <searchbar (PDVfound)="displayPDVOnMap($event)"></searchbar>
+     <searchbar (PDVfound)="tryDisplayPDVOnTable($event)"></searchbar>
     </div>
     <div class="search-div">
       <button class="button" (click)="updateData()">
-        <img class="button-img updatable" (click)="updating = true" (animationend)="onAnimationEnd()" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
+        <img class="button-img" [class.updatable]="canUpdate" (click)="canUpdate ? updating = true : null" (animationend)="updating = false" [class.updating]="updating" src="assets/Mise a jour.svg" alt="Mettre à jour" />
       </button>
     </div>
     <div class="search-div">
@@ -40,7 +40,7 @@
       </button>
     </div>
     <div class="search-div">
-      <account-info [name]="getName() || '...'"></account-info>
+      <account-info></account-info>
     </div>
   </div>
 </div>

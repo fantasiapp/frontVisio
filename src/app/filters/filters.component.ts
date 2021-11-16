@@ -1,125 +1,91 @@
-import { SliceDice } from 'src/app/middle/Slice&Dice';
-import { FormsModule } from '@angular/forms';
-import { FiltersStatesService } from './filters-states.service';
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { ThrowStmt } from '@angular/compiler';
-import { Subject } from 'rxjs/internal/Subject';
-import { combineLatest } from 'rxjs';
-import { DataService } from '../services/data.service';
-import { takeUntil } from 'rxjs/operators';
-interface listDash {
-  name: string[];
-  id: number[];
-}
-interface listLev {
-  name: string[];
-  id: number[];
-  label: string[];
-}
-interface lev {
-  name: string;
-  id: number;
-  label: string;
-}
+import { FiltersStatesService } from '../services/filters-states.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { SubscriptionManager } from '../interfaces/Common';
+import { Node } from '../middle/Node'
+import Dashboard from '../middle/Dashboard';
+
 @Component({
   selector: 'app-filters',
   templateUrl: './filters.component.html',
   styleUrls: ['./filters.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FiltersComponent implements OnInit , OnDestroy{
-  constructor(private filtersState: FiltersStatesService) {}
-
-  listDashboard!: listDash;
-  listLevel!: listLev;
-  viewList!: listLev | listDash;
-  selectList!: listDash;
-  currentLev: any;
-  levelName: string = '';
-  superLevel!: lev;
-  value: number = 0;
-  subLevels!: listLev;
-  sort: number = 0;
-  showselect: boolean = false;
-  path: string[] = [];
-  idLevel: number = 0;
-  selectedDashboardId: number = 4;
-  selectedDashboardName: string = '';
-  levelLabel : string = '';
-  ngOnInit(): void {
-    combineLatest([
-      this.filtersState.arraySubject,
-      this.filtersState.stateSubject,
-    ]).pipe(takeUntil(this.destroy$)).subscribe(([currentsArrays, currentStates]) => {
-      console.debug("le filters state", currentsArrays)
-      this.listLevel = currentsArrays.levelArray.currentLevel;
-      this.subLevels = currentsArrays.levelArray.subLevel;
-      this.currentLev = currentStates.States.level;
-      this.listDashboard = currentsArrays.dashboardArray;
-      this.levelName = currentStates.States.level.name;
-      this.levelLabel = currentStates.States.level.label
-      this.superLevel = currentsArrays.levelArray.superLevel;
-      this.path = currentStates.States.path;
-      this.showselect = this.superLevel.name === undefined ? false : true;
-      this.selectedDashboardId = currentStates.States.dashboard.id;
-      this.selectedDashboardName = currentStates.States.dashboard.name;
-      this.viewList =
-        this.superLevel.name === undefined ? this.listDashboard : this.listLevel;
+export class FiltersComponent extends SubscriptionManager {
+  constructor(private filtersState: FiltersStatesService, private cd: ChangeDetectorRef) {
+    super();
+    this.subscribe(this.filtersState.filters, ({
+      dashboard, path,
+      listLevel, listDashboards,
+      level, superLevel, subLevels
+    }) => {
+      this.level = level;
+      this.dashboard = dashboard;
+      this.path = path;
+      this.superLevel = superLevel;
+      this.listLevel = listLevel;
+      this.listDashboard = listDashboards;
+      this.viewList = !this.superLevel ?
+        this.listDashboard : this.listLevel;
+      this.currentSelection = !this.superLevel ?
+        dashboard : level;
+      this.subLevels = subLevels;
+      this.isShowingDashboards = !this.superLevel;
+      this.cd.markForCheck();
     });
   }
 
-  private destroy$: Subject<void> = new Subject<void>();
+  level!: Node;
+  dashboard!: Dashboard;
+  currentSelection!: Node | Dashboard;
+  levelLabel: string = '';
+  superLevel: Node | null = null;
+  subLevels: Node[] = [];
+  path: Node[] = [];
+  listLevel: Node[] = [];
+  listDashboard: Dashboard[] = [];
+  viewList: (Node | Dashboard)[] = []; //actually Node[] | Dashboard[]
+  isShowingDashboards: boolean = true;
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  ngOnInit(): void { this.filtersState.emitFilters(); }
 
-  showSuper(level?: lev, levels?: listLev) {
+  showSuper() {
     this.filtersState.updateState(undefined, undefined, true);
+  }
+  
+  changeDashboard(e: Event) {
+    let chosenDashboardId = (e.target as any).value;
+    this.filtersState.updateState(undefined, chosenDashboardId, undefined);
   }
 
   updateState(
-    indexLev: number | undefined,
-    indexDash: number | undefined,
-    superLev: boolean | undefined
+    levelId: number | undefined,
+    dashboardId: number | undefined,
+    superLev: boolean | undefined,
+    close: boolean = false
   ) {
-    if (indexLev) {
+    if (levelId) {
       if (this.viewList === this.subLevels) {
-        this.filtersState.updateState(
-          this.subLevels.id[indexLev - 1],
-          undefined,
-          undefined
-        );
-      } else if (this.viewList.name[0] === this.listLevel.name[0]) {
+        this.filtersState.updateState(levelId, undefined, undefined);
+      } else if (this.viewList[0].name === this.listLevel[0].name) {
         this.filtersState.updateState(undefined, undefined, true, false);
-        this.filtersState.updateState(
-          this.viewList.id[indexLev - 1],
-          undefined,
-          undefined
-        );
+        this.filtersState.updateState(levelId, undefined, undefined);
       }
-    } else if (indexDash)
-      this.filtersState.updateState(undefined, indexDash, undefined);
+    } else if (dashboardId)
+      this.filtersState.updateState(undefined, dashboardId, undefined);
+    
+    if ( close ) this.close();
   }
-  showSub(listSub: listLev) {
-    this.showselect = true;
-    this.filtersState.updateState(this.subLevels.id[0], undefined, undefined)
+  showSub() {
+    this.isShowingDashboards = false;
+    this.filtersState.updateState(this.subLevels[0].id, undefined, undefined)
   }
   close() {
     this.filtersState.filtersVisible.next(false);
   }
-  updateStateClose(
-    indexLev: number | undefined,
-    indexDash: number | undefined,
-    superLev: boolean | undefined
-  ) {
-    this.updateState(indexLev, indexDash, superLev);
-    this.close();
-  }
 
   canSub() { return this.filtersState.canSub(); }
 
-  navigateUp(index: number) {
-    this.filtersState.navigateUp(index);
+  navigateUp(height: number) {
+    this.filtersState.navigateUp(height);
   }
 }

@@ -1,30 +1,30 @@
-import DataExtractionHelper from '../middle/DataExtractionHelper';
-import { PDV } from '../middle/Slice&Dice';
+import DEH from '../middle/DataExtractionHelper';
+import { PDV } from '../middle/Pdv';
 
-export const disabledParams: {[name: string]: (pdv: PDV, sales: any[]) => {message: string, val : boolean}} = {
-  'noRedistributedFinitions': (pdv: PDV, sales: any[]) => {
-    let val = !pdv.attribute('redistributedFinitions');
+export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, val : boolean}} = {
+  'noRedistributedFinitions': (pdv: PDV ) => {
+    let val = !pdv.redistributedFinitions;
     return { message: val ? 'Le siège a déclaré ce pdv finitions redistribué\n' : '', val : val}
   },
-  'noEmptySalesFinitions': (pdv: PDV, sales: any[]) => {
+  'noEmptySalesFinitions': (pdv: PDV ) => {
       let val = pdv!.displayIndustrieSaleVolumes(true)['Salsi']>0 || pdv!.displayIndustrieSaleVolumes(true)['Prégy']>0
       return { message: val ? 'Ce pdv finitions répertorie des ventes Salsi et/ou Prégy\n' : '', val : val}
   },
-  'noSale': (pdv: PDV, sales: any[]) => {
-    let val = !pdv!.attribute('sale')
+  'noSale': (pdv: PDV ) => {
+    let val = !pdv!.sale
     return { message: val ? 'Le siège a déclaré ce pdv comme ne vendant pas de plaques\n' : '', val : val}
   },
-  'noEmptySales' : (pdv: PDV, sales: any[]) => {
+  'noEmptySales' : (pdv: PDV ) => {
     let val = false;
-    for(let sale of sales!) {
-      if(sale[DataExtractionHelper.SALES_INDUSTRY_ID] != DataExtractionHelper.INDUSTRIE_SINIAT_ID && sale[DataExtractionHelper.SALES_VOLUME_ID] > 0) {
+    for(let sale of Object.entries(pdv!.displayIndustrieSaleVolumes())) {
+      if(sale[0] != 'Siniat' && sale[1]>0) {
         val = true;
       }
     }
     return { message : val ? 'Ce pdv répertorie des ventes de volumes non-nuls pour des enseignes autres que Siniat\n' : '', val: val}
   },
-  'noRedistributed' : (pdv: PDV, sales: any[]) => {
-    let val = !pdv!.attribute('redistributed');
-    return { message : val ? 'Le siège a déclaré ce pdv comme ne "tant redistribué\n' : '', val : val}
+  'noRedistributed' : (pdv: PDV ) => {
+    let val = !pdv!.redistributed;
+    return { message : val ? 'Le siège a déclaré ce pdv comme étant redistribué\n' : '', val : val}
   }
 }

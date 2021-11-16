@@ -1,11 +1,9 @@
-import { EventEmitter, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, Output, QueryList, ViewChildren, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
-import { FiltersStatesService } from 'src/app/filters/filters-states.service';
-import { combineAll } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
-import { DataService } from 'src/app/services/data.service';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, QueryList, ViewChildren, Input } from '@angular/core';
 import { TargetService } from './description-service.service';
 import { BasicWidget } from '../BasicWidget';
-import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
+import { SubscriptionManager } from 'src/app/interfaces/Common';
+import { Node } from '../../middle/Node';
+import { CD } from 'src/app/middle/Descriptions';
 
 @Component({
   selector: 'description-widget',
@@ -13,7 +11,7 @@ import DataExtractionHelper from 'src/app/middle/DataExtractionHelper';
   styleUrls: ['./description-widget.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DescriptionWidgetComponent implements OnDestroy {
+export class DescriptionWidgetComponent extends SubscriptionManager {
 
   @ViewChildren('input', {read: ElementRef})
   inputs?: QueryList<ElementRef>;
@@ -23,29 +21,23 @@ export class DescriptionWidgetComponent implements OnDestroy {
     [0, 0, 0]
   ];
 
-  subscriptions: Subscription[] = [];
+  @Input()
+  set node(value: Node | undefined) {
+    this.values = CD.computeDescriptionWidget(value!);
+  };
 
-  constructor(private cd: ChangeDetectorRef, private filtersService: FiltersStatesService, private dataservice: DataService, private targetService: TargetService) {
-    this.subscriptions.push(
-      filtersService.stateSubject.subscribe(({States}) => {
-        //do something with path
-        this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.getPath(States));
-        this.cd.markForCheck();
-      }),
-      dataservice.update.subscribe(_ => {
-        this.values = DataExtractionHelper.computeDescriptionWidget(this.filtersService.getPath(this.filtersService.stateSubject.value.States));
-        this.cd.markForCheck();
-        //do something when it updates
-      })
-    )
+  constructor(public targetService: TargetService) {
+    super();
   }
+
+  ngOnInit() { this.targetService.reset(); }
 
   get volume() {
     return BasicWidget.format(this.values[1 - this.currentSelection][0]);
   }
 
   get DN() {
-    return BasicWidget.format(this.values[1 - this.currentSelection][1], 0, true);
+    return BasicWidget.format(this.values[1 - this.currentSelection][1], 3, true);
   }
 
   get ratio() {
@@ -56,11 +48,6 @@ export class DescriptionWidgetComponent implements OnDestroy {
     let input = this.inputs?.get(idx);
     if ( !input ) throw `[DescriptionWidget]: cannot find input`;
     this.currentSelection = idx;
-    this.targetService.setTarget(input.nativeElement.value);
-  }
-
-  ngOnDestroy() {
-    for ( let subscription of this.subscriptions )
-      subscription?.unsubscribe();
+    this.targetService.target = input.nativeElement.value;
   }
 }

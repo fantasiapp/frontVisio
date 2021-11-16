@@ -1,8 +1,7 @@
-import DataExtractionHelper, {NavigationExtractionHelper} from './DataExtractionHelper';
 import Dashboard from './Dashboard';
 import {Injectable} from '@angular/core';
 import {Tree, Node} from './Node';
-import { PDV } from './Slice&Dice';
+import { PDV } from './Pdv';
 
 @Injectable()
 export class Navigation {
@@ -11,17 +10,17 @@ export class Navigation {
   currentDashboard?: Dashboard;
 
   constructor() {
-    console.log('[Navigation]: On.');
+    //console.log('[Navigation]: On.');
   }
 
-  setTree(t: Tree){    
-    this.tree = t ? t : new Tree(NavigationExtractionHelper);
-    this.currentLevel = this.tree.root;
+  setTree(tree: Tree){    
+    this.tree = tree;
+    this.currentLevel = this.tree.root
     this.currentDashboard = this.currentLevel!.dashboards[0];
   }
 
-  setNode(t: Tree, node: Node) {
-    this.tree = t;
+  setCurrentLevel(tree: Tree, node: Node) {
+    this.tree = tree;
     this.currentLevel = node;
     let dashboardId = this.currentDashboard!.id;
     let nextDashboard = node.dashboards.findIndex(
@@ -30,35 +29,47 @@ export class Navigation {
     this.currentDashboard = node.dashboards[nextDashboard] || node.dashboards[0];
   }
 
-  setDashboard(t: Tree, dashboard: Dashboard) {
-    if ( !dashboard )
-      throw 'uh oh';
-    
-    if ( this.tree!.type !== t.type) {
-      this.tree = t;
-      this.currentLevel = this.tree.root;
+  setCurrentDashboard(tree: Tree, dashboard: Dashboard) {
+    //same type, rename is
+    if ( this.tree?.hasTypeOf(tree) ) {
+      this.currentLevel = tree.root;
+      //closest ancestor with this dashboard
+      while ( this.currentLevel && this.currentLevel.parent && !this.currentLevel.dashboards.find(d => d.id == dashboard.id) )
+        this.currentLevel = this.currentLevel.parent!;
+    } else {
+      this.currentLevel = tree.root;
     }
-
-    this.currentDashboard = dashboard;
-    while ( this.currentLevel && this.currentLevel.parent && !this.currentLevel.dashboards.find(d => d.id == dashboard.id) )
-      this.currentLevel = this.currentLevel.parent!;
+    this.tree = tree;
+    this.currentDashboard = dashboard; 
   }
 
   followTree(t: Tree) {
-    let path = this.currentLevel ? this.currentLevel.path.slice(1).map(level => level.id) : null,
-      dashboard: Dashboard | undefined,
-      sameType = this.tree?.type === t.type;
+    let dashboard: Dashboard | undefined,
+      sameType = this.tree?.hasTypeOf(t),
+      oldLevel = this.currentLevel;
     
-    if ( path )
-      dashboard = this.currentLevel!.dashboards.find(dashboard => dashboard.id === this.currentDashboard?.id);
+    if ( oldLevel && this.currentDashboard )
+      dashboard = oldLevel.dashboards.find(dashboard => dashboard.id === this.currentDashboard!.id);
       
     this.setTree(t);
-    if ( sameType && path  ) {
-      for ( let id of path )
-        this.currentLevel = this.currentLevel!.goChild(id);
-      
-      this.currentDashboard = dashboard || this.currentLevel?.dashboards[0];
+    if ( sameType && oldLevel  ) {
+      this.currentLevel = t.follow(oldLevel.path);
+      this.currentDashboard = dashboard || this.currentLevel!.dashboards[0];
     }
+  }
+
+  getNodeChildren(node: Node) {
+    return this.childIsPdv(node) ? [] : this.sort(node.children as Node[]);
+  }
+
+  sort(nodes: Node[]) {
+    return nodes.sort(
+      (a, b) => 1 - 2* +(a.name < b.name)
+    );
+  }
+
+  getState() {
+    return {node: this.currentLevel!, dashboard: this.currentDashboard!}
   }
 
   getArray(dataType: 'level' | 'dashboard'): any{
@@ -131,25 +142,15 @@ export class Navigation {
         template: currentDashboard.template,
         areas: currentDashboard.areas
       },
-      path: currentLevel.path.map(
-        (level) => {
-          return level.label + (level.name ? ' : ' + level.name : '')
-        }
-      ),
-      _path: currentLevel.path.map(
-        (level) => [level.label, level.id] 
-      )
+      path: currentLevel.path,
+      _path: currentLevel.path.map(level => [level.label, level.id])
     };
-  }
-
-  isTopLevel(){
-    return this.currentLevel?.parent;
   }
 
   childrenHaveSameDashboard(): boolean {
     let dashboardId = this.currentDashboard!.id;
     let child = this.currentLevel!.children[0];
-    if ( child instanceof PDV ) return false;
+    if ( !child || child instanceof PDV ) return false;
     let nextDashboard = child.dashboards.find(
       (dashboard) => dashboard.id == dashboardId
     );
@@ -197,18 +198,9 @@ export class Navigation {
     }
   }
 
-  getCurrentYear(){
-    let year = (new Date).getFullYear();
-    return (DataExtractionHelper.currentYear ? year : year - 1).toString();
-  }
-
-  setCurrentYear(current: boolean) {
-    DataExtractionHelper.currentYear = current;
-  }
-
-  navigateUp(n: number) {
+  navigateUp(height: number) {
     let level: Node | null = this.currentLevel!;
-    while ( level && n-- )
+    while ( level && height-- )
       level = level.parent;
     
     if ( !level ) level = this.tree!.root;

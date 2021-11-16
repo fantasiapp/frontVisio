@@ -18,3 +18,35 @@ span {
     font-weight: 400;
     font-size: 0.8em;
 }
+
+.graph-description {
+    pointer-events: none;
+    position: fixed;
+    background-color: #333;
+    color: white;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.3s;
+    padding: 0.8em;
+    border-radius: 0.4em;
+}
+.graph-description.show {
+    opacity: 1;
+}
+.graph-description.hide {
+    opacity: 0;
+}
+.graph-description label{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0.4em;
+}
+
+.graph-description .color-square {
+    width: 1em;
+    height: 1em;
+    border-radius: 0.2em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
