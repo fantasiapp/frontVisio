@@ -14,20 +14,11 @@ import bb, {pie} from 'billboard.js';
 })
 
 export class SimplePieComponent extends BasicWidget {
-  @ViewChild('content', {read: ElementRef})
-  protected content!: ElementRef;
-
   constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
     super(ref, filtersService, sliceDice);
   }
 
   createGraph({data, colors}: {data: any[], colors?: string[]}, opt: {} = {}) {
-    let sum = data.reduce((acc: number, d: any[]) => acc + d[1], 0);
-      //temporary code to print no data⚠️
-      if ( !data.length || !sum )
-      return this.noData(this.content);
-    /****************⚠️ ***************/
-    
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
     this.chart = bb.generate({
       bindto: this.content.nativeElement,

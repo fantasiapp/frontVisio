@@ -36,6 +36,10 @@ export class HistoRowComponent extends BasicWidget {
 
   protected onPathChanged(path: any) {
     super.onPathChanged(path);
+    this.updateCube();
+  }
+
+  private updateCube() {
     this.cube = new RubixCube(this);
     this.cube.rules = this.sliceDice.rubiksCubeCheck(this.properties.arguments[2], this.properties.arguments[5]);
     this.description.nativeElement.selectedIndex = "0";
@@ -175,13 +179,12 @@ export class HistoRowComponent extends BasicWidget {
 
   //wait on delays
   updateGraph({data}: any) {
-    // this.applyRubixConditions(data);
     if ( data[0][0] != 'x' ) {
       console.log('[HistoRow]: Rendering inaccurate format because `x` axis is unspecified.')
       data = [['x', ...data.map((d: any[]) => d[0])], ...data];
     };
 
-    let currentItems = Object.keys(this.chart!.xs()),
+    let currentItems = Object.keys(this.chart?.xs() || {}),
         newItems = data.slice(1).map((d: any[]) => d[0]),
         newCategories = data[0].slice(1);
     

@@ -73,7 +73,7 @@ export class RubixCube {
     this._conditions[1] = null;
     this.segmentStack = [];
     this.segmentAxis = this.cube!.boolMatrix[0]; //render Axis
-    this.segmentCondition = 0; //add condition to the displayer
+    if ( this.segmentAxis[0] ) this.segmentCondition = 0;
   }
 
   transformSegmentIndex(index: number) {

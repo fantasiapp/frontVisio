@@ -1,4 +1,4 @@
-import { Directive, ElementRef } from "@angular/core";
+import { Directive, ElementRef, ViewChild } from "@angular/core";
 import { Chart } from "billboard.js";
 import * as d3 from "d3";
 import { Subject } from "rxjs";
@@ -12,6 +12,9 @@ import { SequentialSchedule } from "./Schedule";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements Updatable {
+  @ViewChild('content', {read: ElementRef})
+  protected content!: ElementRef;
+
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
@@ -40,6 +43,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   
   start(): void {
     let data = this.updateData();
+    if ( this.checkData(data) ) return;
     requestAnimationFrame((_: any) => {
       this.createGraph(data);
     });
@@ -49,7 +53,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   
   updateGraph({data}: any): void {
     let newIds = data.map((d: any[]) => d[0]);
-    let oldIds = Object.keys(this.chart!.xs());
+    let oldIds = Object.keys(this.chart?.xs() || {});
     this.schedule.queue(() => {
       this.chart?.load({
         columns: data,
@@ -83,8 +87,23 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   setSubtitle(subtitle: string) {
     d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
   }
+
+  protected checkData(data: any) {
+    let res = BasicWidget.checkData(data);
+    if ( res && this.content )
+      this.noData(this.content);
+
+    return res;
+  }
   
-  update() { this.updateGraph(this.updateData()); }
+  update() {
+    let data = this.updateData(), res;
+    if ( res = this.checkData(data) ) { this.chart = null; return }
+    if ( this.chart )
+      this.updateGraph(data);
+    else
+      this.createGraph(data);
+  }
   
   ngOnDestroy() {
     super.ngOnDestroy();
@@ -96,10 +115,11 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   
   noData(content: ElementRef) {
     console.log('[BasicWidget -- noData]: No data is supplied, this is most probably a error.');
-    d3.select(content.nativeElement).select('div > svg').remove();
+    d3.select(content.nativeElement).selectChildren('*').remove();
     content.nativeElement.innerHTML = `
       <div class="nodata">Il n'y a pas de données.</div>
     `;
+    this.chart = null;
   }
   
   static legendItemHeight: number = 12;
@@ -173,6 +193,19 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     BasicWidget.resizeSubject.pipe(debounceTime(100)).subscribe(() => {
       BasicWidget.onResize();
     });
+  }
+  
+  static checkData({data}: any) {
+    if ( !(data.length - 1) || !(data[0].length - 1) ) {
+      //for 2D data
+      return true;
+    } else {
+      //for 1D data
+      let sum = data.sum || data.reduce((acc: number, d: any[]) => acc + d[1], 0);
+      if ( !data.length || !sum ) {
+        return true;
+      } return false;
+    }
   }
 };
 
