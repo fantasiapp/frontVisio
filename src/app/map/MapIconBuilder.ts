@@ -141,9 +141,9 @@ export class MapIconBuilder {
     let builder = new MapIconBuilder({
       width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
     });
-
-    this.legendArgs = LEGEND_ARGS[Params.rootLabel] || LEGEND_ARGS['default'];
-    let legend = this.legend = LEGEND[Params.rootLabel] || LEGEND['default'];
+    
+    this.legendArgs = LEGEND_ARGS[Params.rootNature] || LEGEND_ARGS['default'];
+    let legend = this.legend = LEGEND[Params.rootNature] || LEGEND['default'];
     for ( let [category, values] of Object.entries(legend) )
       builder.category(category, this.evaluateValues(category, values));
     
