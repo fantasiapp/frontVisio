@@ -196,7 +196,9 @@ class DEH{  // for DataExtractionHelper
     this.data = d;
     // à mettre dans le back
     let singleFields = ['dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
-    for (let field of Object.keys(this.data)) if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) this.fieldsToSwitchWithyear.push(field);
+    for (let field of Object.keys(this.data)) 
+      if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) 
+        this.fieldsToSwitchWithyear.push(field);
     console.log("[DataExtractionHelper] this.data updated")
     this.industriesReverseDict = {};
     for (let [industrieId, industrieName] of Object.entries(DEH.get('industry')))
@@ -211,8 +213,7 @@ class DEH{  // for DataExtractionHelper
         this.structuresDict[field] = structureDict;
       }    
     let structure = this.get('structureLevel');
-    this.delayBetweenUpdates = this.getParam('delayBetweenUpdates');
-    
+    this.delayBetweenUpdates = this.getParam('delayBetweenUpdates');    
     this.geoLevels = [];
     this.tradeLevels = [];
     let geolevel = this.get('levelGeo');
@@ -220,35 +221,28 @@ class DEH{  // for DataExtractionHelper
       this.geoLevels.push(geolevel.slice(0, structure.length-1));
       if (!(geolevel = geolevel[this.getPositionOfAttr('structureLevel', 'subLevel')])) break;
     }
-
     let tradeLevel = this.get('levelTrade');
     while (true){
       this.tradeLevels.push(tradeLevel.slice(0, structure.length-1));
       if (!(tradeLevel = tradeLevel[this.getPositionOfAttr('structureLevel', 'subLevel')])) break;
     }
-
     this.geoHeight = this.geoLevels.length;
     this.tradeHeight = this.tradeLevels.length;
   }
-
+  
   static resetData(){
     this.currentYear = true;
   }
 
   static updateData(data: UpdateData) {    
     // Check how deletions are managed 
-    for(let [newPdvId, newPdv] of Object.entries(data.pdvs)) {
-          this.data.pdvs[newPdvId] = newPdv;
-    }
-    for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinitions', 'targetLevelDrv']) {
-      for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType])) {
-            this.get(targetType)[newTargetId] = newTarget;
-      }
-    }
-
+    for(let [newPdvId, newPdv] of Object.entries(data.pdvs))
+      this.data.pdvs[newPdvId] = newPdv;
+    for(let targetType of ['targetLevelAgentP2CD', 'targetLevelAgentFinitions', 'targetLevelDrv'])
+      for(let [newTargetId, newTarget] of Object.entries((data as any)[targetType]))
+        this.get(targetType)[newTargetId] = newTarget;
     let localStorageService: LocalStorageService = new LocalStorageService();
     localStorageService.saveData(this.data)
-
     DEH.setData(this.data);
     PDV.load(true);
   }
@@ -440,16 +434,14 @@ export abstract class TreeExtractionHelper {
   levels: any[] = [];
   height: number = 0;
 
-  loadData() {
+  loadData(){
     let structure = DEH.get('structureLevel'),
-      level = DEH.get(this.data.levels);
-    
+      level = DEH.get(this.data.levels);    
     this.levels.length = 0;
     while (true){
       this.levels.push(level.slice(0, structure.length-1));
       if (!(level = level[DEH.getPositionOfAttr('structureLevel',  'subLevel')])) break;
     }
-
     this.height = this.levels.length;
     return DEH.get(this.data.tree);
   }
