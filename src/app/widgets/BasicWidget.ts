@@ -98,7 +98,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   
   update() {
     let data = this.updateData(), res;
-    if ( res = this.checkData(data) ) { this.chart = null; return }
+    if ( res = this.checkData(data) ) { this.chart?.destroy(); this.chart = null; return }
     if ( this.chart )
       this.updateGraph(data);
     else

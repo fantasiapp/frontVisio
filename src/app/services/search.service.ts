@@ -246,8 +246,8 @@ export class SearchService extends SubscriptionManager {
     for ( let level of DEH.geoLevels )
       if ( level[DEH.getPositionOfAttr('structureLevel',  'prettyPrint')] == pretty )
         return [level[DEH.getPositionOfAttr('structureLevel',  'levelName')], true];
-    
-    for ( let level of DEH.tradeLevels )
+
+        for ( let level of DEH.tradeLevels )
       if ( level[DEH.getPositionOfAttr('structureLevel',  'prettyPrint')] == pretty )
         return [level[DEH.getPositionOfAttr('structureLevel',  'levelName')], false];
     
@@ -262,7 +262,7 @@ export class SearchService extends SubscriptionManager {
         return [i, true];
     
     levels = DEH.tradeLevels;
-    for ( let i = 0; i < DEH.geoHeight; i++ )
+    for ( let i = 0; i < DEH.tradeHeight; i++ )
       if ( levels[i][DEH.getPositionOfAttr('structureLevel',  'prettyPrint')] == pretty )
         return [i, false];
     
@@ -307,7 +307,6 @@ export class SearchService extends SubscriptionManager {
 
   ngOnDestroy() {
     super.ngOnDestroy();
-    console.log('destrouyyyying');
   }
 
   // Modes

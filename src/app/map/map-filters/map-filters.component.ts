@@ -12,8 +12,8 @@ import { MapSelectComponent } from '../map-select/map-select.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapFiltersComponent {
-  criteriaNames = CRITERIA[Params.rootLabel] || CRITERIA['default'];
-  criteriaPrettyNames = CRITERIA_NAMES[Params.rootLabel] || CRITERIA_NAMES['default'];
+  criteriaNames = CRITERIA[Params.rootNature] || CRITERIA['default'];
+  criteriaPrettyNames = CRITERIA_NAMES[Params.rootNature] || CRITERIA_NAMES['default'];
   //actualy selected criteria
   criteria: [string, number[]][] = [];
 
