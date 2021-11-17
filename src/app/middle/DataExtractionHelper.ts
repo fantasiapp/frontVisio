@@ -194,10 +194,8 @@ class DEH{  // for DataExtractionHelper
   static setData(d: any){
     console.log('[DataExtractionHelper] setData:', d);
     this.data = d;
-    // à mettre dans le back
-    let singleFields = ['dashboards', 'layout', 'widget', 'widgetParams', 'widgetCompute', 'params', 'labelForGraph', 'axisForGraph', 'product', 'industry', 'ville', 'timestamp', 'root', 'industry'];
     for (let field of Object.keys(this.data)) 
-      if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && !singleFields.includes(field)) 
+      if (!field.startsWith('structure') && !field.startsWith('indexes') && !field.endsWith('_ly') && field.concat('_ly') in this.data) 
         this.fieldsToSwitchWithyear.push(field);
     console.log("[DataExtractionHelper] this.data updated")
     this.industriesReverseDict = {};
