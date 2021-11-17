@@ -4,6 +4,7 @@ import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
 // à démocker
+//axisForGraph
 const mainIndustries = {
   1: "Siniat",
   2: "Placo",
@@ -11,6 +12,7 @@ const mainIndustries = {
   4: "Challengers"
 }
 
+//axisForGraph
 const enduitIndustry = {
   1: "Salsi", 
   2: "Prégy", 
@@ -18,6 +20,7 @@ const enduitIndustry = {
   4: "Conquête"
 };
 
+//axisForGraph
 const segmentDnEnduit = {
   1: "Non documenté",
   2: "P2CD + Enduit",
@@ -25,12 +28,14 @@ const segmentDnEnduit = {
   4: "Pur prospect"
 }
 
+//axisForGraph
 const clientProspect = {
   1: "Non documenté",
   2: "Client",
   3: "Prospect"
 }
 
+//axisForGraph
 const clientProspectTarget = {
   1: "Potentiel ciblé",
   2: "Non documenté",
@@ -38,6 +43,7 @@ const clientProspectTarget = {
   4: "Prospect"
 }
 
+//axisForGraph
 const segmentDnEnduitTarget = {
   1: "Non documenté",
   2: "P2CD + Enduit",
@@ -47,11 +53,17 @@ const segmentDnEnduitTarget = {
   6: "Pur prospect"
 }
 
+//axisForGraph
 const enduitIndustryTarget = {
+  1: "Salsi", 
+  2: "Prégy", 
+  3: "Croissance", 
+  4: "Conquête",
   5: "Cible Croissance",
   6: "Cible Conquête"
 };
 
+//axisForGraph
 const industryTarget = {
   1: "Potentiel ciblé",
   2: "Siniat",
@@ -60,12 +72,14 @@ const industryTarget = {
   5: "Challengers"
 }
 
+//axisForGraph
 const suiviAD = {
   1: "Terminées",
   2: "Non mises à jour",
   3: "Non renseignées"
 }
 
+//axisForGraph
 const weeks = {
   1: "avant",
   2: "s-6",
@@ -77,26 +91,31 @@ const weeks = {
   8: "s-0",
 }
 
+//axisForGraph
 const histoCurve = {
   1: "Nombre de PdV complétés",
   2: "Cumul en pourcentage"
 }
 
+//filter
 const pointFeuFilter = {
   1: 'Non point Feu',
   2: 'Point feu'
 }
 
+//filter
 const visitedFilter = {
   1: 'Visité',
   2: 'Non visité'
 }
 
+//filter
 const ciblage = {
   1: 'Non ciblé',
   2: 'Ciblé'
 }
 
+//filter
 const industriel = {
   1: "Siniat",
   2: "Placo",
@@ -104,6 +123,7 @@ const industriel = {
   4: "Autres"
 }
 
+//filter
 const segmentMarketingFilter = {
   1: "Purs Spécialistes",
   2: "Multi Spécialistes",
@@ -111,6 +131,7 @@ const segmentMarketingFilter = {
   4: "Non documenté"
 }
 
+//axisForGraph
 const segmentDnEnduitTargetVisits = {
   1: "Non documenté",
   2: "Cible P2CD + Enduit",
@@ -120,6 +141,15 @@ const segmentDnEnduitTargetVisits = {
   6: "Cible Pur Prospect",
   7: "Pur prospect",
 }
+
+//axisForGraph
+const avancementAD = {0:""}
+
+//axisForGraph
+const visits = {0:""}
+
+//axisForGraph
+const targetedVisits = {0:""}
 
 export class Params {
   static get coeffGreenLight() {
@@ -352,10 +382,11 @@ class DEH{  // for DataExtractionHelper
       case 'typology': return segmentDnEnduit;
       case 'clientProspectTarget': return clientProspectTarget;
       case 'segmentDnEnduitTarget': return segmentDnEnduitTarget;
-      case 'enduitIndustryTarget': 
-        return Object.assign({}, enduitIndustry, enduitIndustryTarget);
+      case 'enduitIndustryTarget': return enduitIndustryTarget;
       case 'industryTarget': return industryTarget; 
-      case 'avancementAD': case 'visits': case 'targetedVisits': return {0:""};
+      case 'avancementAD': return avancementAD;
+      case 'visits': return visits;
+      case 'targetedVisits': return targetedVisits;
       default: {
         let data = this.data[fieldName];
         if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
