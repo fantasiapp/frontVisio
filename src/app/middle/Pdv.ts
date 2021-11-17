@@ -237,11 +237,11 @@ export class PDV extends SimplePdv{
       (child: any) => this.childrenOfNode(child)).reduce((a: PDV[], b: PDV[]) => a.concat(b), [])
   }
   
-  public getValue(indicator: string, axisName:string): (number | number[]){
+  public getValue(indicator: string, axisName:string, axis?:string[]): (number | number[]){
     let salesRepartition = this.computeSalesRepartition();
     if (nonRegularAxis.includes(axisName)){
-      if (dnLikeAxis.includes(axisName)) return this.computeDnLikeAxis(axisName!, indicator, salesRepartition);
-      else return this.computeIrregularAxis(axisName, salesRepartition);
+      if (dnLikeAxis.includes(axisName)) return this.computeDnLikeAxis(axisName!, indicator, salesRepartition, axis!);
+      else return this.computeIrregularAxis(axisName, salesRepartition, axis!);
     }
     switch(indicator){
       case 'dn': return 1;
@@ -281,10 +281,8 @@ export class PDV extends SimplePdv{
   }
   
   // a DN like axis is an axis for which a pdv is represented in a single categorie
-  private computeDnLikeAxis(axisName:string, indicator:string, params: {[key:string]:any}){
-    let axis: string[] = Object.values(DEH.get(axisName, true)),
-      repartition= new Array(axis.length).fill(0),
-      found = false, i = 0;
+  private computeDnLikeAxis(axisName:string, indicator:string, params: {[key:string]:any}, axis:string[]){
+    let repartition= new Array(axis.length).fill(0), found = false, i = 0;
     let value = (indicator == 'dn') ? 1: ((indicator == 'visits') ? this.nbVisits : 
       this.nbVisits * Math.max(params['totalP2cd'] * DEH.get("params")["ratioPlaqueFinition"], params['totalEnduit']))
     while (!found && i < repartition.length){
@@ -322,8 +320,8 @@ export class PDV extends SimplePdv{
     }
   }
 
-  private computeIrregularAxis(axisName:string, salesIndustries: {[key:string]:any}){
-    return (Object.values(DEH.get(axisName, true)) as string[]).map((element:string) => this.computeElement(element, salesIndustries, axisName));
+  private computeIrregularAxis(axisName:string, salesIndustries: {[key:string]:any}, axis:string[]){
+    return axis.map((element:string) => this.computeElement(element, salesIndustries, axisName));
   }
 
   private computeElement(element:string, salesRepartition:{[key:string]: number}, axisName:string){
@@ -353,8 +351,8 @@ export class PDV extends SimplePdv{
   }
 
   private segmentMarketingFilter(): number{
-    let dictSegment = DEH.get('segmentMarketingFilter'),
-      dictAllSegments = DEH.get('segmentMarketing');
+    let dictSegment = DEH.getFilter('segmentMarketingFilter'),
+      dictAllSegments = DEH.getFilter('segmentMarketing');
     let pdvSegment = this.segmentMarketing;
     let result = parseInt(DEH.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
     if (Number.isNaN(result)) result = 4;
@@ -362,8 +360,9 @@ export class PDV extends SimplePdv{
   }
 
   private typologyFilter():any{
-    let dnResult = this.getValue('dn', 'segmentDnEnduit') as number[],
-      typologyIds = Object.keys(DEH.get('segmentDnEnduit'));
+    let dnResult = this.getValue(
+        'dn', 'segmentDnEnduit', ["Non documenté", "P2CD + Enduit", "Enduit hors P2CD", "Pur prospect"]) as number[],
+      typologyIds = Object.keys(DEH.getFilter('segmentDnEnduit'));
     for (let i = 0; i < dnResult.length; i++)
       if (dnResult[i] == 1)
         return parseInt(typologyIds[i]);
@@ -374,29 +373,30 @@ export class PDV extends SimplePdv{
       industrieMax = 'Autres';
     for (let [industrie, sales] of Object.entries(salesRepartition))
       if (sales > salesRepartition[industrieMax]) industrieMax = industrie;
-    return parseInt(DEH.getKeyByValue(DEH.get('industriel'), industrieMax)!);
+    return parseInt(DEH.getKeyByValue(DEH.getFilter('industriel'), industrieMax)!);
   }
 
   private ciblageFilter(): number{
-    return (this.realTargetP2cd > 0) ? +DEH.getKeyByValue(DEH.get('ciblage'), 'Ciblé')!: 
-      +DEH.getKeyByValue(DEH.get('ciblage'), 'Non ciblé')!;
+    return (this.realTargetP2cd > 0) ? +DEH.getKeyByValue(DEH.getFilter('ciblage'), 'Ciblé')!: 
+      +DEH.getKeyByValue(DEH.getFilter('ciblage'), 'Non ciblé')!;
   }
 
   private pointFeuFilter(): number{
-    return this.pointFeu ? +DEH.getKeyByValue(DEH.get('pointFeuFilter'), 'Point feu')!: 
-      +DEH.getKeyByValue(DEH.get('pointFeuFilter'), 'Non point Feu')!;
+    return this.pointFeu ? +DEH.getKeyByValue(DEH.getFilter('pointFeuFilter'), 'Point feu')!: 
+      +DEH.getKeyByValue(DEH.getFilter('pointFeuFilter'), 'Non point Feu')!;
   }
 
   private visitedFilter(): number{
-    return (this.nbVisits > 0) ? +DEH.getKeyByValue(DEH.get('visited'), 'Visité')!: 
-      +DEH.getKeyByValue(DEH.get('visited'), 'Non visité')!;
+    return (this.nbVisits > 0) ? +DEH.getKeyByValue(DEH.getFilter('visited'), 'Visité')!: 
+      +DEH.getKeyByValue(DEH.getFilter('visited'), 'Non visité')!;
   }
   
   clientProspectFilter(index=false){
-    let dnResult = this.getValue('dn', 'clientProspect') as number[],
-    clientProspectDict = DEH.get('clientProspect');
+    let dnResult = 
+        this.getValue('dn', 'clientProspect', ["Non documenté", "Client", "Prospect"]) as number[],
+      clientProspectDict = DEH.getFilter('clientProspect');
     let clientProspectAxis = Object.values(clientProspectDict),
-    clientProspectIds = Object.keys(clientProspectDict);
+      clientProspectIds = Object.keys(clientProspectDict);
     for (let i = 0; i < dnResult.length; i++)
     if (dnResult[i] == 1)
     return (index) ? parseInt(clientProspectIds[i]): clientProspectAxis[i];

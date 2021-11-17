@@ -24,29 +24,31 @@ export class SliceDice{
     SliceDice.currentSlice = PDV.slice(node);
   }
 
-  getWidgetData(axis1:string, axis2:string, indicator:string, groupsAxis1:(number|string[]), 
+  getWidgetData(axisName1:string, axisName2:string, indicator:string, groupsAxis1:(number|string[]), 
       groupsAxis2:(number|string[]), percentIndicator:string, transpose=false, 
       target=false, addConditions:[string, number[]][] = []){
  
-    let colors; [colors, groupsAxis1, groupsAxis2] = this.extractInfoFromGroupAxis(
-      groupsAxis1, groupsAxis2);
+    let colors1, colors2, axis1, axis2;
+    [colors1, axis1, groupsAxis1] = this.extractInfoFromGroupAxis(groupsAxis1);
+    [colors2, axis2, groupsAxis2] = this.extractInfoFromGroupAxis(groupsAxis2);
+    let colors = colors1 ? colors1: (colors2 ? colors2: undefined);
     let dataWidget = this.getDataFromPdvs(
-      axis1, axis2, indicator.toLowerCase(), addConditions);
+      axisName1, axisName2, indicator.toLowerCase(), addConditions, axis1, axis2);
     let km2 = !dnIndicators.includes(indicator) ? true : false, 
-      sortLines = (percentIndicator !== 'classic') && (axis1 != 'suiviAD');
-    dataWidget.widgetTreatement(km2, sortLines, (axis1 !== 'histoCurve') ? 'all': 'no', 
+      sortLines = (percentIndicator !== 'classic') && (axisName1 != 'suiviAD');
+    dataWidget.widgetTreatement(km2, sortLines, (axisName1 !== 'histoCurve') ? 'all': 'no', 
       groupsAxis1 as string[], groupsAxis2 as string[]);
     let sum = dataWidget.getSum();
     // it is important to collect the piece of information below before changing dataWidget in percent
-    let targetsStartingPoint = dataWidget.getTargetStartingPoint(axis1); 
+    let targetsStartingPoint = dataWidget.getTargetStartingPoint(axisName1); 
     if (percentIndicator == 'classic') dataWidget.percent(); 
     else if (percentIndicator == 'cols') dataWidget.percent(true);
     let [rodPosition, rodPositionForCiblage, targetLevel] = this.computeTargetElements(
-      axis1, axis2, dataWidget, sum, targetsStartingPoint, target, indicator);    
+      axisName1, axisName2, dataWidget, sum, targetsStartingPoint, target, indicator);    
     if (typeof(sum) !== 'number') sum = 0;
     return {
       data: dataWidget.formatWidgetForGraph(
-        SliceDice.currentNode, transpose, axis1, SliceDice.currentSlice.length), 
+        SliceDice.currentNode, transpose, axisName1, SliceDice.currentSlice.length), 
       sum: sum, target: rodPosition, colors: colors, targetLevel: targetLevel, ciblage: rodPositionForCiblage, 
       threshold: this.getThresholdsForGauge(indicator)
     }    
@@ -129,43 +131,43 @@ export class SliceDice{
     }
   }
 
-  private extractInfoFromGroupAxis(groupsAxis1: number|string[], 
-      groupsAxis2: number|string[]){
+  private extractInfoFromGroupAxis(groupsAxis: number|string[]){
 
-    if (![typeof(groupsAxis1), typeof(groupsAxis2)].includes('number')) 
-      return [undefined, groupsAxis1, groupsAxis2];
-    let groupsAxis = (typeof(groupsAxis1) == 'number') ? groupsAxis1: groupsAxis2;
+    if (typeof(groupsAxis) !== 'number') return [undefined, undefined, groupsAxis];
     let labelsIds = DEH.get('axisForGraph')[+groupsAxis]
       [DEH.getPositionOfAttr('structureAxisforgraph', 'labels')];
     groupsAxis = labelsIds.map(
       (labelId:number) => DEH.get('labelForGraph')
-        [labelId][DEH.getPositionOfAttr('structureLabelforgraph', 'label')]);
+        [labelId][DEH.getPositionOfAttr('structureLabelforgraph', 'label')]) as string[];
     let colors = labelsIds.map(
       (labelId:number) => DEH.get('labelForGraph')
         [labelId][DEH.getPositionOfAttr('structureLabelforgraph', 'color')]);
-    if (typeof(groupsAxis1) == 'number') groupsAxis1 = groupsAxis; 
-    else groupsAxis2 = groupsAxis;
-    return [colors, groupsAxis1, groupsAxis2];
+    let orderForCompute = labelsIds.map(
+      (labelId:number) => DEH.get('labelForGraph')
+        [labelId][DEH.getPositionOfAttr('structureLabelforgraph', 'orderForCompute')]);
+    let axis = new Array(orderForCompute.length).fill("");
+    for (let i = 0; i < axis.length; i++) axis[orderForCompute[i]] = groupsAxis[i];
+    return [colors, axis, groupsAxis];
   }
   
-  private fillUpWidget(dataWidget: DataWidget, axis1:string, axis2:string, 
-    indicator:string, addConditions:[string, number[]][]): void{
+  private fillUpWidget(dataWidget: DataWidget, axisName1:string, axisName2:string, 
+    indicator:string, addConditions:[string, number[]][], axis1?:string[], axis2?:string[]): void{
 
     let newPdvs = (addConditions.length == 0) ? SliceDice.currentSlice: 
       PDV.reSlice(SliceDice.currentSlice, addConditions);
     let irregular: 'no'|'line'|'col' = 'no';
-    if (nonRegularAxis.includes(axis1)) irregular = 'line';
-    else if (nonRegularAxis.includes(axis2)) irregular = 'col';
+    if (nonRegularAxis.includes(axisName1)) irregular = 'line';
+    else if (nonRegularAxis.includes(axisName2)) irregular = 'col';
     for (let pdv of newPdvs){
       if (irregular == 'no') 
         dataWidget.addOnCase(
-          pdv[axis1 as keyof PDV], pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1) as number);
+          pdv[axisName1 as keyof PDV], pdv[axisName2 as keyof PDV], pdv.getValue(indicator, axisName1) as number);
       else if (irregular == 'line') 
         dataWidget.addOnColumn(
-          pdv[axis2 as keyof PDV], pdv.getValue(indicator, axis1) as number[]);
+          pdv[axisName2 as keyof PDV], pdv.getValue(indicator, axisName1, axis1) as number[]);
       else if (irregular == 'col') 
         dataWidget.addOnRow(
-          pdv[axis1 as keyof PDV], pdv.getValue(indicator, axis2) as number[]);
+          pdv[axisName1 as keyof PDV], pdv.getValue(indicator, axisName2, axis2) as number[]);
     }
   }
 
@@ -189,12 +191,13 @@ export class SliceDice{
     return [axis, titles, idToX];
   }
 
-  private getDataFromPdvs(axis1: string, axis2: string, indicator: string,
-      addConditions:[string, number[]][]): DataWidget{
-    let [newAxis1, rowsTitles, idToI] = this.computeElementFromAxis(axis1),
-        [newAxis2, columnsTitles, idToJ] = this.computeElementFromAxis(axis2);
+  private getDataFromPdvs(axisName1: string, axisName2: string, indicator: string, addConditions:[string, number[]][],
+      axis1?:string[], axis2?:string[]): DataWidget{
+
+    let [newAxis1, rowsTitles, idToI] = this.computeElementFromAxis(axisName1),
+        [newAxis2, columnsTitles, idToJ] = this.computeElementFromAxis(axisName2);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
-    this.fillUpWidget(dataWidget, newAxis1, newAxis2, indicator, addConditions);
+    this.fillUpWidget(dataWidget, newAxis1, newAxis2, indicator, addConditions, axis1, axis2);
     return dataWidget;
   }  
 };
