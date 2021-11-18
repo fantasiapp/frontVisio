@@ -44,9 +44,9 @@ export class MapFiltersComponent {
     let criterion = this.criteriaNames[index],
       result = this.liveDict[criterion];
     
-    if ( !result ) return [];
+    if ( !Object.keys(result).length ) return [];
 
-    let dict = DEH.get(criterion);
+    let dict = DEH.getFilter(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
       [key, dict[key]]
     ).sort((a, b) => {

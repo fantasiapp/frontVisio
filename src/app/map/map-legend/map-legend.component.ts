@@ -48,10 +48,10 @@ export class MapLegendComponent implements Updatable {
     if ( !dict || !keys.length ) return;
     let category = keys[0].split('.')[0],
       ids = keys.map(key => +key.split('.')[1]),
-      mapping = DEH.get(category),
+      mapping = DEH.getFilter(category),
       values;
     
-    if ( mapping ) {
+    if ( Object.keys(mapping).length ) {
       ids.sort((x, y) => 1-2*+(mapping[x] < mapping[y]));
       values = ids.map(id => mapping[id]);
     } else {

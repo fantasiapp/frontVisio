@@ -354,6 +354,10 @@ class DEH{  // for DataExtractionHelper
     return this.get('params')[param];
   }
 
+  static isRegularAxis(axisName:string):boolean{
+    return axisName in this.data;
+  }
+
   static getAttribute(field:string, id:number, attribute:string){
     let structureField = this.getStructure(field),
       idAttribute = structureField.indexOf(attribute);

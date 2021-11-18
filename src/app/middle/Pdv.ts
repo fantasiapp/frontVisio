@@ -151,7 +151,7 @@ export class PDV extends SimplePdv{
   get clientProspect(){return this.clientProspectFilter(true)}
 
   // to avoid specific cases for some axis
-  get histoCurve(){return 1}
+  get histoCurve(){return 0}
   get avancementAD(){return 0}
   get visits(){return 0}
   get targetedVisits(){return 0}
@@ -355,7 +355,7 @@ export class PDV extends SimplePdv{
       dictAllSegments = DEH.getFilter('segmentMarketing');
     let pdvSegment = this.segmentMarketing;
     let result = parseInt(DEH.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
-    if (Number.isNaN(result)) result = 4;
+    if (Number.isNaN(result)) result = 3;
     return result;
   }
 

@@ -122,10 +122,10 @@ export class MapIconBuilder {
   }
 
   static evaluateValues(category: string, values: any) {
-    let mapping = DataExtractionHelper.get(category),
+    let mapping = DataExtractionHelper.getFilter(category),
       result: [number, any][] = [];
     
-    if ( mapping ) {
+    if (Object.keys(mapping).length) {
       for ( let [key, value] of Object.entries(values) )
         result.push([+DataExtractionHelper.getKeyByValue(mapping, key)!, value]);
     } else {
@@ -198,7 +198,6 @@ let LEGEND: {[key: string]: any} = {
     }
   }
 };
-let idNonDoc = +DEH.getKeyByValue(DEH.get('clientProspect'), "Non documenté")!;
 let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = {
   agentFinitions: [
     ['visited',  (visited: number) => +(visited != 2)],
@@ -206,7 +205,7 @@ let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = 
   ],
   default: [
     'industriel',
-    ['clientProspect', (prospect: number) => +(prospect == idNonDoc)],
+    ['clientProspect', (prospect: number) => +(prospect == +DEH.getKeyByValue(DEH.getFilter('clientProspect'), "Non documenté")!)],
     'pointFeu',
     'segmentMarketing'
   ]
