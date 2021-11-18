@@ -1,6 +1,7 @@
-import DEH from "../middle/DataExtractionHelper";
-import DataExtractionHelper, { Params } from "../middle/DataExtractionHelper";
+import { Utils } from "../interfaces/Common";
+import DEH, { Params } from "../middle/DataExtractionHelper";
 import { PDV } from "../middle/Pdv";
+import { BasicWidget } from "../widgets/BasicWidget";
 
 //static class that builds icons
 export class MapIconBuilder {
@@ -122,17 +123,18 @@ export class MapIconBuilder {
   }
 
   static evaluateValues(category: string, values: any) {
-    let mapping = DataExtractionHelper.get(category),
-      result: [number, any][] = [];
-    
-    if ( mapping ) {
-      for ( let [key, value] of Object.entries(values) )
-        result.push([+DataExtractionHelper.getKeyByValue(mapping, key)!, value]);
-    } else {
-      result = Object.values(values).map((value, idx) => [idx, value]);
-    }
+    let mapping = DEH.getFilter(category);
 
-    return result;
+    if ( !Utils.shallowObjectEquality(mapping, {}) ) {
+      let result: [number, any][] = [];
+      for ( let [key, value] of Object.entries(values) )
+        result.push([+DEH.getKeyByValue(mapping, key)!, value]);
+      return result;
+    } else {
+      return Object.values(values).map((value, index) => {
+        return [index, value]
+      });
+    }
   }
 
   static legend: any;
@@ -163,7 +165,7 @@ export class MapIconBuilder {
         result.push(transform(pdv.filterProperty(prop)));
       }
     }
-    return this.instance!.get(result);
+    return this.instance.get(result);
   }
 
   private static _instance: MapIconBuilder | null = null;
@@ -198,7 +200,6 @@ let LEGEND: {[key: string]: any} = {
     }
   }
 };
-let idNonDoc = +DEH.getKeyByValue(DEH.get('clientProspect'), "Non documenté")!;
 let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = {
   agentFinitions: [
     ['visited',  (visited: number) => +(visited != 2)],
@@ -206,7 +207,7 @@ let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = 
   ],
   default: [
     'industriel',
-    ['clientProspect', (prospect: number) => +(prospect == idNonDoc)],
+    ['clientProspect', (prospect: number) => +(prospect == +DEH.getKeyByValue(DEH.getFilter('clientProspect'), "Non documenté")!)],
     'pointFeu',
     'segmentMarketing'
   ]

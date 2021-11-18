@@ -389,7 +389,11 @@ class DEH{  // for DataExtractionHelper
     //   case 'targetedVisits': return targetedVisits;
     //   default: {
     let data = this.data[fieldName];
-    if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data;
+    if ( !data ) {
+      console.warn(fieldName, 'retrieval failed, trying get with axis for graph.');
+      console.warn('setting the value of', fieldName, 'to', data = this.getFilter(fieldName) || {});
+    }
+    if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data; 
     let names: any = {},
       nameIndex = this.getStructure(field).indexOf('name');
     for (let [id, list] of Object.entries<any[]>(data)) names[id] = list[nameIndex];

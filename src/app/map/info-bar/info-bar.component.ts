@@ -14,6 +14,7 @@ import {
   animate,
   transition,
 } from '@angular/animations';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'info-bar',
@@ -188,11 +189,11 @@ export class InfoBarComponent {
 
   format(entry: number) {
     if(!entry) return ''
-    return BasicWidget.format(entry, 3, true);
+    return Utils.format(entry, 3, true);
   }
 
   convert(entry: string) {
-    return BasicWidget.convert(entry);
+    return Utils.convert(entry);
   }
 
   quit(save: boolean) {

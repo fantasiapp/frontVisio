@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectorRef, Injector } from '@angular/core';
 import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { PDV } from 'src/app/middle/Pdv';
@@ -8,6 +8,7 @@ import { BasicWidget } from '../BasicWidget';
 import { AsyncSubject } from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'app-table',
@@ -42,8 +43,8 @@ export class TableComponent extends BasicWidget {
   gridLoaded = new AsyncSubject<null>();
 
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected sliceTable: SliceTable, private cd: ChangeDetectorRef) {
-    super(ref, filtersService, sliceDice);
+  constructor(protected injector: Injector, protected sliceTable: SliceTable) {
+    super(injector);
     
     /** Static properties of the ag-grid component **/
     this.gridOptions = {
@@ -144,8 +145,8 @@ export class TableComponent extends BasicWidget {
   /** Called whenever the title should be updated */ 
   private renderTitle() {
     let titleData = this.sliceTable.computeTitle(this.type);
-    if(this.type === 'p2cd') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, Siniat : ${BasicWidget.format(titleData[1]/1000)}, sur un total identifié de ${BasicWidget.format(titleData[2]/1000)} en Km²`;
-    if(this.type === 'enduit') this.titleContainer!.nativeElement.innerText = `PdV: ${BasicWidget.format(titleData[0])}, ciblé : ${BasicWidget.format(titleData[1]/1000, 3, true)} Tonnes, sur un potentiel de ${BasicWidget.format(titleData[2]/1000)} en Tonnes`
+    if(this.type === 'p2cd') this.titleContainer!.nativeElement.innerText = `PdV: ${Utils.format(titleData[0])}, Siniat : ${Utils.format(titleData[1]/1000)}, sur un total identifié de ${Utils.format(titleData[2]/1000)} en Km²`;
+    if(this.type === 'enduit') this.titleContainer!.nativeElement.innerText = `PdV: ${Utils.format(titleData[0])}, ciblé : ${Utils.format(titleData[1]/1000, 3, true)} Tonnes, sur un potentiel de ${Utils.format(titleData[2]/1000)} en Tonnes`
   }
 
   /** Sets the necessary cellRenderer / valueFormatter for the grid columns */
@@ -161,15 +162,15 @@ export class TableComponent extends BasicWidget {
 
             case 'siniatSales':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Siniat : ' + BasicWidget.format(params.value/1000, 3, true) + " km²";
-                return BasicWidget.format(params.value/1000, 3, true)  + " m²";
+                if(params.data.groupRow === true) return 'Siniat : ' + Utils.format(params.value/1000, 3, true) + " km²";
+                return Utils.format(params.value/1000, 3, true)  + " m²";
               }
               break;
 
             case 'totalSales':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Identifie : ' + BasicWidget.format(params.value/1000, 3, true) + " km²";
-                else return BasicWidget.format(params.value/1000, 3, true)  + " m²";
+                if(params.data.groupRow === true) return 'Identifie : ' + Utils.format(params.value/1000, 3, true) + " km²";
+                else return Utils.format(params.value/1000, 3, true)  + " m²";
               }
               break;
 
@@ -203,7 +204,7 @@ export class TableComponent extends BasicWidget {
             
             case 'graph':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow ===  true) return "Cible : " + BasicWidget.format(params.value/1000, 3, true) + " T"
+                if(params.data.groupRow ===  true) return "Cible : " + Utils.format(params.value/1000, 3, true) + " T"
                 return params.value;
               }
               cd.cellRendererSelector = function (params: any) {
@@ -221,8 +222,8 @@ export class TableComponent extends BasicWidget {
             
             case 'potential':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + BasicWidget.format(params.value/1000, 3, true) + ' T'
-                return BasicWidget.format(params.value/1000, 3, true) + ' T'
+                if(params.data.groupRow === true) return 'Sur un potentiel de: ' + Utils.format(params.value/1000, 3, true) + ' T'
+                return Utils.format(params.value/1000, 3, true) + ' T'
               }
               break;
             case 'nbVisits':
@@ -244,13 +245,13 @@ export class TableComponent extends BasicWidget {
       Object.entries(graphValue[TableTypes.p2cd]).map(
         (entry: any) => [
           entry[0],
-          {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}
+          {value: entry[1].value = Utils.format(entry[1].value, 3, true), color: entry[1].color}
         ]
       ),
       Object.entries(graphValue[TableTypes.enduit]).map(
         (entry: any) => [
           entry[0],
-          {value: entry[1].value = BasicWidget.format(entry[1].value, 3, true), color: entry[1].color}
+          {value: entry[1].value = Utils.format(entry[1].value, 3, true), color: entry[1].color}
         ]
       )
     ]

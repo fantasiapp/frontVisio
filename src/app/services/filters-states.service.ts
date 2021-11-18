@@ -21,7 +21,6 @@ export class FiltersStatesService extends SubscriptionManager {
     super();
     //console.log('[FiltersStates]: On.');
     this.subscribe(this.dataservice.response, (data) => {
-      console.log('got new data');
       if (data) {
         DEH.setData(data);
         PDV.load(true);

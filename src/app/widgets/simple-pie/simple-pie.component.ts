@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
-
-import bb, {pie} from 'billboard.js';
+import bb, {DataItem, pie} from 'billboard.js';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'app-simple-pie',
@@ -14,29 +12,26 @@ import bb, {pie} from 'billboard.js';
 })
 
 export class SimplePieComponent extends BasicWidget {
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
-    super(ref, filtersService, sliceDice);
+  constructor(protected injector: Injector) {
+    super(injector);    
   }
+  
 
-  createGraph({data, colors}: {data: any[], colors?: string[]}, opt: {} = {}) {
-    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    this.chart = bb.generate({
+  createGraph({data, colors}: {data: any[], colors: string[]}, opt: {} = {}) {
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();
+    let self = this;
+    let blueprint = {
       bindto: this.content.nativeElement,
       data: {
         columns: data,
         type: pie(),
-        order: null
+        order: null,
+        onclick(item: DataItem) {
+          self.toggleTooltipOnClick(item);
+        }
       },
       tooltip: {
-        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          const data = d[0];
-          return `
-            <div class="tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}
-              <div class="tooltip-tail"></div>
-            </div>
-          `;
-        }
+        show: false
       },
       //remove labels on slices
       pie: {
@@ -53,7 +48,7 @@ export class SimplePieComponent extends BasicWidget {
       //disable clicks on legend
       legend: {
         item: {
-          onclick() {},
+          onclick(id: string) {  },
           tile: { }
         },
         position: 'inset',
@@ -70,14 +65,15 @@ export class SimplePieComponent extends BasicWidget {
         //initial rendering bug
         this.chart!.config('onrendered', null);
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 20 + (data.length - 0.5) * BasicWidget.legendItemHeight);
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
-      },
-      // add opt
-      ...opt
-    });
+        this.clearTooltips();
+      }
+    };
+
+    this.chart = bb.generate(Utils.dictDeepMerge(blueprint, opt));
   }
 };

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, SimpleChange, SimpleChanges } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Updatable } from 'src/app/interfaces/Common';
+import { Updatable, Utils } from 'src/app/interfaces/Common';
 import DEH from 'src/app/middle/DataExtractionHelper';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { MapIconBuilder } from '../MapIconBuilder';
 
 let PropertyIterator = function(this: any) {
@@ -48,14 +49,19 @@ export class MapLegendComponent implements Updatable {
     if ( !dict || !keys.length ) return;
     let category = keys[0].split('.')[0],
       ids = keys.map(key => +key.split('.')[1]),
-      mapping = DEH.get(category),
+      mapping = DEH.getFilter(category),
       values;
     
-    if ( mapping ) {
+    if ( !Utils.shallowObjectEquality(mapping, {}) ) {
       ids.sort((x, y) => 1-2*+(mapping[x] < mapping[y]));
       values = ids.map(id => mapping[id]);
     } else {
-      values = ids.map(id => id ? 'Oui' : 'Non');
+      ids.sort();
+      //try to interpret result
+      if ( ids.length == 2 && !ids[0] && ids[1] )
+        values = ids.map(id => id ? 'Oui' : 'Non');
+      else
+        throw `Unable to find category ${category}.`;
     }
     this.categories[category] = [values, ids.map(id => dict[category + '.' + id]['icon'].url)];
     this.findCategories(dict[category + '.' + ids[0]]);

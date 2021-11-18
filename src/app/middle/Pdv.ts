@@ -355,7 +355,7 @@ export class PDV extends SimplePdv{
       dictAllSegments = DEH.getFilter('segmentMarketing');
     let pdvSegment = this.segmentMarketing;
     let result = parseInt(DEH.getKeyByValue(dictSegment, dictAllSegments[pdvSegment])!);
-    if (Number.isNaN(result)) result = 4;
+    if (Number.isNaN(result)) result = 3;
     return result;
   }
 

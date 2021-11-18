@@ -1,9 +1,10 @@
-import { Component, HostBinding, Output, EventEmitter, ViewChildren, QueryList, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, HostBinding, Output, EventEmitter, ViewChildren, QueryList, ElementRef, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
 import { LoggerService } from 'src/app/services/logger.service';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import DEH, { Params } from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { MapSelectComponent } from '../map-select/map-select.component';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'map-filters',
@@ -32,6 +33,10 @@ export class MapFiltersComponent {
 
   ngAfterViewInit() { this.update(); }
 
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('$ changes:', changes);
+  }
+
   update() {
     this.pdvs = [...PDV.getInstances().values()];
     this.selects.forEach(select => select.reset());
@@ -44,9 +49,9 @@ export class MapFiltersComponent {
     let criterion = this.criteriaNames[index],
       result = this.liveDict[criterion];
     
-    if ( !result ) return [];
+    if ( Utils.shallowObjectEquality(result, {}) ) return [];
 
-    let dict = DEH.get(criterion);
+    let dict = DEH.getFilter(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
       [key, dict[key]]
     ).sort((a, b) => {

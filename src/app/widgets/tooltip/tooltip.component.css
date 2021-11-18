@@ -1,0 +1,33 @@
+:host {
+    display: block;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    position: fixed;
+    pointer-events: none;
+    width: fit-content;
+    z-index: 99;
+}
+
+.tooltip {
+    padding: 6px 8px;
+    transform: translate(-50%, 10px);
+    box-shadow: -1px 1px 10px 0 #333;
+}
+
+
+.item {
+    display: block;
+}
+
+.item-color-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    margin: 0 5px;
+}
+
+.item-body {
+    vertical-align: middle;
+}

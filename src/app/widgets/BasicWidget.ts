@@ -1,32 +1,45 @@
-import { Directive, ElementRef, ViewChild } from "@angular/core";
-import { Chart } from "billboard.js";
+import { ChangeDetectorRef, ComponentFactoryResolver, ComponentRef, Directive, ElementRef, HostListener, Inject, Injector, ViewChild, ViewContainerRef } from "@angular/core";
+import { Chart, DataItem, DataRow } from "billboard.js";
 import * as d3 from "d3";
 import { Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import { FiltersStatesService } from "../services/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
-import { Updatable } from "../interfaces/Common";
+import { Updatable, Utils } from "../interfaces/Common";
 import { Node } from "../middle/Node";
 import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
+import { TooltipItem, TooltipComponent } from "./tooltip/tooltip.component";
 
 @Directive()
 export abstract class BasicWidget extends GridArea implements Updatable {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
+  @ViewChild('tooltips', {read: ViewContainerRef})
+  tooltipsVcref!: ViewContainerRef;
+
+  //Essential services to compute the widget
   protected ref: ElementRef;
   protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
+  protected cd: ChangeDetectorRef;
+  //The actual graph
   protected chart: Chart | null = null;
   /* for processing @sum and similar */
   protected dynamicDescription: boolean = false;
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
+  // Keep a list of active tooltips in the same order in the view
+  // This is new, try to clean more code
+  protected tooltips: {[key: string]: ComponentRef<TooltipComponent>} = {};
   
-  constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
+  constructor(protected injector: Injector) {
     super();
-    this.ref = ref; this.filtersService = filtersService; this.sliceDice = sliceDice;
+    this.ref = injector.get(ElementRef);
+    this.filtersService = injector.get(FiltersStatesService);
+    this.sliceDice = injector.get(SliceDice);
+    this.cd = injector.get(ChangeDetectorRef);
   }
 
   onReady() {
@@ -53,7 +66,8 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   
   updateGraph({data}: any): void {
     let newIds = data.map((d: any[]) => d[0]);
-    let oldIds = Object.keys(this.chart?.xs() || {});
+    let oldIds = (this.chart?.data() || []).map(datum => datum.id);
+    this.clearTooltips();
     this.schedule.queue(() => {
       this.chart?.load({
         columns: data,
@@ -71,11 +85,10 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   }
   
   updateData(): {} {
-    this.chart && this.chart.tooltip && this.chart.tooltip.hide();
     let data = this.sliceDice.getWidgetData(...this.getDataArguments());
 
     if ( this.dynamicDescription ) {
-      this.properties.description = BasicWidget.format(data.sum, 3, this.properties.unit.toLowerCase() == 'pdv') + ' ' + this.properties.unit;
+      this.properties.description = Utils.format(data.sum, 3, this.properties.unit.toLowerCase() == 'pdv') + ' ' + this.properties.unit;
       this.setSubtitle(this.properties.description);
     }; return data;
   }
@@ -88,6 +101,97 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     d3.select(this.ref.nativeElement).select('div:nth-of-type(1) p').text(subtitle);
   }
 
+  //I don't think using injectors here will impact performance in any way
+  protected addTooltipAt(items: TooltipItem[], id: string, left: number = 0, top: number = 0) {
+    let componentFactoryResolver = this.injector.get(ComponentFactoryResolver);
+    let factory = componentFactoryResolver.resolveComponentFactory(TooltipComponent),
+      component = this.tooltipsVcref.createComponent(factory);
+    
+    component.instance.contents = items;
+    component.instance.setPosition({left, top})
+    this.tooltipsVcref.insert(component.hostView);
+    if ( this.tooltips[id] ) throw "[BasicWidget]-addTooltipAt: Adding tooltip to the same element " + id + '.';
+    else this.tooltips[id] = component;
+    this.injector.get(ChangeDetectorRef).detectChanges();
+    return component;
+  }
+  
+  protected addMultipleTooltipsAt(items: TooltipItem[], ids: string[], left: number = 0, top: number = 0) {
+    let tooltip = this.addTooltipAt(items, ids[0], left, top);
+    for ( let item of items )
+      this.tooltips[item.title] = tooltip;
+    return tooltip;
+  }
+
+  protected removeTooltip(id: string) {
+    let tooltip = this.tooltips[id];
+    if ( !tooltip ) return false;
+
+    for ( let id of Object.keys(this.tooltips) ) {
+      if ( this.tooltips[id] == tooltip )
+        delete this.tooltips[id];
+    }
+    this.tooltipsVcref.remove(this.tooltipsVcref.indexOf(tooltip.hostView)); 
+    this.injector.get(ChangeDetectorRef).detectChanges();
+    return true;
+  }
+
+  protected clearTooltips() {
+    while ( this.tooltipsVcref.length )
+      this.tooltipsVcref.remove();
+    this.tooltips = {};
+    this.injector.get(ChangeDetectorRef).detectChanges();
+  }
+
+  //subclasses with specialize if needed
+  protected onDataClicked(items: DataItem[]) {
+    let event = BasicWidget.lastClickEvent! as PointerEvent;
+    let tooltips: TooltipItem[] = [],
+      deleted = [];
+
+    for ( let item of items ) {
+      if ( this.tooltips[item.id] ) { this.removeTooltip(item.id); deleted.push(item.id); }
+    
+      let title = item.id,
+        color = this.chart!.color(item.id),
+        body = `: ${Utils.format(item.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}`;
+      
+      tooltips.push({
+        color,
+        title,
+        body
+      });
+
+    }
+
+    if ( !tooltips.length ) return;
+    else if ( tooltips.length == 1 ) {
+      //add only if elements isnt deleted
+      if ( !deleted.includes(items[0].id) )
+        this.addTooltipAt(tooltips, items[0].id, event.clientX, event.clientY);
+    }
+    else this.addMultipleTooltipsAt(tooltips, items.map(item => item.id), event.clientX, event.clientY);
+  }
+
+  //wrapper around the ugly setTimeout here
+  //The library calls onclick multiple times if an object
+  //is on the interaction boundary of another so track the calls
+  private tooltipClicked: any = null;
+  private tooltipDelay: number = 0;
+  private tooltipQueue: DataItem[] = [];
+
+  protected toggleTooltipOnClick(item: DataItem) {
+    if ( this.tooltipClicked !== null )
+      clearTimeout(this.tooltipClicked);
+
+    this.tooltipQueue.push(item);
+    this.tooltipClicked = setTimeout(() => {
+      this.onDataClicked(this.tooltipQueue);
+      this.tooltipClicked = null;
+      this.tooltipQueue.length = 0;
+    }, this.tooltipDelay);
+  }
+
   protected checkData(data: any) {
     let res = BasicWidget.checkData(data);
     if ( res && this.content )
@@ -97,8 +201,9 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   }
   
   update() {
-    let data = this.updateData(), res;
-    if ( res = this.checkData(data) ) { this.chart?.destroy(); this.chart = null; return }
+    this.clearTooltips();
+    let data = this.updateData();
+    if ( this.checkData(data) ) { return }
     if ( this.chart )
       this.updateGraph(data);
     else
@@ -115,6 +220,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   
   noData(content: ElementRef) {
     console.log('[BasicWidget -- noData]: No data is supplied, this is most probably a error.');
+    this.chart?.destroy(); this.chart = null;
     d3.select(content.nativeElement).selectChildren('*').remove();
     content.nativeElement.innerHTML = `
       <div class="nodata">Il n'y a pas de données.</div>
@@ -123,25 +229,6 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   }
   
   static legendItemHeight: number = 12;
-  static shallowArrayEquality(obj: any[], other: any[]): boolean {
-    let l = obj.length;
-    if ( l != other.length ) return false;
-    for ( let i = 0; i < l; i++ )
-    if ( obj[i] != other[i] ) return false;
-    return true;
-  }
-  
-  static shallowObjectEquality(obj: {[key:string]:any}, other: {[key:string]: any}): boolean {
-    let objKeys: string[] = Object.keys(obj),
-    otherKeys: string[] = Object.keys(other);
-    
-    if ( !this.shallowArrayEquality(objKeys, otherKeys) ) return false;
-    for ( let key of objKeys )
-      if ( obj[key] != other[key] ) return false;
-    
-    return true;
-  }
-
   static getLegendItemHeight(width: number) {
     if ( width < 1366 )
       return 12;
@@ -151,33 +238,8 @@ export abstract class BasicWidget extends GridArea implements Updatable {
       return 16;
   }
 
-  static firstDigit(q: number) {
-    return -Math.floor(Math.log10(q));
-  }
-
-  static format(q: number, n: number = 3, integer: boolean = false): string {
-    let p = Math.round(q);
-    let base = Math.pow(10, n);
-    let str = '';
-    
-    if ( Math.floor(q) == 0 )
-      return integer ? p.toString() : q.toFixed(Math.min(3, this.firstDigit(q))).toString();
-
-    while (p >= base) {
-      str = (p % base).toString().padStart(n, '0') + ' ' + str;
-      p = (p / base) | 0;
-    };
-    if ( p ) str = p.toString() + ' ' + str;
-    if ( !str ) str = '0';
-
-    return str.trim();
-  }
-
-  static convert(str: string): number {
-    return +(str.replace(/\s+/g, '').replace(/\,/g, '.'));
-  }
-
   private static resizeSubject = new Subject<never>();
+  static lastClickEvent: Event | null = null;
   private static onResize = () => {
     BasicWidget.legendItemHeight = BasicWidget.getLegendItemHeight(window.innerWidth);
   }
@@ -189,6 +251,11 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     window.addEventListener('resize', (e: Event) => {
       BasicWidget.resizeSubject.next();
     });
+
+    window.addEventListener('click', (e: Event) => {
+      BasicWidget.lastClickEvent = e;
+      e.stopPropagation();
+    })
 
     BasicWidget.resizeSubject.pipe(debounceTime(100)).subscribe(() => {
       BasicWidget.onResize();
