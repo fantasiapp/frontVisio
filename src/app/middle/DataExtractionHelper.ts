@@ -3,153 +3,6 @@ import {Node, Tree} from "./Node"
 import {LocalStorageService} from "../services/local-storage.service";
 import {UpdateData} from "../services/data.service";
 
-// // à démocker
-// //axisForGraph
-// const mainIndustries = {
-//   1: "Siniat",
-//   2: "Placo",
-//   3: "Knauf",
-//   4: "Challengers"
-// }
-
-// //axisForGraph
-// const enduitIndustry = {
-//   1: "Salsi", 
-//   2: "Prégy", 
-//   3: "Croissance", 
-//   4: "Conquête"
-// };
-
-// //axisForGraph
-// const segmentDnEnduit = {
-//   1: "Non documenté",
-//   2: "P2CD + Enduit",
-//   3: "Enduit hors P2CD",
-//   4: "Pur prospect"
-// }
-
-// //axisForGraph
-// const clientProspect = {
-//   1: "Non documenté",
-//   2: "Client",
-//   3: "Prospect"
-// }
-
-// //axisForGraph
-// const clientProspectTarget = {
-//   1: "Potentiel ciblé",
-//   2: "Non documenté",
-//   3: "Client",
-//   4: "Prospect"
-// }
-
-// //axisForGraph
-// const segmentDnEnduitTarget = {
-//   1: "Non documenté",
-//   2: "P2CD + Enduit",
-//   3: "Cible P2CD",
-//   4: "Enduit hors P2CD",
-//   5: "Cible Pur Prospect",
-//   6: "Pur prospect"
-// }
-
-// //axisForGraph
-// const enduitIndustryTarget = {
-//   1: "Salsi", 
-//   2: "Prégy", 
-//   3: "Croissance", 
-//   4: "Conquête",
-//   5: "Cible Croissance",
-//   6: "Cible Conquête"
-// };
-
-// //axisForGraph
-// const industryTarget = {
-//   1: "Potentiel ciblé",
-//   2: "Siniat",
-//   3: "Placo",
-//   4: "Knauf",
-//   5: "Challengers"
-// }
-
-// //axisForGraph
-// const suiviAD = {
-//   1: "Terminées",
-//   2: "Non mises à jour",
-//   3: "Non renseignées"
-// }
-
-// //axisForGraph
-// const weeks = {
-//   1: "avant",
-//   2: "s-6",
-//   3: "s-5",
-//   4: "s-4",
-//   5: "s-3",
-//   6: "s-2",
-//   7: "s-1",
-//   8: "s-0",
-// }
-
-// //axisForGraph
-// const histoCurve = {
-//   1: "Nombre de PdV complétés",
-//   2: "Cumul en pourcentage"
-// }
-
-// //filter
-// const pointFeuFilter = {
-//   1: 'Non point Feu',
-//   2: 'Point feu'
-// }
-
-// //filter
-// const visitedFilter = {
-//   1: 'Visité',
-//   2: 'Non visité'
-// }
-
-// //filter
-// const ciblage = {
-//   1: 'Non ciblé',
-//   2: 'Ciblé'
-// }
-
-// //filter
-// const industriel = {
-//   1: "Siniat",
-//   2: "Placo",
-//   3: "Knauf",
-//   4: "Autres"
-// }
-
-// //filter
-// const segmentMarketingFilter = {
-//   1: "Purs Spécialistes",
-//   2: "Multi Spécialistes",
-//   3: "Généralistes",
-//   4: "Non documenté"
-// }
-
-// //axisForGraph
-// const segmentDnEnduitTargetVisits = {
-//   1: "Non documenté",
-//   2: "Cible P2CD + Enduit",
-//   3: "P2CD + Enduit",
-//   4: "Cible Enduit hors P2CD",
-//   5: "Enduit hors P2CD",
-//   6: "Cible Pur Prospect",
-//   7: "Pur prospect",
-// }
-
-// //axisForGraph
-// const avancementAD = {0:""}
-
-// //axisForGraph
-// const visits = {0:""}
-
-// //axisForGraph
-// const targetedVisits = {0:""}
 
 export class Params {
   static get coeffGreenLight() {
@@ -354,6 +207,10 @@ class DEH{  // for DataExtractionHelper
     return this.get('params')[param];
   }
 
+  static isRegularAxis(axisName:string):boolean{
+    return axisName in this.data;
+  }
+
   static getAttribute(field:string, id:number, attribute:string){
     let structureField = this.getStructure(field),
       idAttribute = structureField.indexOf(attribute);
@@ -362,44 +219,13 @@ class DEH{  // for DataExtractionHelper
 
   static get(field: string, justNames=false, changeYear=true):any{
     let fieldName = field;
-    // to switch year
     if (changeYear && !this.currentYear && this.fieldsToSwitchWithyear.includes(fieldName)) fieldName = field + '_ly';
-    // A enlever quand le back sera à jour
-    // switch(fieldName){
-    //   case "mainIndustries": return mainIndustries;
-    //   case 'enduitIndustry': return enduitIndustry;
-    //   case 'segmentDnEnduit': return segmentDnEnduit;
-    //   case 'clientProspect': return clientProspect;
-    //   case 'suiviAD': return suiviAD;
-    //   case 'weeks': return weeks;
-    //   case 'histoCurve': return histoCurve;    
-    //   case 'ciblage': return ciblage;
-    //   case 'pointFeuFilter': return pointFeuFilter;
-    //   case 'industriel': return industriel;
-    //   case 'segmentDnEnduitTargetVisits': return segmentDnEnduitTargetVisits;
-    //   case 'segmentMarketingFilter': return segmentMarketingFilter;
-    //   case 'visited': return visitedFilter;
-    //   case 'typology': return segmentDnEnduit;
-    //   case 'clientProspectTarget': return clientProspectTarget;
-    //   case 'segmentDnEnduitTarget': return segmentDnEnduitTarget;
-    //   case 'enduitIndustryTarget': return enduitIndustryTarget;
-    //   case 'industryTarget': return industryTarget; 
-    //   case 'avancementAD': return avancementAD;
-    //   case 'visits': return visits;
-    //   case 'targetedVisits': return targetedVisits;
-    //   default: {
     let data = this.data[fieldName];
-    if ( !data ) {
-      console.warn(fieldName, 'retrieval failed, trying get with axis for graph.');
-      console.warn('setting the value of', fieldName, 'to', data = this.getFilter(fieldName) || {});
-    }
     if (!justNames || Object.values(data).length == 0 || typeof(Object.values(data)[0]) == 'string' ) return data; 
     let names: any = {},
       nameIndex = this.getStructure(field).indexOf('name');
     for (let [id, list] of Object.entries<any[]>(data)) names[id] = list[nameIndex];
     return names
-      // }
-    // }
   }
 
   static getFilter(filterName: string){

@@ -123,10 +123,10 @@ export class MapIconBuilder {
   }
 
   static evaluateValues(category: string, values: any) {
-    let mapping = DEH.getFilter(category);
-
-    if ( !Utils.shallowObjectEquality(mapping, {}) ) {
-      let result: [number, any][] = [];
+    let mapping = DEH.getFilter(category),
+      result: [number, any][] = [];
+    
+    if (Object.keys(mapping).length) {
       for ( let [key, value] of Object.entries(values) )
         result.push([+DEH.getKeyByValue(mapping, key)!, value]);
       return result;
@@ -176,7 +176,7 @@ export class MapIconBuilder {
 let LEGEND: {[key: string]: any} = {
   agentFinitions: {
     'visité': {0: {fill: '#0056A6'}, 1: {fill: '#A61F7D'}},
-    'typology': {
+    'segmentDnEnduit': {
       'Pur prospect': {head: MapIconBuilder.square},
       'Enduit hors P2CD': {head: MapIconBuilder.diamond},
       'P2CD + Enduit': {head: MapIconBuilder.circle},
@@ -202,8 +202,8 @@ let LEGEND: {[key: string]: any} = {
 };
 let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = {
   agentFinitions: [
-    ['visited',  (visited: number) => +(visited != 2)],
-    'typology'
+    ['visitedFilter',  (visited: number) => +(visited == +DEH.getKeyByValue(DEH.getFilter('visitedFilter'), "Visité")!)],
+    "segmentDnEnduit"
   ],
   default: [
     'industriel',

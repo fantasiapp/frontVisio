@@ -41,7 +41,7 @@ export class DataWidget{
     }
     
     formatWidgetForGraph(node:Node, transpose:boolean, axis:string, nbPdvs:number){
-      if (axis == 'histoCurve') this.completeWithCurve(nbPdvs);
+      if (axis == 'histoCurve') this.completeWithCurve(nbPdvs); 
       if (this.dim == 0){//case gauge
         switch(axis){
           case 'visits': {

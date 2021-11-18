@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, SimpleChange, SimpleChanges } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Updatable, Utils } from 'src/app/interfaces/Common';
+import { Updatable } from 'src/app/interfaces/Common';
 import DEH from 'src/app/middle/DataExtractionHelper';
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { MapIconBuilder } from '../MapIconBuilder';
 
 let PropertyIterator = function(this: any) {
@@ -51,8 +50,8 @@ export class MapLegendComponent implements Updatable {
       ids = keys.map(key => +key.split('.')[1]),
       mapping = DEH.getFilter(category),
       values;
-    
-    if ( !Utils.shallowObjectEquality(mapping, {}) ) {
+
+    if ( Object.keys(mapping).length ) {
       ids.sort((x, y) => 1-2*+(mapping[x] < mapping[y]));
       values = ids.map(id => mapping[id]);
     } else {

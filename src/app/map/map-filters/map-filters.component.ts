@@ -3,7 +3,6 @@ import { LoggerService } from 'src/app/services/logger.service';
 import DEH, { Params } from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { MapSelectComponent } from '../map-select/map-select.component';
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
@@ -49,7 +48,7 @@ export class MapFiltersComponent {
     let criterion = this.criteriaNames[index],
       result = this.liveDict[criterion];
     
-    if ( Utils.shallowObjectEquality(result, {}) ) return [];
+    if ( !Object.keys(result).length ) return [];
 
     let dict = DEH.getFilter(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
@@ -171,7 +170,7 @@ export class MapFiltersComponent {
 };
 
 let CRITERIA: {[key: string]: string[]} = {
-  agentFinitions: ['typology', 'visited', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'],
+  agentFinitions: ['segmentDnEnduit', 'visitedFilter', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'],
   default: ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']
 };
 

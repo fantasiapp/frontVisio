@@ -183,19 +183,35 @@ export class SliceDice{
     }
   }
 
-  private computeElementFromAxis(axis:string){
-    axis = this.ComputeAxisName(axis);
-    let dataAxis = DEH.get(axis, true), titles = Object.values(dataAxis),
+  private computeElementFromAxis(axisName:string, axis?:string[]){
+    axisName = this.ComputeAxisName(axisName);
+    let dataAxis: any , titles:string[],
       idToX:any = {};
+    if (!DEH.isRegularAxis(axisName)){
+      titles = axis!;
+      dataAxis = axis;
+    } else{
+      dataAxis = DEH.get(axisName, true);
+      titles = Object.values(dataAxis);
+    }
     Object.keys(dataAxis).forEach((id, index) => idToX[parseInt(id)] = index);
-    return [axis, titles, idToX];
+    return [axisName, titles, idToX];
   }
+
+  // private computeElementFromAxis(axisName:string, axis?:string[]){
+  //   axisName = this.ComputeAxisName(axisName);
+  //   if (!DEH.isRegularAxis(axisName)) return [axisName, axis, {}];
+  //   let dataAxis = DEH.get(axisName, true), titles = Object.values(dataAxis),
+  //     idToX:any = {};
+  //   Object.keys(dataAxis).forEach((id, index) => idToX[parseInt(id)] = index);
+  //   return [axisName, titles, idToX];
+  // }
 
   private getDataFromPdvs(axisName1: string, axisName2: string, indicator: string, addConditions:[string, number[]][],
       axis1?:string[], axis2?:string[]): DataWidget{
 
-    let [newAxis1, rowsTitles, idToI] = this.computeElementFromAxis(axisName1),
-        [newAxis2, columnsTitles, idToJ] = this.computeElementFromAxis(axisName2);
+    let [newAxis1, rowsTitles, idToI] = this.computeElementFromAxis(axisName1, axis1),
+        [newAxis2, columnsTitles, idToJ] = this.computeElementFromAxis(axisName2, axis2);
     let dataWidget = new DataWidget(rowsTitles, columnsTitles, idToI, idToJ);
     this.fillUpWidget(dataWidget, newAxis1, newAxis2, indicator, addConditions, axis1, axis2);
     return dataWidget;

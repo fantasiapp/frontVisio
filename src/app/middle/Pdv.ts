@@ -123,7 +123,7 @@ export class PDV extends SimplePdv{
   get salesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {values.push(new Sale(s));} return values;}
   get p2cdSalesObject(): Sale[] {let values: Sale[] = []; for(let s of this.sales) {if(["plaque", "cloison", "doublage"].includes(DEH.get('product')[s[DEH.getPositionOfAttr('structureSales',  'product')]])) values.push(new Sale(s));} return values;}
   get potential(): number {return this.computeSalesRepartition()['potentialFinition']}
-  get typology(): number {return this.filterProperty('typology')}
+  get typology(): number {return this.filterProperty('segmentDnEnduit')}
 
   get targetP2cd(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget', 'targetP2CD')] : false;}
   get targetFinition(){ return this.target ? this.target[DEH.getPositionOfAttr('structureTarget', 'targetFinitions')] : false;}
@@ -151,7 +151,7 @@ export class PDV extends SimplePdv{
   get clientProspect(){return this.clientProspectFilter(true)}
 
   // to avoid specific cases for some axis
-  get histoCurve(){return 1}
+  get histoCurve(){return 0}
   get avancementAD(){return 0}
   get visits(){return 0}
   get targetedVisits(){return 0}
@@ -343,9 +343,9 @@ export class PDV extends SimplePdv{
       case 'industriel': return this.industrielFilter();
       case 'ciblage': return this.ciblageFilter();
       case 'pointFeuFilter': return this.pointFeuFilter();
-      case 'visited': return this.visitedFilter();
+      case 'visitedFilter': return this.visitedFilter();
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
-      case 'typology': return this.typologyFilter();
+      case 'segmentDnEnduit': return this.typologyFilter();
       default: return this[propertyName as keyof SimplePdv];
     }
   }
@@ -387,8 +387,8 @@ export class PDV extends SimplePdv{
   }
 
   private visitedFilter(): number{
-    return (this.nbVisits > 0) ? +DEH.getKeyByValue(DEH.getFilter('visited'), 'Visité')!: 
-      +DEH.getKeyByValue(DEH.getFilter('visited'), 'Non visité')!;
+    return (this.nbVisits > 0) ? +DEH.getKeyByValue(DEH.getFilter('visitedFilter'), 'Visité')!: 
+      +DEH.getKeyByValue(DEH.getFilter('visitedFilter'), 'Non visité')!;
   }
   
   clientProspectFilter(index=false){
