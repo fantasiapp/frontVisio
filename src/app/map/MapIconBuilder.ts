@@ -174,7 +174,7 @@ export class MapIconBuilder {
 let LEGEND: {[key: string]: any} = {
   agentFinitions: {
     'visité': {0: {fill: '#0056A6'}, 1: {fill: '#A61F7D'}},
-    'typology': {
+    'segmentDnEnduit': {
       'Pur prospect': {head: MapIconBuilder.square},
       'Enduit hors P2CD': {head: MapIconBuilder.diamond},
       'P2CD + Enduit': {head: MapIconBuilder.circle},
@@ -200,8 +200,8 @@ let LEGEND: {[key: string]: any} = {
 };
 let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = {
   agentFinitions: [
-    ['visited',  (visited: number) => +(visited != 2)],
-    'typology'
+    ['visitedFilter',  (visited: number) => +(visited == +DEH.getKeyByValue(DEH.getFilter('visitedFilter'), "Visité")!)],
+    "segmentDnEnduit"
   ],
   default: [
     'industriel',

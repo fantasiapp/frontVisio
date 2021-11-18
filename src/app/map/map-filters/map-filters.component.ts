@@ -166,7 +166,7 @@ export class MapFiltersComponent {
 };
 
 let CRITERIA: {[key: string]: string[]} = {
-  agentFinitions: ['typology', 'visited', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'],
+  agentFinitions: ['segmentDnEnduit', 'visitedFilter', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'],
   default: ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']
 };
 

@@ -343,9 +343,9 @@ export class PDV extends SimplePdv{
       case 'industriel': return this.industrielFilter();
       case 'ciblage': return this.ciblageFilter();
       case 'pointFeuFilter': return this.pointFeuFilter();
-      case 'visited': return this.visitedFilter();
+      case 'visitedFilter': return this.visitedFilter();
       case 'segmentMarketingFilter': return this.segmentMarketingFilter();
-      case 'typology': return this.typologyFilter();
+      case 'segmentDnEnduit': return this.typologyFilter();
       default: return this[propertyName as keyof SimplePdv];
     }
   }
@@ -387,8 +387,8 @@ export class PDV extends SimplePdv{
   }
 
   private visitedFilter(): number{
-    return (this.nbVisits > 0) ? +DEH.getKeyByValue(DEH.getFilter('visited'), 'Visité')!: 
-      +DEH.getKeyByValue(DEH.getFilter('visited'), 'Non visité')!;
+    return (this.nbVisits > 0) ? +DEH.getKeyByValue(DEH.getFilter('visitedFilter'), 'Visité')!: 
+      +DEH.getKeyByValue(DEH.getFilter('visitedFilter'), 'Non visité')!;
   }
   
   clientProspectFilter(index=false){
