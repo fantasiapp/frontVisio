@@ -23,9 +23,11 @@ export class MapLegendComponent implements Updatable {
     this.update();
   }
 
-  @HostBinding('class.closed') closed: boolean = true;
+  @HostBinding('class.closed') closed: boolean = false;
   @HostListener('click')
-  private onClick() { this.closed = !this.closed; }
+  private onClick() {
+    this.closed = !this.closed
+   }
 
   readonly categories: any = {
     [Symbol.iterator]: PropertyIterator
