@@ -45,7 +45,7 @@
     height: 100%;
     position: absolute;
     top: 0;
-    right: 0;
+    right: -10px;
     border-radius: 5px;
     background-color: black;
     transform: scale(0.5, 1);
