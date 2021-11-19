@@ -1,16 +1,9 @@
-import DEH from './DataExtractionHelper';
+import DEH, { Params } from './DataExtractionHelper';
 import {Injectable} from '@angular/core';
 import {Node} from './Node';
 import {DataService, UpdateFields} from '../services/data.service';
 import {PDV} from './Pdv';
 import {DataWidget} from './DataWidget';
-
-
-// à mettre dans le back
-const enduitAxis = ['enduitIndustry', 'segmentDnEnduit', 'segmentDnEnduitTarget', 'enduitIndustryTarget'],
-  nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
-  dnIndicators = ['dn', 'visits', 'targetedVisits', 'avancementAD'];
   
 @Injectable()
 export class SliceDice{
@@ -34,7 +27,7 @@ export class SliceDice{
     let colors = colors1 ? colors1: (colors2 ? colors2: undefined);
     let dataWidget = this.getDataFromPdvs(
       axisName1, axisName2, indicator.toLowerCase(), addConditions, axis1, axis2);
-    let km2 = !dnIndicators.includes(indicator) ? true : false, 
+    let km2 = !Params.dnIndicators.includes(indicator) ? true : false, 
       sortLines = (percentIndicator !== 'classic') && (axisName1 != 'suiviAD');
     dataWidget.widgetTreatement(km2, sortLines, (axisName1 !== 'histoCurve') ? 'all': 'no', 
       groupsAxis1 as string[], groupsAxis2 as string[]);
@@ -76,7 +69,7 @@ export class SliceDice{
     let rodPosition = undefined, rodPositionForCiblage = undefined, 
     targetLevel: {[key:string]:any} = {'name' : '', 'ids': [], 'volumeIdentifier' : '', 'structure': ''};
     if (target){
-      let finition = enduitAxis.includes(axis1) || enduitAxis.includes(axis2);
+      let finition = Params.enduitAxis.includes(axis1) || Params.enduitAxis.includes(axis2);
       let dn = indicator == 'dn';   
       if(dataWidget.getDim() == 1){
         let targetValue = DEH.getTarget(
@@ -156,8 +149,8 @@ export class SliceDice{
     let newPdvs = (addConditions.length == 0) ? SliceDice.currentSlice: 
       PDV.reSlice(SliceDice.currentSlice, addConditions);
     let irregular: 'no'|'line'|'col' = 'no';
-    if (nonRegularAxis.includes(axisName1)) irregular = 'line';
-    else if (nonRegularAxis.includes(axisName2)) irregular = 'col';
+    if (Params.nonRegularAxis.includes(axisName1)) irregular = 'line';
+    else if (Params.nonRegularAxis.includes(axisName2)) irregular = 'col';
     for (let pdv of newPdvs){
       if (irregular == 'no') 
         dataWidget.addOnCase(

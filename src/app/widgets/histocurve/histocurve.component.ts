@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Injector, ViewChild } from '@angular/core';
-import {bar, line} from 'billboard.js';
+import {bar, DataItem, line} from 'billboard.js';
 import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
 import { Utils } from 'src/app/interfaces/Common';
+import { TooltipItem } from '../tooltip/tooltip.component';
 
 @Component({
   selector: 'app-histocurve',
@@ -54,7 +55,8 @@ export class HistocurveComponent extends HistoColumnComponent {
         order: null
       },
       tooltip: {
-        show: false
+        show: false,
+        grouped: true
       },
       axis: {
         y: {
@@ -82,6 +84,19 @@ export class HistocurveComponent extends HistoColumnComponent {
         r: 4
       }
     })
+  }
+
+  protected makeTooltip(item: DataItem): TooltipItem {
+    let data = this.chart!.data(),
+      units = this.properties.unit.split('|'),
+      percentIndex = units.indexOf('%'),
+      unit = item == data[1].values[item.index!] ? units[percentIndex] : units[1 - percentIndex];
+
+    return {
+      color: this.chart!.color(item.id),
+      title: item.id,
+      body: `: ${Utils.format(item.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${unit}`
+    }
   }
 
   updateGraph(data: any) {

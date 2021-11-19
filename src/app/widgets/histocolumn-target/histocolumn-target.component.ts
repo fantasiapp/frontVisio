@@ -213,8 +213,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   toggleTargetControl() {
     this.inputIsOpen = !this.inputIsOpen;
-    if ( this.inputIsOpen )
-      this.clearTooltips();
+    this.clearTooltips();
     
     d3.select(this.content.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);
