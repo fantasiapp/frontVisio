@@ -10,6 +10,7 @@
   background: #f7f7f7;
   position: absolute;
   top: 50px;
+  z-index: 100;
 }
 
 .container {
