@@ -1,10 +1,11 @@
 import { Component, ComponentFactoryResolver, ViewChild, ViewContainerRef, ChangeDetectorRef, HostBinding, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { GridArea } from '../grid-area/grid-area';
-import { WidgetManagerService } from '../widget-manager.service';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { WidgetManagerService } from '../../services/widget-manager.service';
+import {  Subject } from 'rxjs';
 import { Interactive, SubscriptionManager } from 'src/app/interfaces/Common';
 import { Node } from '../../middle/Node';
+import { BasicWidget } from 'src/app/widgets/BasicWidget';
 
 type BasicWidgetParams = [string, string, string, string[], string[], boolean];
 export interface Layout {
@@ -17,7 +18,7 @@ export interface Layout {
 
 export type GridState = {
   loaded: boolean;
-  instances?: GridArea[];
+  instances?: BasicWidget[];
 };
 
 @Component({
@@ -50,7 +51,7 @@ export class GridManager extends SubscriptionManager implements Interactive {
   @ViewChild('target', {read: ViewContainerRef})
   ref!: ViewContainerRef;
 
-  instances: any[] = [];
+  instances: BasicWidget[] = [];
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef, private widgetManager: WidgetManagerService) {
     super();
@@ -92,7 +93,7 @@ export class GridManager extends SubscriptionManager implements Interactive {
       let desc = this.layout.areas[name];
       if ( !desc ) throw '[GridManager -- createComponents]: Unknown component.';
       let cls = this.widgetManager.findComponent(desc[3]);
-      let factory = this.componentFactoryResolver.resolveComponentFactory<GridArea>(cls);
+      let factory = this.componentFactoryResolver.resolveComponentFactory<BasicWidget>(cls);
       let component = this.ref.createComponent(factory),
         instance = component.instance;
       
@@ -107,9 +108,10 @@ export class GridManager extends SubscriptionManager implements Interactive {
       let self = this;
       this.instances.push(instance);
       this.ref.insert(component.hostView);
-      this.once(instance.ready, function(this: GridArea) {
-        n--;
-        if ( !n )
+      this.once(instance.ready, function(this: BasicWidget) {
+        instance.onPathChanged(self.node!);
+        instance.start();
+        if ( !(--n) )
           self.state.next({loaded: true, instances: self.instances})
       });
     }
@@ -119,7 +121,7 @@ export class GridManager extends SubscriptionManager implements Interactive {
   protected onPathChanged() {
     if ( this._paused ) return;
     for ( let component of this.instances ) {
-      component.onPathChanged(this.node);
+      (component as any).onPathChanged(this.node); //override protected property
       component.update();
     }
   }

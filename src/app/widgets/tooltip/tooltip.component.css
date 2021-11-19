@@ -10,11 +10,10 @@
 }
 
 .tooltip {
-    padding: 6px 8px;
+    font-size: inherit;
     transform: translate(-50%, 10px);
     box-shadow: -1px 1px 10px 0 #333;
 }
-
 
 .item {
     display: block;
@@ -30,4 +29,47 @@
 
 .item-body {
     vertical-align: middle;
+    font-weight: 500;
+}
+
+@media (max-width: 1366px) {
+    :host {
+        font-size: 10px;
+    }
+
+    .tooltip {
+        padding: 4px 6px;
+    }
+
+    .item {
+        padding: 0;
+    }
+}
+
+@media (min-width: 1366px) and (max-width: 1500px) {
+    :host {
+        font-size: 11.5px;
+    }
+
+    .tooltip {
+        padding: 6px 8px;
+    }
+
+    .item {
+        padding: 1.5px 0;
+    }
+}
+
+@media (min-width: 1500px) {
+    :host {
+        font-size: 13px;
+    }
+
+    .item {
+        padding: 2.5px 0;
+    }
+
+    .tooltip {
+        padding: 7px 8px;
+    }
 }

@@ -5,7 +5,7 @@ import { Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import { FiltersStatesService } from "../services/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
-import { Updatable, Utils } from "../interfaces/Common";
+import { Dict, Updatable, Utils } from "../interfaces/Common";
 import { Node } from "../middle/Node";
 import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
@@ -21,13 +21,12 @@ export abstract class BasicWidget extends GridArea implements Updatable {
 
   //Essential services to compute the widget
   protected ref: ElementRef;
-  protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
   protected cd: ChangeDetectorRef;
   //The actual graph
   protected chart: Chart | null = null;
   /* for processing @sum and similar */
-  protected dynamicDescription: boolean = false;
+  private dynamicDescription: boolean = false;
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
   // Keep a list of active tooltips in the same order in the view
@@ -37,14 +36,8 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   constructor(protected injector: Injector) {
     super();
     this.ref = injector.get(ElementRef);
-    this.filtersService = injector.get(FiltersStatesService);
     this.sliceDice = injector.get(SliceDice);
     this.cd = injector.get(ChangeDetectorRef);
-  }
-
-  onReady() {
-    this.onPathChanged(this.filtersService.getState().node);
-    this.start();
   }
 
   protected onPathChanged(node: Node) {  }
@@ -62,7 +55,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     });
   }
   
-  abstract createGraph(data: any, opt?: {}): void;
+  abstract createGraph(data: any, opt?: Dict): void;
   
   updateGraph({data}: any): void {
     let newIds = data.map((d: any[]) => d[0]);
@@ -119,7 +112,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   protected addMultipleTooltipsAt(items: TooltipItem[], ids: string[], left: number = 0, top: number = 0) {
     let tooltip = this.addTooltipAt(items, ids[0], left, top);
     for ( let item of items )
-      this.tooltips[item.title] = tooltip;
+      this.tooltips[item.id] = tooltip;
     return tooltip;
   }
 
@@ -147,7 +140,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     if ( !item.value ) return null;
     return {
       color: this.chart!.color(item.id),
-      title: item.id,
+      id: item.id,
       body: `: ${Utils.format(item.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}`
     }
   }
@@ -176,26 +169,23 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   //wrapper around the ugly setTimeout here
   //The library calls onclick multiple times if an object
   //is on the interaction boundary of another so track the calls
-  private tooltipClicked: any = null;
   private tooltipDelay: number = 0;
   private tooltipQueue: DataItem[] = [];
 
   protected toggleTooltipOnClick(item: DataItem) {
-    if ( this.tooltipClicked !== null )
-      clearTimeout(this.tooltipClicked);
-
     this.tooltipQueue.push(item);
-    this.tooltipClicked = setTimeout(() => {
+    setTimeout(() => {
       this.onDataClicked(this.tooltipQueue);
-      this.tooltipClicked = null;
       this.tooltipQueue.length = 0;
     }, this.tooltipDelay);
   }
 
   protected checkData(data: any) {
     let res = BasicWidget.checkData(data);
-    if ( res && this.content )
+    if ( res && this.content ) {
       this.noData(this.content);
+      this.chart = null;
+    }
 
     return res;
   }
@@ -225,7 +215,6 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     content.nativeElement.innerHTML = `
       <div class="nodata">Il n'y a pas de données.</div>
     `;
-    this.chart = null;
   }
   
   static legendItemHeight: number = 12;

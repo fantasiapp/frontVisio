@@ -94,7 +94,7 @@ export class HistocurveComponent extends HistoColumnComponent {
 
     return {
       color: this.chart!.color(item.id),
-      title: item.id,
+      id: item.id,
       body: `: ${Utils.format(item.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${unit}`
     }
   }

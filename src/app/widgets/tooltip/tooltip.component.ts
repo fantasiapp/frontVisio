@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding } fr
 
 export interface TooltipItem {
   color: string;
-  title: string;
+  id: string;
   body: string;
 }
 

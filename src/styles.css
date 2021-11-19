@@ -292,7 +292,7 @@ g.simple-needle line {
     }
 }
 
-@media (min-width: 1366px) and (max-width: 1920px) {
+@media (min-width: 1366px) and (max-width: 1500px) {
     :root {
         --x-axis-font-size: 12px;
         --legend-font-size: 11px;
