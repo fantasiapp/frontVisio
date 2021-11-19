@@ -38,6 +38,7 @@ export class PieTargetComponent extends SimplePieComponent {
       onresized(this: Chart) {
         if ( !this ) return;
         //apparently this is sometimes an instance of ChartInternal (maybe a bug in billboard), so we'll use self.chart
+        self.clearTooltips();
         self.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         self.chart!.config('legend_inset_y', 20 + self.chart!.data().length * BasicWidget.legendItemHeight);
         self.createNeedle({data: null, target: self.needleRotate - 90});
