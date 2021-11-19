@@ -151,7 +151,7 @@ export class InfoBarComponent {
       potential: pdv.potential,
       totalSiniatEnduitSales: pdv.potential + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.displayIndustrieSaleVolumes(true)['Prégy'],
       totalEnduitSales: pdv.displayIndustrieSaleVolumes(true)['Prégy'] + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.potential,
-      typology: DEH.getNameOfRegularObject('typology', pdv.typology),
+      typology: DEH.getFilter('segmentDnEnduit')[pdv.typology],
     }
   }
 

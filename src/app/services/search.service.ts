@@ -177,10 +177,6 @@ export class SearchService extends SubscriptionManager {
         this.switchMode(SearchService.FIND_INSTANCE, this.pattern);
     });
   }
-  
-  addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {
-    this.levels.splice(index, 0, [rule, autocompletion, type, onmatch]);
-  }
 
   switchMode(mode: number, pattern: string = '') {
     if ( pattern == '' || mode == SearchService.FIND_PATTERN ) { this.mode = SearchService.FIND_PATTERN; this.pattern = ''; return true; }    

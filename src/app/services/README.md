@@ -132,8 +132,33 @@ This service allows the user/programmer to navigate the application. It is used 
     Replaces the current navigation tree.
     If `follow`, then we'll try to navigate to the same level we were before tree changes.
 
-    - **`gotoPDVsDashboard(): number`** (Output -> `state`, `filters`) <br/>
-    Moves to closest PDV table, returns:
-        - 2 if we are already on one
-        - 1 if we moved to the table succesfully
-        - 0 if we can't
+    - **`update()`** (Output -> `state`, `filters`) <br/>
+    Updates the logs and emits `state` and `filters` events, causing all subscriber components (view, bars, etc) to update.
+
+### [SearchService](./search.service.ts)
+
+This service allows the user/programmer to search the data by categories and by their names.
+
+The service supports two modes: <br/>
+    - Search a category in the category list <br/>
+    - Search an item inside a category<br/>
+
+This component is injected at the `SearchbarComponent` component level.
+
+- **Dependencies**
+    - **`private dataservice: DataService`** (Subscribe for new data)
+
+- **Observables (or similar)**
+    - None
+
+- **Important Methods**
+
+    - **`search(term: string, ...rest: any[] = [showAll = true, sort = true]): Suggestion[]`** <br/>
+    Searches term in the current category if it exists, otherwise searches the category list for term.
+
+    - **`findAll(): Suggestion[]`** <br/>
+    return all results in the current category if it exists, otherwise return all categories.
+
+    - **`switchMode(mode: number, pattern: string = ''): Suggestion[]`** <br/>
+    If pattern is a known category, then switch to search inside this category.
+    If mode is PATTERN_SEARCH then the service is reset to searching inside the category list.

@@ -143,12 +143,12 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     this.injector.get(ChangeDetectorRef).detectChanges();
   }
 
-  protected makeTooltip(item: DataItem): TooltipItem {
+  protected makeTooltip(item: DataItem): TooltipItem | null {
+    if ( !item.value ) return null;
     return {
       color: this.chart!.color(item.id),
       title: item.id,
       body: `: ${Utils.format(item.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}`
-      
     }
   }
 
@@ -160,8 +160,8 @@ export abstract class BasicWidget extends GridArea implements Updatable {
 
     for ( let item of items ) {
       if ( this.tooltips[item.id] ) { this.removeTooltip(item.id); deleted.push(item.id); }
-      
-      tooltips.push(this.makeTooltip(item));
+      let tooltip = this.makeTooltip(item);
+      if ( tooltip ) tooltips.push(tooltip);
     }
 
     if ( !tooltips.length ) return;
