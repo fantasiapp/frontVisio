@@ -19,7 +19,7 @@ import { BehaviorSubject, combineLatest, of, Subscription } from 'rxjs';
 import { delay, take } from 'rxjs/operators';
 
 import {
-  AUTHENTIFICATION_STARTED, CONNEXION_SUCESS, CONNECTION_ERROR
+  REQUEST_DATA, CONNEXION_SUCESS, CONNECTION_ERROR
 } from './login-server-info/login-server-info.component'
 import { LoginFormComponent } from './login-form/login-form.component';
 
@@ -66,6 +66,7 @@ export class LoginPageComponent implements OnInit {
         this.localStorageService.saveLastToken(newToken)
         this.userValid = true;
         this.dataservice.requestData();
+        this.connexionState.next(REQUEST_DATA);
         if(this.stayConnected) this.localStorageService.saveStayConnected(true);
         else this.localStorageService.removeStayConnected(); //au cas où
         const elmt = document.getElementById('image-container')!;
@@ -85,7 +86,7 @@ export class LoginPageComponent implements OnInit {
         })
         this.subscription = combineLatest([
           this.dataservice.load,
-          of(null).pipe(delay(6000))
+          of(null).pipe(delay(4000))
         ]).subscribe(() => {
           setTimeout(() => {
             this.router.navigate([
@@ -93,13 +94,13 @@ export class LoginPageComponent implements OnInit {
             ]);
           }, 1000);
         }, (err) => {
+          console.log('error', err);
           this.connexionState.next(CONNECTION_ERROR);
         });
       }
     },
-    error: () => {
+    error: (e: Error) => {
       this.loginForm?.handleError();
-      this.connexionState.next(CONNECTION_ERROR);
     }
   }
   constructor(
@@ -146,7 +147,6 @@ export class LoginPageComponent implements OnInit {
     if(this.isAlreadyConnected()) return;
     //console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
-    this.connexionState.next(AUTHENTIFICATION_STARTED);
     let auth = this.authService.loginToServer(username, password);
     auth.subscribe(this.logInObserver);
   }

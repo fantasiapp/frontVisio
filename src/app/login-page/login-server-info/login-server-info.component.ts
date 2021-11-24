@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 
 export const
-  AUTHENTIFICATION_STARTED = 1 << 1,
+  REQUEST_DATA = 1 << 1,
   CONNEXION_SUCESS = 1 << 2,
   CONNECTION_ERROR = 1 << 3;
 
@@ -12,7 +12,7 @@ export const
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginServerInfoComponent {
-  readonly AUTHENTIFICATION_STARTED = AUTHENTIFICATION_STARTED;
+  readonly REQUEST_DATA = REQUEST_DATA;
   readonly CONNEXION_SUCESS = CONNEXION_SUCESS;
   readonly CONNECTION_ERROR = CONNECTION_ERROR
 
