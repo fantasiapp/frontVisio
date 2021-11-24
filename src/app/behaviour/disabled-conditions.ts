@@ -1,4 +1,3 @@
-import DEH from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Pdv';
 
 export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, val : boolean}} = {
@@ -7,7 +6,9 @@ export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, v
     return { message: val ? 'Le siège a déclaré ce pdv finitions redistribué\n' : '', val : val}
   },
   'noEmptySalesFinitions': (pdv: PDV ) => {
-      let val = pdv!.displayIndustrieSaleVolumes(true)['Salsi']>0 || pdv!.displayIndustrieSaleVolumes(true)['Prégy']>0
+      let enduitRaw: any = pdv.displayIndustrieSaleVolumes(true);
+      let val = enduitRaw['Salsi']>0 || enduitRaw['Prégy']>0;
+      // val = true;
       return { message: val ? 'Ce pdv finitions répertorie des ventes Salsi et/ou Prégy\n' : '', val : val}
   },
   'noSale': (pdv: PDV ) => {
