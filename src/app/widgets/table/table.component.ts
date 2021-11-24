@@ -267,6 +267,7 @@ export class TableComponent extends BasicWidget {
 
   protected onClick(e: PointerEvent) {
     //do nothing
+    e.preventDefault();
   }
 
   /** Bound with (mousemove) on the whol agGrid component **/
