@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 
 export const
   AUTHENTIFICATION_STARTED = 1 << 1,
@@ -16,11 +16,30 @@ export class LoginServerInfoComponent {
   readonly CONNEXION_SUCESS = CONNEXION_SUCESS;
   readonly CONNECTION_ERROR = CONNECTION_ERROR
 
-  @Input()
-  mode: number | null = AUTHENTIFICATION_STARTED;
-  constructor() {
+  _mode: number | null = null;
 
+  constructor(private cd: ChangeDetectorRef) {}
+
+  get mode() {
+    return this._mode;
   }
+
+  timeUntilReload: number | null = null;
+
+  @Input()
+  set mode(val: number | null) {
+    this._mode = val;
+    if ( this._mode == CONNECTION_ERROR ) {
+      this.timeUntilReload = 5;
+      setInterval(() => {
+        this.timeUntilReload!--;
+        this.cd.markForCheck();
+        if ( !this.timeUntilReload )
+          window.location.reload();
+      }, 1000);
+    }
+  };
+
 
   ngOnInit() {
 

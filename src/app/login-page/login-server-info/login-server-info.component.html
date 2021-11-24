@@ -22,7 +22,7 @@
     </div>
     
     <div class="error note" *ngSwitchCase="CONNECTION_ERROR">
-        Erreur de la connexion. (Actualisation dans 5 secondes)
+        Erreur de la connexion. (Actualisation dans {{ timeUntilReload }} secondes)
         <div class="sa">
             <div class="sa-error">
               <div class="sa-error-x">
