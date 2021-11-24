@@ -45,6 +45,16 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   ngOnInit() {
     if ( this.properties.description == '@sum' )
       this.dynamicDescription = true;
+    
+    this.ref.nativeElement.addEventListener('click', (e: PointerEvent) => {
+      this.onClick(e);
+    });
+  }
+
+  protected onClick(e: PointerEvent) {
+    let ref = this.ref.nativeElement as HTMLElement;
+    if ( ! this.ref.nativeElement.querySelector('.bb-main').contains(e.target) )
+      this.clearTooltips();
   }
   
   start(): void {
@@ -206,6 +216,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
     this.chart?.destroy();
+    //remove click listener
   }
   
   noData(content: ElementRef) {

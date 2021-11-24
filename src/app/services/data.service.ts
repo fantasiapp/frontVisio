@@ -137,7 +137,7 @@ export class DataService {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
           this.$serverLoading.next(true);
           this.$serverLoading.complete();
-          setTimeout(() => this.requestData(), 30000)
+          setTimeout(() => this.requestData(), 30000);
         } else {
           console.log("RequestData successfull")
           this.$serverLoading.next(false);
