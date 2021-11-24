@@ -40,7 +40,7 @@
                                 <li>
                                     <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                                         Ne vend pas de plaque
-                                        <input type="checkbox" [attr.checked]="target[TARGET_SALE_ID] === false" (change)="changeTargetSale()" [disabled]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noSale'](pdv!).val"  agentOnly>
+                                        <input type="checkbox" [attr.checked]="target[TARGET_SALE_ID] === false" (change)="changeTargetSale()" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales', 'noSale']}"  agentOnly>
                                         <span class="checkmark" ></span>
                                     </label>
                                     <div class="disabled-description" [style.opacity]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noSale'](pdv!).val === true ? '1' : '0'" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!).message + conditionsParams['noSale'](pdv!).message }}</div>
@@ -48,7 +48,7 @@
                                 <li>
                                     <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                                         Point de vente redistribue
-                                        <input type="checkbox" [attr.checked]="target[TARGET_REDISTRIBUTED_ID] === false" (change)="changeRedistributed()" [disabled]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noRedistributed'](pdv!).val" agentOnly>
+                                        <input type="checkbox" [attr.checked]="target[TARGET_REDISTRIBUTED_ID] === false" (change)="changeRedistributed()" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales', 'noRedistributed']}" agentOnly>
                                         <span class="checkmark"></span>
                                     </label>
                                     <div class="disabled-description" [style.opacity]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noRedistributed'](pdv!).val === true ? '1' : '0'" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySales'](pdv!).message + conditionsParams['noRedistributed'](pdv!).message }}</div>
@@ -116,7 +116,7 @@
                             <div class="first row">
                                 <div class="first empty only-siniat cell">
                                     <label class="text-checkbox">
-                                        <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat" [disabled]="conditionsParams['noEmptySales'](pdv!).val" agentOnly currentYearOnly adOpenOnly>
+                                        <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales']}" agentOnly currentYearOnly adOpenOnly>
                                         <span>100% Siniat</span>
                                     </label>
                                 </div>
@@ -172,7 +172,7 @@
                 </div>
                 <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                     <span>Point de vente redistribué</span>
-                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="target[TARGET_REDISTRIBUTED_FINITIONS_ID] === false" [disabled]="conditionsParams['noEmptySalesFinitions'](pdv!).val || conditionsParams['noRedistributedFinitions'](pdv!).val" agentFinitionsOnly>
+                    <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="target[TARGET_REDISTRIBUTED_FINITIONS_ID] === false" [conditionnal]="{pdv: pdv, conditions: ['noEmptySalesFinitions', 'noRedistributedFinitions']}" agentFinitionsOnly>
                     <span class="checkmark" ></span>
                 </label>
                 <div class="disabled-description" [style.opacity]="(conditionsParams['noEmptySalesFinitions'](pdv!).val || conditionsParams['noRedistributedFinitions'](pdv!).val )? '1' : '0'" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySalesFinitions'](pdv!).message + conditionsParams['noRedistributedFinitions'](pdv!).message }}</div>
