@@ -270,6 +270,7 @@ export class InfoBarComponent {
   /*** Functions used to change the target field (and onlySiniat field) in the local pdv ***/
   changeRedistributed() {
       this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
+      if(!this.target[this.TARGET_REDISTRIBUTED_ID]) this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = false;
       this.showNavigation = this.shouldShowNavigation()
       this.hasChanged = true;
   }
