@@ -1,0 +1,37 @@
+<div class="content" [ngSwitch]="mode">
+    <div class="loading note" *ngSwitchCase="AUTHENTIFICATION_STARTED">
+        Connexion en cours
+        <div class="lds-ellipsis" >
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="success note" *ngSwitchCase="CONNEXION_SUCESS">
+        Connexion réussite
+        <div class="sa">
+            <div class="sa-success">
+            <div class="sa-success-tip"></div>
+            <div class="sa-success-long"></div>
+            <div class="sa-success-placeholder"></div>
+            <div class="sa-success-fix"></div>
+          </div>
+        </div>
+    </div>
+    
+    <div class="error note" *ngSwitchCase="CONNECTION_ERROR">
+        Erreur de la connexion. (Actualisation dans 5 secondes)
+        <div class="sa">
+            <div class="sa-error">
+              <div class="sa-error-x">
+              <div class="sa-error-left"></div>
+              <div class="sa-error-right"></div>
+              </div>
+            <div class="sa-error-placeholder"></div>
+            <div class="sa-error-fix"></div>
+           </div>
+          </div>
+    </div>
+</div>

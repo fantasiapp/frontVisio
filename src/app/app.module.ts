@@ -54,6 +54,7 @@ import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directiv
 import { MapLegendComponent } from './map/map-legend/map-legend.component';
 import { ConditionnalDirective } from './behaviour/conditionnal.directive';
 import { TooltipComponent } from './widgets/tooltip/tooltip.component';
+import { LoginServerInfoComponent } from './login-page/login-server-info/login-server-info.component';
 
 @NgModule({
   declarations: [
@@ -97,7 +98,8 @@ import { TooltipComponent } from './widgets/tooltip/tooltip.component';
     CurrentYearOnlyDirective,
     MapLegendComponent,
     ConditionnalDirective,
-    TooltipComponent
+    TooltipComponent,
+    LoginServerInfoComponent
   ],
   imports: [
     BrowserModule,
