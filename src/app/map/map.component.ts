@@ -80,6 +80,7 @@ export class MapComponent extends SubscriptionManager {
   protected onDataUpdate() {
     MapIconBuilder.initialize();
     this.legend?.update();
+    console.log('update data');
     this.filters?.update();
     this.shouldUpdateIcons = false;
   }

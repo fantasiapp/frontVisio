@@ -1,12 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { PDV } from 'src/app/middle/Pdv';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
-import bb, {bar} from 'billboard.js';
+import bb, {bar, Chart, DataItem} from 'billboard.js';
 import { RubixCube } from './RubixCube';
 import DEH from 'src/app/middle/DataExtractionHelper';
+import { Utils } from 'src/app/interfaces/Common';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 
 
 @Component({
@@ -26,8 +26,8 @@ export class HistoRowComponent extends BasicWidget {
 
   public axisLabelLength: number = 10;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, private cd: ChangeDetectorRef) {
-    super(ref, filtersService, sliceDice);
+  constructor(protected injector: Injector) {
+    super(injector);
   }
 
   private axisPadding: number = 100;
@@ -36,6 +36,10 @@ export class HistoRowComponent extends BasicWidget {
 
   protected onPathChanged(path: any) {
     super.onPathChanged(path);
+    this.updateCube();
+  }
+
+  private updateCube() {
     this.cube = new RubixCube(this);
     this.cube.rules = this.sliceDice.rubiksCubeCheck(this.properties.arguments[2], this.properties.arguments[5]);
     this.description.nativeElement.selectedIndex = "0";
@@ -79,37 +83,23 @@ export class HistoRowComponent extends BasicWidget {
     let self = this;
     this.maxValue = this.computeMax(data);
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    this.chart = bb.generate({
+    let blueprint = {
       bindto: this.content.nativeElement,
       padding: {
         left: this.axisPadding
       },
       data: {
-        x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
+        x: 'x',
         columns: data,
         type: bar(),
         groups: [data.slice(1).map((x: any[]) => x[0])],
-        order: null
+        order: null,
+        onclick(item: DataItem) {
+          self.toggleTooltipOnClick(item);
+        }
       },
       tooltip: {
-        grouped: false,
-        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          return `
-            <div class="historow-tooltip tooltip">
-              ${d.map((data: any) => `
-                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}
-              `).join('<br/>')}
-              <div class="tooltip-tail"></div>
-            </div>
-          `;
-        },
-        position: (data, width, height, element, pos) => {
-          let maxRight = this.rectWidth - 30; //30 css padding
-          return {
-            left: Math.max(this.axisPadding, Math.min(maxRight, pos.x - width/2 + this.axisPadding)),
-            top: (pos.xAxis || pos.y) + 20
-          };
-        }
+        show: false
       },
       bar: {
         sensitivity: 10
@@ -125,7 +115,7 @@ export class HistoRowComponent extends BasicWidget {
           },
           tick: {
             autorotate: true,
-            format(index: number, category: string) {
+            format(this: Chart, index: number, category: string) {
               if ( index < this.categories().length )
                 return category.length >= self.axisLabelLength+3 ? category.slice(0, self.axisLabelLength - 3) + '...' : category;
               return '';
@@ -157,9 +147,9 @@ export class HistoRowComponent extends BasicWidget {
       transition: {
         duration: 250
       },
-      onrendered() {
+      onrendered(this: Chart) {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
-        if ( self.filtersService.tree?.hasTypeOf(PDV.tradeTree) )
+        if ( self.injector.get(FiltersStatesService).tree?.hasTypeOf(PDV.tradeTree) )
           return;
         
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {
@@ -169,19 +159,22 @@ export class HistoRowComponent extends BasicWidget {
           self.update();
         });
       },
-      ...opt
-    });
+      onresized() {
+        self.clearTooltips();
+      }
+    };
+
+    this.chart = bb.generate(Utils.dictDeepMerge(blueprint, opt));
   }
 
   //wait on delays
   updateGraph({data}: any) {
-    // this.applyRubixConditions(data);
     if ( data[0][0] != 'x' ) {
       console.log('[HistoRow]: Rendering inaccurate format because `x` axis is unspecified.')
       data = [['x', ...data.map((d: any[]) => d[0])], ...data];
     };
 
-    let currentItems = Object.keys(this.chart!.xs()),
+    let currentItems = Object.keys(this.chart?.xs() || {}),
         newItems = data.slice(1).map((d: any[]) => d[0]),
         newCategories = data[0].slice(1);
     

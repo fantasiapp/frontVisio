@@ -23,9 +23,11 @@ export class MapLegendComponent implements Updatable {
     this.update();
   }
 
-  @HostBinding('class.closed') closed: boolean = true;
+  @HostBinding('class.closed') closed: boolean = false;
   @HostListener('click')
-  private onClick() { this.closed = !this.closed; }
+  private onClick() {
+    this.closed = !this.closed
+   }
 
   readonly categories: any = {
     [Symbol.iterator]: PropertyIterator
@@ -48,14 +50,19 @@ export class MapLegendComponent implements Updatable {
     if ( !dict || !keys.length ) return;
     let category = keys[0].split('.')[0],
       ids = keys.map(key => +key.split('.')[1]),
-      mapping = DEH.get(category),
+      mapping = DEH.getFilter(category),
       values;
-    
-    if ( mapping ) {
+
+    if ( Object.keys(mapping).length ) {
       ids.sort((x, y) => 1-2*+(mapping[x] < mapping[y]));
       values = ids.map(id => mapping[id]);
     } else {
-      values = ids.map(id => id ? 'Oui' : 'Non');
+      ids.sort();
+      //try to interpret result
+      if ( ids.length == 2 && !ids[0] && ids[1] )
+        values = ids.map(id => id ? 'Oui' : 'Non');
+      else
+        throw `Unable to find category ${category}.`;
     }
     this.categories[category] = [values, ids.map(id => dict[category + '.' + id]['icon'].url)];
     this.findCategories(dict[category + '.' + ids[0]]);

@@ -16,7 +16,8 @@ const routes: Routes = [
     path: 'logged',
     component: ViewComponent, 
     canActivate:[AuthGuard],
-  }, {
+  },
+  {
     path: '**',
     redirectTo: 'login'
   }

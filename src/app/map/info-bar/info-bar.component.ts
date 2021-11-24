@@ -14,6 +14,7 @@ import {
   animate,
   transition,
 } from '@angular/animations';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'info-bar',
@@ -139,7 +140,7 @@ export class InfoBarComponent {
       dep: DEH.getNameOfRegularObject('dep', pdv.dep),
       ville: DEH.getNameOfRegularObject('ville', pdv.ville),
       bassin: this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')],
-      clientProspect: pdv.clientProspect2(),
+      clientProspect: pdv.clientProspectFilter(),
       nbVisits: pdv.nbVisits,
       siniatP2cdSales: pdv.displayIndustrieSaleVolumes()['Siniat'],
       placoP2cdSales: pdv.displayIndustrieSaleVolumes()['Placo'],
@@ -150,7 +151,7 @@ export class InfoBarComponent {
       potential: pdv.potential,
       totalSiniatEnduitSales: pdv.potential + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.displayIndustrieSaleVolumes(true)['Prégy'],
       totalEnduitSales: pdv.displayIndustrieSaleVolumes(true)['Prégy'] + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.potential,
-      typology: DEH.getNameOfRegularObject('typology', pdv.typology),
+      typology: DEH.getFilter('segmentDnEnduit')[pdv.typology],
     }
   }
 
@@ -188,11 +189,11 @@ export class InfoBarComponent {
 
   format(entry: number) {
     if(!entry) return ''
-    return BasicWidget.format(entry, 3, true);
+    return Utils.format(entry, 3, true);
   }
 
   convert(entry: string) {
-    return BasicWidget.convert(entry);
+    return Utils.convert(entry);
   }
 
   quit(save: boolean) {

@@ -1,0 +1,12 @@
+<div *ngIf="contents.length" class="tooltip">
+    <div class="item" *ngFor="let item of contents">
+        <span class="item-color-indicator" [style.background-color]="item.color"></span>
+        <span [style.color]="item.color" class="item-body">
+            {{ item.id }}
+        </span>
+        
+        {{item.body}}
+    </div>
+    
+    <div class="tooltip-tail"></div>
+</div>

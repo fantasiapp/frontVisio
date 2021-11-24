@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { Chart, d3Selection } from 'billboard.js';
 import * as d3 from 'd3';
 import { LoggerService } from 'src/app/services/logger.service';
@@ -8,6 +8,7 @@ import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
 import { TargetService } from '../description-widget/description-service.service';
 import { HistoColumnComponent } from '../histocolumn/histocolumn.component';
+import { Utils } from 'src/app/interfaces/Common';
 
 //❌
 @Component({
@@ -45,8 +46,8 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     this._inputIsOpen = val;
   }
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice, protected logger: LoggerService, protected targetService: TargetService, protected cd: ChangeDetectorRef) {
-    super(ref, filtersService, sliceDice);
+  constructor(protected injector: Injector, protected logger: LoggerService, protected targetService: TargetService, protected cd: ChangeDetectorRef) {
+    super(injector);
     this.subscribe(this.targetService.targetChange, value => {
       if ( this.inputIsOpen ) this.toggleTargetControl();
       this.canSetTargets = !this.canSetTargets;
@@ -76,7 +77,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
   }
 
   private getTargetValue(d: number): string {
-    return BasicWidget.format(DEH.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DEH.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
+    return Utils.format(DEH.get(this.data.targetLevel['name'])[this.data.targetLevel['ids'][d]][DEH.get(this.data.targetLevel['structure']).indexOf(this.data.targetLevel['volumeIdentifier'])]);
   }
 
   private renderTargetControl() {
@@ -98,7 +99,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
         .on('input', (e: Event) => {
           let input = e.target as any,
             target = +input.value.replace(/\s+/g, '');
-          input.value = BasicWidget.format(target);
+          input.value = Utils.format(target);
         })
         .on('change', (e: Event) => {
           let input = e.target as any,
@@ -108,7 +109,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
             input.classList.add('incorrect-input');
           } else {
             input.classList.remove('incorrect-input');
-            input.value = BasicWidget.format(target);
+            input.value = Utils.format(target);
             this.changeValue(target, input.__data__, e);
           }
         })
@@ -120,6 +121,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     this.data = data;
     super.createGraph(data, {
       onresized(this: any) {
+        self.clearTooltips();
         let chart = self.chart!;
         let rect = (chart.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
         self.rect = rect;
@@ -212,6 +214,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   toggleTargetControl() {
     this.inputIsOpen = !this.inputIsOpen;
+    this.clearTooltips();
     
     d3.select(this.content.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);

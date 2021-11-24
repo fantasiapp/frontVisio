@@ -53,6 +53,7 @@ import { AdOpenOnlyDirective } from './behaviour/ad-open-only.directive';
 import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directive';
 import { MapLegendComponent } from './map/map-legend/map-legend.component';
 import { ConditionnalDirective } from './behaviour/conditionnal.directive';
+import { TooltipComponent } from './widgets/tooltip/tooltip.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +96,8 @@ import { ConditionnalDirective } from './behaviour/conditionnal.directive';
     AdOpenOnlyDirective,
     CurrentYearOnlyDirective,
     MapLegendComponent,
-    ConditionnalDirective
+    ConditionnalDirective,
+    TooltipComponent
   ],
   imports: [
     BrowserModule,

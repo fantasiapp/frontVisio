@@ -1,6 +1,7 @@
-import DEH from "../middle/DataExtractionHelper";
-import DataExtractionHelper, { Params } from "../middle/DataExtractionHelper";
+import { Utils } from "../interfaces/Common";
+import DEH, { Params } from "../middle/DataExtractionHelper";
 import { PDV } from "../middle/Pdv";
+import { BasicWidget } from "../widgets/BasicWidget";
 
 //static class that builds icons
 export class MapIconBuilder {
@@ -113,23 +114,27 @@ export class MapIconBuilder {
       <polygon fill='${fill}' stroke='${stroke}' stroke-width='1' points='${points}'></polygon>
     `
   }
-
-  static fire(builder: MapIconBuilder, {strokeFeet = builder.getPropertyOf(null, 'stroke')}: any) {
-    return `<circle cx='15' cy='26' r='4' stroke='${strokeFeet}' stroke-width='1' fill='#FF0000'></circle>`;
+  static fire() {
+    return `
+      <g id="Group_17830" data-name="Group 17830" transform="translate(-95, -108.625) scale(0.8)" transform-origin="110 125">
+        <path id="Path_45452" data-name="Path 45452" d="M110.177,125.528c.105.05.212.1.317.15a7.489,7.489,0,0,1,3.779,4.351,13.4,13.4,0,0,1,.744,4.255c0,.065,0,.13,0,.194a.49.49,0,0,0,.3.465.471.471,0,0,0,.552-.11c.288-.3.576-.6.845-.918a5.016,5.016,0,0,0,1.049-1.9c.059.113.11.209.157.306a9.271,9.271,0,0,1,.991,4.089,7.257,7.257,0,0,1-5.707,7.137,6.939,6.939,0,0,1-6.3-1.653,7.289,7.289,0,0,1-2.437-4.1,6.53,6.53,0,0,1,.289-3.569c.318-.912.623-1.828.9-2.752.159-.526.256-1.071.38-1.607.007-.03.016-.06.032-.12.078.087.144.154.2.226a3.821,3.821,0,0,1,.96,2.518c0,.362.219.585.537.539a.67.67,0,0,0,.354-.2,6.6,6.6,0,0,0,1.548-2.827,12.9,12.9,0,0,0,.493-4.083c0-.119-.006-.238-.008-.357C110.156,125.557,110.165,125.548,110.177,125.528Z" transform="translate(-0.899 -1.156)" fill="#f06d0c"/>
+      </g>
+    `;
   }
 
   static evaluateValues(category: string, values: any) {
-    let mapping = DataExtractionHelper.get(category),
+    let mapping = DEH.getFilter(category),
       result: [number, any][] = [];
     
-    if ( mapping ) {
+    if (Object.keys(mapping).length) {
       for ( let [key, value] of Object.entries(values) )
-        result.push([+DataExtractionHelper.getKeyByValue(mapping, key)!, value]);
+        result.push([+DEH.getKeyByValue(mapping, key)!, value]);
+      return result;
     } else {
-      result = Object.values(values).map((value, idx) => [idx, value]);
+      return Object.values(values).map((value, index) => {
+        return [index, value]
+      });
     }
-
-    return result;
   }
 
   static legend: any;
@@ -138,9 +143,9 @@ export class MapIconBuilder {
     let builder = new MapIconBuilder({
       width: 30, height: 30, stroke: '#151D21', strokeWidth: 1, fill: '#ffffff'
     });
-
-    this.legendArgs = LEGEND_ARGS[Params.rootLabel] || LEGEND_ARGS['default'];
-    let legend = this.legend = LEGEND[Params.rootLabel] || LEGEND['default'];
+    
+    this.legendArgs = LEGEND_ARGS[Params.rootNature] || LEGEND_ARGS['default'];
+    let legend = this.legend = LEGEND[Params.rootNature] || LEGEND['default'];
     for ( let [category, values] of Object.entries(legend) )
       builder.category(category, this.evaluateValues(category, values));
     
@@ -154,14 +159,13 @@ export class MapIconBuilder {
     
     for ( let arg of args ) {
       if ( typeof arg === 'string' ) {
-        result.push(+pdv.property(arg));
+        result.push(+pdv.filterProperty(arg));
       } else {
         let [prop, transform] = arg;
-        result.push(transform(pdv.property(prop)));
+        result.push(transform(pdv.filterProperty(prop)));
       }
     }
-
-    return this.instance!.get(result);
+    return this.instance.get(result);
   }
 
   private static _instance: MapIconBuilder | null = null;
@@ -172,7 +176,7 @@ export class MapIconBuilder {
 let LEGEND: {[key: string]: any} = {
   agentFinitions: {
     'visité': {0: {fill: '#0056A6'}, 1: {fill: '#A61F7D'}},
-    'typology': {
+    'segmentDnEnduit': {
       'Pur prospect': {head: MapIconBuilder.square},
       'Enduit hors P2CD': {head: MapIconBuilder.diamond},
       'P2CD + Enduit': {head: MapIconBuilder.circle},
@@ -196,15 +200,14 @@ let LEGEND: {[key: string]: any} = {
     }
   }
 };
-let idNonDoc = +DEH.getKeyByValue(DEH.get('clientProspect'), "Non documenté")!;
 let LEGEND_ARGS: {[key: string]: (string | [string, (arg: any) => number])[]} = {
   agentFinitions: [
-    ['visited',  (visited: number) => +(visited != 2)],
-    'typology'
+    ['visitedFilter',  (visited: number) => +(visited == +DEH.getKeyByValue(DEH.getFilter('visitedFilter'), "Visité")!)],
+    "segmentDnEnduit"
   ],
   default: [
     'industriel',
-    ['clientProspect', (prospect: number) => +(prospect == idNonDoc)],
+    ['clientProspect', (prospect: number) => +(prospect == +DEH.getKeyByValue(DEH.getFilter('clientProspect'), "Non documenté")!)],
     'pointFeu',
     'segmentMarketing'
   ]

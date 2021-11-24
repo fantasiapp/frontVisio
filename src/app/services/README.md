@@ -59,6 +59,8 @@ This service also provied the public function `handleDisconnect(forceClear: bool
 `-` **normal behaviour** : called by [ViewComponent](../view/view.component.ts) in `ngOnDestroy()`, it checks if the token stored in the session storage and in the local storage are the same, then if the user chose to stay connected. If not, it clears `lastUpdateTimestamp`, `data`, `token`, and `stayConnected` <br>
 `-` **anormal behaviour** : called by [LoginPageComponent](../login-page/login-page.component.ts) in `enableForceLogin()`, it should delete everything except `lastToken` and `queuedDataToUpdate`
 
+<hr/>
+
 ### [LoggerService](./logger.service.ts)
 
 The service regularily sends data about user activity to the server.
@@ -85,55 +87,91 @@ The service relies mostly on two functions:
     When this method is called, the service checks changes in its fields.<br/>
     If found, queues a snapshot on [DataService](./data.service.ts) to be sent to the server.
 
-### [FiltersStatesService](./filters-states.service.ts)
+<hr/>
+
+## [FiltersStatesService](./filters-states.service.ts)
 
 This service allows the user/programmer to navigate the application. It is used by components that depend on navigation to render and components that effectively can change the navigation state.
 
-- **Dependencies**
-    - **`public navigation: Navigation`** (Contains the actual navigation functionality)
-    - **`private dataservice: DataService`**
-    - **`private sliceDice: SliceDice`**
-    - **`private logger: LoggerService`**
+### **Dependencies**
+- **`public navigation: Navigation`** (Contains the actual navigation functionality)
+- **`private dataservice: DataService`**
+- **`private sliceDice: SliceDice`**
+- **`private logger: LoggerService`**
 
-- **Observables (or similar)**
+### **Observables (or similar)**
+- **`state: Subject<{node: Node, dashboard: Dashboard}>`**<br/>
+This subject is reflects the most recent `Node` and `Dashboard`.
+`private _state?` holds the most recent value of this subject.
 
-    - **`state: Subject<{node: Node, dashboard: Dashboard}>`**<br/>
-    This subject is reflects the most recent `Node` and `Dashboard`.
-    `private _state?` holds the most recent value of this subject.
-    
-    - **`filters: Subject<{...}>`**<br/>
-    The subject contains information computed from state and to be supplied to FiltersComponents.<br/>
-    The informations include the current navigation node, its children and parent, the path etc...
+- **`filters: Subject<{...}>`**<br/>
+The subject contains information computed from state and to be supplied to FiltersComponents.<br/>
+The informations include the current navigation node, its children and parent, the path etc...
 
-    - **`logPathChanged: Subject<{}>`**
-    Used along with `LoggerService` for logging the path every now and then.
+- **`logPathChanged: Subject<{}>`**
+Used along with `LoggerService` for logging the path every now and then.
 
-- **Important Methods**
+### **Important Methods**
+- **`emitState(): void`** (Output -> `state`) <br/>
+Retrieves the most recent state and emits it through the `state` subject.
 
-    - **`emitState(): void`** (Output -> `state`) <br/>
-    Retrieves the most recent state and emits it through the `state` subject.
+- **`emitFilters(): void`** (Output -> `filters`) <br/>
+Computes filters from the most recent `state` and emits through the `filters` subject.
 
-    - **`emitFilters(): void`** (Output -> `filters`) <br/>
-    Computes filters from the most recent `state` and emits through the `filters` subject.
+- **`emitEvents(): void`** (Output -> `state`, `filters`) <br/>
+Call `emitState()` followed by `emitFilters()`.
 
-    - **`emitEvents(): void`** (Output -> `state`, `filters`) <br/>
-    Call `emitState()` followed by `emitFilters()`.
+- **`setYear(current: boolean): number`** (Output -> `state`, `filters`) <br/>
+Sets the data year, (`true`) for the current year and (`false`) otherwise.
 
-    - **`getYear(): number`** (uses `Params`) <br/>
-    Returns the data year (so the current year or the last one), computed from the back and user input.
+- **`setTree(tree: Tree, follow: boolean = true): void`** (Output -> `state`, `filters`) <br/>
+Replaces the current navigation tree.
+If `follow`, then we'll try to navigate to the same level we were before tree changes.
 
-    - **`getMonth(): string`** (uses `Params`) <br/>
-    Returns the name of the current month, computed from the back.
+- **`update()`** (Output -> `state`, `filters`) <br/>
+Updates the logs and emits `state` and `filters` events, causing all subscriber components (view, bars, etc) to update.
 
-    - **`setYear(current: boolean): number`** (Output -> `state`, `filters`) <br/>
-    Sets the data year, (`true`) for the current year and (`false`) otherwise.
+<hr/>
 
-    - **`setTree(tree: Tree, follow: boolean = true): void`** (Output -> `state`, `filters`) <br/>
-    Replaces the current navigation tree.
-    If `follow`, then we'll try to navigate to the same level we were before tree changes.
+## [SearchService](./search.service.ts)
 
-    - **`gotoPDVsDashboard(): number`** (Output -> `state`, `filters`) <br/>
-    Moves to closest PDV table, returns:
-        - 2 if we are already on one
-        - 1 if we moved to the table succesfully
-        - 0 if we can't
+This service allows the user/programmer to search the data by categories and by their names.
+
+The service supports two modes: <br/>
+    - Search a category in the category list <br/>
+    - Search an item inside a category<br/>
+
+This component is injected at the `SearchbarComponent` component level.
+
+### **Dependencies**
+- **`private dataservice: DataService`** (Subscribe for new data)
+
+### **Observables (or similar)**
+- None
+
+### **Important Methods**
+- **`search(term: string, ...rest: any[] = [showAll = true, sort = true]): Suggestion[]`** <br/>
+Searches term in the current category if it exists, otherwise searches the category list for term.
+
+- **`findAll(): Suggestion[]`** <br/>
+return all results in the current category if it exists, otherwise return all categories.
+
+- **`switchMode(mode: number, pattern: string = ''): Suggestion[]`** <br/>
+If pattern is a known category, then switch to search inside this category.
+If mode is PATTERN_SEARCH then the service is reset to searching inside the category list.
+
+<hr/>
+
+## [WidgetManagerService](./widget-manager.service.ts)
+A nice service to retrieve some Angular components by their names. 
+This component is injected at the `GridManager` component level.
+
+### **Dependencies**
+- None
+
+### **Observables (or similar)**
+- None
+
+### **Important Methods**
+- **`findComponent(name: string): any`** <br/>
+Finds a component by it's given name. If none exists, we return an empty component with title and description to replace it.

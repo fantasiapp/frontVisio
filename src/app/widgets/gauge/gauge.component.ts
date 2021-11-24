@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
+import { ChangeDetectionStrategy, Component, ElementRef, Injector, OnInit, ViewChild } from '@angular/core';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { BasicWidget } from '../BasicWidget';
-import bb, {gauge} from 'billboard.js';
+import bb, {DataItem, gauge} from 'billboard.js';
 import * as d3 from 'd3';
+import { Utils } from 'src/app/interfaces/Common';
 
 //unmock & present
 @Component({
@@ -19,13 +19,23 @@ export class GaugeComponent extends BasicWidget {
 
   private padding: number = 10;
   
-  constructor(ref: ElementRef, filtersService: FiltersStatesService, sliceDice: SliceDice) {
-    super(ref, filtersService, sliceDice);
+  constructor(protected injector: Injector) {
+    super(injector);
   }
 
-  createGraph({data, threshold}: any, opt: {} = {}) {
-    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    this.chart = bb.generate({
+  protected checkData(data: any) {
+    return false;
+  }
+
+  setDetails(details: string) {
+    d3.select(this.ref.nativeElement).select('.details').text(details);
+  }
+
+  createGraph({data, threshold}: any, opt: any = {}) {
+    d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();
+    this.setDetails(data[0][0]);
+    let self = this;
+    let blueprint = {
       bindto: this.content.nativeElement,
       padding: { //makes the chart smaller
         left: this.padding, top: this.padding, bottom: this.padding, right: this.padding
@@ -33,26 +43,20 @@ export class GaugeComponent extends BasicWidget {
       data: {
         columns: data,
         type: gauge(),
-        order: null
+        order: null,
+        onclick(item: DataItem) {
+          self.toggleTooltipOnClick(item);
+        }
       },
       gauge: {
         label: {
-          extents(value, isMax) {
+          extents() {
             return "";
           },
         }
       },
       tooltip: {
-        grouped: false,
-        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          const data = d[0];
-          return `
-            <div class="tooltip">
-              Résultat: <span style="color:${color(data)}">${BasicWidget.format(data.value, 3)} %</span>
-              <div class="tooltip-tail"></div>
-            </div>
-          `;
-        },
+        show: false
       },
       color: {
         pattern: [
@@ -70,14 +74,16 @@ export class GaugeComponent extends BasicWidget {
       transition: {
         duration: 250
       },
-      ...opt
-    });
-    d3.select(this.ref.nativeElement).select('.title').text(data[0][0]);
+      onresized() {
+        self.clearTooltips();
+      }
+    };
+    this.chart = bb.generate(Utils.dictDeepMerge(blueprint, opt));
   }
 
   updateGraph({data}: any) {
     this.schedule.queue(() => {
-      d3.select(this.ref.nativeElement).select('.title').text(data[0][0]);
+      this.setDetails(data[0][0]);
       let newId = data;
       let oldId = this.chart!.data()[0].id;
       this.chart?.load({

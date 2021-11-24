@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
 
-import bb, {donut} from 'billboard.js';
+import bb, {DataItem, donut} from 'billboard.js';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'app-simple-donut',
@@ -16,8 +15,8 @@ export class SimpleDonutComponent extends BasicWidget {
   @ViewChild('content', {read: ElementRef})
   protected content!: ElementRef;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
-    super(ref, filtersService, sliceDice);
+  constructor(protected injector: Injector) {
+    super(injector);
   }
 
   createGraph({data, colors}: any, opt: {} = {}) {
@@ -28,23 +27,19 @@ export class SimpleDonutComponent extends BasicWidget {
     /****************⚠️ ***************/
     
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    this.chart = bb.generate({
+    let self = this;
+    let blueprint = {
       bindto: this.content.nativeElement,
       data: {
         columns: data,
         type: donut(),
-        order: null
+        order: null,
+        onclick(item: DataItem, svg: SVGElement) {
+          self.toggleTooltipOnClick(item);
+        }
       },
       tooltip: {
-        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          const data = d[0];
-          return `
-            <div class="tooltip">
-              <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}
-              <div class="tooltip-tail"></div>
-            </div>
-          `;
-        },
+        show: false
       },
       //remove labels on slices
       donut: {
@@ -76,16 +71,18 @@ export class SimpleDonutComponent extends BasicWidget {
       },
       onrendered: () => {
         //initial rendering bug
+        
         this.chart!.config('onrendered', null);
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
-        this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
+        this.chart!.config('legend_inset_y', 20 + (data.length - 0.5) * BasicWidget.legendItemHeight);
       },
       onresized: () => {
         this.chart!.config('legend_item_tile_height', BasicWidget.legendItemHeight);
         this.chart!.config('legend_inset_y', 20 + (this.chart!.data().length - 0.5) * BasicWidget.legendItemHeight);
-        //this.chart!.flush();
-      },
-      ...opt
-    });
+        this.clearTooltips();
+      }
+    };
+    
+    this.chart = bb.generate(Utils.dictDeepMerge(blueprint, opt));
   }
 }

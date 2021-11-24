@@ -1,3 +1,7 @@
+:host {
+    position: relative;
+}
+
 .table-title {
     padding-left: 30px;
 }

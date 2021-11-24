@@ -11,14 +11,14 @@ export class SequentialSchedule {
     this.queueReady = true;
   }
 
-  private callback(f: any, mutate: any = (q: any[]) => q.shift()) {
-    this.once((_: any) => this.queueNext(mutate));
+  private callback(f: any, next: any = (q: any[]) => q.shift()) {
+    this.once((_: any) => this.queueNext(next));
     f();
   }
 
-  private queueNext(mutate: any) {
+  private queueNext(next: any) {
     if ( this.q.length ) {
-      let [nextF, nextMutate]: [any, any] = mutate(this.q);
+      let [nextF, nextMutate]: [any, any] = next(this.q);
       this.callback(nextF, nextMutate);
     } else {
       this.queueReady = true;
@@ -32,12 +32,12 @@ export class SequentialSchedule {
     });
   }
 
-  queue(f: any, mutate: any = ($q: any[]) => $q.shift()) {
+  queue(f: any, next: any = (q: any[]) => q.shift()) {
     if ( this.queueReady ) {
       this.queueReady = false;
-      this.callback(f, mutate);
+      this.callback(f, next);
     } else {
-      this.q.push([f, mutate]);
+      this.q.push([f, next]);
     }
   }
 

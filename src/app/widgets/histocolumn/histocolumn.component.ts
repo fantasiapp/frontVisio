@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { BasicWidget } from '../BasicWidget';
 import * as d3 from 'd3';
 import { SliceDice } from 'src/app/middle/Slice&Dice';
 import { FiltersStatesService } from 'src/app/services/filters-states.service';
 
-import bb, {bar} from 'billboard.js';
+import bb, {bar, Chart, DataItem} from 'billboard.js';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'app-histocolumn',
@@ -18,8 +19,8 @@ export class HistoColumnComponent extends BasicWidget {
 
   public axisLabelLength: number = 15;
 
-  constructor(protected ref: ElementRef, protected filtersService: FiltersStatesService, protected sliceDice: SliceDice) {
-    super(ref, filtersService, sliceDice);
+  constructor(protected injector: Injector) {
+    super(injector);
   }
 
   protected rect?: DOMRect;
@@ -63,36 +64,20 @@ export class HistoColumnComponent extends BasicWidget {
     let self = this;
     this.maxValue = this.computeMax(data);
     d3.select(this.ref.nativeElement).selectAll('div:nth-of-type(2) > *').remove();      
-    this.chart = bb.generate({
+    let blueprint = {
       bindto: this.content.nativeElement,
       data: {
         x: data[0][0] == 'x' ? 'x' : undefined, /* ⚠️⚠️ inaccurate format ⚠️⚠️ */
         columns: data,
         type: bar(),
         groups: [data.slice(1).map((x: any[]) => x[0])],
-        order: null
+        order: null,
+        onclick(item: DataItem) {
+          self.toggleTooltipOnClick(item);
+        }
       },
       tooltip: {
-        grouped: false,
-        contents: (d, defaultTitleFormat, defaultValueFormat, color) => {
-          d.reverse();
-          return `
-            <div class="histocolumn-tooltip tooltip">
-              ${d.filter((data: any) => data.value > 0.5).map((data: any) => `
-                <span style="color:${color(data)}">${data.id}: </span>${BasicWidget.format(data.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}
-              `).join('<br/>')}
-              <div class="tooltip-tail"></div>
-            </div>
-          `;
-        }, //barely works
-        position: (data, width, height, element, pos) => {
-          let axisPadding = 0;
-          let maxBottom = this.rect!.height - 30; //30 css padding
-          return {
-            top: Math.max(axisPadding, Math.min(maxBottom, pos.y - height/2 + axisPadding)),
-            left: (pos.xAxis || pos.x) + 20
-          };
-        }
+        show: false
       },
       bar: {
         sensitivity: 10,
@@ -111,7 +96,7 @@ export class HistoColumnComponent extends BasicWidget {
           },
           tick: {
             autorotate: true,
-            format(index: number, category: string) {
+            format(this: Chart, index: number, category: string) {
               if ( index < this.categories().length )
                 return category.length >= self.axisLabelLength+3 ? category.slice(0, self.axisLabelLength - 3) + '...' : category;
               return '';
@@ -139,15 +124,19 @@ export class HistoColumnComponent extends BasicWidget {
           onclick() {}
         },
       },
-      onrendered() {
+      onrendered(this: Chart) {
         let rect = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
         self.rect = rect;
       },
       transition: {
         duration: 250
       },
-      ...opt
-    });
+      onresized() {
+        self.clearTooltips();
+      }
+    };
+
+    this.chart = bb.generate(Utils.dictDeepMerge(blueprint, opt));
   }
 
   updateGraph({data}: any) {

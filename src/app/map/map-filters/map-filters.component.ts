@@ -1,9 +1,9 @@
-import { Component, HostBinding, Output, EventEmitter, ViewChildren, QueryList, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, HostBinding, Output, EventEmitter, ViewChildren, QueryList, ElementRef, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
 import { LoggerService } from 'src/app/services/logger.service';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
 import DEH, { Params } from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { MapSelectComponent } from '../map-select/map-select.component';
+import { Utils } from 'src/app/interfaces/Common';
 
 @Component({
   selector: 'map-filters',
@@ -12,8 +12,8 @@ import { MapSelectComponent } from '../map-select/map-select.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapFiltersComponent {
-  criteriaNames = CRITERIA[Params.rootLabel] || CRITERIA['default'];
-  criteriaPrettyNames = CRITERIA_NAMES[Params.rootLabel] || CRITERIA_NAMES['default'];
+  criteriaNames = CRITERIA[Params.rootNature] || CRITERIA['default'];
+  criteriaPrettyNames = CRITERIA_NAMES[Params.rootNature] || CRITERIA_NAMES['default'];
   //actualy selected criteria
   criteria: [string, number[]][] = [];
 
@@ -32,6 +32,10 @@ export class MapFiltersComponent {
 
   ngAfterViewInit() { this.update(); }
 
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('$ changes:', changes);
+  }
+
   update() {
     this.pdvs = [...PDV.getInstances().values()];
     this.selects.forEach(select => select.reset());
@@ -44,9 +48,9 @@ export class MapFiltersComponent {
     let criterion = this.criteriaNames[index],
       result = this.liveDict[criterion];
     
-    if ( !result ) return [];
+    if ( !Object.keys(result).length ) return [];
 
-    let dict = DEH.get(criterion);
+    let dict = DEH.getFilter(criterion);
     return Object.keys(result).filter(key => result[key]).map(key =>
       [key, dict[key]]
     ).sort((a, b) => {
@@ -166,7 +170,7 @@ export class MapFiltersComponent {
 };
 
 let CRITERIA: {[key: string]: string[]} = {
-  agentFinitions: ['typology', 'visited', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'],
+  agentFinitions: ['segmentDnEnduit', 'visitedFilter', 'segmentMarketingFilter', 'enseigne', 'dep', 'bassin'],
   default: ['clientProspect', 'ciblage', 'pointFeuFilter', 'segmentMarketingFilter', 'segmentCommercial', 'industriel', 'enseigne', 'drv', 'agent', 'dep', 'bassin']
 };
 
