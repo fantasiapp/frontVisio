@@ -31,7 +31,7 @@
 <div class="graph-description" [class]="showDescription ? 'show' : 'hide'" [ngStyle]="{'top': mouseY + 'px', 'left': mouseX + 'px'}">
     <div *ngFor="let type of description">
         <div *ngFor="let sale of type">
-            <label *ngIf="sale[1].value !== '0'"><div class="color-square" [ngStyle]="{'background-color': sale[1].color}"></div>{{sale[0]}} : {{sale[1].value}} T</label>
+            <label *ngIf="sale[1].value !== '0'"><div class="color-square" [ngStyle]="{'background-color': sale[1].color}"></div>{{sale[0]}} : {{sale[1].value}} kg</label>
         </div>
     </div>
 </div>
