@@ -103,7 +103,7 @@ export class DataService {
   private threadIsOn: boolean = false;
   updateSubscriber: any;
   logSubscriber: any;
-  $serverLoading: AsyncSubject<boolean> = new AsyncSubject();
+  $serverLoading: Subject<boolean> = new Subject();
 
   private dataToUpdate: UpdateDataWithLogs = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
   private queuedDataToUpdate: UpdateDataWithLogs = {targetLevelAgentP2CD: {}, targetLevelAgentFinitions: {}, targetLevelDrv:{}, pdvs: {}, logs: []};
@@ -136,8 +136,7 @@ export class DataService {
         if(data.warning || data.error) {
           console.log("Server temporarly unavailable. Please wait (estimated : 2min)...")
           this.$serverLoading.next(true);
-          this.$serverLoading.complete();
-          setTimeout(() => this.requestData(), 30000);
+          setTimeout(() => this.requestData(), 30000)
         } else {
           console.log("RequestData successfull")
           this.$serverLoading.next(false);

@@ -115,6 +115,7 @@ export class TableComponent extends BasicWidget {
   }
 
   createGraph(data: TableData): void {
+    this.currentOpt = 'name';
     this.columnDefs = this.setupCellRenderers(data.columnDefs);
     this.navOpts = data.navOpts;
     groupInfos = data.colInfos;
@@ -155,7 +156,10 @@ export class TableComponent extends BasicWidget {
           switch (cd.field) {
             case 'name':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return DEH.getNameOfRegularObject(SliceTable.currentGroupField, params.value['name']) + ' PdV : ' + params.value['number']
+                if(params.data.groupRow === true) {
+                  if(SliceTable.currentGroupField == 'typology') return DEH.getFilter('segmentDnEnduit')[params.value['name']] + ' PdV : ' + params.value['number'];
+                  return DEH.getFilter(SliceTable.currentGroupField)[params.value['name']] + ' PdV : ' + params.value['number'];
+                }
                 return;
               }
               break;
