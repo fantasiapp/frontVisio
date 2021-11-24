@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { AuthService } from '../connection/auth.service';
@@ -20,6 +21,7 @@ import { delay, take } from 'rxjs/operators';
 import {
   AUTHENTIFICATION_STARTED, CONNEXION_SUCESS, CONNECTION_ERROR
 } from './login-server-info/login-server-info.component'
+import { LoginFormComponent } from './login-form/login-form.component';
 
 @Component({
   selector: 'app-login-page',
@@ -44,6 +46,9 @@ import {
   ],
 })
 export class LoginPageComponent implements OnInit {
+  @ViewChild(LoginFormComponent)
+  loginForm?: LoginFormComponent;
+
   connexionState = new Subject<number>();
   private subscription?: Subscription;
   private destroy$: Subject<void> = new Subject<void>();
@@ -75,7 +80,6 @@ export class LoginPageComponent implements OnInit {
         setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
         setTimeout(() => elmt5?.classList.add('scale'), 900);
         this.dataservice.$serverLoading.subscribe((val: boolean) => this.serverIsLoading = val)
-        this.connexionState.next(AUTHENTIFICATION_STARTED);
         this.dataservice.load.pipe(take(1)).subscribe(() => {
           this.connexionState.next(CONNEXION_SUCESS);
         })
@@ -83,15 +87,18 @@ export class LoginPageComponent implements OnInit {
           this.dataservice.load,
           of(null).pipe(delay(6000))
         ]).subscribe(() => {
-          this.router.navigate([
-            sessionStorage.getItem('originalPath') || 'logged',
-          ]);
+          setTimeout(() => {
+            this.router.navigate([
+              sessionStorage.getItem('originalPath') || 'logged',
+            ]);
+          }, 1000);
         }, (err) => {
           this.connexionState.next(CONNECTION_ERROR);
         });
       }
     },
     error: () => {
+      this.loginForm?.handleError();
       this.connexionState.next(CONNECTION_ERROR);
     }
   }
@@ -139,6 +146,7 @@ export class LoginPageComponent implements OnInit {
     if(this.isAlreadyConnected()) return;
     //console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
+    this.connexionState.next(AUTHENTIFICATION_STARTED);
     let auth = this.authService.loginToServer(username, password);
     auth.subscribe(this.logInObserver);
   }
