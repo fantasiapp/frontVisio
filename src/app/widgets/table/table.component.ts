@@ -1,6 +1,4 @@
-import { Component, ElementRef, ViewChild, ChangeDetectorRef, Injector } from '@angular/core';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { Component, ElementRef, ViewChild, Injector } from '@angular/core';
 import { PDV } from 'src/app/middle/Pdv';
 import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
@@ -265,6 +263,10 @@ export class TableComponent extends BasicWidget {
     if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
     this.pdv = PDV.findById(pdv.id) // => displays infoBar
     this.cd.markForCheck();
+  }
+
+  protected onClick(e: PointerEvent) {
+    //do nothing
   }
 
   /** Bound with (mousemove) on the whol agGrid component **/

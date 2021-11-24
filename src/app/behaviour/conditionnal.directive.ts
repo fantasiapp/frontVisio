@@ -13,7 +13,6 @@ export class ConditionnalDirective extends DisableDirective{
 
   computeDisabled(): boolean {
     for(let condition of this.conditions) {
-      console.log("DISABLED")
       if(disabledParams[condition](this.pdv)) {
         return true;
       }
