@@ -1,12 +1,10 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChildren } from '@angular/core';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { Sale } from 'src/app/middle/Sale';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/services/logger.service';
 import { disabledParams } from 'src/app/behaviour/disabled-conditions'
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
 import {
   trigger,
   state,
@@ -67,6 +65,8 @@ export class InfoBarComponent {
       this.isOnlySiniat = this.pdv!.onlySiniat
 
       this.loadGrid();
+      this.cd.markForCheck();
+      console.log("Set info bar DV")
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
     this.logger.actionComplete();
@@ -159,7 +159,7 @@ export class InfoBarComponent {
     return this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
   }
 
-  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
+  constructor(private ref: ElementRef, private dataService: DataService, private cd: ChangeDetectorRef, private logger: LoggerService) {
     //console.log('[InfobarComponent]: On')
     this.SALES_INDUSTRY_ID = DEH.getPositionOfAttr('structureSales', 'industry')
     this.SALES_PRODUCT_ID = DEH.getPositionOfAttr('structureSales', 'product')

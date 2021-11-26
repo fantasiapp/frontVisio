@@ -165,14 +165,14 @@ export class TableComponent extends BasicWidget {
             case 'siniatSales':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow === true) return 'Siniat : ' + Utils.format(params.value/1000, 3, true) + " km²";
-                return Utils.format(params.value/1000, 3, true)  + " m²";
+                return Utils.format(params.value, 3, true)  + " m²";
               }
               break;
 
             case 'totalSales':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow === true) return 'Identifie : ' + Utils.format(params.value/1000, 3, true) + " km²";
-                else return Utils.format(params.value/1000, 3, true)  + " m²";
+                else return Utils.format(params.value, 3, true)  + " m²";
               }
               break;
 

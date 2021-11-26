@@ -10,10 +10,13 @@ export class ConditionnalDirective extends DisableDirective{
 
   private pdv!: PDV;
   private conditions!: string[];
+  private previousState!: boolean;
 
   computeDisabled(): boolean {
+    this.previousState = this.el.nativeElement.disabled;
     for(let condition of this.conditions) {
       if(disabledParams[condition](this.pdv)) {
+        console.log("Disable because of ", condition)
         return true;
       }
     }
