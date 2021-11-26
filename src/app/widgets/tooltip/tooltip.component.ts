@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding } fr
 
 export interface TooltipItem {
   color: string;
+  title?: string;
   id: string;
   body: string;
 }
@@ -32,4 +33,20 @@ export class TooltipComponent {
     this.contents.push(item);
     this.cd.markForCheck();
   }
+
+  removeItem(id: string) {
+    let index = -1;
+    for ( let i = 0; i < this.contents.length; i++ )
+      if ( this.contents[i].id == id ) {
+        index = i;
+        break;
+      }
+    
+    if ( index < 0 ) return false;
+    this.contents.splice(index, 1);
+    this.cd.markForCheck();
+    return true;
+  }
+
+  get empty() { return this.contents.length == 0; }
 }

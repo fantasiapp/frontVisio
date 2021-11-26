@@ -80,7 +80,6 @@ export class MapComponent extends SubscriptionManager {
   protected onDataUpdate() {
     MapIconBuilder.initialize();
     this.legend?.update();
-    console.log('update data');
     this.filters?.update();
     this.shouldUpdateIcons = false;
   }
@@ -167,6 +166,10 @@ export class MapComponent extends SubscriptionManager {
         featureType: "poi.park",
         elementType: "geometry.fill",
         stylers: [{ color: "#81D4A0" }],
+      }, {
+        featureType: "poi.business",
+        elementType: 'all',
+        stylers: [{visibility: 'off'}]
       }, {
         featureType: 'transit',
         stylers: [{visibility: 'off'}]

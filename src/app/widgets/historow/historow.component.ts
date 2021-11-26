@@ -102,7 +102,7 @@ export class HistoRowComponent extends BasicWidget {
         show: false
       },
       bar: {
-        sensitivity: 10
+        sensitivity: 4
       },
       color: {
         pattern: colors
