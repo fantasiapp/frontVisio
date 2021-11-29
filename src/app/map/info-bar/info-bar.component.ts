@@ -61,7 +61,7 @@ export class InfoBarComponent {
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.getPositionOfAttr('structureTarget', 'redistributed')] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'redistributedFinitions')] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'sale')] && this.pdv!.sale
-      this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] =  DEH.getNameOfRegularObject('bassin', this._pdv.bassin);
+      if(this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] == "") this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] =  DEH.getNameOfRegularObject('bassin', this._pdv.bassin);
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
       this.targetP2cdFormatted = this.format(this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')]);
