@@ -253,11 +253,20 @@ export class InfoBarComponent {
     else return 'black'
 }
 
-  onKey(event: any) {
+  onKey(event: KeyboardEvent, i: number, j: number) {
+    if(event.key === 'Enter') {
+      this.changeSales(i, j);
+      var currInput = <HTMLElement>document.activeElement;
+      var inputs = Array.from(this.ref.nativeElement.querySelectorAll("input") as Array<HTMLElement>).filter((input) => input.getAttribute('disabled') == null);
+      let currIndex = inputs.indexOf(currInput!);
+      if(event.shiftKey) inputs[currIndex-1]?.focus();
+      else inputs[currIndex+1]?.focus();
+    }
     //if(event.keyCode === 37) console.log("Left")
     //if(event.keyCode === 38) console.log("Up")
     //if(event.keyCode === 39) console.log("Right")
     //if(event.keyCode === 40) console.log("Down")
+
   }
 
   updateSum(i: number, j: number, oldVolume: number, newVolume: number) {
