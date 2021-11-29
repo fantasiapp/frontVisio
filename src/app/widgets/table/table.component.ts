@@ -102,6 +102,12 @@ export class TableComponent extends BasicWidget {
 
   /** Called when next is called on the DataService update Subject **/
   refresh() {
+    console.log("[TableComponent] refresh()")
+    for(let pdv of this.sliceTable.getPdvs(this.type)) {
+      this.gridOptions.api.forEachNode(
+        (rowNode: any, index: number) => {if(rowNode.data.id == pdv.id) rowNode.setData(pdv);}
+      )
+    }
     this.gridOptions.api.redrawRows()
     this.renderTitle()
   }

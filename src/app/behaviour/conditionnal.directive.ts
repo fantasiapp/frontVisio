@@ -42,6 +42,7 @@ export class ConditionnalDirective {
 
   private computeState(): boolean { //disable / enable / leave
     for(let condition of this.conditions) {
+      // console.log("Conditions : ", disabledParams[condition](this.pdv!), "\n Native : ", this.ref.nativeElement)
       if(disabledParams[condition](this.pdv!).val) {
         return true;
       }
@@ -56,6 +57,7 @@ export class ConditionnalDirective {
   }
 
   @Input() set conditionnal({pdv, conditions, initialConditions}: Conditionnal) {
+    // console.log("Set condition : ", this.ref.nativeElement);
     this.pdv = pdv;
     this.conditions = conditions || [];
     this.initialConditions = initialConditions || [];
