@@ -59,7 +59,6 @@ export class ConditionnalDirective {
     this.conditions = conditions || [];
     this.initialConditions = initialConditions || [];
     this.initiallyDisabled = this.computeInitialState();
-    console.log('setting initial on', this.ref.nativeElement);
     if ( this.initiallyDisabled || this.computeState() ) this.disableElement();
   }
 }

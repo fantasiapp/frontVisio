@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 
 export const
+  HIDDEN = 0,
   REQUEST_DATA = 1 << 1,
   CONNEXION_SUCESS = 1 << 2,
   CONNECTION_ERROR = 1 << 3;
@@ -12,6 +13,7 @@ export const
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginServerInfoComponent {
+  readonly HIDDEN = HIDDEN;
   readonly REQUEST_DATA = REQUEST_DATA;
   readonly CONNEXION_SUCESS = CONNEXION_SUCESS;
   readonly CONNECTION_ERROR = CONNECTION_ERROR
@@ -37,6 +39,11 @@ export class LoginServerInfoComponent {
         if ( !this.timeUntilReload )
           window.location.reload();
       }, 1000);
+    } else if ( this._mode == CONNEXION_SUCESS ) {
+      setTimeout(() => {
+        this.mode = HIDDEN;
+        this.cd.markForCheck();
+      }, 2000);
     }
   };
 
