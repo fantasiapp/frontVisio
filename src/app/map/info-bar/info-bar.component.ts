@@ -13,6 +13,7 @@ import {
   transition,
 } from '@angular/animations';
 import { Utils } from 'src/app/interfaces/Common';
+import { ConditionnalDirective } from 'src/app/behaviour/conditionnal.directive';
 
 @Component({
   selector: 'info-bar',
@@ -44,7 +45,10 @@ export class InfoBarComponent {
 
   @ViewChildren('comments')
   private comments?: QueryList<ElementRef>;
-  
+
+  @ViewChildren(ConditionnalDirective)
+  private directives?: QueryList<ConditionnalDirective>;
+
   @Input()
   set pdv(value: PDV | undefined) {
     this.opened = value ? true : false;
@@ -267,17 +271,24 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = this.format(value);
   }
 
+  private updateDirectives() {
+    for ( let directive of this.directives ?? [] )
+      directive.update();
+  }
+
   /*** Functions used to change the target field (and onlySiniat field) in the local pdv ***/
   changeRedistributed() {
-      this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
-      if(!this.target[this.TARGET_REDISTRIBUTED_ID]) this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = false;
-      this.showNavigation = this.shouldShowNavigation()
-      this.hasChanged = true;
+    this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
+    if(!this.target[this.TARGET_REDISTRIBUTED_ID]) this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = false;
+    this.showNavigation = this.shouldShowNavigation()
+    this.hasChanged = true;
+    this.updateDirectives();
   }
   changeRedistributedFinitions() {
     this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
     this.showNavigation = this.shouldShowNavigation()
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeTargetP2CD() {
     this.targetP2cdFormatted = this.convert(this.targetP2cdFormatted).toString();
@@ -290,11 +301,13 @@ export class InfoBarComponent {
     this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] = this.convert(this.targetP2cdFormatted);
     this.targetP2cdFormatted = this.format(+this.targetP2cdFormatted)
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeComment() {
     let ref = this.comments!.get(0);
     if ( !ref ) return;
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeTargetBassin() {
     if(!this.displayedInfos.bassin) {
@@ -303,10 +316,12 @@ export class InfoBarComponent {
     }
     this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] = this.displayedInfos.bassin;
     this.hasChanged = true;
+    this.updateDirectives();
   } 
   changeTargetLight(newLightValue: string) {
     this.target[DEH.getPositionOfAttr('structureTarget',  'greenLight')] = newLightValue;
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
     let oldVolume = this.grid[i][j].volume; let newVolume = this.convert(this.gridFormatted[i][j]);
@@ -330,16 +345,20 @@ export class InfoBarComponent {
 
     this.updateSum(i,j, oldVolume, newVolume)
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeTargetSale(){
-      this.target[this.TARGET_SALE_ID] = !this.target[this.TARGET_SALE_ID];
-      this.showNavigation = this.shouldShowNavigation()
-      this.hasChanged = true;
+    this.target[this.TARGET_SALE_ID] = !this.target[this.TARGET_SALE_ID];
+    this.showNavigation = this.shouldShowNavigation()
+    this.hasChanged = true;
+    this.updateDirectives();
   }
+
   changeOnlySiniat() {
     this.isOnlySiniat = !this.isOnlySiniat;
     this.hasChanged = true;
     this.pdv!.changeOnlySiniat(this.isOnlySiniat);
+    this.updateDirectives();
   }
 
   getMouseCoordinnates() {

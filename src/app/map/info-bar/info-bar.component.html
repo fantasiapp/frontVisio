@@ -32,7 +32,7 @@
                                 <li><p>{{ displayedInfos.enseigne }}</p></li>
                                 <li><p>{{ displayedInfos.dep }}</p></li>
                                 <li><p>{{ displayedInfos.ville }}</p></li>
-                                <li><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()" agentOnly></li>
+                                <li><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()" [conditionnal]="{initialConditions: ['agentOnly']}"></li>
                             </ul>
                         </div>
                         <div class="props">
@@ -40,7 +40,7 @@
                                 <li>
                                     <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                                         Ne vend pas de plaque
-                                        <input type="checkbox" [attr.checked]="target[TARGET_SALE_ID] === false" (change)="changeTargetSale()" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales', 'noSale']}"  agentOnly>
+                                        <input type="checkbox" [attr.checked]="target[TARGET_SALE_ID] === false" (change)="changeTargetSale()" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales', 'noSale'], initialConditions: ['agentOnly']}">
                                         <span class="checkmark" ></span>
                                     </label>
                                     <div class="disabled-description" [style.opacity]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noSale'](pdv!).val === true ? '1' : '0'" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}"> {{ conditionsParams['noEmptySales'](pdv!).message + conditionsParams['noSale'](pdv!).message }}</div>
@@ -48,7 +48,7 @@
                                 <li>
                                     <label class="container-checkbox disabled-input" (mousemove)="getMouseCoordinnates()">
                                         Point de vente redistribue
-                                        <input type="checkbox" [attr.checked]="target[TARGET_REDISTRIBUTED_ID] === false" (change)="changeRedistributed()" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales', 'noRedistributed']}" agentOnly>
+                                        <input type="checkbox" [attr.checked]="target[TARGET_REDISTRIBUTED_ID] === false" (change)="changeRedistributed()" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales', 'noRedistributed'], initialConditions: ['agentOnly']}">
                                         <span class="checkmark"></span>
                                     </label>
                                     <div class="disabled-description" [style.opacity]="conditionsParams['noEmptySales'](pdv!).val || conditionsParams['noRedistributed'](pdv!).val === true ? '1' : '0'" [ngStyle]="{'width' : '150px', 'top': mouseY + 'px', 'left' : (mouseX-150) + 'px'}">{{ conditionsParams['noEmptySales'](pdv!).message + conditionsParams['noRedistributed'](pdv!).message }}</div>
@@ -88,20 +88,20 @@
                             <ul>
                                 <li>
                                     <span class="bolder">Volume visé en m² :</span>
-                                    <input id="targetP2cd" style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD agentOnly currentYearOnly/>
+                                    <input id="targetP2cd" style="margin-left: 10px" [(ngModel)]="targetP2cdFormatted" (change)="changeTargetP2CD()" type="text" #targetP2CD [conditionnal]="{initialConditions: ['agentOnly', 'currentYearOnly']}"/>
                                     <span class="invalid-value" [@fadeOut]="errorInput ? 'visible' : 'invisible'">Veuillez entrer une valeur valide</span>
                                 </li>
                                 <li><span class="bolder">Capacité à faire basculer le PDV :</span>
-                                    <button style="margin-left: 10px" (click)="changeTargetLight('r')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
-                                    <button (click)="changeTargetLight('o')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
-                                    <button (click)="changeTargetLight('g')" agentOnly currentYearOnly><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
+                                    <button style="margin-left: 10px" (click)="changeTargetLight('r')" [conditionnal]="{initialConditions: ['agentOnly', 'currentYearOnly']}"><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'r' ? 'red' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('o')" [conditionnal]="{initialConditions: ['agentOnly', 'currentYearOnly']}"><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'o' ? 'orange' : 'lightgray'}"></div></button>
+                                    <button (click)="changeTargetLight('g')" [conditionnal]="{initialConditions: ['agentOnly', 'currentYearOnly']}"><div class="circle" [ngStyle]="{'background': target[TARGET_LIGHT_ID] === 'g' ? 'green' : 'lightgray'}"></div></button>
                                 </li>
                             </ul>
                         </div>
                     </div>
                     <div class="comments">
                         <span>Commentaires :</span>
-                        <textarea (change)="changeComment()" #comments agentOnly currentYearOnly>{{ target[TARGET_COMMENT_ID] }}</textarea>
+                        <textarea (change)="changeComment()" #comments [conditionnal]="{initialConditions: ['agentOnly', 'currentYearOnly']}">{{ target[TARGET_COMMENT_ID] }}</textarea>
                     </div>
                 </div>
             </ng-container>
@@ -116,7 +116,7 @@
                             <div class="first row">
                                 <div class="first empty only-siniat cell">
                                     <label class="text-checkbox">
-                                        <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales']}" agentOnly currentYearOnly adOpenOnly>
+                                        <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales'], initialConditions: ['agentOnly', 'currentYearOnly', 'adOpenOnly']}">
                                         <span>100% Siniat</span>
                                     </label>
                                 </div>
@@ -133,7 +133,7 @@
                             <div class="row" *ngFor="let industry of industries; let j = index">
                                 <div class="first cell">{{industry | titlecase}}</div>
                                 <div class="cell" *ngFor="let product of products; let i = index">
-                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]" accessControl agentOnly adOpenOnly currentYearOnly/>
+                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]" [conditionnal]="{initialConditions: ['agentOnly', 'adOpenOnly', 'currentYearOnly']}"/>
                                 </div>
                             </div>
                         </div>

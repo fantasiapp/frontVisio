@@ -1,6 +1,18 @@
+import { Dict } from '../interfaces/Common';
+import DEH, { Params } from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Pdv';
 
-export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, val : boolean}} = {
+type DisableCondition = (pdv: PDV) => {
+  message: string;
+  val: boolean;
+};
+
+type InitialCondition = () => boolean;
+
+export type DisabledParamsNames =
+  'noRedistributedFinitions' | 'noEmptySalesFinitions' | 'noSale' | 'noEmptySales' | 'noRedistributed';
+
+export const disabledParams:{[key in DisabledParamsNames]: DisableCondition} = {
   'noRedistributedFinitions': (pdv: PDV ) => {
     let val = !pdv.redistributedFinitions;
     return { message: val ? 'Le siège a déclaré ce pdv finitions redistribué\n' : '', val : val}
@@ -28,4 +40,15 @@ export const disabledParams: {[name: string]: (pdv: PDV ) => {message: string, v
     let val = !pdv!.redistributed;
     return { message : val ? 'Le siège a déclaré ce pdv comme étant redistribué\n' : '', val : val}
   }
-}
+};
+
+//help the type system so the programmer produces less errors
+export type InitialConditionsNames =
+  'adOpenOnly' | 'agentFinitionsOnly' | 'agentOnly'| 'currentYearOnly'
+
+export const initialConditions: {[key in InitialConditionsNames]: InitialCondition} = {
+  adOpenOnly: () => !Params.isAdOpen,
+  agentFinitionsOnly: () => Params.rootNature !== 'agentFinitions',
+  agentOnly: () => Params.rootNature !== 'agent',
+  currentYearOnly: () => !DEH.currentYear
+};

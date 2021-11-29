@@ -164,8 +164,8 @@ export class MapComponent extends SubscriptionManager {
         stylers: [{visibility: 'off'}]
       }, {
         featureType: "poi.park",
-        elementType: "geometry.fill",
-        stylers: [{ color: "#81D4A0" }],
+        elementType: "all",
+        stylers: [{ visibility: "off" }],
       }, {
         featureType: "poi.business",
         elementType: 'all',
