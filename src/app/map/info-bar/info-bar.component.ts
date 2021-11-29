@@ -61,7 +61,7 @@ export class InfoBarComponent {
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.getPositionOfAttr('structureTarget', 'redistributed')] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'redistributedFinitions')] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'sale')] && this.pdv!.sale
-      this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] =  DEH.getNameOfRegularObject('bassin', this._pdv.bassin);
+      if(this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] == "") this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] =  DEH.getNameOfRegularObject('bassin', this._pdv.bassin);
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
       this.targetP2cdFormatted = this.format(this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')]);
@@ -253,11 +253,20 @@ export class InfoBarComponent {
     else return 'black'
 }
 
-  onKey(event: any) {
+  onKey(event: KeyboardEvent, i: number, j: number) {
+    if(event.key === 'Enter') {
+      this.changeSales(i, j);
+      var currInput = <HTMLElement>document.activeElement;
+      var inputs = Array.from(this.ref.nativeElement.querySelectorAll("input") as Array<HTMLElement>).filter((input) => input.getAttribute('disabled') == null);
+      let currIndex = inputs.indexOf(currInput!);
+      if(event.shiftKey) inputs[currIndex-1]?.focus();
+      else inputs[currIndex+1]?.focus();
+    }
     //if(event.keyCode === 37) console.log("Left")
     //if(event.keyCode === 38) console.log("Up")
     //if(event.keyCode === 39) console.log("Right")
     //if(event.keyCode === 40) console.log("Down")
+
   }
 
   updateSum(i: number, j: number, oldVolume: number, newVolume: number) {
@@ -306,6 +315,7 @@ export class InfoBarComponent {
   changeComment() {
     let ref = this.comments!.get(0);
     if ( !ref ) return;
+    this.target[DEH.getPositionOfAttr('structureTarget',  'commentTargetP2CD')] = ref.nativeElement.value;
     this.hasChanged = true;
     this.updateDirectives();
   }

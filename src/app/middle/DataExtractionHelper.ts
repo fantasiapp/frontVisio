@@ -144,7 +144,7 @@ class DEH{  // for DataExtractionHelper
     this.currentYear = true;
   }
 
-  static updateData(data: UpdateData) {    
+  static updateData(data: UpdateData) {
     // Check how deletions are managed 
     for(let [newPdvId, newPdv] of Object.entries(data.pdvs))
       this.data.pdvs[newPdvId] = newPdv;

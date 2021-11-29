@@ -27,7 +27,7 @@ export class TableComponent extends BasicWidget {
   type: TableTypes = TableTypes.p2cd;
   /** Navigation menu **/
   navOpts: any;
-  currentOpt: any;
+  currentOpt: any = 'name';
   /** Dynamic grid properties **/
   gridOptions: any;
   columnDefs: any;
@@ -102,6 +102,11 @@ export class TableComponent extends BasicWidget {
 
   /** Called when next is called on the DataService update Subject **/
   refresh() {
+    let newRows = this.sliceTable.getPdvs(this.type);
+    let ind = 0;
+    this.gridOptions.api.forEachNode(
+      (rowNode: any, index: number) => {rowNode.setData(newRows[ind]); ind++;}
+    )
     this.gridOptions.api.redrawRows()
     this.renderTitle()
   }
