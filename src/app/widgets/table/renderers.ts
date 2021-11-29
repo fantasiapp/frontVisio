@@ -26,7 +26,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typology === 4" agentFinitionsOnly currentYearOnly></div>`,
+    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typology === 4" [conditionnal]="{initialConditions: ['agentFinitionsOnly', 'currentYearOnly']}"></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
