@@ -7,6 +7,7 @@ import { AsyncSubject } from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { Utils } from 'src/app/interfaces/Common';
+import { DataService } from 'src/app/services/data.service';
 
 @Component({
   selector: 'app-table',
@@ -41,7 +42,7 @@ export class TableComponent extends BasicWidget {
   gridLoaded = new AsyncSubject<null>();
 
 
-  constructor(protected injector: Injector, protected sliceTable: SliceTable) {
+  constructor(protected injector: Injector, protected sliceTable: SliceTable, private dataService: DataService) {
     super(injector);
     
     /** Static properties of the ag-grid component **/
@@ -107,9 +108,11 @@ export class TableComponent extends BasicWidget {
 
   /** Called when browsing the navigation **/
   update() {
-    this.rowData = this.sliceTable.getPdvs(this.type)
-    this.renderTitle()
-    // this.createGraph(this.createData())
+    if(this.dataService.onlyRefresh) this.refresh();
+    else {
+      this.rowData = this.sliceTable.getPdvs(this.type)
+      this.renderTitle()
+    }
   }
 
   createGraph(data: TableData): void {

@@ -99,6 +99,7 @@ export class DataService {
   response = new BehaviorSubject<Object|null>(null); //Used to notify the AuthSercvice and FilterService once the data has been fetched
   update: Subject<null> = new Subject;  //Used once an UpdateData object has been handled by the back (for sending or receiving)
   load: Subject<null> = new Subject;  //Used to notify the LoginPageComponent once the full data has been received
+  onlyRefresh: boolean = false; // specify whether TableComponent should call update() or refresh()
 
   private threadIsOn: boolean = false;
   updateSubscriber: any;
@@ -139,6 +140,7 @@ export class DataService {
           setTimeout(() => this.requestData(), 30000)
         } else {
           console.log("RequestData successfull")
+          this.onlyRefresh = false;
           this.$serverLoading.next(false);
           this.load.next();
           this.response.next(data);
@@ -152,6 +154,7 @@ export class DataService {
   private sendDataToUpdate(data: UpdateDataWithLogs) {
     this.http.post(environment.backUrl + 'visioServer/data/', data
     , {params : {"action" : "update"}}).subscribe((response: any) => {if(response && !response.error) this.sendQueuedDataToUpdate()})
+    this.onlyRefresh = true;
     DEH.updateData(data as UpdateData);
     this.update.next();
     console.log("Sending data for update : ", data)
@@ -169,6 +172,7 @@ export class DataService {
         }
         else if(DEH.currentYear) {
           console.log("Updates received from back : ", response)
+          this.onlyRefresh = true;
           DEH.updateData(response as UpdateData);
           this.update.next()
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)

@@ -94,6 +94,8 @@ export class FiltersStatesService extends SubscriptionManager {
     emit: boolean = true
   ) {
 
+    this.dataservice.onlyRefresh = false; //force update for TableComponent
+
     this.navigation.setCurrent(levelId, dashboardId, superlevel);
     if ( superlevel !== undefined || levelId !== undefined )
       this.logPathChanged.next(this._state!.node.path);
