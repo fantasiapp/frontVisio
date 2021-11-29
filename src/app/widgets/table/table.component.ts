@@ -27,7 +27,7 @@ export class TableComponent extends BasicWidget {
   type: TableTypes = TableTypes.p2cd;
   /** Navigation menu **/
   navOpts: any;
-  currentOpt: any;
+  currentOpt: any = 'name';
   /** Dynamic grid properties **/
   gridOptions: any;
   columnDefs: any;
