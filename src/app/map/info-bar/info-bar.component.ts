@@ -294,6 +294,7 @@ export class InfoBarComponent {
   changeComment() {
     let ref = this.comments!.get(0);
     if ( !ref ) return;
+    this.target[DEH.getPositionOfAttr('structureTarget',  'commentTargetP2CD')] = ref.nativeElement.value;
     this.hasChanged = true;
   }
   changeTargetBassin() {
