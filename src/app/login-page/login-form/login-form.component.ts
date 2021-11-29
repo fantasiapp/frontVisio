@@ -43,7 +43,7 @@ export class LoginFormComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  constructor(cdr: ChangeDetectorRef, private authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {}
 

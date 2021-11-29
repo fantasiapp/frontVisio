@@ -80,7 +80,7 @@ export class HistoColumnComponent extends BasicWidget {
         show: false
       },
       bar: {
-        sensitivity: 10,
+        sensitivity: 4,
         width: {
           ratio: 0.3
         }
