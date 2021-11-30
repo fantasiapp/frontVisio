@@ -554,62 +554,6 @@ input[type=number] {
     right: 5px;
 }
 
-.quitbar-container {
-    background: rgba(247, 247, 247, 0.5);
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 3;
-}
-
-.quitbar {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    height: 250px;
-    text-align: center;
-    border-radius: 5px;
-    background: white;
-    box-shadow: 0px 3px 6px #00000053;
-    font-size: 20px;
-    
-    padding: 30px;
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
-    align-items: center;
-}
-
-.quitbar h1 {
-    font-size: 1em;
-    font-weight: 500;
-    margin-bottom: 50px;
-}
-
-.button {
-    background: white;
-    border: none !important;
-    outline: none !important;
-    margin: 0 10px;
-    width: 150px;
-    height: 40px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 3px;
-}
-
-.negative.button {
-    border: 1px solid #E07030 !important;
-    color: #e07030;
-}
-
-.positive.button {
-    background: #E07030;
-    color: white;
-}
-
 .invalid-value {
     opacity: 0;
     color: red;
@@ -665,28 +609,16 @@ input[type=number] {
     :host {
         font-size: 15px;
     }
-
-    .button {
-        font-size: 14px !important;
-    }
 }
 
 @media (min-width: 1367px) and (max-width: 1500px) {
     :host {
         font-size: 17px;
     }
-
-    .button {
-        font-size: 15px !important;
-    }
 }
 
 @media (min-width: 1500px) {
     :host {
         font-size: 19px;
-    }
-
-    .button {
-        font-size: 16px !important;
     }
 }

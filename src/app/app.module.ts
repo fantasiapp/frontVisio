@@ -51,6 +51,7 @@ import { MapLegendComponent } from './map/map-legend/map-legend.component';
 import { ConditionnalDirective } from './behaviour/conditionnal.directive';
 import { TooltipComponent } from './widgets/tooltip/tooltip.component';
 import { LoginServerInfoComponent } from './login-page/login-server-info/login-server-info.component';
+import { InfobarQuitComponent } from './map/infobar-quit/infobar-quit.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { LoginServerInfoComponent } from './login-page/login-server-info/login-s
     MapLegendComponent,
     ConditionnalDirective,
     TooltipComponent,
-    LoginServerInfoComponent
+    LoginServerInfoComponent,
+    InfobarQuitComponent
   ],
   imports: [
     BrowserModule,

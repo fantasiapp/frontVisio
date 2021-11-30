@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, SimpleChange, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostBinding, HostListener, Input, SimpleChange, SimpleChanges } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Updatable } from 'src/app/interfaces/Common';
 import DEH from 'src/app/middle/DataExtractionHelper';
@@ -16,18 +16,31 @@ let PropertyIterator = function(this: any) {
   selector: 'map-legend',
   templateUrl: './map-legend.component.html',
   styleUrls: ['./map-legend.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  //changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapLegendComponent implements Updatable {
+  displayQuitDialog = false;
+  closed: boolean = false;
+
+  @Input()
+  left: number = 20;
+
   constructor(private sanitizer: DomSanitizer, private cd: ChangeDetectorRef) {
     this.update();
   }
 
-  @HostBinding('class.closed') closed: boolean = false;
   @HostListener('click')
-  private onClick() {
-    this.closed = !this.closed
-   }
+  onClick() {
+    console.log('stop clicking me');
+    if ( !this.closed ) {
+      this.displayQuitDialog = true;
+    } else this.closed = !this.closed;
+  }
+
+  onQuitConfirm(really: boolean) {
+    this.displayQuitDialog = false;
+    if ( really ) this.closed = true;
+  }
 
   readonly categories: any = {
     [Symbol.iterator]: PropertyIterator

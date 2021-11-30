@@ -119,6 +119,12 @@ export class MapComponent extends SubscriptionManager {
     this.cd.markForCheck();
   }
 
+  get legendPosition() {
+    if ( this.filters?.opened )
+      return this.filters.ref.nativeElement.offsetWidth;
+    return 20;
+  }
+
   private createMap() {
     let zoom = 7;
     this.map = new google.maps.Map(this.mapContainer!.nativeElement, {
