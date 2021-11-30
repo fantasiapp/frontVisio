@@ -7,6 +7,7 @@ import { AsyncSubject } from 'rxjs';
 import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { Utils } from 'src/app/interfaces/Common';
+import { DataService } from 'src/app/services/data.service';
 
 @Component({
   selector: 'app-table',
@@ -26,7 +27,7 @@ export class TableComponent extends BasicWidget {
   type: TableTypes = TableTypes.p2cd;
   /** Navigation menu **/
   navOpts: any;
-  currentOpt: any;
+  currentOpt: any = 'name';
   /** Dynamic grid properties **/
   gridOptions: any;
   columnDefs: any;
@@ -41,7 +42,7 @@ export class TableComponent extends BasicWidget {
   gridLoaded = new AsyncSubject<null>();
 
 
-  constructor(protected injector: Injector, protected sliceTable: SliceTable) {
+  constructor(protected injector: Injector, protected sliceTable: SliceTable, private dataService: DataService) {
     super(injector);
     
     /** Static properties of the ag-grid component **/
@@ -101,15 +102,22 @@ export class TableComponent extends BasicWidget {
 
   /** Called when next is called on the DataService update Subject **/
   refresh() {
+    let newRows = this.sliceTable.getPdvs(this.type);
+    let ind = 0;
+    this.gridOptions.api.forEachNode(
+      (rowNode: any, index: number) => {rowNode.setData(newRows[ind]); ind++;}
+    )
     this.gridOptions.api.redrawRows()
     this.renderTitle()
   }
 
   /** Called when browsing the navigation **/
   update() {
-    this.rowData = this.sliceTable.getPdvs(this.type)
-    this.renderTitle()
-    // this.createGraph(this.createData())
+    if(this.dataService.onlyRefresh) this.refresh();
+    else {
+      this.rowData = this.sliceTable.getPdvs(this.type)
+      this.renderTitle()
+    }
   }
 
   createGraph(data: TableData): void {
@@ -165,14 +173,14 @@ export class TableComponent extends BasicWidget {
             case 'siniatSales':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow === true) return 'Siniat : ' + Utils.format(params.value/1000, 3, true) + " km²";
-                return Utils.format(params.value/1000, 3, true)  + " m²";
+                return Utils.format(params.value, 3, true)  + " m²";
               }
               break;
 
             case 'totalSales':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow === true) return 'Identifie : ' + Utils.format(params.value/1000, 3, true) + " km²";
-                else return Utils.format(params.value/1000, 3, true)  + " m²";
+                else return Utils.format(params.value, 3, true)  + " m²";
               }
               break;
 
