@@ -1,4 +1,3 @@
-import { Dict } from '../interfaces/Common';
 import DEH, { Params } from '../middle/DataExtractionHelper';
 import { PDV } from '../middle/Pdv';
 
@@ -7,7 +6,10 @@ type DisableCondition = (pdv: PDV) => {
   val: boolean;
 };
 
-type InitialCondition = () => boolean;
+type InitialCondition = () => {
+  message: string;
+  val: boolean;
+};
 
 export type DisabledParamsNames =
   'noRedistributedFinitions' | 'noEmptySalesFinitions' | 'noSale' | 'noEmptySales' | 'noRedistributed';
@@ -47,8 +49,8 @@ export type InitialConditionsNames =
   'adOpenOnly' | 'agentFinitionsOnly' | 'agentOnly'| 'currentYearOnly'
 
 export const initialConditions: {[key in InitialConditionsNames]: InitialCondition} = {
-  adOpenOnly: () => !Params.isAdOpen,
-  agentFinitionsOnly: () => Params.rootNature !== 'agentFinitions',
-  agentOnly: () => Params.rootNature !== 'agent',
-  currentYearOnly: () => !DEH.currentYear
+  adOpenOnly: () => {return {message : !Params.isAdOpen ? "La saisie de l'AD est fermée.\n" : "", val: !Params.isAdOpen}},
+  agentFinitionsOnly: () => {return {message : Params.rootNature !== 'agentFinitions' ? "Seul un Agent Finitions peut modifier ceci.\n" : "", val: Params.rootNature !== 'agentFinitions'}},
+  agentOnly: () => {return {message : Params.rootNature !== 'agent' ? "Seul un Agent peut modifier ceci.\n" : "", val: Params.rootNature !== 'agent'}},
+  currentYearOnly: () => {return {message : !DEH.currentYear ? "Impossible de modifier ce champ hors de l'année courante.\n" : "", val: !DEH.currentYear}},
 };

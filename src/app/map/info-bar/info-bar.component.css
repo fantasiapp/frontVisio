@@ -643,23 +643,6 @@ input[type=number] {
     padding-top: 10px;
     padding-bottom: 10px;
 }
-/* ***** */
-
-.disabled-description {
-    pointer-events: none;
-    display: none;
-    position: fixed;
-    font-size: 0.8em;
-    background-color: #333;
-    color: white;
-    height: fit-content;
-    z-index: 99999999;
-    padding: 0.5em;
-    border-radius: 0.5em;
-}
-.disabled-input:hover + .disabled-description{
-    display: block;
-}
 
 @media (max-width: 1367px) {
     :host {

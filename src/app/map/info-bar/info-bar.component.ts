@@ -4,7 +4,7 @@ import { PDV } from 'src/app/middle/Pdv';
 import { Sale } from 'src/app/middle/Sale';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/services/logger.service';
-import { disabledParams } from 'src/app/behaviour/disabled-conditions'
+import { disabledParams, DisabledParamsNames, initialConditions, InitialConditionsNames } from 'src/app/behaviour/disabled-conditions'
 import {
   trigger,
   state,
@@ -112,11 +112,10 @@ export class InfoBarComponent {
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
-  mouseX: number = 0;
-  mouseY : number = 0;
 
   disabledMsg: string = ''
   conditionsParams = disabledParams;
+  initialParams = initialConditions;
   noEmptySales(pdv: PDV, sales: any[]) {
     for(let sale of sales!) {
       if(sale[DEH.getPositionOfAttr('structureSales',  'industry')] != DEH.getIndustryId('Siniat') && sale[DEH.getPositionOfAttr('structureSales',  'volume')] > 0) {
@@ -184,6 +183,23 @@ export class InfoBarComponent {
       this.industryIdToIndex[+DEH.getKeyByValue(DEH.get('industry'), this.industries[i])!] = i+1; //first row already used
     for(let i = 0; i<this.products.length-1; i++)
       this.productIdToIndex[+DEH.getKeyByValue(DEH.get('product'), this.products[i])!] = i;
+  }
+
+  computeDisabledDescription(firsts: InitialConditionsNames[], seconds?: DisabledParamsNames[]) {
+    let description: string = "";
+    for(let first of firsts) {
+      if(initialConditions[first]().val) {
+        description += initialConditions[first]().message + "\n";
+      }
+    }
+    
+    if(seconds)
+    for(let second of seconds) {
+      if(disabledParams[second](this.pdv!).val) {
+        description += disabledParams[second](this.pdv!).message + "\n";
+      }
+    }
+    return description;
   }
 
   //make variable
@@ -266,7 +282,6 @@ export class InfoBarComponent {
     //if(event.keyCode === 38) console.log("Up")
     //if(event.keyCode === 39) console.log("Right")
     //if(event.keyCode === 40) console.log("Down")
-
   }
 
   updateSum(i: number, j: number, oldVolume: number, newVolume: number) {
@@ -369,11 +384,5 @@ export class InfoBarComponent {
     this.hasChanged = true;
     this.pdv!.changeOnlySiniat(this.isOnlySiniat);
     this.updateDirectives();
-  }
-
-  getMouseCoordinnates() {
-    let e = window.event as any;
-    this.mouseX = e.pageX;
-    this.mouseY = e.pageY;
   }
 }
