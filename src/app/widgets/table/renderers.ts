@@ -54,7 +54,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox" [checked]="pdv.checkboxP2cd" [hidden]="pdv.clientProspect === 1" disabled></div>`,
+    template: `<div><input type="checkbox" [checked]="pdv.targetP2cd > 0 && pdv.lightTarget != 'r'" [hidden]="pdv.clientProspect === 1" disabled></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -168,6 +168,12 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class InfoCellRenderer extends DefaultCellRenderer {}
+
+  @Component({
+    template: `<div>Ciblé</div>`,
+  })
+  export class TargetColumnRenderer extends DefaultCellRenderer {}
+  
 
   @Component({
     template: ``,

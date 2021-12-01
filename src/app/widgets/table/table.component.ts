@@ -4,7 +4,7 @@ import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject } from 'rxjs';
-import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer, TargetColumnRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { Utils } from 'src/app/interfaces/Common';
 import { DataService } from 'src/app/services/data.service';
@@ -81,6 +81,7 @@ export class TableComponent extends BasicWidget {
                                     targetCellRenderer: TargetCellRenderer,
                                     infoCellRenderer: InfoCellRenderer,
                                     addArrowCellRenderer: AddArrowCellRenderer,
+                                    targetColumRenderer: TargetColumnRenderer
       },
       isExternalFilterPresent:   
                                     () => Object.keys(hiddenGroups).length > 0
@@ -193,7 +194,7 @@ export class TableComponent extends BasicWidget {
             
             case 'checkboxP2cd':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'targetColumRenderer'}
                 return {component : 'checkboxP2cdCellRenderer'};
               }
               break;
