@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { LoginServerInfoComponent } from './login-page/login-server-info/login-server-info.component';
+import { InfobarQuitComponent } from './map/infobar-quit/infobar-quit.component';
 //import { PieChartComponent } from './widgets/piechart/piechart.component';
 // const routes: Routes = []
 
@@ -17,10 +18,6 @@ const routes: Routes = [
     path: 'logged',
     component: ViewComponent, 
     canActivate:[AuthGuard],
-  },
-  {
-    path: 'info',
-    component: LoginServerInfoComponent
   },
   {
     path: '**',

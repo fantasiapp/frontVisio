@@ -207,15 +207,9 @@
 </div>
 
 <div class="cover" (click)="requestQuit()" [style.display]="opened ? 'block' : 'none'"></div>
-<div class="quitbar-container" [style.display]="quiting ? 'block' : 'none'">
-    <div class="quitbar">
-        <h1>Souhaitez-vous mettre à jour les modifications</h1>
-        <div class="button-container">
-            <button class="negative button" (click)="quit(false)">Non, merci</button>
-            <button class="positive button" (click)="quit(true)">Oui</button>
-        </div>
-    </div>
-</div>
+<infobar-quit (quit)="quit($event)" [style.display]="quiting ? 'block' : 'none'">
+    <h1>Souhaitez-vous mettre à jour les modifications</h1>
+</infobar-quit>
 
 <div id="disabledDiv" *ngIf="disabledMsg !== ''">
     Action impossible : {{ disabledMsg }}
