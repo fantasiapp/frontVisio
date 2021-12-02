@@ -310,7 +310,7 @@ export class TableComponent extends BasicWidget {
       if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
       else arrowImg!.style.transform = "rotate(-0.5turn)"
     } else {
-      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') this.displayInfobar(event['data'])
+      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info' || event['column']['colId'] == 'name') this.displayInfobar(event['data'])
     }
   }
   onCellMouseOver(event: any) {
