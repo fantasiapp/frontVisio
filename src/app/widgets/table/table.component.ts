@@ -27,7 +27,7 @@ export class TableComponent extends BasicWidget {
   type: TableTypes = TableTypes.p2cd;
   /** Navigation menu **/
   navOpts: any;
-  currentOpt: any = 'name';
+  currentOpt: any = 'enseigne';
   /** Dynamic grid properties **/
   gridOptions: any;
   columnDefs: any;
@@ -122,7 +122,7 @@ export class TableComponent extends BasicWidget {
   }
 
   createGraph(data: TableData): void {
-    this.currentOpt = 'name';
+    this.currentOpt = 'enseigne';
     this.columnDefs = this.setupCellRenderers(data.columnDefs);
     this.navOpts = data.navOpts;
     groupInfos = data.colInfos;
