@@ -7,10 +7,10 @@
         <span class="profile-description">Profil {{ profileType | titlecase }}</span>
     </div>
     <ul class="details">
-        <li><img [src]="ADStatus ? 'assets/AD ouvert.svg' : 'assets/AD Fermée.svg'"/> Saisie de l'AD : <span class="value">{{ ADStatus ? 'Ouverte' : 'Fermée' }}</span></li>
-        <li><img src="assets/Version appli.svg"/> Version de l'Appli : <span class="value">{{ appVersion }}</span></li>
-        <li><img src="assets/Version referentiel .svg"/> Version Référentiel : <span class="value">{{ refValue }}</span></li>
-        <li><img src="assets/Mise a jour .svg"/> Mise à jour : <span class="value">{{ lastUpdateDate }}</span></li>
+        <li><img [src]="ADStatus ? 'assets/AD ouvert.svg' : 'assets/AD Fermée.svg'"/> Saisie de l'AD:&nbsp;<span class="value">{{ ADStatus ? 'Ouverte' : 'Fermée' }}</span></li>
+        <li><img src="assets/Version appli.svg"/> Version de l'Appli:&nbsp;<span class="value">{{ appVersion }}</span></li>
+        <li><img src="assets/Version referentiel .svg"/> Version Référentiel:&nbsp;<span class="value">{{ refValue }}</span></li>
+        <li><img src="assets/Mise a jour .svg"/> Mise à jour:&nbsp;<span class="value">{{ lastUpdateDate }}</span></li>
     </ul>
     <div class="logout">
         <button class="logout button" (click)="logout()">Se Déconnecter</button>
