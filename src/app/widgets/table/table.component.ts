@@ -341,13 +341,14 @@ export class TableComponent extends BasicWidget {
     } else if(event['column']['colId'] === 'targetFinition' && event['data'].groupRow !== true) {
       this.disabledDescription = [];
       for(let condition of ['agentFinitionsOnly', 'currentYearOnly']) {
-        if(initialConditions[condition as  InitialConditionsNames]().val)
+        if(initialConditions[condition as  InitialConditionsNames]().val) {
+          this.showDisabledDescription = true;
           this.disabledDescription.push(initialConditions[condition as  InitialConditionsNames]().message)
+        }
       }
-      if(this.disabledDescription != []) this.showDisabledDescription = true;
     } else if(event['column']['colId'] === 'checkboxP2cd' && event['data'].groupRow !== true) {
       this.disabledDescription = [];
-      this.disabledDescription = ['Ce champ n\'est pas modifiable']
+      this.disabledDescription = ['Ouvrir le menu d\'édition pour modifier']
       this.showDisabledDescription = true;
     }
   }

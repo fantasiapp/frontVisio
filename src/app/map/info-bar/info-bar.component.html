@@ -181,6 +181,7 @@
                     <span>Point de vente redistribué</span>
                     <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="target[TARGET_REDISTRIBUTED_FINITIONS_ID] === false">
                     <span class="checkmark" ></span>
+                    <div id="warning" *ngIf="pdv.redistributedFinitions != target[TARGET_REDISTRIBUTED_FINITIONS_ID]" style="color : red; position: fixed; top:inherit; left:inherit">En attente de validation par le siège</div>
                 </label>
                 <div class="values-div">
                     <div>

@@ -43,7 +43,7 @@ export const disabledParams:{[key in DisabledParamsNames]: DisableCondition} = {
     return { message : val ? 'Le siège a déclaré ce pdv comme étant redistribué\n' : '', val : val}
   },
   'onlySiniat' : (pdv: PDV ) => {
-    let val = !pdv!.onlySiniat;
+    let val = pdv!.onlySiniat;
     return { message : val ? 'Ce point de vente a été déclaré 100% Siniat\n' : '', val : val}
   }
 };

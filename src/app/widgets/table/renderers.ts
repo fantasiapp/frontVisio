@@ -75,7 +75,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    template: `<div><input type="checkbox" [checked]="checked" disabled></div>`,
+    template: `<div><input [hidden]="checked == false" type="checkbox" [checked]="checked" disabled></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -97,7 +97,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
 
   @Component({
-    template: `<div><input type="checkbox" [checked]="checked" disabled></div>`,
+    template: `<div><input [hidden]="checked == false" type="checkbox" [checked]="checked" disabled></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
