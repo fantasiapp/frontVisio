@@ -4,7 +4,7 @@ import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject } from 'rxjs';
-import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer, TargetColumnRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer, TargetColumnRenderer, CheckboxRedistributedP2cdCellRenderer, CheckboxRedistributedFinitionsCellRenderer, GroupRedistributedRenderer, GroupRedistributedFinitionsRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { Utils } from 'src/app/interfaces/Common';
 import { DataService } from 'src/app/services/data.service';
@@ -84,7 +84,12 @@ export class TableComponent extends BasicWidget {
                                     targetCellRenderer: TargetCellRenderer,
                                     infoCellRenderer: InfoCellRenderer,
                                     addArrowCellRenderer: AddArrowCellRenderer,
-                                    targetColumRenderer: TargetColumnRenderer
+                                    targetColumRenderer: TargetColumnRenderer,
+                                    checkboxRedistributedFinitionsCellRenderer : CheckboxRedistributedFinitionsCellRenderer,
+                                    checkboxRedistributedP2cdCellRenderer : CheckboxRedistributedP2cdCellRenderer,
+                                    groupRedistributedRenderer: GroupRedistributedRenderer,
+                                    groupRedistributedFinitionsRenderer: GroupRedistributedFinitionsRenderer
+
       },
       isExternalFilterPresent:   
                                     () => Object.keys(hiddenGroups).length > 0
@@ -246,6 +251,19 @@ export class TableComponent extends BasicWidget {
                 return params.value + ' V'
               }
               break;
+            
+              case 'redistributed':
+                cd.cellRendererSelector = function (params: any) {
+                  if(params.data.groupRow === true) return {component: 'groupRedistributedRenderer'}
+                  return {component : 'checkboxRedistributedP2cdCellRenderer'};
+                }
+                break;
+                case 'redistributedFinitions':
+                  cd.cellRendererSelector = function (params: any) {
+                    if(params.data.groupRow === true) return {component: 'groupRedistributedFinitionsRenderer'}
+                    return {component : 'checkboxRedistributedFinitionsCellRenderer'};
+                  }
+                  break;
 
             default:
               break;
@@ -321,12 +339,14 @@ export class TableComponent extends BasicWidget {
       this.description = this.computeDescription(JSON.parse(JSON.stringify(event.value))) // JSON.parse(JSON.stringify(object)) performs a deepcopy
       this.showDescription = true;
     } else if(event['column']['colId'] === 'targetFinition' && event['data'].groupRow !== true) {
+      this.disabledDescription = [];
       for(let condition of ['agentFinitionsOnly', 'currentYearOnly']) {
         if(initialConditions[condition as  InitialConditionsNames]().val)
           this.disabledDescription.push(initialConditions[condition as  InitialConditionsNames]().message)
       }
-      this.showDisabledDescription = true;
+      if(this.disabledDescription != []) this.showDisabledDescription = true;
     } else if(event['column']['colId'] === 'checkboxP2cd' && event['data'].groupRow !== true) {
+      this.disabledDescription = [];
       this.disabledDescription = ['Ce champ n\'est pas modifiable']
       this.showDisabledDescription = true;
     }
@@ -336,7 +356,6 @@ export class TableComponent extends BasicWidget {
       this.showDescription = false;
     } else if((event['column']['colId'] === 'targetFinition' || event['column']['colId'] === 'checkboxP2cd')&& event['data'].groupRow !== true) {
       this.showDisabledDescription = false;
-      this.disabledDescription = [];
 
     }
   }

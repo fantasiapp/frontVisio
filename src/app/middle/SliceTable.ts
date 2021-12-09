@@ -98,6 +98,7 @@ export class SliceTable {
                                                 }
                                             }
                                         },
+                                        {field: 'redistributed', flex: 0.35},
                                         {field: 'pointFeu', flex: 0.35}
                                     ],
                 'customSort':       (a: PDV, b: PDV) => {return b.totalSales - a.totalSales},
@@ -140,7 +141,8 @@ export class SliceTable {
                                             }
                                         },
                                         {field: 'potential', flex: 0.4},{field: 'info', flex: 0.3},
-                                        {field: 'targetFinition', flex: 0.3}
+                                        {field: 'redistributedFinitions', flex: 0.35},
+                                        {field: 'targetFinition', flex: 0.3},
                                     ],
                 'customSort':       (a: PDV, b: PDV) => {return b.potential - a.potential},
                 'customGroupSort':  (a: PDV[], b: PDV[]) => { return b[0].potential - a[0].potential },
