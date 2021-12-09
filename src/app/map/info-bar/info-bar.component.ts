@@ -55,6 +55,7 @@ export class InfoBarComponent {
     this.currentIndex = 0;
     this.pdvChange.emit(value);
     if ( value ) {
+      this.dataService.endUpdateThread();
       this._pdv = new PDV(value.id, JSON.parse(JSON.stringify(value.getValues())));
       if(!this._pdv.target) this._pdv.initializeTarget()
       this.target = this._pdv.target as any[];
@@ -71,6 +72,8 @@ export class InfoBarComponent {
       this.loadGrid();
       this.cd.markForCheck();
       console.log("Set info bar DV")
+    } else {
+      this.dataService.beginUpdateThread();
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
     this.logger.actionComplete();

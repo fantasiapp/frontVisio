@@ -41,7 +41,7 @@ export class ConditionnalDirective {
   onMouseMove() {
     this.getMouseCoordinnates();
     this.description.style.top = this.mouseY-(50*this.description.getElementsByTagName('p').length) + 'px';
-    this.description.style.left = this.mouseX-180 + 'px';
+    this.description.style.left = this.mouseX-250 + 'px';
   }
 
   constructor(private ref: ElementRef) {
@@ -137,14 +137,18 @@ export class ConditionnalDirective {
     this.description.style.pointerEvents = 'none';
     this.description.style.display = 'none';
     this.description.style.position = 'fixed';
-    this.description.style.fontSize = '0.8em';
+    // this.description.style.fontSize = '0.8em';
     this.description.style.backgroundColor = '#333';
-    this.description.style.maxWidth = '10em';
+    this.description.style.maxWidth = '250px';
     this.description.style.width = 'fit-content';
     this.description.style.height = 'fit-content';
     this.description.style.zIndex = '99999999';
     this.description.style.padding = '0.5em';
     this.description.style.borderRadius = '0.5em';
+    this.description.style.whiteSpace = 'normal';
+    this.description.style.lineHeight = '1em';
+    this.description.style.textAlign = 'left';
+
   }
   
   update() {

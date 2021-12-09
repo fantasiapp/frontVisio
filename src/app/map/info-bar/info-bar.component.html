@@ -117,7 +117,7 @@
                         <div class="grid">
                             <div class="first row">
                                 <div class="first empty only-siniat cell">
-                                    <label class="text-checkbox" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales'], initialConditions: ['agentOnly', 'currentYearOnly', 'adOpenOnly']}">
+                                    <label class="text-checkbox" [conditionnal]="{pdv: pdv, conditions: ['noEmptySales'], initialConditions: ['agentOnly', 'currentYearOnly', 'adOpenOnly'], showDescription: true}">
                                         <input type="checkbox" (click)="changeOnlySiniat()" [attr.checked]="isOnlySiniat">
                                         <span>100% Siniat</span>
                                     </label>
@@ -135,7 +135,9 @@
                             <div class="row" *ngFor="let industry of industries; let j = index">
                                 <div class="first cell">{{industry | titlecase}}</div>
                                 <div class="cell" *ngFor="let product of products; let i = index">
-                                    <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event, j+1, i)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [conditionnal]="{initialConditions: ['agentOnly', 'adOpenOnly', 'currentYearOnly']}" [style.color]="salesColors[j+1][i]"/>
+                                    <label  [conditionnal]="{initialConditions: ['agentOnly', 'adOpenOnly', 'currentYearOnly'], showDescription: true}">
+                                        <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event, j+1, i)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]"/>
+                                    </label>
                                 </div>
                             </div>
                         </div>

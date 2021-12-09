@@ -169,6 +169,8 @@ export class DataService {
           console.debug("Empty update")
         } else if(response.warning) {
           console.debug("Server temporarly unavailable")
+        } else if(false) {
+          this.requestData();
         }
         else if(DEH.currentYear) {
           console.log("Updates received from back : ", response)
