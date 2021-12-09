@@ -169,8 +169,19 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   })
   export class InfoCellRenderer extends DefaultCellRenderer {}
 
+  
   @Component({
     template: `<div>Ciblé</div>`,
+    styles:  [`:host {
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`]
   })
   export class TargetColumnRenderer extends DefaultCellRenderer {}
   
