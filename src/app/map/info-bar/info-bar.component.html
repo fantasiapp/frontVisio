@@ -135,9 +135,12 @@
                             <div class="row" *ngFor="let industry of industries; let j = index">
                                 <div class="first cell">{{industry | titlecase}}</div>
                                 <div class="cell" *ngFor="let product of products; let i = index">
-                                    <label  [conditionnal]="{initialConditions: ['agentOnly', 'adOpenOnly', 'currentYearOnly'], showDescription: true}">
-                                        <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event, j+1, i)" (change)="changeSales(j+1, i)" [disabled]="i == 3 || j == 0 || isOnlySiniat" [style.color]="salesColors[j+1][i]"/>
+                                    <label *ngIf="i != 3 && j != 0">
+                                        <label [conditionnal]="{pdv: pdv, conditions: ['onlySiniat'], initialConditions: ['agentOnly', 'adOpenOnly', 'currentYearOnly'], showDescription: true}">
+                                            <input type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event, j+1, i)" (change)="changeSales(j+1, i)" [style.color]="salesColors[j+1][i]"/>
+                                        </label>
                                     </label>
+                                    <input *ngIf="i == 3 || j == 0" type="text" [(ngModel)]="gridFormatted[j+1][i]" (keyup)="onKey($event, j+1, i)" (change)="changeSales(j+1, i)" disabled [style.color]="salesColors[j+1][i]"/>
                                 </div>
                             </div>
                         </div>
@@ -174,7 +177,7 @@
                         </ul>
                     </div>
                 </div>
-                <label class="container-checkbox disabled-input" [conditionnal]="{pdv: pdv, conditions: ['noEmptySalesFinitions', 'noRedistributedFinitions', 'onlySiniat'], initialConditions: ['agentFinitionsOnly', 'adOpenOnly'], showDescription: true}">
+                <label class="container-checkbox disabled-input" [conditionnal]="{pdv: pdv, conditions: ['noEmptySalesFinitions', 'noRedistributedFinitions'], initialConditions: ['agentFinitionsOnly', 'adOpenOnly'], showDescription: true}">
                     <span>Point de vente redistribué</span>
                     <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="target[TARGET_REDISTRIBUTED_FINITIONS_ID] === false">
                     <span class="checkmark" ></span>
