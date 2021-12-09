@@ -8,6 +8,7 @@ import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer,
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { Utils } from 'src/app/interfaces/Common';
 import { DataService } from 'src/app/services/data.service';
+import { disabledParams, initialConditions, InitialConditionsNames } from 'src/app/behaviour/disabled-conditions';
 
 @Component({
   selector: 'app-table',
@@ -34,9 +35,11 @@ export class TableComponent extends BasicWidget {
   rowData: PDV[] = [];
   /** Side-bar input **/
   pdv?: PDV;
-  /** Graph description **/
+  /** Description popups **/
   showDescription: boolean = false;
+  showDisabledDescription: boolean = false;
   description: any[] = []
+  disabledDescription: string[] = [];
   mouseX: number = 0; mouseY: number = 0;
   /** Observables **/
   gridLoaded = new AsyncSubject<null>();
@@ -315,13 +318,26 @@ export class TableComponent extends BasicWidget {
   }
   onCellMouseOver(event: any) {
     if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
-      this.showDescription = true;
       this.description = this.computeDescription(JSON.parse(JSON.stringify(event.value))) // JSON.parse(JSON.stringify(object)) performs a deepcopy
+      this.showDescription = true;
+    } else if(event['column']['colId'] === 'targetFinition' && event['data'].groupRow !== true) {
+      for(let condition of ['agentFinitionsOnly', 'currentYearOnly']) {
+        if(initialConditions[condition as  InitialConditionsNames]().val)
+          this.disabledDescription.push(initialConditions[condition as  InitialConditionsNames]().message)
+      }
+      this.showDisabledDescription = true;
+    } else if(event['column']['colId'] === 'checkboxP2cd' && event['data'].groupRow !== true) {
+      this.disabledDescription = ['Ce champ n\'est pas modifiable']
+      this.showDisabledDescription = true;
     }
   }
   onCellMouseOut(event: any) {
     if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
       this.showDescription = false;
+    } else if((event['column']['colId'] === 'targetFinition' || event['column']['colId'] === 'checkboxP2cd')&& event['data'].groupRow !== true) {
+      this.showDisabledDescription = false;
+      this.disabledDescription = [];
+
     }
   }
 

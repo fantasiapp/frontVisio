@@ -36,4 +36,10 @@
     </div>
 </div>
 
+<div class="graph-description" [class]="showDisabledDescription ? 'show' : 'hide'" [ngStyle]="{'top': mouseY + 'px', 'left': mouseX + 'px'}">
+    <p *ngFor="let condition of disabledDescription">
+        {{ condition }}
+    </p>
+</div>
+
 <ng-container class="tooltips" #tooltips></ng-container>
