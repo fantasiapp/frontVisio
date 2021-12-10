@@ -42,6 +42,7 @@
                                         Ne vend pas de plaque
                                         <input type="checkbox" [attr.checked]="target[TARGET_SALE_ID] === false" (change)="changeTargetSale()">
                                         <span class="checkmark" ></span>
+                                        <div id="warning" *ngIf="pdv.sale == true && target[TARGET_SALE_ID] == false" style="color : red; position: fixed; top:inherit; left:inherit">En attente de validation par le siège</div>
                                     </label>
                                 </li>
                                 <li>
@@ -49,6 +50,7 @@
                                         Point de vente redistribue
                                         <input type="checkbox" [attr.checked]="target[TARGET_REDISTRIBUTED_ID] === false" (change)="changeRedistributed()">
                                         <span class="checkmark"></span>
+                                        <div id="warning" *ngIf="pdv.redistributed == true &&  target[TARGET_REDISTRIBUTED_ID] == false" style="color : red; position: fixed; top:inherit; left:inherit">En attente de validation par le siège</div>
                                     </label>
                                 </li>
                             </ul>
@@ -181,7 +183,7 @@
                     <span>Point de vente redistribué</span>
                     <input type="checkbox" (click)="changeRedistributedFinitions()" [attr.checked]="target[TARGET_REDISTRIBUTED_FINITIONS_ID] === false">
                     <span class="checkmark" ></span>
-                    <div id="warning" *ngIf="pdv.redistributedFinitions != target[TARGET_REDISTRIBUTED_FINITIONS_ID]" style="color : red; position: fixed; top:inherit; left:inherit">En attente de validation par le siège</div>
+                    <div id="warning" *ngIf="pdv.redistributedFinitions == true && target[TARGET_REDISTRIBUTED_FINITIONS_ID] == false" style="color : red; position: fixed; top:inherit; left:inherit">En attente de validation par le siège</div>
                 </label>
                 <div class="values-div">
                     <div>
