@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { map, } from 'rxjs/internal/operators/map';
 import { environment } from 'src/environments/environment';
-import DEH from '../middle/DataExtractionHelper';
+import DEH, { Params } from '../middle/DataExtractionHelper';
 import { LocalStorageService } from './local-storage.service';
 import { Snapshot, structureSnapshot } from './logger.service';
 
@@ -169,8 +169,6 @@ export class DataService {
           console.debug("Empty update")
         } else if(response.warning) {
           console.debug("Server temporarly unavailable")
-        } else if(false) {
-          this.requestData();
         }
         else if(DEH.currentYear) {
           console.log("Updates received from back : ", response)
@@ -180,6 +178,8 @@ export class DataService {
           this.http.get(environment.backUrl + 'visioServer/data/', {params : {"action" : "update", "nature": "acknowledge"}}).subscribe((ackResponse : any) => this.setLastUpdateDate(ackResponse.timestamp)
           )
         }
+
+        if(response.referentielVersion != Params.referentielVersion) {console.log("A new referentiel is active. Reload the data"); this.requestData()}
         
         this.sendQueuedDataToUpdate();
       }
