@@ -585,7 +585,7 @@ input[type=number] {
     color: #F06D0C;
     max-width: 300px;
     padding-top: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
 }
 
 @media (max-width: 1367px) {
