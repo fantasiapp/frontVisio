@@ -1,5 +1,5 @@
 <div *ngIf="mode !== HIDDEN" class="content" [ngSwitch]="mode">
-    <div class="loading note" *ngSwitchCase="REQUEST_DATA">
+    <!-- <div class="loading note" *ngSwitchCase="REQUEST_DATA">
         Connexion en cours
         <div class="lds-ellipsis" >
             <div></div>
@@ -7,9 +7,9 @@
             <div></div>
             <div></div>
         </div>
-    </div>
+    </div>-->
 
-    <div class="success note" *ngSwitchCase="CONNEXION_SUCESS">
+    <!-- <div class="success note" *ngSwitchCase="CONNEXION_SUCESS">
         Connexion réussie
         <div class="sa">
             <div class="sa-success">
@@ -19,7 +19,7 @@
             <div class="sa-success-fix"></div>
           </div>
         </div>
-    </div>
+    </div> -->
     
     <div class="error note" *ngSwitchCase="CONNECTION_ERROR">
         Échec de la connexion. (Actualisation dans {{ timeUntilReload }} secondes)
