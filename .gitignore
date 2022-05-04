@@ -49,3 +49,5 @@ Thumbs.db
 #package.json
 #package-lock.json
 #angular.json
+
+build.sh
