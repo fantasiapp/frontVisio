@@ -1,4 +1,4 @@
-:host {
+.container {
     display: block;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 3px;
@@ -7,35 +7,37 @@
     user-select: none !important;
     cursor: pointer;
     transition: all 200ms ease-out 0s;
-    transform: translate(20px, -105%);
+    transform: translate(0, -105%); /*better suited since it's in the childs %'s*/
+    position: relative;
+    left: 20px;
     width: 39em;
 }
 
 
 @media (max-width: 1366px) {
-    :host {
+    .container {
         font-size: 10px;
     }
 }
 
 @media (min-width: 1366px) and (max-width: 1500px) {
-    :host {
+    .container {
         font-size: 11px;
     }
 }
 
 @media (min-width: 1500px) {
-    :host {
+    .container {
         font-size: 12px;
     }
 }
 
-:host:hover {
+.container:hover {
     background: rgba(255, 255, 255, 0.95)
 }
 
-:host(.closed) {
-    transform: translate(20px, calc(-1.5em - 22px));
+.container.closed {
+    transform: translate(0, calc(-1.5em - 22px));
 }
 
 h4 {

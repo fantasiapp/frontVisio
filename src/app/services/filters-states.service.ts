@@ -94,6 +94,8 @@ export class FiltersStatesService extends SubscriptionManager {
     emit: boolean = true
   ) {
 
+    this.dataservice.onlyRefresh = false; //force update for TableComponent
+
     this.navigation.setCurrent(levelId, dashboardId, superlevel);
     if ( superlevel !== undefined || levelId !== undefined )
       this.logPathChanged.next(this._state!.node.path);
@@ -113,6 +115,7 @@ export class FiltersStatesService extends SubscriptionManager {
     else
       this.navigation.setTree(tree);
     
+    this.sliceDice.geoTree = this.tree?.hasTypeOf(PDV.geoTree) || false;
     this.update();
   }
 
@@ -120,8 +123,7 @@ export class FiltersStatesService extends SubscriptionManager {
     this.logger.handleEvent(LoggerService.events.NAVIGATION_TREE_CHANGED, this.tree);
     this.logger.handleEvent(LoggerService.events.NAVIGATION_DASHBOARD_CHANGED, this.navigation.currentDashboard!.id);
     this.logger.actionComplete();
-
-    this.sliceDice.geoTree = this.tree?.hasTypeOf(PDV.geoTree) || false;
+    //keep sliceDice up to date with the tree
     this.emitEvents();
   }
 

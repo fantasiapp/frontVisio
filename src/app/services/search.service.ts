@@ -3,7 +3,7 @@ import Dashboard from '../middle/Dashboard';
 import DEH from '../middle/DataExtractionHelper';
 import { Node } from '../middle/Node';
 import { PDV } from '../middle/Pdv';
-import { filterMap, SubscriptionManager } from '../interfaces/Common';
+import { Utils, SubscriptionManager } from '../interfaces/Common';
 import { DataService } from './data.service';
 
 type MatchFunction = (term: string) => string | null;
@@ -19,7 +19,7 @@ function searchPDV(): SearchFunction {
   return (term: string, showAll: boolean = true, sort: boolean = true) => {
     if ( !term && showAll ) return [];
     term = term.toLowerCase();
-    let result = filterMap<PDV, Suggestion>(pdvs, (pdv: PDV) => {
+    let result = Utils.filterMap<PDV, Suggestion>(pdvs, (pdv: PDV) => {
       let name = pdv.name.toLowerCase(),
         index = name.indexOf(term);
       
@@ -72,7 +72,7 @@ function searchField(field: string): SearchFunction {
     if ( !term && showAll || height < 0 ) return [];
     term = term.toLowerCase();
     let relevantNodes = (isGeo ? PDV.geoTree : PDV.tradeTree).getNodesAtHeight(height) as Node[];
-    let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
+    let result = Utils.filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
       let index = node.name.toLowerCase().indexOf(term);
       if ( index < 0 ) return null;
       let data = {info: '', geoTree: isGeo, node: node};
@@ -94,7 +94,7 @@ function searchDépartement(): SearchFunction {
     term = term.toLowerCase();
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
 
-    let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
+    let result = Utils.filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
       let index = node.name.toLowerCase().indexOf(term);
       if ( index < 0 ) return null;
       let data = {info: node.parent!.name , geoTree: true, node: node};
@@ -115,7 +115,7 @@ function searchBassin(): SearchFunction {
     term = term.toLowerCase();
     let relevantNodes = PDV.geoTree.getNodesAtHeight(height) as Node[];
 
-    let result = filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
+    let result = Utils.filterMap<Node, Suggestion>(relevantNodes, (node: Node) => {
       let index = node.name.toLowerCase().indexOf(term);
       if ( index < 0 ) return null;
       let data = {info: node.parent!.parent!.name + ', ' + node.parent!.name, geoTree: true, node: node};
@@ -176,10 +176,6 @@ export class SearchService extends SubscriptionManager {
       if ( this.mode == SearchService.FIND_INSTANCE )
         this.switchMode(SearchService.FIND_INSTANCE, this.pattern);
     });
-  }
-  
-  addLevel(index: number, rule: any, autocompletion: string, type: number, onmatch: SearchFunction) {
-    this.levels.splice(index, 0, [rule, autocompletion, type, onmatch]);
   }
 
   switchMode(mode: number, pattern: string = '') {

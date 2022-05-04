@@ -39,7 +39,6 @@ import { HistocurveComponent } from './widgets/histocurve/histocurve.component';
 import { InfoBarComponent } from './map/info-bar/info-bar.component';
 import { MapFiltersComponent } from './map/map-filters/map-filters.component';
 import { MapSelectComponent } from './map/map-select/map-select.component';
-import { AgentOnlyDirective } from './behaviour/agent-only.directive';
 import { RootLevelOnlyDirective } from './behaviour/root-level-only.directive';
 import { AccountInfoComponent } from './general/account-info/account-info.component';
 import { DescriptionWidgetComponent } from './widgets/description-widget/description-widget.component';
@@ -48,12 +47,14 @@ import { SuggestionBox } from './general/suggestionbox/suggestionbox.component';
 import { PatternPipe } from './general/searchbar/pattern.pipe';
 import { DataService } from './services/data.service';
 import { AuthService } from './connection/auth.service';
-import { AgentFinitionsOnlyDirective } from './behaviour/agent-finitions-only.directive';
-import { AdOpenOnlyDirective } from './behaviour/ad-open-only.directive';
-import { CurrentYearOnlyDirective } from './behaviour/current-year-only.directive';
 import { MapLegendComponent } from './map/map-legend/map-legend.component';
 import { ConditionnalDirective } from './behaviour/conditionnal.directive';
 import { TooltipComponent } from './widgets/tooltip/tooltip.component';
+import { LoginServerInfoComponent } from './login-page/login-server-info/login-server-info.component';
+import { InfobarQuitComponent } from './map/infobar-quit/infobar-quit.component';
+
+import { SocialLoginModule, SocialAuthServiceConfig } from 'angularx-social-login';
+import { GoogleLoginProvider } from 'angularx-social-login';
 
 @NgModule({
   declarations: [
@@ -85,19 +86,17 @@ import { TooltipComponent } from './widgets/tooltip/tooltip.component';
     InfoBarComponent,
     MapFiltersComponent,
     MapSelectComponent,
-    AgentOnlyDirective,
     RootLevelOnlyDirective,
     AccountInfoComponent,
     DescriptionWidgetComponent,
     SearchbarComponent,
     SuggestionBox,
     PatternPipe,
-    AgentFinitionsOnlyDirective,
-    AdOpenOnlyDirective,
-    CurrentYearOnlyDirective,
     MapLegendComponent,
     ConditionnalDirective,
-    TooltipComponent
+    TooltipComponent,
+    LoginServerInfoComponent,
+    InfobarQuitComponent
   ],
   imports: [
     BrowserModule,
@@ -113,9 +112,24 @@ import { TooltipComponent } from './widgets/tooltip/tooltip.component';
     // AgmCoreModule.forRoot({
     //   apiKey:''
     // })
-    AgGridModule.withComponents([])
+    AgGridModule.withComponents([]),
+    SocialLoginModule
   ],
-  providers: [httpInterceptorProviders, DataService, AuthService],
+  providers: [httpInterceptorProviders, DataService, AuthService,
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider(
+              '519402531364-t2ohmkrspjel0d2iv6a5n9i4ga2u6bvh.apps.googleusercontent.com'
+            )
+          }
+        ]
+      } as SocialAuthServiceConfig,
+    }    ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -1,14 +1,14 @@
-import { Component, ElementRef, ViewChild, ChangeDetectorRef, Injector } from '@angular/core';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
-import { SliceDice } from 'src/app/middle/Slice&Dice';
+import { Component, ElementRef, ViewChild, Injector } from '@angular/core';
 import { PDV } from 'src/app/middle/Pdv';
 import { SliceTable, TableData, TableTypes } from 'src/app/middle/SliceTable';
 import { BasicWidget } from '../BasicWidget';
 
 import { AsyncSubject } from 'rxjs';
-import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer } from './renderers';
+import { EditCellRenderer, CheckboxP2cdCellRenderer, CheckboxEnduitCellRenderer, PointFeuCellRenderer, NoCellRenderer, TargetCellRenderer, InfoCellRenderer, AddArrowCellRenderer, TargetColumnRenderer, CheckboxRedistributedP2cdCellRenderer, CheckboxRedistributedFinitionsCellRenderer, GroupRedistributedRenderer, GroupRedistributedFinitionsRenderer } from './renderers';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { Utils } from 'src/app/interfaces/Common';
+import { DataService } from 'src/app/services/data.service';
+import { disabledParams, initialConditions, InitialConditionsNames } from 'src/app/behaviour/disabled-conditions';
 
 @Component({
   selector: 'app-table',
@@ -28,22 +28,24 @@ export class TableComponent extends BasicWidget {
   type: TableTypes = TableTypes.p2cd;
   /** Navigation menu **/
   navOpts: any;
-  currentOpt: any;
+  currentOpt: any = 'enseigne';
   /** Dynamic grid properties **/
   gridOptions: any;
   columnDefs: any;
   rowData: PDV[] = [];
   /** Side-bar input **/
   pdv?: PDV;
-  /** Graph description **/
+  /** Description popups **/
   showDescription: boolean = false;
+  showDisabledDescription: boolean = false;
   description: any[] = []
+  disabledDescription: string[] = [];
   mouseX: number = 0; mouseY: number = 0;
   /** Observables **/
   gridLoaded = new AsyncSubject<null>();
 
 
-  constructor(protected injector: Injector, protected sliceTable: SliceTable) {
+  constructor(protected injector: Injector, protected sliceTable: SliceTable, private dataService: DataService) {
     super(injector);
     
     /** Static properties of the ag-grid component **/
@@ -82,6 +84,12 @@ export class TableComponent extends BasicWidget {
                                     targetCellRenderer: TargetCellRenderer,
                                     infoCellRenderer: InfoCellRenderer,
                                     addArrowCellRenderer: AddArrowCellRenderer,
+                                    targetColumRenderer: TargetColumnRenderer,
+                                    checkboxRedistributedFinitionsCellRenderer : CheckboxRedistributedFinitionsCellRenderer,
+                                    checkboxRedistributedP2cdCellRenderer : CheckboxRedistributedP2cdCellRenderer,
+                                    groupRedistributedRenderer: GroupRedistributedRenderer,
+                                    groupRedistributedFinitionsRenderer: GroupRedistributedFinitionsRenderer
+
       },
       isExternalFilterPresent:   
                                     () => Object.keys(hiddenGroups).length > 0
@@ -103,18 +111,26 @@ export class TableComponent extends BasicWidget {
 
   /** Called when next is called on the DataService update Subject **/
   refresh() {
+    let newRows = this.sliceTable.getPdvs(this.type);
+    let ind = 0;
+    this.gridOptions.api.forEachNode(
+      (rowNode: any, index: number) => {rowNode.setData(newRows[ind]); ind++;}
+    )
     this.gridOptions.api.redrawRows()
     this.renderTitle()
   }
 
   /** Called when browsing the navigation **/
   update() {
-    this.rowData = this.sliceTable.getPdvs(this.type)
-    this.renderTitle()
-    // this.createGraph(this.createData())
+    if(this.dataService.onlyRefresh) this.refresh();
+    else {
+      this.rowData = this.sliceTable.getPdvs(this.type)
+      this.renderTitle()
+    }
   }
 
   createGraph(data: TableData): void {
+    this.currentOpt = 'enseigne';
     this.columnDefs = this.setupCellRenderers(data.columnDefs);
     this.navOpts = data.navOpts;
     groupInfos = data.colInfos;
@@ -155,7 +171,10 @@ export class TableComponent extends BasicWidget {
           switch (cd.field) {
             case 'name':
               cd.valueFormatter = function (params: any) {
-                if(params.data.groupRow === true) return DEH.getNameOfRegularObject(SliceTable.currentGroupField, params.value['name']) + ' PdV : ' + params.value['number']
+                if(params.data.groupRow === true) {
+                  if(SliceTable.currentGroupField == 'typology') return DEH.getFilter('segmentDnEnduit')[params.value['name']] + ' PdV : ' + params.value['number'];
+                  return DEH.getFilter(SliceTable.currentGroupField)[params.value['name']] + ' PdV : ' + params.value['number'];
+                }
                 return;
               }
               break;
@@ -163,14 +182,14 @@ export class TableComponent extends BasicWidget {
             case 'siniatSales':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow === true) return 'Siniat : ' + Utils.format(params.value/1000, 3, true) + " km²";
-                return Utils.format(params.value/1000, 3, true)  + " m²";
+                return Utils.format(params.value, 3, true)  + " m²";
               }
               break;
 
             case 'totalSales':
               cd.valueFormatter = function (params: any) {
                 if(params.data.groupRow === true) return 'Identifie : ' + Utils.format(params.value/1000, 3, true) + " km²";
-                else return Utils.format(params.value/1000, 3, true)  + " m²";
+                else return Utils.format(params.value, 3, true)  + " m²";
               }
               break;
 
@@ -183,7 +202,7 @@ export class TableComponent extends BasicWidget {
             
             case 'checkboxP2cd':
               cd.cellRendererSelector = function (params: any) {
-                if(params.data.groupRow === true) return {component: 'noCellRenderer'}
+                if(params.data.groupRow === true) return {component: 'targetColumRenderer'}
                 return {component : 'checkboxP2cdCellRenderer'};
               }
               break;
@@ -232,6 +251,19 @@ export class TableComponent extends BasicWidget {
                 return params.value + ' V'
               }
               break;
+            
+              case 'redistributed':
+                cd.cellRendererSelector = function (params: any) {
+                  if(params.data.groupRow === true) return {component: 'groupRedistributedRenderer'}
+                  return {component : 'checkboxRedistributedP2cdCellRenderer'};
+                }
+                break;
+                case 'redistributedFinitions':
+                  cd.cellRendererSelector = function (params: any) {
+                    if(params.data.groupRow === true) return {component: 'groupRedistributedFinitionsRenderer'}
+                    return {component : 'checkboxRedistributedFinitionsCellRenderer'};
+                  }
+                  break;
 
             default:
               break;
@@ -261,6 +293,10 @@ export class TableComponent extends BasicWidget {
     if(typeof(pdv) === 'number') { pdv = PDV.findById(pdv)!;}
     this.pdv = PDV.findById(pdv.id) // => displays infoBar
     this.cd.markForCheck();
+  }
+
+  protected onClick(e: PointerEvent) {
+    //do nothing
   }
 
   /** Bound with (mousemove) on the whol agGrid component **/
@@ -295,18 +331,33 @@ export class TableComponent extends BasicWidget {
       if(arrowImg?.style.transform == "rotate(-0.5turn)") arrowImg!.style.transform = "rotate(0turn)";
       else arrowImg!.style.transform = "rotate(-0.5turn)"
     } else {
-      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info') this.displayInfobar(event['data'])
+      if(event['column']['colId'] === 'edit' || event['column']['colId'] === 'info' || event['column']['colId'] == 'name') this.displayInfobar(event['data'])
     }
   }
   onCellMouseOver(event: any) {
     if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
-      this.showDescription = true;
       this.description = this.computeDescription(JSON.parse(JSON.stringify(event.value))) // JSON.parse(JSON.stringify(object)) performs a deepcopy
+      this.showDescription = true;
+    } else if(event['column']['colId'] === 'targetFinition' && event['data'].groupRow !== true) {
+      this.disabledDescription = [];
+      for(let condition of ['agentFinitionsOnly', 'currentYearOnly']) {
+        if(initialConditions[condition as  InitialConditionsNames]().val) {
+          this.showDisabledDescription = true;
+          this.disabledDescription.push(initialConditions[condition as  InitialConditionsNames]().message)
+        }
+      }
+    } else if(event['column']['colId'] === 'checkboxP2cd' && event['data'].groupRow !== true) {
+      this.disabledDescription = [];
+      this.disabledDescription = ['Ouvrir le menu d\'édition pour modifier']
+      this.showDisabledDescription = true;
     }
   }
   onCellMouseOut(event: any) {
     if(event['column']['colId'] === 'graph' && event['data'].groupRow !== true) {
       this.showDescription = false;
+    } else if((event['column']['colId'] === 'targetFinition' || event['column']['colId'] === 'checkboxP2cd')&& event['data'].groupRow !== true) {
+      this.showDisabledDescription = false;
+
     }
   }
 

@@ -1,12 +1,7 @@
-import DEH, {GeoExtractionHelper, TradeExtrationHelper} from './DataExtractionHelper';
+import DEH, {GeoExtractionHelper, Params, TradeExtrationHelper} from './DataExtractionHelper';
 import {SliceTable} from './SliceTable';
 import {Sale} from './Sale';
 import {Tree, Node} from './Node';
-
-// à mettre dans le back
-const nonRegularAxis = ['mainIndustries', 'enduitIndustry', 'segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 
-    'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'enduitIndustryTarget', 'industryTarget', 'suiviAD', 'weeks'],
-    dnLikeAxis = ['segmentDnEnduit', 'clientProspect', 'clientProspectTarget', 'segmentDnEnduitTarget', 'segmentDnEnduitTargetVisits', 'suiviAD', 'weeks'];
 
 class SimplePdv { // Theses attributes are directly those received from the back
   private static indexMapping: Map<string, number>;
@@ -24,47 +19,10 @@ class SimplePdv { // Theses attributes are directly those received from the back
   public static _initialize(){
     SimplePdv.createIndexMapping();
   }
-
-  // code!: string;
-  // name!: string;
-  // drv!: string;
-  // agent!: number;
-  // agentFinitions!: number;
-  // dep!: number;
-  // bassin!: number;
-  // ville!: number;
-  // latitude!: number;
-  // longitude!: number;
-  // segmentCommercial!: number;
-  // segmentMarketing!: number;
-  // enseigne!: number;
-  // ensemble!: number;
-  // sousEnsemble!: number;
-  // site!: number;
-  // available!: boolean;
-  // sale!: boolean;
-  // redistributed!: boolean;
-  // redistributedFinitions!: boolean;
-  // pointFeu!: boolean;
-  // onlySiniat!: boolean;
-  // closedAt!: number;
-  // nbVisits!: number;
-  // target!: any[];
-  // sales!: any[];
+  
   icon: any = null;
 
-  constructor(protected values: any[]) {
-    //this code setups getters for each field written in structurePdvs
-    // for(let key of DEH.get('structurePdvs')) {
-    //   Object.defineProperty(this, key, {
-    //     get: () => {
-    //       if(SimplePdv.indexMapping.get(key)) {
-    //           return this.values[SimplePdv.index(key)!]
-    //         }
-    //     }
-    //   })
-    // }
-  }
+  constructor(protected values: any[]) {}
 
   public getValues() {return this.values;}
   public setValues(newValues: any[]) {this.values = Object.assign([], newValues); this.icon = null; }
@@ -239,8 +197,8 @@ export class PDV extends SimplePdv{
   
   public getValue(indicator: string, axisName:string, axis?:string[]): (number | number[]){
     let salesRepartition = this.computeSalesRepartition();
-    if (nonRegularAxis.includes(axisName)){
-      if (dnLikeAxis.includes(axisName)) return this.computeDnLikeAxis(axisName!, indicator, salesRepartition, axis!);
+    if (Params.nonRegularAxis.includes(axisName)){
+      if (Params.dnLikeAxis.includes(axisName)) return this.computeDnLikeAxis(axisName!, indicator, salesRepartition, axis!);
       else return this.computeIrregularAxis(axisName, salesRepartition, axis!);
     }
     switch(indicator){

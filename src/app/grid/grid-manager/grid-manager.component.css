@@ -23,6 +23,7 @@
   font-size: inherit;
   user-select: none;
   box-shadow: 0 0 5px 0 #eee;
+  padding: 8px;
 }
 
 :host::ng-deep * .props h2 {
@@ -71,10 +72,6 @@
     font-size: 14px;
   }
 
-  :host::ng-deep > * {
-    padding: 10px !important;
-  }
-
   :host::ng-deep * .props h2 {
     font-weight: 500;
   }
@@ -91,6 +88,10 @@
     font-size: 18px;
     column-gap: 20px;
     row-gap: 20px;
+  }
+
+  :host::ng-deep > * {
+    padding: 10px;
   }
 
   :host::ng-deep * .props p {

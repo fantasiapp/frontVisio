@@ -43,7 +43,7 @@ export class LoginFormComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  constructor(cdr: ChangeDetectorRef, private authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {}
 
@@ -53,23 +53,24 @@ export class LoginFormComponent implements OnInit {
       password: this.loginForm.value.password,
       isStayConnected: this.isStayConnected
     });
-    setTimeout(() => {
-      if (this.errorConnection) {
-        if (this.loginForm.value.username == '') {
-          this.showEmptyPseudo = true
-          const input1 = document.getElementById('input-field1');
+  }
+
+  handleError() {
+    if (this.errorConnection) {
+      if (this.loginForm.value.username == '') {
+        this.showEmptyPseudo = true
+        const input1 = document.getElementById('input-field1');
+        input1?.classList.add('red-border');
+      } else {
+        this.showEmptyPseudo = false;
+        this.showErrorMessage = this.authService.errorCode;
+        const input1 = document.getElementById('input-field1');
+        const input2 = document.getElementById('input-field2');
+        setTimeout(() => {
           input1?.classList.add('red-border');
-        } else {
-          this.showEmptyPseudo = false;
-          this.showErrorMessage = this.authService.errorCode;
-          const input1 = document.getElementById('input-field1');
-          const input2 = document.getElementById('input-field2');
-          setTimeout(() => {
-            input1?.classList.add('red-border');
-            input2?.classList.add('red-border2');
-          });
-        }
+          input2?.classList.add('red-border2');
+        });
       }
-    }, 1000);
+    }
   }
 }

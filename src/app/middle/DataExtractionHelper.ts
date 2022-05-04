@@ -56,6 +56,35 @@ export class Params {
   static get rootLabel() {
     return PDV.geoTree.root.label;
   }
+
+  static get enduitAxis() {
+    return DEH.get('params').json.enduitAxis || this.error('enduitAxis');
+  }
+
+  static get nonRegularAxis() {
+    return DEH.get('params').json.nonRegularAxis || this.error('nonRegularAxis');
+  }
+
+  static get dnIndicators() {
+    return DEH.get('params').json.dnIndicators || this.error('dnIndicators');
+  }
+
+  static get rodAfterFirstCategAxis() {
+    return DEH.get('params').json.rodAfterFirstCategAxis || this.error('rodAfterFirstCategAxis');
+  }
+
+  static get rodAfterSecondCategAxis() {
+    return DEH.get('params').json.rodAfterSecondCategAxis || this.error('rodAfterSecondCategAxis');
+  }
+
+  static get dnLikeAxis() {
+    return DEH.get('params').json.dnLikeAxis || this.error('dnLikeAxis');
+  }
+
+  static error(name: string, patch: any = []) {
+    console.error('Unable to find field ' + name + '.');
+    return patch;
+  }
 }
 
 
@@ -115,7 +144,7 @@ class DEH{  // for DataExtractionHelper
     this.currentYear = true;
   }
 
-  static updateData(data: UpdateData) {    
+  static updateData(data: UpdateData) {
     // Check how deletions are managed 
     for(let [newPdvId, newPdv] of Object.entries(data.pdvs))
       this.data.pdvs[newPdvId] = newPdv;

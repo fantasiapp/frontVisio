@@ -6,6 +6,7 @@ import bb, {bar, Chart, DataItem} from 'billboard.js';
 import { RubixCube } from './RubixCube';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { Utils } from 'src/app/interfaces/Common';
+import { FiltersStatesService } from 'src/app/services/filters-states.service';
 
 
 @Component({
@@ -101,7 +102,7 @@ export class HistoRowComponent extends BasicWidget {
         show: false
       },
       bar: {
-        sensitivity: 10
+        sensitivity: 4
       },
       color: {
         pattern: colors
@@ -148,7 +149,7 @@ export class HistoRowComponent extends BasicWidget {
       },
       onrendered(this: Chart) {
         self.rectWidth = (this.$.main.select('.bb-chart').node() as Element).getBoundingClientRect().width;
-        if ( self.filtersService.tree?.hasTypeOf(PDV.tradeTree) )
+        if ( self.injector.get(FiltersStatesService).tree?.hasTypeOf(PDV.tradeTree) )
           return;
         
         this.$.main.select('.bb-axis').selectAll('tspan').style('cursor', 'pointer').on('click', (e) => {

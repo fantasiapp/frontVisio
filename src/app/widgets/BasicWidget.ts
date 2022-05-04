@@ -5,7 +5,7 @@ import { Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import { FiltersStatesService } from "../services/filters-states.service";
 import { GridArea } from "../grid/grid-area/grid-area";
-import { Updatable, Utils } from "../interfaces/Common";
+import { Dict, Updatable, Utils } from "../interfaces/Common";
 import { Node } from "../middle/Node";
 import { SliceDice } from "../middle/Slice&Dice";
 import { SequentialSchedule } from "./Schedule";
@@ -21,13 +21,12 @@ export abstract class BasicWidget extends GridArea implements Updatable {
 
   //Essential services to compute the widget
   protected ref: ElementRef;
-  protected filtersService: FiltersStatesService;
   protected sliceDice: SliceDice;
   protected cd: ChangeDetectorRef;
   //The actual graph
   protected chart: Chart | null = null;
   /* for processing @sum and similar */
-  protected dynamicDescription: boolean = false;
+  private dynamicDescription: boolean = false;
   /* order animation */
   protected schedule: SequentialSchedule = new SequentialSchedule;
   // Keep a list of active tooltips in the same order in the view
@@ -37,14 +36,8 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   constructor(protected injector: Injector) {
     super();
     this.ref = injector.get(ElementRef);
-    this.filtersService = injector.get(FiltersStatesService);
     this.sliceDice = injector.get(SliceDice);
     this.cd = injector.get(ChangeDetectorRef);
-  }
-
-  onReady() {
-    this.onPathChanged(this.filtersService.getState().node);
-    this.start();
   }
 
   protected onPathChanged(node: Node) {  }
@@ -52,6 +45,16 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   ngOnInit() {
     if ( this.properties.description == '@sum' )
       this.dynamicDescription = true;
+    
+    this.ref.nativeElement.addEventListener('click', (e: PointerEvent) => {
+      this.onClick(e);
+    });
+  }
+
+  protected onClick(e: PointerEvent) {
+    let ref = this.ref.nativeElement as HTMLElement;
+    if ( ! this.ref.nativeElement.querySelector('.bb-main').contains(e.target) )
+      this.clearTooltips();
   }
   
   start(): void {
@@ -62,7 +65,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     });
   }
   
-  abstract createGraph(data: any, opt?: {}): void;
+  abstract createGraph(data: any, opt?: Dict): void;
   
   updateGraph({data}: any): void {
     let newIds = data.map((d: any[]) => d[0]);
@@ -107,11 +110,11 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     let factory = componentFactoryResolver.resolveComponentFactory(TooltipComponent),
       component = this.tooltipsVcref.createComponent(factory);
     
+    if ( this.tooltips[id] ) throw "[BasicWidget]-addTooltipAt: Adding tooltip to the same element " + id + '.';
+    else this.tooltips[id] = component;
     component.instance.contents = items;
     component.instance.setPosition({left, top})
     this.tooltipsVcref.insert(component.hostView);
-    if ( this.tooltips[id] ) throw "[BasicWidget]-addTooltipAt: Adding tooltip to the same element " + id + '.';
-    else this.tooltips[id] = component;
     this.injector.get(ChangeDetectorRef).detectChanges();
     return component;
   }
@@ -119,7 +122,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
   protected addMultipleTooltipsAt(items: TooltipItem[], ids: string[], left: number = 0, top: number = 0) {
     let tooltip = this.addTooltipAt(items, ids[0], left, top);
     for ( let item of items )
-      this.tooltips[item.title] = tooltip;
+      this.tooltips[item.id] = tooltip;
     return tooltip;
   }
 
@@ -127,12 +130,13 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     let tooltip = this.tooltips[id];
     if ( !tooltip ) return false;
 
-    for ( let id of Object.keys(this.tooltips) ) {
-      if ( this.tooltips[id] == tooltip )
-        delete this.tooltips[id];
+    tooltip.instance.removeItem(id);
+    delete this.tooltips[id];
+    if ( tooltip.instance.empty ) {
+      this.tooltipsVcref.remove(this.tooltipsVcref.indexOf(tooltip.hostView)); 
+      this.injector.get(ChangeDetectorRef).detectChanges();
     }
-    this.tooltipsVcref.remove(this.tooltipsVcref.indexOf(tooltip.hostView)); 
-    this.injector.get(ChangeDetectorRef).detectChanges();
+    
     return true;
   }
 
@@ -143,59 +147,66 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     this.injector.get(ChangeDetectorRef).detectChanges();
   }
 
+  protected makeTooltip(item: DataItem, id?: string): TooltipItem | null {
+    if ( !item.value ) return null;
+    return {
+      color: this.chart!.color(item.id),
+      id: id || this.createTooltipId(item),
+      title: item.id,
+      body: `: ${Utils.format(item.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}`
+    }
+  }
+
   //subclasses with specialize if needed
   protected onDataClicked(items: DataItem[]) {
+    items = items.filter(item => item.value);
     let event = BasicWidget.lastClickEvent! as PointerEvent;
     let tooltips: TooltipItem[] = [],
-      deleted = [];
+      deleted: string[] = [],
+      ids = items.map(item => this.createTooltipId(item));
 
-    for ( let item of items ) {
-      if ( this.tooltips[item.id] ) { this.removeTooltip(item.id); deleted.push(item.id); }
-    
-      let title = item.id,
-        color = this.chart!.color(item.id),
-        body = `: ${Utils.format(item.value, 3, this.properties.unit.toLowerCase() == 'pdv')} ${this.properties.unit}`;
-      
-      tooltips.push({
-        color,
-        title,
-        body
-      });
-
+    for ( let i = 0; i < items.length; i++ ) {
+      let item = items[i], id = ids[i], tooltip;
+      if ( this.tooltips[id] ) { this.removeTooltip(id); deleted.push(id); }
+      tooltip = this.makeTooltip(item, id);
+      if ( tooltip ) tooltips.push(tooltip);
     }
 
+    tooltips = tooltips.filter(tooltip => !deleted.includes(tooltip.id));
+    ids = ids.filter(id => !deleted.includes(id));
     if ( !tooltips.length ) return;
-    else if ( tooltips.length == 1 ) {
-      //add only if elements isnt deleted
-      if ( !deleted.includes(items[0].id) )
-        this.addTooltipAt(tooltips, items[0].id, event.clientX, event.clientY);
-    }
-    else this.addMultipleTooltipsAt(tooltips, items.map(item => item.id), event.clientX, event.clientY);
+    else if ( tooltips.length == 1 )
+      this.addTooltipAt(tooltips, ids[0], event.clientX, event.clientY);
+    else this.addMultipleTooltipsAt(tooltips, ids, event.clientX, event.clientY);
+  }
+
+  protected createTooltipId(item: DataItem) {
+    return item.id + '#' + (item.x || 0);
   }
 
   //wrapper around the ugly setTimeout here
   //The library calls onclick multiple times if an object
   //is on the interaction boundary of another so track the calls
-  private tooltipClicked: any = null;
-  private tooltipDelay: number = 0;
+  private tooltipTimoutId: any = 0;
   private tooltipQueue: DataItem[] = [];
 
   protected toggleTooltipOnClick(item: DataItem) {
-    if ( this.tooltipClicked !== null )
-      clearTimeout(this.tooltipClicked);
-
     this.tooltipQueue.push(item);
-    this.tooltipClicked = setTimeout(() => {
-      this.onDataClicked(this.tooltipQueue);
-      this.tooltipClicked = null;
-      this.tooltipQueue.length = 0;
-    }, this.tooltipDelay);
+    if ( !this.tooltipTimoutId ) {
+      this.tooltipTimoutId = setTimeout(() => {
+        this.onDataClicked(this.tooltipQueue);
+        this.tooltipQueue.length = 0;
+        this.tooltipTimoutId = null;
+      }, 0);
+    }
   }
 
   protected checkData(data: any) {
     let res = BasicWidget.checkData(data);
-    if ( res && this.content )
+    if ( res && this.content ) {
       this.noData(this.content);
+      this.chart = null;
+    }
 
     return res;
   }
@@ -216,6 +227,7 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     if ( this.ref )
       d3.select(this.ref.nativeElement).selectAll('div > *').remove();
     this.chart?.destroy();
+    //remove click listener
   }
   
   noData(content: ElementRef) {
@@ -225,7 +237,6 @@ export abstract class BasicWidget extends GridArea implements Updatable {
     content.nativeElement.innerHTML = `
       <div class="nodata">Il n'y a pas de données.</div>
     `;
-    this.chart = null;
   }
   
   static legendItemHeight: number = 12;

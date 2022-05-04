@@ -1,8 +1,14 @@
-<h4>Légende</h4>
-<div class="category" *ngFor="let category of categories; trackBy: trackByName">
-    <div class="title"> {{ unCamelCase(category) }} </div>
-    <div class="item" *ngFor="let item of categories[category][0]; let idx = index; trackBy: trackByName">
-        <span class="name">{{ item }}</span>
-        <img [src]="sanitize(categories[category][1][idx])"/>
+<div class="container" [class.closed]="closed" [style.left]="left + 'px'">
+    <h4>Légende</h4>
+    <div class="category" *ngFor="let category of categories; trackBy: trackByName">
+        <div class="title"> {{ unCamelCase(category) }} </div>
+        <div class="item" *ngFor="let item of categories[category][0]; let idx = index; trackBy: trackByName">
+            <span class="name">{{ item }}</span>
+            <img [src]="sanitize(categories[category][1][idx])"/>
+        </div>
     </div>
 </div>
+
+<infobar-quit (quit)="onQuitConfirm($event)" [style.display]="displayQuitDialog ? 'block' : 'none'">
+    <h1>Souhaitez-vous cacher la légende ?</h1>
+</infobar-quit>

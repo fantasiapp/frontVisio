@@ -5,24 +5,27 @@
         <mat-icon class="expand-icon">expand_more</mat-icon></div>
   </div>
 
-  <div class="ens-org" [style.visibility]="hideIfMapIsVisible">
-    <span
-      ><div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div></span
-    >
-    <input
-      type="range"
-      min="0"
-      max="1"
-      step="1"
-      class="input-range"
-      [value]="sldValue"
-      (click)="toggle()"
-    />
-    <span
-      ><div id="org" [ngClass]="{ light: sldValue == 0 }">
+  <div class="ens-org">
+    <ng-container *ngIf="!mapIsVisible">
+      <span>
+        <div id="ens" [ngClass]="{ light: sldValue == 1 }">Enseigne</div>
+      </span>
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="1"
+        class="input-range"
+        [value]="sldValue"
+        (click)="toggle()"
+      />
+    </ng-container>
+    
+    <span>
+      <div id="org" [ngClass]="{ light: (sldValue == 0) && !mapIsVisible }">
         Org. commerciale
-      </div></span
-    >
+      </div>
+    </span>
   </div>
 
   <div class="right-block">

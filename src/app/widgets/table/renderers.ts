@@ -26,7 +26,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typology === 4" agentFinitionsOnly currentYearOnly></div>`,
+    template: `<div><input type="checkbox"  (click)="checkedHandler($event)" [checked]="pdv.targetFinition" [hidden]="!pdv.redistributedFinitions || pdv.potential < 0 || pdv.sale === false || pdv.onlySiniat === true || pdv.typology === 4" [conditionnal]="{initialConditions: ['agentFinitionsOnly', 'currentYearOnly']}"></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -54,7 +54,7 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
   }
   
   @Component({
-    template: `<div><input type="checkbox" [checked]="pdv.checkboxP2cd" [hidden]="pdv.clientProspect === 1" disabled></div>`,
+    template: `<div><input type="checkbox" [checked]="pdv.targetP2cd > 0 && pdv.lightTarget != 'r'" [hidden]="pdv.clientProspect === 1" disabled></div>`,
     styles:  [`:host {
       flex: 1;
       display: flex;
@@ -73,6 +73,81 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     pdv!: PDV;
     agInit(params: ICellRendererParams): void {this.pdv = params.data;}
   }
+
+  @Component({
+    template: `<div><input [hidden]="checked == false" type="checkbox" [checked]="checked" disabled></div>`,
+    styles:  [`:host {
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`,
+    `input {
+      transform: scale(1.3);
+    }`]
+  })
+  export class CheckboxRedistributedP2cdCellRenderer extends DefaultCellRenderer {
+    pdv!: PDV;
+    checked = false;
+    agInit(params: ICellRendererParams): void {this.pdv = params.data; this.checked = !this.pdv.redistributed}
+  }
+
+  @Component({
+    template: `<div><input [hidden]="checked == false" type="checkbox" [checked]="checked" disabled></div>`,
+    styles:  [`:host {
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`,
+    `input {
+      transform: scale(1.3);
+    }`]
+  })
+  export class CheckboxRedistributedFinitionsCellRenderer extends DefaultCellRenderer {
+    pdv!: PDV;
+    checked = false;
+    agInit(params: ICellRendererParams): void {this.pdv = params.data; this.checked = !this.pdv.redistributedFinitions}
+  }
+
+  @Component({
+    template: `<div>Redistribué</div>`,
+    styles:  [`:host {
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`]
+  })
+  export class GroupRedistributedRenderer extends DefaultCellRenderer {}
+
+  @Component({
+    template: `<div>Red. Finitions</div>`,
+    styles:  [`:host {
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-wrap: break-word;
+    }`]
+  })
+  export class GroupRedistributedFinitionsRenderer extends DefaultCellRenderer {}
 
   @Component({
     template: `<div><img *ngIf="show" src="assets/feu.svg"></div>`,
@@ -168,6 +243,23 @@ abstract class DefaultCellRenderer implements AgRendererComponent {
     }`]
   })
   export class InfoCellRenderer extends DefaultCellRenderer {}
+
+  
+  @Component({
+    template: `<div>Ciblé</div>`,
+    styles:  [`:host {
+      flex: 1;
+      display: flex;
+    }`,
+    `div {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }`]
+  })
+  export class TargetColumnRenderer extends DefaultCellRenderer {}
+  
 
   @Component({
     template: ``,

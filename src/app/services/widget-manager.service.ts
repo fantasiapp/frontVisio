@@ -1,8 +1,8 @@
-import { Component, Injectable, Input } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { SimplePieComponent } from '../widgets/simple-pie/simple-pie.component';
 import { SimpleDonutComponent } from '../widgets/simple-donuts/simple-donuts.component';
 import { HistoColumnComponent } from '../widgets/histocolumn/histocolumn.component';
-import { GridArea } from './grid-area/grid-area';
+import { GridArea } from '../grid/grid-area/grid-area';
 import { HistoRowComponent } from '../widgets/historow/historow.component';
 import { GaugeComponent } from '../widgets/gauge/gauge.component';
 import { TableComponent } from '../widgets/table/table.component';
@@ -12,7 +12,7 @@ import { HistocurveComponent } from '../widgets/histocurve/histocurve.component'
 
 
 @Component({
-  selector: 'simple-component',
+  selector: 'default-component',
   template: `
     <h1>{{properties.title}}</h1>
     <h3>{{properties.description}}</h3>
@@ -48,8 +48,10 @@ export class WidgetManagerService {
   findComponent(name: string): any {
 //    console.log('resolving component', name);
     let component = this.mapping[name];
-    if ( !component )
+    if ( !component ) {
+      console.warn('Component', name, 'not found. Rendering default.');
       return DefaultComponent;
+    }
     return component;
   }
 };

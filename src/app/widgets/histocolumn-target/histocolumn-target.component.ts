@@ -121,6 +121,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
     this.data = data;
     super.createGraph(data, {
       onresized(this: any) {
+        self.clearTooltips();
         let chart = self.chart!;
         let rect = (chart.$.main.select('.bb-chart').node() as Element).getBoundingClientRect();
         self.rect = rect;
@@ -213,8 +214,7 @@ export class HistoColumnTargetComponent extends HistoColumnComponent {
 
   toggleTargetControl() {
     this.inputIsOpen = !this.inputIsOpen;
-    if ( this.inputIsOpen )
-      this.clearTooltips();
+    this.clearTooltips();
     
     d3.select(this.content.nativeElement)
       .classed('target-control-opened', this.inputIsOpen);

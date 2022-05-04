@@ -2,7 +2,7 @@
 <div class="table-navigation">
     <form>
         <label *ngFor="let navOpt of navOpts" class="radio-inline">
-            <input type="radio" name="optradio" (click)="updateGroups(navOpt.id)" [checked]="navOpt.id === currentOpt"> {{ navOpt.name }}
+            <input type="radio" name="optradio" (click)="updateGroups(navOpt.id)" [checked]="navOpt.id === currentOpt || null"> {{ navOpt.name }}
         </label>
     </form>
   </div>
@@ -31,9 +31,15 @@
 <div class="graph-description" [class]="showDescription ? 'show' : 'hide'" [ngStyle]="{'top': mouseY + 'px', 'left': mouseX + 'px'}">
     <div *ngFor="let type of description">
         <div *ngFor="let sale of type">
-            <label *ngIf="sale[1].value !== '0'"><div class="color-square" [ngStyle]="{'background-color': sale[1].color}"></div>{{sale[0]}} : {{sale[1].value}} T</label>
+            <label *ngIf="sale[1].value !== '0'"><div class="color-square" [ngStyle]="{'background-color': sale[1].color}"></div>{{sale[0]}} : {{sale[1].value}} kg</label>
         </div>
     </div>
+</div>
+
+<div class="graph-description" [class]="showDisabledDescription ? 'show' : 'hide'" [ngStyle]="{'top': mouseY + 'px', 'left': mouseX + 'px'}">
+    <p *ngFor="let condition of disabledDescription">
+        {{ condition }}
+    </p>
 </div>
 
 <ng-container class="tooltips" #tooltips></ng-container>

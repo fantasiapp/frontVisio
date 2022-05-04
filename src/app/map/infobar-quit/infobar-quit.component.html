@@ -1,0 +1,7 @@
+<div class="quitbar">
+    <ng-content></ng-content>
+    <div class="button-container">
+        <button class="negative button" (click)="onButtonClicked($event, false)">Non, merci</button>
+        <button class="positive button" (click)="onButtonClicked($event, true)">Oui</button>
+    </div>
+</div>

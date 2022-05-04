@@ -1,11 +1,7 @@
-import DEH from './DataExtractionHelper';
+import DEH, { Params } from './DataExtractionHelper';
 import {PDV} from './Pdv';
 import {Node} from './Node';
 import {SliceDice} from "./Slice&Dice";
-
-// à mettre dans le back
-const rodAfterFirstCategAxis = ['industryTarget', 'clientProspectTarget'],
-    rodAfterSecondCategAxis = ['enduitIndustryTarget'];
 
 export class DataWidget{
     private data: any;
@@ -109,8 +105,8 @@ export class DataWidget{
     }
     
     getTargetStartingPoint(axis:string){
-      if (rodAfterFirstCategAxis.includes(axis)) return this.data[0];  
-      if (rodAfterSecondCategAxis.includes(axis)){
+      if (Params.rodAfterFirstCategAxis.includes(axis)) return this.data[0];  
+      if (Params.rodAfterSecondCategAxis.includes(axis)){
         if (this.dim == 1) return this.data[0] + this.data[1];
         let startingPoints = new Array(this.columnsTitles.length).fill(0);
         for(let j = 0; j < this.columnsTitles.length; j++) startingPoints[j] = this.data[0][j] + this.data[1][j];

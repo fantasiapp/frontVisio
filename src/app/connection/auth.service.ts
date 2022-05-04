@@ -3,6 +3,7 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { SocialUser } from 'angularx-social-login';
 import { BehaviorSubject, of,Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -46,6 +47,29 @@ export class AuthService {
           map((response: any) => {
             this.token = response['token'];
             this.username = username;
+            this.handleTokenSave();
+            this.isLoggedIn.next(true);
+            return true;
+          })
+        ) || of(false)
+    );
+  }
+
+  loginWithGoogle(userData: SocialUser) {
+    const data = {
+      username: userData.email,
+      authToken: userData.authToken,
+    }
+    console.log("google query", data);
+    return (
+      this.http
+        .post(environment.backUrl + 'visioServer/api-token-auth-google/', data)
+        .pipe(
+          map((response: any) => {
+            if (response.error) { console.log(response); return false};
+            console.log("reponse", response)
+            this.token = response['token'];
+            this.username = userData.email;
             this.handleTokenSave();
             this.isLoggedIn.next(true);
             return true;

@@ -1,12 +1,11 @@
-import { Directive, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { Directive, ElementRef } from '@angular/core';
 import { FiltersStatesService } from '../services/filters-states.service';
 import { SubscriptionManager } from '../interfaces/Common';
-import { PDV } from '../middle/Pdv';
 
 @Directive({
   selector: '[rootLevelOnly]'
 })
-export class RootLevelOnlyDirective extends SubscriptionManager implements OnInit, OnDestroy {
+export class RootLevelOnlyDirective extends SubscriptionManager {
 
   constructor(private el: ElementRef, private filtersService: FiltersStatesService) {
     super();

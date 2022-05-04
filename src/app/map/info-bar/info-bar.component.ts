@@ -1,12 +1,10 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChildren } from '@angular/core';
-import { FiltersStatesService } from 'src/app/services/filters-states.service';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostBinding, Input, Output, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
 import DEH from 'src/app/middle/DataExtractionHelper';
 import { PDV } from 'src/app/middle/Pdv';
 import { Sale } from 'src/app/middle/Sale';
 import { DataService } from 'src/app/services/data.service';
 import { LoggerService } from 'src/app/services/logger.service';
-import { disabledParams } from 'src/app/behaviour/disabled-conditions'
-import { BasicWidget } from 'src/app/widgets/BasicWidget';
+import { disabledParams, DisabledParamsNames, initialConditions, InitialConditionsNames } from 'src/app/behaviour/disabled-conditions'
 import {
   trigger,
   state,
@@ -15,6 +13,7 @@ import {
   transition,
 } from '@angular/animations';
 import { Utils } from 'src/app/interfaces/Common';
+import { ConditionnalDirective } from 'src/app/behaviour/conditionnal.directive';
 
 @Component({
   selector: 'info-bar',
@@ -46,20 +45,24 @@ export class InfoBarComponent {
 
   @ViewChildren('comments')
   private comments?: QueryList<ElementRef>;
-  
+
+  @ViewChildren(ConditionnalDirective)
+  private directives?: QueryList<ConditionnalDirective>;
+
   @Input()
   set pdv(value: PDV | undefined) {
     this.opened = value ? true : false;
     this.currentIndex = 0;
     this.pdvChange.emit(value);
     if ( value ) {
+      this.dataService.endUpdateThread();
       this._pdv = new PDV(value.id, JSON.parse(JSON.stringify(value.getValues())));
       if(!this._pdv.target) this._pdv.initializeTarget()
       this.target = this._pdv.target as any[];
       this.target[this.TARGET_REDISTRIBUTED_ID] = this.target[DEH.getPositionOfAttr('structureTarget', 'redistributed')] && this.pdv!.redistributed;
       this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'redistributedFinitions')] && this.pdv!.redistributedFinitions;
       this.target[this.TARGET_SALE_ID] = this.target[DEH.getPositionOfAttr('structureTarget',  'sale')] && this.pdv!.sale
-      this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] =  DEH.getNameOfRegularObject('bassin', this._pdv.bassin);
+      if(this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] == "") this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] =  DEH.getNameOfRegularObject('bassin', this._pdv.bassin);
 
       this.displayedInfos = this.extractDisplayedInfos(this._pdv);
       this.targetP2cdFormatted = this.format(this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')]);
@@ -67,6 +70,10 @@ export class InfoBarComponent {
       this.isOnlySiniat = this.pdv!.onlySiniat
 
       this.loadGrid();
+      this.cd.markForCheck();
+      console.log("Set info bar DV")
+    } else {
+      this.dataService.beginUpdateThread();
     }
     this.logger.handleEvent(LoggerService.events.PDV_SELECTED, value?.id);
     this.logger.actionComplete();
@@ -108,11 +115,10 @@ export class InfoBarComponent {
   industryIdToIndex : {[industryId: number]: number} = {}
   productIdToIndex : {[productId: number]: number} = {}
   hasChanged = false;
-  mouseX: number = 0;
-  mouseY : number = 0;
 
   disabledMsg: string = ''
   conditionsParams = disabledParams;
+  initialParams = initialConditions;
   noEmptySales(pdv: PDV, sales: any[]) {
     for(let sale of sales!) {
       if(sale[DEH.getPositionOfAttr('structureSales',  'industry')] != DEH.getIndustryId('Siniat') && sale[DEH.getPositionOfAttr('structureSales',  'volume')] > 0) {
@@ -151,7 +157,7 @@ export class InfoBarComponent {
       potential: pdv.potential,
       totalSiniatEnduitSales: pdv.potential + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.displayIndustrieSaleVolumes(true)['Prégy'],
       totalEnduitSales: pdv.displayIndustrieSaleVolumes(true)['Prégy'] + pdv.displayIndustrieSaleVolumes(true)['Salsi'] + pdv.potential,
-      typology: DEH.getNameOfRegularObject('typology', pdv.typology),
+      typology: DEH.getFilter('segmentDnEnduit')[pdv.typology],
     }
   }
 
@@ -159,7 +165,7 @@ export class InfoBarComponent {
     return this.target[this.TARGET_REDISTRIBUTED_ID] && this.target[this.TARGET_SALE_ID]
   }
 
-  constructor(private ref: ElementRef, private dataService: DataService, private filtersState: FiltersStatesService, private logger: LoggerService) {
+  constructor(private ref: ElementRef, private dataService: DataService, private cd: ChangeDetectorRef, private logger: LoggerService) {
     //console.log('[InfobarComponent]: On')
     this.SALES_INDUSTRY_ID = DEH.getPositionOfAttr('structureSales', 'industry')
     this.SALES_PRODUCT_ID = DEH.getPositionOfAttr('structureSales', 'product')
@@ -180,6 +186,23 @@ export class InfoBarComponent {
       this.industryIdToIndex[+DEH.getKeyByValue(DEH.get('industry'), this.industries[i])!] = i+1; //first row already used
     for(let i = 0; i<this.products.length-1; i++)
       this.productIdToIndex[+DEH.getKeyByValue(DEH.get('product'), this.products[i])!] = i;
+  }
+
+  computeDisabledDescription(firsts: InitialConditionsNames[], seconds?: DisabledParamsNames[]) {
+    let description: string = "";
+    for(let first of firsts) {
+      if(initialConditions[first]().val) {
+        description += initialConditions[first]().message + "\n";
+      }
+    }
+    
+    if(seconds)
+    for(let second of seconds) {
+      if(disabledParams[second](this.pdv!).val) {
+        description += disabledParams[second](this.pdv!).message + "\n";
+      }
+    }
+    return description;
   }
 
   //make variable
@@ -249,7 +272,15 @@ export class InfoBarComponent {
     else return 'black'
 }
 
-  onKey(event: any) {
+  onKey(event: KeyboardEvent, i: number, j: number) {
+    if(event.key === 'Enter') {
+      this.changeSales(i, j);
+      var currInput = <HTMLElement>document.activeElement;
+      var inputs = Array.from(this.ref.nativeElement.querySelectorAll("input") as Array<HTMLElement>).filter((input) => input.getAttribute('disabled') == null);
+      let currIndex = inputs.indexOf(currInput!);
+      if(event.shiftKey) inputs[currIndex-1]?.focus();
+      else inputs[currIndex+1]?.focus();
+    }
     //if(event.keyCode === 37) console.log("Left")
     //if(event.keyCode === 38) console.log("Up")
     //if(event.keyCode === 39) console.log("Right")
@@ -267,16 +298,24 @@ export class InfoBarComponent {
     this.gridFormatted[i][j] = this.format(value);
   }
 
+  private updateDirectives() {
+    for ( let directive of this.directives ?? [] )
+      directive.update();
+  }
+
   /*** Functions used to change the target field (and onlySiniat field) in the local pdv ***/
   changeRedistributed() {
-      this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
-      this.showNavigation = this.shouldShowNavigation()
-      this.hasChanged = true;
+    this.target[this.TARGET_REDISTRIBUTED_ID] = !this.target[this.TARGET_REDISTRIBUTED_ID]
+    if(!this.target[this.TARGET_REDISTRIBUTED_ID]) this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = false;
+    this.showNavigation = this.shouldShowNavigation()
+    this.hasChanged = true;
+    this.updateDirectives();
   }
   changeRedistributedFinitions() {
     this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID] = !this.target[this.TARGET_REDISTRIBUTED_FINITIONS_ID]
     this.showNavigation = this.shouldShowNavigation()
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeTargetP2CD() {
     this.targetP2cdFormatted = this.convert(this.targetP2cdFormatted).toString();
@@ -289,11 +328,14 @@ export class InfoBarComponent {
     this.target[DEH.getPositionOfAttr('structureTarget',  'targetP2CD')] = this.convert(this.targetP2cdFormatted);
     this.targetP2cdFormatted = this.format(+this.targetP2cdFormatted)
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeComment() {
     let ref = this.comments!.get(0);
     if ( !ref ) return;
+    this.target[DEH.getPositionOfAttr('structureTarget',  'commentTargetP2CD')] = ref.nativeElement.value;
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeTargetBassin() {
     if(!this.displayedInfos.bassin) {
@@ -302,10 +344,12 @@ export class InfoBarComponent {
     }
     this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')] = this.displayedInfos.bassin;
     this.hasChanged = true;
+    this.updateDirectives();
   } 
   changeTargetLight(newLightValue: string) {
     this.target[DEH.getPositionOfAttr('structureTarget',  'greenLight')] = newLightValue;
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeSales(i: number, j: number) { //careful : i and j seamingly inverted in the html
     let oldVolume = this.grid[i][j].volume; let newVolume = this.convert(this.gridFormatted[i][j]);
@@ -329,21 +373,19 @@ export class InfoBarComponent {
 
     this.updateSum(i,j, oldVolume, newVolume)
     this.hasChanged = true;
+    this.updateDirectives();
   }
   changeTargetSale(){
-      this.target[this.TARGET_SALE_ID] = !this.target[this.TARGET_SALE_ID];
-      this.showNavigation = this.shouldShowNavigation()
-      this.hasChanged = true;
+    this.target[this.TARGET_SALE_ID] = !this.target[this.TARGET_SALE_ID];
+    this.showNavigation = this.shouldShowNavigation()
+    this.hasChanged = true;
+    this.updateDirectives();
   }
+
   changeOnlySiniat() {
     this.isOnlySiniat = !this.isOnlySiniat;
     this.hasChanged = true;
     this.pdv!.changeOnlySiniat(this.isOnlySiniat);
-  }
-
-  getMouseCoordinnates() {
-    let e = window.event as any;
-    this.mouseX = e.pageX;
-    this.mouseY = e.pageY;
+    this.updateDirectives();
   }
 }

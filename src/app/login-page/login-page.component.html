@@ -16,7 +16,22 @@
       (onLogin)="onLoading($event.username, $event.password, $event.isStayConnected)"
       [errorConnection]="!userValid"
     ></app-login-form>
+    <!-- <div class="col s12 m6 offset-m3 center-align">
+      <button class="oauth-container btn darken-4 white black-text" (click)="clickButtonLoginGoogle()" style="text-transform:none">
+          <div class="left">
+              <img width="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in" 
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+          </div>
+          Login with Google
+        </button>
+  </div> -->
+  <!-- Compiled and minified CSS -->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css"> -->
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
   </div>
+  
   <div *ngIf="alreadyConnected" class="already-connected">
     <span>Une session est déjà en cours sur cet ordinateur.</span>
     <button (click)="enableForceLogin()">Forcer la connexion<br>(déconseillé)</button>
@@ -25,4 +40,5 @@
     <p>Le serveur est momentanément indisponible. <br> Veuillez patienter quelques instants (temps estimé : &lt;2 minutes)</p>
   </div>
 
+  <login-server-info [mode]="connexionState | async"></login-server-info>
 </div>

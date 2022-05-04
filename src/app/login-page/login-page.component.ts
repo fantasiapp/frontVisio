@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { AuthService } from '../connection/auth.service';
@@ -14,8 +15,15 @@ import {
 import { DataService } from '../services/data.service';
 import { Router } from '@angular/router';
 import { LocalStorageService } from '../services/local-storage.service';
-import { combineLatest, of, Subscription } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of, Subscription } from 'rxjs';
+import { delay, take } from 'rxjs/operators';
+
+import {
+  REQUEST_DATA, CONNEXION_SUCESS, CONNECTION_ERROR
+} from './login-server-info/login-server-info.component'
+import { LoginFormComponent } from './login-form/login-form.component';
+import { GoogleLoginProvider, SocialAuthService } from 'angularx-social-login';
+import { local } from 'd3-selection';
 
 @Component({
   selector: 'app-login-page',
@@ -40,49 +48,25 @@ import { delay } from 'rxjs/operators';
   ],
 })
 export class LoginPageComponent implements OnInit {
+  @ViewChild(LoginFormComponent)
+  loginForm?: LoginFormComponent;
+
+  connexionState = new Subject<number>();
   private subscription?: Subscription;
   private destroy$: Subject<void> = new Subject<void>();
   private logInObserver = {
     next: (success: any) => { //a pu se connecter avec Internet, l'utilisateur précédent était peut être différent
       if (success) {
-        let lastToken = this.localStorageService.getLastToken();
-        let newToken = this.authService.getAuthorizationToken();
-        this.localStorageService.setAlreadyConnected(true)
-        if(lastToken) { //quick manip to fool the auth interceptor
-          this.authService.token = lastToken;
-          this.dataservice.sendQueuedDataToUpdate();
-          this.authService.token = newToken;
-        }
-        this.localStorageService.saveLastToken(newToken)
-        this.userValid = true;
-        this.dataservice.requestData();
-        if(this.stayConnected) this.localStorageService.saveStayConnected(true);
-        else this.localStorageService.removeStayConnected(); //au cas où
-        const elmt = document.getElementById('image-container')!;
-        const elmt2 = document.getElementById('pentagon-image');
-        const elmt3 = document.getElementById('logo-container');
-        const elmt4 = document.getElementById('logo');
-        const elmt5 = document.getElementById('image-login')
-        elmt.classList.add('fadeOut');
-        elmt3?.classList.add('translated');
-        setTimeout(() => elmt2?.classList.add('fadeOut'), 2000);
-        setTimeout(() => {elmt3?.classList.add('rotated')
-        setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
-        setTimeout(() => elmt5?.classList.add('scale'), 900);
-        this.dataservice.$serverLoading.subscribe((val: boolean) => this.serverIsLoading = val)
-        this.subscription = combineLatest([
-          this.dataservice.load,
-          of(null).pipe(delay(6000))
-        ]).subscribe(() => {
-          this.router.navigate([
-            sessionStorage.getItem('originalPath') || 'logged',
-          ]);
-        });
+        this.successLogin();
       }
+    },
+    error: (e: Error) => {
+      this.loginForm?.handleError();
     }
   }
   constructor(
     private authService: AuthService,
+    private socialAuthService: SocialAuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,
     private router: Router
@@ -92,6 +76,51 @@ export class LoginPageComponent implements OnInit {
   alreadyConnected: boolean = false;
   stayConnected: boolean = false;
   serverIsLoading: boolean = false;
+
+  successLogin() {
+    let lastToken = this.localStorageService.getLastToken();
+    let newToken = this.authService.getAuthorizationToken();
+    this.localStorageService.setAlreadyConnected(true)
+    if(lastToken) { //quick manip to fool the auth interceptor
+      this.authService.token = lastToken;
+      this.dataservice.sendQueuedDataToUpdate();
+      this.authService.token = newToken;
+    }
+    this.localStorageService.saveLastToken(newToken)
+    this.userValid = true;
+    this.dataservice.requestData();
+    this.connexionState.next(REQUEST_DATA);
+    if(this.stayConnected) this.localStorageService.saveStayConnected(true);
+    else this.localStorageService.removeStayConnected(); //au cas où
+    const elmt = document.getElementById('image-container')!;
+    const elmt2 = document.getElementById('pentagon-image');
+    const elmt3 = document.getElementById('logo-container');
+    const elmt4 = document.getElementById('logo');
+    const elmt5 = document.getElementById('image-login')
+    elmt.classList.add('fadeOut');
+    elmt3?.classList.add('translated');
+    setTimeout(() => elmt2?.classList.add('fadeOut'), 2000);
+    setTimeout(() => {elmt3?.classList.add('rotated')
+    setTimeout(()=> elmt4?.classList.add('rotated'), 2400)}, 2000);
+    setTimeout(() => elmt5?.classList.add('scale'), 900);
+    this.dataservice.$serverLoading.subscribe((val: boolean) => this.serverIsLoading = val)
+    this.dataservice.load.pipe(take(1)).subscribe(() => {
+      this.connexionState.next(CONNEXION_SUCESS);
+    })
+    this.subscription = combineLatest([
+      this.dataservice.load,
+      of(null).pipe(delay(4000))
+    ]).subscribe(() => {
+      setTimeout(() => {
+        this.router.navigate([
+          sessionStorage.getItem('originalPath') || 'logged',
+        ]);
+      }, 1000);
+    }, (err) => {
+      console.log('error', err);
+      this.connexionState.next(CONNECTION_ERROR);
+    });
+  }
 
   ngOnInit(): void {
     if(this.isAlreadyConnected()) return;
@@ -125,9 +154,19 @@ export class LoginPageComponent implements OnInit {
     if(this.isAlreadyConnected()) return;
     //console.log("user : ", username, "pass : ", password, "sc : ", stayConnected)
     this.stayConnected = stayConnected;
-    this.authService
-      .loginToServer(username, password)
-      .subscribe(this.logInObserver);
+    let auth = this.authService.loginToServer(username, password);
+    auth.subscribe(this.logInObserver);
+  }
+
+  clickButtonLoginGoogle() {
+    if(this.isAlreadyConnected()) return;
+    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then((userData) => {
+      console.log("userData", userData);
+      let auth = this.authService.loginWithGoogle(userData);
+      auth.subscribe(this.logInObserver);
+
+    });
+    this.authService.isLoggedIn.next(true);
   }
 
   enableForceLogin() {

@@ -9,13 +9,12 @@
     box-shadow: 0 0 3px 0 #aaa;
     padding: 5px 0;
     cursor: pointer;
-    z-index: 1;
     background: white;
 
     overflow-x: hidden;
     overflow-y: auto;
 
-    z-index: 99;
+    z-index: 999 !important;
     --suggestion-box-width: 300px;
     --suggestion-item-height: 32px;
 }

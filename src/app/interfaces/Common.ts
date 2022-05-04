@@ -63,16 +63,11 @@ export class SubscriptionManager {
 };
 
 export type Dict<T = any> = {[key: string]: T};
+type FilterMapFunction<U, V> = (t: U) => V | null;
+
+
 
 export class Utils {
-  static shallowArrayEquality(obj: any[], other: any[]): boolean {
-    let l = obj.length;
-    if ( l != other.length ) return false;
-    
-    for ( let i = 0; i < l; i++ )
-      if ( obj[i] != other[i] ) return false;
-    return true;
-  }
 
   static deepEqual(obj: any, other: any): boolean {
     if ( Array.isArray(obj) && Array.isArray(other) )
@@ -81,6 +76,15 @@ export class Utils {
       return this.deepObjectEquality(obj, other);
     else
       return obj === other;
+  }
+
+  static shallowArrayEquality(obj: any[], other: any[]): boolean {
+    let l = obj.length;
+    if ( l != other.length ) return false;
+    
+    for ( let i = 0; i < l; i++ )
+      if ( obj[i] != other[i] ) return false;
+    return true;
   }
 
   static deepArrayEquality(obj: any[], other: any[]): boolean {
@@ -114,7 +118,11 @@ export class Utils {
   }
 
   static shallowCopy(obj: Dict): Dict {
-    return Object.assign({}, obj);
+    if ( typeof obj == 'object' ) {
+      if ( Array.isArray(obj) ) return obj.slice();
+      return Object.assign({}, obj);
+    }
+    return obj;
   }
 
   //Dict only
@@ -136,6 +144,8 @@ export class Utils {
   static dictDeepMerge(base: Dict, ext: Dict) {
     if ( typeof base !== 'object' )
       throw `${typeof base} does not support merge operation.`;
+    if ( Array.isArray(base) )
+      throw "cant deep copy array"
     
     let result = this.shallowCopy(base);
     for ( let [key, val] of Object.entries(ext) ) {
@@ -182,6 +192,20 @@ export class Utils {
   static convert(str: string): number {
     return +(str.replace(/\s+/g, '').replace(/\,/g, '.'));
   }
+
+  static filterMap<U, V = U>(array: U[], filterMap: FilterMapFunction<U, V>): V[] {
+    return array.map(filterMap).filter(x => x) as unknown as V[];
+  }
+
+  static applyMixins(derivedCtor: any, baseCtors: any[]) {
+    baseCtors.forEach(baseCtor => {
+      Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+        if (name !== 'constructor') {
+          derivedCtor.prototype[name] = baseCtor.prototype[name];
+        }
+      });
+    });
+  }
 };
 
 //For components which are not immediately initialized
@@ -212,9 +236,3 @@ export function round(x: number, threshold: number = 0.5): number  {
   let int = Math.floor(x), frac = x - int;
   return frac > threshold ? int+1 : int;
 }
-
-type FilterMapFunction<U, V> = (t: U) => V | null;
-
-export function filterMap<U, V = U>(array: U[], filterMap: FilterMapFunction<U, V>): V[] {
-  return array.map(filterMap).filter(x => x) as unknown as V[];
-};

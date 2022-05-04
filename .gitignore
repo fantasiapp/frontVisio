@@ -46,6 +46,6 @@ testem.log
 Thumbs.db
 
 # Packages and dependencies locally declared
-package.json
-package-lock.json
-angular.json
+#package.json
+#package-lock.json
+#angular.json
