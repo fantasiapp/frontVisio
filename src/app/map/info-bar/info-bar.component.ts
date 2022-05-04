@@ -137,6 +137,7 @@ export class InfoBarComponent {
   redistributed?: boolean;
 
   extractDisplayedInfos(pdv: PDV) {
+    console.log("extractDisplayedInfos", pdv.bassin, DEH.getNameOfRegularObject('bassin', pdv.agent))
     return {
       name: pdv.name,
       agent: DEH.getNameOfRegularObject('agent', pdv.agent),
@@ -145,7 +146,8 @@ export class InfoBarComponent {
       enseigne: DEH.getNameOfRegularObject('enseigne', pdv.enseigne),
       dep: DEH.getNameOfRegularObject('dep', pdv.dep),
       ville: DEH.getNameOfRegularObject('ville', pdv.ville),
-      bassin: this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')],
+      // bassin: this.target[DEH.getPositionOfAttr('structureTarget',  'bassin')],
+      bassin: DEH.getNameOfRegularObject('bassin', pdv.bassin),
       clientProspect: pdv.clientProspectFilter(),
       nbVisits: pdv.nbVisits,
       siniatP2cdSales: pdv.displayIndustrieSaleVolumes()['Siniat'],

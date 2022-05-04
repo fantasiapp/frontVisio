@@ -32,7 +32,8 @@
                                 <li><p>{{ displayedInfos.enseigne }}</p></li>
                                 <li><p>{{ displayedInfos.dep }}</p></li>
                                 <li><p>{{ displayedInfos.ville }}</p></li>
-                                <li><label [conditionnal]="{initialConditions: ['agentOnly'], showDescription: true}"><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></label></li>
+                                <li><p>{{ displayedInfos.bassin }}</p></li>
+                                <!-- <li><label [conditionnal]="{initialConditions: ['agentOnly'], showDescription: true}"><input [(ngModel)]="displayedInfos.bassin" (change)="changeTargetBassin()"></label></li> -->
                             </ul>
                         </div>
                         <div class="props">
