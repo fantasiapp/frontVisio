@@ -69,7 +69,7 @@ export class AuthService {
             if (response.error) { console.log(response); return false};
             console.log("reponse", response)
             this.token = response['token'];
-            this.username = userData.email;
+            this.username = response['username'];
             this.handleTokenSave();
             this.isLoggedIn.next(true);
             return true;

@@ -88,6 +88,8 @@ export class LoginPageComponent implements OnInit {
     }
     this.localStorageService.saveLastToken(newToken)
     this.userValid = true;
+    console.log("new token", newToken);
+    console.log("authService token", this.authService.token);
     this.dataservice.requestData();
     this.connexionState.next(REQUEST_DATA);
     if(this.stayConnected) this.localStorageService.saveStayConnected(true);
@@ -164,9 +166,16 @@ export class LoginPageComponent implements OnInit {
       console.log("userData", userData);
       let auth = this.authService.loginWithGoogle(userData);
       auth.subscribe(this.logInObserver);
-
     });
-    this.authService.isLoggedIn.next(true);
+  }
+
+  myClickButtonLoginGoogle() {
+    let url = "https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?redirect_uri=storagerelay%3A%2F%2Fhttp%2Flocalhost%3A4200%3Fid%3Dauth600596&response_type=permission%20id_token&scope=email%20profile%20openid&openid.realm&include_granted_scopes=true&client_id=519402531364-t2ohmkrspjel0d2iv6a5n9i4ga2u6bvh.apps.googleusercontent.com&ss_domain=http%3A%2F%2Flocalhost%3A4200&fetch_basic_profile=true&gsiwebsdk=2&flowName=GeneralOAuthFlow"
+    var windowObjectReference = window.open(url, "menubar=no,location=yes,status=yes,resizable=yes")
+    // .then((userData) => {
+    //   console.log("userData", userData)
+    // });
+    
   }
 
   enableForceLogin() {
