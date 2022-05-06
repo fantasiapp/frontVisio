@@ -22,7 +22,7 @@ import {
   REQUEST_DATA, CONNEXION_SUCESS, CONNECTION_ERROR
 } from './login-server-info/login-server-info.component'
 import { LoginFormComponent } from './login-form/login-form.component';
-import { GoogleLoginProvider, SocialAuthService } from 'angularx-social-login';
+//import { GoogleLoginProvider, SocialAuthService } from 'angularx-social-login';
 import { local } from 'd3-selection';
 
 @Component({
@@ -66,7 +66,7 @@ export class LoginPageComponent implements OnInit {
   }
   constructor(
     private authService: AuthService,
-    private socialAuthService: SocialAuthService,
+    //private socialAuthService: SocialAuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,
     private router: Router
