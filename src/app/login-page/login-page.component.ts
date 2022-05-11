@@ -68,7 +68,7 @@ export class LoginPageComponent implements OnInit {
   }
   constructor(
     private authService: AuthService,
-    //private socialAuthService: SocialAuthService,
+    private socialAuthService: SocialAuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,
     private router: Router,
