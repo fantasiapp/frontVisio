@@ -277,13 +277,13 @@ export class TableComponent extends BasicWidget {
       Object.entries(graphValue[TableTypes.p2cd]).map(
         (entry: any) => [
           entry[0],
-          {value: entry[1].value = Utils.format(entry[1].value, 3, true), color: entry[1].color}
+          {value: entry[1].value = Utils.format(entry[1].value, 3, true), color: entry[1].color, unity: "m²"}
         ]
       ),
       Object.entries(graphValue[TableTypes.enduit]).map(
         (entry: any) => [
           entry[0],
-          {value: entry[1].value = Utils.format(entry[1].value, 3, true), color: entry[1].color}
+          {value: entry[1].value = Utils.format(entry[1].value, 3, true), color: entry[1].color, unity: "kg"}
         ]
       )
     ]
