@@ -166,7 +166,6 @@ export class LoginPageComponent implements OnInit {
 
   clickButtonLoginGoogle() {
     if(this.isAlreadyConnected()) return;
-<<<<<<< HEAD
     this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then((userData) => {
       console.log("userData", userData);
       let auth = this.authService.loginWithGoogle(userData);
@@ -196,16 +195,6 @@ export class LoginPageComponent implements OnInit {
       },
       error: (error) => console.log(error)
     });
-=======
-    console.log("button clicked")
-    // this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then((userData) => {
-    //   console.log("userData", userData);
-    //   let auth = this.authService.loginWithGoogle(userData);
-    //   auth.subscribe(this.logInObserver);
-
-    // });
-    // this.authService.isLoggedIn.next(true);
->>>>>>> main
   }
 
   enableForceLogin() {
