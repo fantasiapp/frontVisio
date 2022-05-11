@@ -22,8 +22,10 @@ import {
   REQUEST_DATA, CONNEXION_SUCESS, CONNECTION_ERROR
 } from './login-server-info/login-server-info.component'
 import { LoginFormComponent } from './login-form/login-form.component';
-import { GoogleLoginProvider, SocialAuthService } from 'angularx-social-login';
+import { GoogleLoginProvider, MicrosoftLoginProvider, SocialAuthService } from 'angularx-social-login';
 import { local } from 'd3-selection';
+import { HttpClient } from '@angular/common/http';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-login-page',
@@ -69,7 +71,9 @@ export class LoginPageComponent implements OnInit {
     private socialAuthService: SocialAuthService,
     private dataservice: DataService,
     private localStorageService: LocalStorageService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient,
+    private azureAuthService: MsalService
   ) {}
   userValid = false;
   retry = true;
@@ -169,13 +173,28 @@ export class LoginPageComponent implements OnInit {
     });
   }
 
-  myClickButtonLoginGoogle() {
+  clickButtonLoginGoogleCustom() {
     let url = "https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?redirect_uri=storagerelay%3A%2F%2Fhttp%2Flocalhost%3A4200%3Fid%3Dauth600596&response_type=permission%20id_token&scope=email%20profile%20openid&openid.realm&include_granted_scopes=true&client_id=519402531364-t2ohmkrspjel0d2iv6a5n9i4ga2u6bvh.apps.googleusercontent.com&ss_domain=http%3A%2F%2Flocalhost%3A4200&fetch_basic_profile=true&gsiwebsdk=2&flowName=GeneralOAuthFlow"
-    var windowObjectReference = window.open(url, "menubar=no,location=yes,status=yes,resizable=yes")
+    //var windowObjectReference = window.open(url, "_blank", "menubar=no")
+    this.http.get(url).subscribe(res => {
+      console.log("subscribe res:", res);
+    })
     // .then((userData) => {
     //   console.log("userData", userData)
     // });
     
+  }
+
+  clickButtonLoginAzure() {
+    if(this.isAlreadyConnected()) return;
+    this.azureAuthService.loginPopup().subscribe({
+      next: (userData) => {
+        console.log("azure login result:", userData);
+        let auth = this.authService.loginWithAzure(userData);
+        auth.subscribe(this.logInObserver);
+      },
+      error: (error) => console.log(error)
+    });
   }
 
   enableForceLogin() {

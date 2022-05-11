@@ -3,6 +3,7 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthenticationResult } from '@azure/msal-browser';
 import { SocialUser } from 'angularx-social-login';
 import { BehaviorSubject, of,Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -64,6 +65,29 @@ export class AuthService {
     return (
       this.http
         .post(environment.backUrl + 'visioServer/api-token-auth-google/', data)
+        .pipe(
+          map((response: any) => {
+            if (response.error) { console.log(response); return false};
+            console.log("reponse", response)
+            this.token = response['token'];
+            this.username = response['username'];
+            this.handleTokenSave();
+            this.isLoggedIn.next(true);
+            return true;
+          })
+        ) || of(false)
+    );
+  }
+
+  loginWithAzure(userData: AuthenticationResult) {
+    const data = {
+      username: userData.account?.username,
+      authToken: userData.accessToken
+    }
+    console.log("azure query", data)
+    return (
+      this.http
+        .post(environment.backUrl + 'visioServer/api-token-auth-azure/', data)
         .pipe(
           map((response: any) => {
             if (response.error) { console.log(response); return false};

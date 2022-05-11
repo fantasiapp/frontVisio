@@ -56,6 +56,14 @@ import { InfobarQuitComponent } from './map/infobar-quit/infobar-quit.component'
 import { SocialLoginModule, SocialAuthServiceConfig } from 'angularx-social-login';
 import { GoogleLoginProvider } from 'angularx-social-login';
 
+import { MsalModule, MsalInterceptor } from '@azure/msal-angular';	
+import { InteractionType, PublicClientApplication } from '@azure/msal-browser';
+
+export const protectedResourceMap = new Map([
+  ['https://graph.microsoft.com/v1.0/me', ['user.read']]
+]);
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -113,7 +121,26 @@ import { GoogleLoginProvider } from 'angularx-social-login';
     //   apiKey:''
     // })
     AgGridModule.withComponents([]),
-    SocialLoginModule
+    SocialLoginModule,
+    MsalModule.forRoot( new PublicClientApplication({
+      auth: {
+        clientId: 'b091feff-ddd8-44e0-8805-e53ab3fd1198', // Application (client) ID from the app registration
+        authority: 'https://login.microsoftonline.com/f658eec8-e605-4463-b498-b710edcf4df3', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
+        redirectUri: 'http://localhost:4200/'// This is your redirect URI
+      },
+      cache: {
+        cacheLocation: 'localStorage',
+      }
+    }), 
+    {
+      interactionType: InteractionType.Popup, // MSAL Guard Configuration
+            authRequest: {
+              scopes: ['user.read']
+            }
+    }, {
+      interactionType: InteractionType.Redirect, // MSAL Interceptor Configuration
+      protectedResourceMap
+  })
   ],
   providers: [httpInterceptorProviders, DataService, AuthService,
     {
