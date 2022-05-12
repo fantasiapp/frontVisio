@@ -82,7 +82,7 @@ export class AuthService {
   loginWithAzure(userData: AuthenticationResult) {
     const data = {
       username: userData.account?.username,
-      authToken: userData.accessToken
+      authToken: userData.idToken
     }
     console.log("azure query", data)
     return (

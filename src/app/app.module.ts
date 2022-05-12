@@ -124,9 +124,10 @@ export const protectedResourceMap = new Map([
     SocialLoginModule,
     MsalModule.forRoot( new PublicClientApplication({
       auth: {
-        clientId: 'b091feff-ddd8-44e0-8805-e53ab3fd1198', // Application (client) ID from the app registration
-        authority: 'https://login.microsoftonline.com/f658eec8-e605-4463-b498-b710edcf4df3', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
-        redirectUri: 'https://visio.fantasiapp.tech/temp/login'// This is your redirect URI
+        clientId: '378b4a2c-9020-4c3a-bd80-b966e04deaf9', // Application (client) ID from the app registration
+        authority: 'https://visiofantasiapp.b2clogin.com/visiofantasiapp.onmicrosoft.com/B2C_1_signin', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
+        redirectUri: 'http://localhost:4200/login',// This is your redirect URI
+        knownAuthorities: ['https://visiofantasiapp.b2clogin.com/visiofantasiapp.onmicrosoft.com/B2C_1_signin']
       },
       cache: {
         cacheLocation: 'localStorage',
