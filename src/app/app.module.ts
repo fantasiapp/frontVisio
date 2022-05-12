@@ -126,7 +126,7 @@ export const protectedResourceMap = new Map([
       auth: {
         clientId: '378b4a2c-9020-4c3a-bd80-b966e04deaf9', // Application (client) ID from the app registration
         authority: 'https://visiofantasiapp.b2clogin.com/visiofantasiapp.onmicrosoft.com/B2C_1_signin', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
-        redirectUri: 'https://fantasiapp.tech/temp/login',// This is your redirect URI
+        redirectUri: 'https://visio.fantasiapp.tech/temp/login',// This is your redirect URI
         knownAuthorities: ['https://visiofantasiapp.b2clogin.com/visiofantasiapp.onmicrosoft.com/B2C_1_signin']
       },
       cache: {
