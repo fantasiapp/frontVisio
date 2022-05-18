@@ -125,9 +125,9 @@ export const protectedResourceMap = new Map([
     MsalModule.forRoot( new PublicClientApplication({
       auth: {
         clientId: '84e47d7f-0f91-4943-95b9-83af279d5045', // Application (client) ID from the app registration
-        authority: 'https://login.microsoftonline.com/e23c7299-f64d-4de4-a6a1-b40d3145528c/oauth2/v2.0/authorize', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
+        authority: 'https://login.microsoftonline.com/e23c7299-f64d-4de4-a6a1-b40d3145528c', // The Azure cloud instance and the app's sign-in audience (tenant ID, common, organizations, or consumers)
         redirectUri: 'https://visio.fantasiapp.tech/temp/login',// This is your redirect URI
-        knownAuthorities: [ 'https://login.microsoftonline.com/e23c7299-f64d-4de4-a6a1-b40d3145528c/oauth2/v2.0/authorize']
+        knownAuthorities: [ 'https://login.microsoftonline.com/e23c7299-f64d-4de4-a6a1-b40d3145528c']
       },
       cache: {
         cacheLocation: 'localStorage',
