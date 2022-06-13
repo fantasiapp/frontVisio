@@ -10,12 +10,12 @@
     
   </div>
   <div *ngIf="alreadyConnected === false" class="connection-container">
-    <!-- <app-login-form
+    <app-login-form
       *ngIf="!userValid"
       @fadeOut
       (onLogin)="onLoading($event.username, $event.password, $event.isStayConnected)"
       [errorConnection]="!userValid"
-    ></app-login-form> -->
+    ></app-login-form>
     <div class="col s12 m6 offset-m3 center-align">
       <!-- <button class="oauth-container btn darken-4 white black-text" (click)="clickButtonLoginGoogle()" style="text-transform:none">
           <div class="left">
@@ -31,18 +31,18 @@
           </div>
           Login with Google (custom)
         </button> -->
-        <button class="oauth-container btn darken-4 white black-text" (click)="clickButtonLoginAzure()" style="text-transform:none">
+        <!-- <button class="oauth-container btn darken-4 white black-text" (click)="clickButtonLoginAzure()" style="text-transform:none">
           <div class="left">
               <img height="20px" style="margin-top:7px; margin-right:8px" alt="Google sign-in" 
                   src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Microsoft_Azure_Logo.svg" />
           </div>
           Login with Azure
-        </button> 
+        </button>  -->
   </div> 
   <!-- Compiled and minified CSS -->
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
 
-<!-- Compiled and minified JavaScript -->
+Compiled and minified JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
   </div>
   
